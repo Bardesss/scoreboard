@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Statistics for {{ society.name }}</h2>
+    <form method="get" class="mb-3">
+      <label for="period" class="form-label">Period:</label>
+      <select name="period" id="period" class="form-select w-auto d-inline" onchange="this.form.submit()">
+        <option value="all" {% if period == 'all' %}selected{% endif %}>All time</option>
+        <option value="day" {% if period == 'day' %}selected{% endif %}>Day</option>
+        <option value="week" {% if period == 'week' %}selected{% endif %}>Week</option>
+        <option value="month" {% if period == 'month' %}selected{% endif %}>Month</option>
+        <option value="year" {% if period == 'year' %}selected{% endif %}>Year</option>
+      </select>
+    </form>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="col">
+        <h4>Most Wins</h4>
+        <canvas id="mostWinsChart" height="120"></canvas>
+        <ul class="list-group">
+          {% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-primary rounded-pill">{{ count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% set society_player_count = society.player_ids.split(',')|length %}
+      {% if society_player_count > 2 %}
+      <div class="col">
+        <h4>Best winratio</h4>
+        <canvas id="winRatioChart" height="120"></canvas>
+        <ul class="list-group">
+          {% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-primary rounded-pill">{{ "%.2f"|format(ratio * 100) }}%</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if win_type != 'task' and win_type != 'winner' %}
+      <div class="col">
+        <h4>Most Points</h4>
+        <canvas id="mostPointsChart" height="120"></canvas>
+        <ul class="list-group">
+          {% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-success rounded-pill">{{ pts }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if win_type != 'points' and win_type != 'winner' %}
+      <div class="col">
+        <h4>Most Won Task</h4>
+        <canvas id="mostWonTaskChart" height="120"></canvas>
+        <ul class="list-group">
+          {% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for t in tasks %}{% if t.id == tid %}{{ t.name }}{% endif %}{% endfor %}
+            <span class="badge bg-warning rounded-pill">{{ count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if win_type == 'points' %}
+      <div class="col">
+        <h4>Highest points</h4>
+        <canvas id="highestPointsChart" height="120"></canvas>
+        <ul class="list-group">
+          {% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-info rounded-pill">{{ pts }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="col">
+        <h4>Most popular days</h4>
+        <canvas id="popularDaysChart" height="120"></canvas>
+        <ul class="list-group">
+          {% set weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+          {% for day, count in most_popular_days.items() %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ weekdays[day] }}
+            <span class="badge bg-dark rounded-pill">{{ count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col">
+        <h4>Longest win streak</h4>
+        <canvas id="longestStreakChart" height="120"></canvas>
+        <ul class="list-group">
+          {% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-secondary rounded-pill">{{ streak }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <a href="/societies/{{ society.id }}/games" class="btn btn-secondary mt-4">Back to Played Games</a>
+  </div>
+</div>
+<script>
+// Data uit backend
+const players = {{ players_json|safe }};
+const playerColors = {{ players_colors_json|safe }};
+const tasks = {{ tasks_json|safe }};
+// Most Wins
+const mostWins = {{ most_wins_json|safe }};
+const mostWinsLabels = Object.keys(mostWins).map(pid => players[pid]);
+const mostWinsData = Object.values(mostWins);
+const mostWinsColors = Object.keys(mostWins).map(pid => playerColors[pid]);
+if (document.getElementById('mostWinsChart')) {
+  new Chart(document.getElementById('mostWinsChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: mostWinsLabels, datasets: [{ label: 'Wins', data: mostWinsData, backgroundColor: mostWinsColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+// Win Ratio
+const winRatios = {{ win_ratios_json|safe }};
+const winRatioLabels = Object.keys(winRatios).map(pid => players[pid]);
+const winRatioData = Object.values(winRatios).map(r => Math.round(r * 10000) / 100);
+const winRatioColors = Object.keys(winRatios).map(pid => playerColors[pid]);
+if (document.getElementById('winRatioChart')) {
+  new Chart(document.getElementById('winRatioChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: winRatioLabels, datasets: [{ label: 'Winratio (%)', data: winRatioData, backgroundColor: winRatioColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+// Most Points
+const mostPoints = {{ most_points_json|safe }};
+const mostPointsLabels = Object.keys(mostPoints).map(pid => players[pid]);
+const mostPointsData = Object.values(mostPoints);
+const mostPointsColors = Object.keys(mostPoints).map(pid => playerColors[pid]);
+if (document.getElementById('mostPointsChart')) {
+  new Chart(document.getElementById('mostPointsChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: mostPointsLabels, datasets: [{ label: 'Points', data: mostPointsData, backgroundColor: mostPointsColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+// Most Won Task
+const mostWonTask = {{ most_won_task_json|safe }};
+const mostWonTaskLabels = Object.keys(mostWonTask).map(tid => tasks[tid]);
+const mostWonTaskData = Object.values(mostWonTask);
+const defaultTaskColors = ['#ffc107','#fd7e14','#dc3545','#d63384','#6f42c1','#6610f2','#0d6efd','#198754','#20c997','#0dcaf0','#6c757d','#343a40'];
+if (document.getElementById('mostWonTaskChart')) {
+  new Chart(document.getElementById('mostWonTaskChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: mostWonTaskLabels, datasets: [{ label: 'Tasks', data: mostWonTaskData, backgroundColor: defaultTaskColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+// Highest Points
+const highestPoints = {{ highest_points_json|safe }};
+const highestPointsLabels = Object.keys(highestPoints).map(pid => players[pid]);
+const highestPointsData = Object.values(highestPoints);
+const highestPointsColors = Object.keys(highestPoints).map(pid => playerColors[pid]);
+if (document.getElementById('highestPointsChart')) {
+  new Chart(document.getElementById('highestPointsChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: highestPointsLabels, datasets: [{ label: 'Highest Points', data: highestPointsData, backgroundColor: highestPointsColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+// Most Popular Days
+const mostPopularDays = {{ most_popular_days_json|safe }};
+const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const popularDaysLabels = Object.keys(mostPopularDays).map(d => weekdays[d]);
+const popularDaysData = Object.values(mostPopularDays);
+const daysColors = ['#212529','#6c757d','#adb5bd','#495057','#343a40','#0d6efd','#ffc107'];
+if (document.getElementById('popularDaysChart')) {
+  new Chart(document.getElementById('popularDaysChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: popularDaysLabels, datasets: [{ label: 'Games', data: popularDaysData, backgroundColor: daysColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+// Longest Win Streak
+const longestStreak = {{ longest_win_streak_json|safe }};
+const longestStreakLabels = Object.keys(longestStreak).map(pid => players[pid]);
+const longestStreakData = Object.values(longestStreak);
+const longestStreakColors = Object.keys(longestStreak).map(pid => playerColors[pid]);
+if (document.getElementById('longestStreakChart')) {
+  new Chart(document.getElementById('longestStreakChart').getContext('2d'), {
+    type: 'pie',
+    data: { labels: longestStreakLabels, datasets: [{ label: 'Streak', data: longestStreakData, backgroundColor: longestStreakColors }] },
+    options: { plugins: { legend: { display: true } } }
+  });
+}
+</script>
+{% endblock %} 

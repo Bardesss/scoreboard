@@ -1,0 +1,15 @@
+body { background: #f8f9fa; }
+.navbar-brand { font-weight: bold; }
+.nav-link.active { font-weight: bold; }
+
+.player-label {
+  min-width: 120px; /* Pas deze waarde aan indien gewenst */
+  display: inline-block;
+  text-align: left;
+}
+
+/* Kolombreedtes voor played_games tabel */
+.played-games-table th.date-col { width: 20%; }
+.played-games-table th.winner-col { width: 20%; }
+.played-games-table th.actions-col { width: 20%; }
+.played-games-table th.result-col { width: auto; } 

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Board Games</h2>
+    <form method="post" action="/admin/boardgames/add" class="row g-3 mb-4">
+      <div class="col-md-5">
+        <input type="text" name="name" class="form-control" placeholder="Name" required>
+      </div>
+      <div class="col-md-5">
+        <select name="win_type" class="form-select" required>
+          <option value="winner">Winner (yes/no)</option>
+          <option value="points">Points</option>
+          <option value="task">Task</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Add Game</button>
+      </div>
+    </form>
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark"><tr><th>Name</th><th>Win Type</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for game in games %}
+        <tr>
+          <td>{{ game.name }}</td>
+          <td>{{ game.win_type }}</td>
+          <td>
+            <a href="/admin/boardgames/edit/{{ game.id }}" class="btn btn-warning btn-sm">Edit</a>
+            <form method="post" action="/admin/boardgames/delete/{{ game.id }}" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} 

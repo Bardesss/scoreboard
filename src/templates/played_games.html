@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-1">Played Games for {{ society.name }}</h2>
+    {# Toon de naam van het boardgame onder de society naam, alleen als er een spel is #}
+    {% if played_games|length > 0 %}
+      {% set boardgame_id = played_games[0].boardgame_id %}
+      {% for g in games %}
+        {% if g.id == boardgame_id %}
+          <div class="mb-3"><strong>Board Game:</strong> {{ g.name }}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    <div class="mb-3 d-flex flex-wrap gap-2">
+      <a href="/societies/{{ society.id }}/games/add" class="btn btn-primary">Add Played Game</a>
+      <a href="/societies/{{ society.id }}/stats" class="btn btn-info">View Statistics</a>
+    </div>
+    <table class="table table-striped table-hover align-middle played-games-table">
+      <thead class="table-dark">
+        <tr>
+          <th class="date-col">Date</th>
+          <th class="winner-col">Winner</th>
+          <th class="result-col">Result</th>
+          {% if request.session.get('is_admin') %}<th class="actions-col">Actions</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in played_games %}
+        <tr>
+          <td>{{ game.played_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          {# Boardgame kolom verwijderd #}
+          <td>
+            {% set winner_id = game.winner_id if game.winner_id else game.winner_id_task %}
+            {% if winner_id %}
+              {% for p in players %}
+                {% if p.id == winner_id %}
+                  {{ p.name }}
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {# Resultaat kolom #}
+            {% set boardgame = (games | selectattr('id', 'equalto', game.boardgame_id) | list)[0] %}
+            {% if boardgame.win_type == 'winner' %}
+              not applicable
+            {% elif boardgame.win_type == 'points' %}
+              {% if game.points %}
+                {% set points_dict = {} %}
+                {% for pair in game.points.split(',') %}
+                  {% set pid, pts = pair.split(':') %}
+                  {% set _ = points_dict.update({pid: pts}) %}
+                {% endfor %}
+                {# Zet punten om naar een lijst van tuples en sorteer aflopend op punten #}
+                {% set points_list = [] %}
+                {% for pid, pts in points_dict.items() %}
+                  {% set _ = points_list.append((pid, pts|int)) %}
+                {% endfor %}
+                {% set points_list = points_list|sort(attribute='1', reverse=True) %}
+                {% set results = [] %}
+                {% for pid, pts in points_list %}
+                  {% for p in players %}{% if p.id == pid|int %}{% set _ = results.append(p.name ~ ': ' ~ pts) %}{% endif %}{% endfor %}
+                {% endfor %}
+                {{ results | join(', ') }}
+              {% else %}-{% endif %}
+            {% elif boardgame.win_type == 'task' %}
+              {% if game.task_id %}
+                {% for t in tasks %}
+                  {% if t.id == game.task_id %}
+                    <span title="{{ t.name }}">{{ t.number }}</span>
+                  {% endif %}
+                {% endfor %}
+              {% else %}-{% endif %}
+            {% else %}-{% endif %}
+          </td>
+          {% if request.session.get('is_admin') %}
+          <td>
+            <a href="/societies/{{ society.id }}/games/edit/{{ game.id }}" class="btn btn-warning btn-sm">Edit</a>
+            <form method="post" action="/societies/{{ society.id }}/games/delete/{{ game.id }}" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} 

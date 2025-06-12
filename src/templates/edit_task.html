@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Edit Task</h2>
+    <form method="post" action="/admin/tasks/edit/{{ task.id }}" class="row g-3 mb-4">
+      <input type="hidden" name="boardgame_id" value="{{ selected_boardgame_id }}">
+      <div class="col-md-2">
+        <input type="number" name="number" class="form-control" value="{{ task.number }}" required>
+      </div>
+      <div class="col-md-5">
+        <input type="text" name="name" class="form-control" value="{{ task.name }}" required>
+      </div>
+      <div class="col-md-3">
+        <select name="boardgame_id" class="form-select" required>
+          {% for game in games %}
+          <option value="{{ game.id }}" {% if game.id == task.boardgame_id %}selected{% endif %}>{{ game.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-success w-100">Save</button>
+      </div>
+    </form>
+    <a href="/admin/tasks?boardgame_id={{ selected_boardgame_id }}" class="btn btn-secondary">Back</a>
+  </div>
+</div>
+{% endblock %} 
