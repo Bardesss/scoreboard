@@ -19,8 +19,8 @@ A self-hosted web application to track board game scores, players, and statistic
 
 1. Clone this repository:
    ```sh
-   git clone git clone https://github.com/Bardesss/Scoreboard.git
-   cd scoreboard
+   git clone https://github.com/Bardesss/Scoreboard.git
+   cd Scoreboard
    ```
 2. Start the application:
    ```sh

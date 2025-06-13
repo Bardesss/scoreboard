@@ -80,8 +80,16 @@ async def add_player(request: Request, name: str = Form(...), color: str = Form(
 @app.post('/admin/players/delete/{player_id}')
 @auth.admin_required
 async def delete_player(request: Request, player_id: int, db: Session = Depends(get_db)):
-    crud.delete_player(db, player_id)
-    return RedirectResponse('/admin/players', status_code=303)
+    try:
+        crud.delete_player(db, player_id)
+        return RedirectResponse('/admin/players', status_code=303)
+    except ValueError as e:
+        players = crud.get_players(db)
+        return templates.TemplateResponse('players.html', {
+            "request": request,
+            "players": players,
+            "error": str(e)
+        })
 
 # PLAYER EDIT
 @app.get('/admin/players/edit/{player_id}', response_class=HTMLResponse)
@@ -239,16 +247,53 @@ async def add_played_game_form(request: Request, society_id: int, db: Session = 
     selected_game = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first() if boardgame_id else None
     win_type = selected_game.win_type if selected_game else None
     tasks = crud.get_tasks(db, boardgame_id=boardgame_id) if win_type == 'task' else []
-    return templates.TemplateResponse('add_played_game.html', {"request": request, "society": society, "games": games, "players": players, "selected_game": selected_game, "win_type": win_type, "tasks": tasks})
+    return templates.TemplateResponse('add_played_game.html', {
+        "request": request, 
+        "society": society, 
+        "games": games, 
+        "players": players, 
+        "selected_game": selected_game, 
+        "win_type": win_type, 
+        "tasks": tasks,
+        "now": datetime.now()
+    })
 
 @app.post('/societies/{society_id}/games/add')
 @auth.admin_required
-async def add_played_game(request: Request, society_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
+async def add_played_game(request: Request, society_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), played_at: str = Form(...), db: Session = Depends(get_db)):
+    # Valideer de datum
+    played_at_dt = datetime.fromisoformat(played_at)
+    if played_at_dt > datetime.now():
+        # Haal de benodigde data op voor de template
+        society = db.query(models.Society).filter(models.Society.id == society_id).first()
+        games = crud.get_boardgames(db)
+        player_ids = [int(pid) for pid in society.player_ids.split(',')] if society.player_ids else []
+        all_players = crud.get_players(db)
+        players = [p for p in all_players if p.id in player_ids]
+        boardgame_id = int(society.boardgame_ids.split(',')[0]) if society.boardgame_ids else None
+        selected_game = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first() if boardgame_id else None
+        win_type = selected_game.win_type if selected_game else None
+        tasks = crud.get_tasks(db, boardgame_id=boardgame_id) if win_type == 'task' else []
+        
+        # Toon de template met foutmelding
+        return templates.TemplateResponse('add_played_game.html', {
+            "request": request,
+            "society": society,
+            "games": games,
+            "players": players,
+            "selected_game": selected_game,
+            "win_type": win_type,
+            "tasks": tasks,
+            "now": datetime.now(),
+            "error": "The date cannot be in the future!"
+        })
+    
     data = {}
     form = await request.form()
     # Verwerk aanwezige spelers (checkboxes)
     present_players = [int(k.split('_')[1]) for k, v in form.items() if k.startswith('present_') and v == '1']
     data['present_players'] = present_players
+    data['played_at'] = played_at_dt
     if win_type == 'winner':
         data['winner_id'] = int(form['winner_id'])
     elif win_type == 'points':

@@ -3,6 +3,11 @@
 <div class="card shadow-sm mb-4">
   <div class="card-body">
     <h2 class="card-title mb-4">Players</h2>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+    {% endif %}
     <form method="post" action="/admin/players/add" class="row g-3 mb-4">
       <div class="col-md-5">
         <input type="text" name="name" class="form-control" placeholder="Name" required>
