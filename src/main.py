@@ -66,63 +66,72 @@ def require_admin(request: Request):
 
 # PLAYER CRUD
 @app.get('/admin/players', response_class=HTMLResponse)
-def list_players(request: Request, db: Session = Depends(get_db)):
-    if not request.session.get('is_admin'):
-        return RedirectResponse('/login', status_code=303)
+@auth.admin_required
+async def list_players(request: Request, db: Session = Depends(get_db)):
     players = crud.get_players(db)
     return templates.TemplateResponse('players.html', {"request": request, "players": players})
 
 @app.post('/admin/players/add')
-def add_player(name: str = Form(...), color: str = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def add_player(request: Request, name: str = Form(...), color: str = Form(...), db: Session = Depends(get_db)):
     crud.create_player(db, name, color)
     return RedirectResponse('/admin/players', status_code=303)
 
 @app.post('/admin/players/delete/{player_id}')
-def delete_player(player_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def delete_player(request: Request, player_id: int, db: Session = Depends(get_db)):
     crud.delete_player(db, player_id)
     return RedirectResponse('/admin/players', status_code=303)
 
 # PLAYER EDIT
 @app.get('/admin/players/edit/{player_id}', response_class=HTMLResponse)
-def edit_player_form(request: Request, player_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_player_form(request: Request, player_id: int, db: Session = Depends(get_db)):
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
     return templates.TemplateResponse('edit_player.html', {"request": request, "player": player})
 
 @app.post('/admin/players/edit/{player_id}')
-def edit_player(player_id: int, name: str = Form(...), color: str = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_player(request: Request, player_id: int, name: str = Form(...), color: str = Form(...), db: Session = Depends(get_db)):
     crud.update_player(db, player_id, name, color)
     return RedirectResponse('/admin/players', status_code=303)
 
 # BOARDGAME CRUD
 @app.get('/admin/boardgames', response_class=HTMLResponse)
-def list_boardgames(request: Request, db: Session = Depends(get_db)):
+@auth.admin_required
+async def list_boardgames(request: Request, db: Session = Depends(get_db)):
     games = crud.get_boardgames(db)
     return templates.TemplateResponse('boardgames.html', {"request": request, "games": games})
 
 @app.post('/admin/boardgames/add')
-def add_boardgame(name: str = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def add_boardgame(request: Request, name: str = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
     crud.create_boardgame(db, name, win_type)
     return RedirectResponse('/admin/boardgames', status_code=303)
 
 @app.post('/admin/boardgames/delete/{game_id}')
-def delete_boardgame(game_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def delete_boardgame(request: Request, game_id: int, db: Session = Depends(get_db)):
     crud.delete_boardgame(db, game_id)
     return RedirectResponse('/admin/boardgames', status_code=303)
 
 # BOARDGAME EDIT
 @app.get('/admin/boardgames/edit/{game_id}', response_class=HTMLResponse)
-def edit_boardgame_form(request: Request, game_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_boardgame_form(request: Request, game_id: int, db: Session = Depends(get_db)):
     game = db.query(models.BoardGame).filter(models.BoardGame.id == game_id).first()
     return templates.TemplateResponse('edit_boardgame.html', {"request": request, "game": game})
 
 @app.post('/admin/boardgames/edit/{game_id}')
-def edit_boardgame(game_id: int, name: str = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_boardgame(request: Request, game_id: int, name: str = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
     crud.update_boardgame(db, game_id, name, win_type)
     return RedirectResponse('/admin/boardgames', status_code=303)
 
 # TASK CRUD
 @app.get('/admin/tasks', response_class=HTMLResponse)
-def list_tasks(request: Request, db: Session = Depends(get_db), boardgame_id: int = None):
+@auth.admin_required
+async def list_tasks(request: Request, db: Session = Depends(get_db), boardgame_id: int = None):
     all_games = crud.get_boardgames(db)
     games = [g for g in all_games if g.win_type == 'task']
     selected_boardgame_id = boardgame_id
@@ -135,26 +144,30 @@ def list_tasks(request: Request, db: Session = Depends(get_db), boardgame_id: in
     return templates.TemplateResponse('tasks.html', {"request": request, "tasks": tasks, "games": games, "selected_boardgame_id": selected_boardgame_id, "next_number": next_number})
 
 @app.post('/admin/tasks/add')
-def add_task(number: int = Form(...), name: str = Form(...), boardgame_id: int = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def add_task(request: Request, number: int = Form(...), name: str = Form(...), boardgame_id: int = Form(...), db: Session = Depends(get_db)):
     crud.create_task(db, number, name, boardgame_id)
     return RedirectResponse(f'/admin/tasks?boardgame_id={boardgame_id}', status_code=303)
 
 @app.post('/admin/tasks/delete/{task_id}')
-def delete_task(task_id: int, db: Session = Depends(get_db), boardgame_id: int = None):
+@auth.admin_required
+async def delete_task(request: Request, task_id: int, db: Session = Depends(get_db), boardgame_id: int = None):
     crud.delete_task(db, task_id)
     boardgame_id_param = f'?boardgame_id={boardgame_id}' if boardgame_id else ''
     return RedirectResponse(f'/admin/tasks{boardgame_id_param}', status_code=303)
 
 # TASK EDIT
 @app.get('/admin/tasks/edit/{task_id}', response_class=HTMLResponse)
-def edit_task_form(request: Request, task_id: int, db: Session = Depends(get_db), boardgame_id: int = None):
+@auth.admin_required
+async def edit_task_form(request: Request, task_id: int, db: Session = Depends(get_db), boardgame_id: int = None):
     task = db.query(models.Task).filter(models.Task.id == task_id).first()
     games = crud.get_boardgames(db)
     selected_boardgame_id = boardgame_id or (task.boardgame_id if task else None)
     return templates.TemplateResponse('edit_task.html', {"request": request, "task": task, "games": games, "selected_boardgame_id": selected_boardgame_id})
 
 @app.post('/admin/tasks/edit/{task_id}')
-def edit_task(task_id: int, number: int = Form(...), name: str = Form(...), boardgame_id: int = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_task(request: Request, task_id: int, number: int = Form(...), name: str = Form(...), boardgame_id: int = Form(...), db: Session = Depends(get_db)):
     task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if task:
         task.number = number
@@ -166,20 +179,23 @@ def edit_task(task_id: int, number: int = Form(...), name: str = Form(...), boar
 
 # SOCIETY CRUD
 @app.get('/admin/societies', response_class=HTMLResponse)
-def list_societies(request: Request, db: Session = Depends(get_db)):
+@auth.admin_required
+async def list_societies(request: Request, db: Session = Depends(get_db)):
     societies = crud.get_societies(db)
     players = crud.get_players(db)
     games = crud.get_boardgames(db)
     return templates.TemplateResponse('societies.html', {"request": request, "societies": societies, "players": players, "games": games})
 
 @app.post('/admin/societies/add')
-def add_society(name: str = Form(...), player_ids: list = Form(...), boardgame_ids: str = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def add_society(request: Request, name: str = Form(...), player_ids: list = Form(...), boardgame_ids: str = Form(...), db: Session = Depends(get_db)):
     # boardgame_ids is nu een enkele string, maak er een lijst van
     crud.create_society(db, name, player_ids, [boardgame_ids])
     return RedirectResponse('/admin/societies', status_code=303)
 
 @app.get('/admin/societies/edit/{society_id}', response_class=HTMLResponse)
-def edit_society_form(request: Request, society_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_society_form(request: Request, society_id: int, db: Session = Depends(get_db)):
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     players = crud.get_players(db)
     games = crud.get_boardgames(db)
@@ -188,13 +204,15 @@ def edit_society_form(request: Request, society_id: int, db: Session = Depends(g
     return templates.TemplateResponse('edit_society.html', {"request": request, "society": society, "players": players, "games": games, "selected_players": selected_players, "selected_games": selected_games})
 
 @app.post('/admin/societies/edit/{society_id}')
-def edit_society(society_id: int, name: str = Form(...), player_ids: list = Form(...), boardgame_ids: str = Form(...), db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_society(request: Request, society_id: int, name: str = Form(...), player_ids: list = Form(...), boardgame_ids: str = Form(...), db: Session = Depends(get_db)):
     # boardgame_ids is nu een enkele string, maak er een lijst van
     crud.update_society(db, society_id, name, player_ids, [boardgame_ids])
     return RedirectResponse('/admin/societies', status_code=303)
 
 @app.post('/admin/societies/delete/{society_id}')
-def delete_society(society_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def delete_society(request: Request, society_id: int, db: Session = Depends(get_db)):
     crud.delete_society(db, society_id)
     return RedirectResponse('/admin/societies', status_code=303)
 
@@ -208,7 +226,8 @@ def list_played_games(request: Request, society_id: int, db: Session = Depends(g
     return templates.TemplateResponse('played_games.html', {"request": request, "society": society, "games": games, "players": players, "played_games": played_games, "tasks": tasks})
 
 @app.get('/societies/{society_id}/games/add', response_class=HTMLResponse)
-def add_played_game_form(request: Request, society_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def add_played_game_form(request: Request, society_id: int, db: Session = Depends(get_db)):
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     games = crud.get_boardgames(db)
     # Alleen spelers van deze society
@@ -223,7 +242,8 @@ def add_played_game_form(request: Request, society_id: int, db: Session = Depend
     return templates.TemplateResponse('add_played_game.html', {"request": request, "society": society, "games": games, "players": players, "selected_game": selected_game, "win_type": win_type, "tasks": tasks})
 
 @app.post('/societies/{society_id}/games/add')
-async def add_played_game(society_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), db: Session = Depends(get_db), request: Request = None):
+@auth.admin_required
+async def add_played_game(request: Request, society_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
     data = {}
     form = await request.form()
     # Verwerk aanwezige spelers (checkboxes)
@@ -241,20 +261,25 @@ async def add_played_game(society_id: int, boardgame_id: int = Form(...), win_ty
     return RedirectResponse(f'/societies/{society_id}/games', status_code=303)
 
 @app.get('/societies/{society_id}/games/edit/{game_id}', response_class=HTMLResponse)
-def edit_played_game_form(request: Request, society_id: int, game_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_played_game_form(request: Request, society_id: int, game_id: int, db: Session = Depends(get_db)):
     played_game = db.query(models.PlayedGame).filter(models.PlayedGame.id == game_id).first()
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     games = crud.get_boardgames(db)
     players = crud.get_players(db)
     selected_game = db.query(models.BoardGame).filter(models.BoardGame.id == played_game.boardgame_id).first()
     win_type = selected_game.win_type if selected_game else None
-    tasks = crud.get_tasks(db, boardgame_id=selected_game.id) if win_type == 'task' else []
-    return templates.TemplateResponse('edit_played_game.html', {"request": request, "society": society, "games": games, "players": players, "played_game": played_game, "selected_game": selected_game, "win_type": win_type, "tasks": tasks})
+    tasks = crud.get_tasks(db, boardgame_id=played_game.boardgame_id) if win_type == 'task' else []
+    return templates.TemplateResponse('edit_played_game.html', {"request": request, "played_game": played_game, "society": society, "games": games, "players": players, "selected_game": selected_game, "win_type": win_type, "tasks": tasks})
 
 @app.post('/societies/{society_id}/games/edit/{game_id}')
-async def edit_played_game(society_id: int, game_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), request: Request = None, db: Session = Depends(get_db)):
+@auth.admin_required
+async def edit_played_game(request: Request, society_id: int, game_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
     data = {}
     form = await request.form()
+    # Verwerk aanwezige spelers (checkboxes)
+    present_players = [int(k.split('_')[1]) for k, v in form.items() if k.startswith('present_') and v == '1']
+    data['present_players'] = present_players
     if win_type == 'winner':
         data['winner_id'] = int(form['winner_id'])
     elif win_type == 'points':
@@ -263,11 +288,12 @@ async def edit_played_game(society_id: int, game_id: int, boardgame_id: int = Fo
     elif win_type == 'task':
         data['winner_id_task'] = int(form['winner_id_task'])
         data['task_id'] = int(form['task_id'])
-    crud.update_played_game(db, game_id, win_type, data)
+    crud.update_played_game(db, game_id, boardgame_id, win_type, data)
     return RedirectResponse(f'/societies/{society_id}/games', status_code=303)
 
 @app.post('/societies/{society_id}/games/delete/{game_id}')
-def delete_played_game(society_id: int, game_id: int, db: Session = Depends(get_db)):
+@auth.admin_required
+async def delete_played_game(request: Request, society_id: int, game_id: int, db: Session = Depends(get_db)):
     crud.delete_played_game(db, game_id)
     return RedirectResponse(f'/societies/{society_id}/games', status_code=303)
 
@@ -275,9 +301,9 @@ def delete_played_game(society_id: int, game_id: int, db: Session = Depends(get_
 def society_stats(request: Request, society_id: int, period: str = Query('all'), db: Session = Depends(get_db)):
     now = datetime.utcnow()
     if period == 'day':
-        from_date = now - timedelta(days=1)
+        from_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
     elif period == 'week':
-        from_date = now - timedelta(weeks=1)
+        from_date = now - timedelta(days=7)
     elif period == 'month':
         from_date = now - timedelta(days=30)
     elif period == 'year':
