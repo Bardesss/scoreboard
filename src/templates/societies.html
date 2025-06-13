@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Societies</h2>
+    <form method="post" action="/admin/societies/add" class="row g-3 mb-4">
+      <div class="col-md-3">
+        <input type="text" name="name" class="form-control" placeholder="Society Name" required>
+      </div>
+      <div class="col-md-4">
+        <select name="player_ids" class="form-select" multiple required>
+          {% for player in players | sort(attribute='name') %}
+          <option value="{{ player.id }}">{{ player.name }}</option>
+          {% endfor %}
+        </select>
+        <small>Select one or more players (Ctrl/Command + click)</small>
+      </div>
+      <div class="col-md-3">
+        <select name="boardgame_ids" class="form-select" required>
+          {% for game in games | sort(attribute='name') %}
+          <option value="{{ game.id }}">{{ game.name }}</option>
+          {% endfor %}
+        </select>
+        <small>Select one board game</small>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Add Society</button>
+      </div>
+    </form>
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark"><tr><th>Name</th><th>Players</th><th>Board Games</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for society in societies %}
+        <tr>
+          <td>{{ society.name }}</td>
+          <td>
+            {{ players | selectattr('id', 'in', society.player_ids.split(',') | map('int') | list) | sort(attribute='name') | map(attribute='name') | join(', ') }}
+          </td>
+          <td>
+            {{ games | selectattr('id', 'in', society.boardgame_ids.split(',') | map('int') | list) | map(attribute='name') | join(', ') }}
+          </td>
+          <td>
+            <a href="/admin/societies/edit/{{ society.id }}" class="btn btn-warning btn-sm">Edit</a>
+            <form method="post" action="/admin/societies/delete/{{ society.id }}" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} 

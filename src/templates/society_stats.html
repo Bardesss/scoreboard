@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Statistics for {{ society.name }}</h2>
+    <form method="get" class="mb-3">
+      <label for="period" class="form-label">Period:</label>
+      <select name="period" id="period" class="form-select w-auto d-inline" onchange="this.form.submit()">
+        <option value="all" {% if period == 'all' %}selected{% endif %}>All time</option>
+        <option value="day" {% if period == 'day' %}selected{% endif %}>Day</option>
+        <option value="week" {% if period == 'week' %}selected{% endif %}>Week</option>
+        <option value="month" {% if period == 'month' %}selected{% endif %}>Month</option>
+        <option value="year" {% if period == 'year' %}selected{% endif %}>Year</option>
+      </select>
+    </form>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="col">
+        <h4>Most Wins</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="winsChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-primary rounded-pill">{{ count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% set society_player_count = society.player_ids.split(',')|length %}
+      {% if society_player_count > 2 %}
+      <div class="col">
+        <h4>Best winratio</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="winratioChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-primary rounded-pill">{{ "%.2f"|format(ratio * 100) }}%</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if win_type != 'task' and win_type != 'winner' %}
+      <div class="col">
+        <h4>Most Points</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="pointsChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-success rounded-pill">{{ pts }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if win_type != 'points' and win_type != 'winner' %}
+      <div class="col">
+        <h4>Most Won Task</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="tasksChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for t in tasks %}{% if t.id == tid %}{{ t.name }}{% endif %}{% endfor %}
+            <span class="badge bg-warning rounded-pill">{{ count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if win_type == 'points' %}
+      <div class="col">
+        <h4>Highest points</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="highestPointsChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-info rounded-pill">{{ pts }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="col">
+        <h4>Most popular days</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="daysChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% set weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+          {% for day, count in most_popular_days.items() %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ weekdays[day] }}
+            <span class="badge bg-dark rounded-pill">{{ count }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col">
+        <h4>Longest win streak</h4>
+        <div class="mx-auto" style="max-width: 50%;">
+          <canvas id="streakChart" class="mb-3"></canvas>
+        </div>
+        <ul class="list-group">
+          {% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+            <span class="badge bg-secondary rounded-pill">{{ streak }}</span>
+          </li>
+          {% else %}
+          <li class="list-group-item">No data</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <a href="/societies/{{ society.id }}/games" class="btn btn-secondary mt-4">Back to Played Games</a>
+  </div>
+</div>
+
+<script>
+function generatePastelColors(count) {
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    const hue = (i * 137.5) % 360;
+    colors.push(`hsl(${hue}, 70%, 80%)`);
+  }
+  return colors;
+}
+
+function createPieChart(canvasId, data, labels, colors) {
+  new Chart(document.getElementById(canvasId), {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// Most Wins Chart
+const winsData = {
+  labels: [{% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
+  {% endfor %}],
+  data: [{% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}{{ count }},{% endfor %}],
+  colors: [{% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
+  {% endfor %}]
+};
+createPieChart('winsChart', winsData.data, winsData.labels, winsData.colors);
+
+// Win Ratio Chart
+{% if society_player_count > 2 %}
+const winratioData = {
+  labels: [{% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
+  {% endfor %}],
+  data: [{% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}{{ ratio * 100 }},{% endfor %}],
+  colors: [{% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
+  {% endfor %}]
+};
+createPieChart('winratioChart', winratioData.data, winratioData.labels, winratioData.colors);
+{% endif %}
+
+// Most Points Chart
+{% if win_type != 'task' and win_type != 'winner' %}
+const pointsData = {
+  labels: [{% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
+  {% endfor %}],
+  data: [{% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}{{ pts }},{% endfor %}],
+  colors: [{% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
+  {% endfor %}]
+};
+createPieChart('pointsChart', pointsData.data, pointsData.labels, pointsData.colors);
+{% endif %}
+
+// Most Won Task Chart
+{% if win_type != 'points' and win_type != 'winner' %}
+const tasksData = {
+  labels: [{% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
+    {% for t in tasks %}{% if t.id == tid %}'{{ t.name }}'{% endif %}{% endfor %},
+  {% endfor %}],
+  data: [{% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}{{ count }},{% endfor %}],
+  colors: generatePastelColors({{ most_won_task|length }})
+};
+createPieChart('tasksChart', tasksData.data, tasksData.labels, tasksData.colors);
+{% endif %}
+
+// Highest Points Chart
+{% if win_type == 'points' %}
+const highestPointsData = {
+  labels: [{% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
+  {% endfor %}],
+  data: [{% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}{{ pts }},{% endfor %}],
+  colors: [{% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
+  {% endfor %}]
+};
+createPieChart('highestPointsChart', highestPointsData.data, highestPointsData.labels, highestPointsData.colors);
+{% endif %}
+
+// Most Popular Days Chart
+const daysData = {
+  labels: [{% for day, count in most_popular_days.items() %}'{{ weekdays[day] }}',{% endfor %}],
+  data: [{% for day, count in most_popular_days.items() %}{{ count }},{% endfor %}],
+  colors: generatePastelColors({{ most_popular_days|length }})
+};
+createPieChart('daysChart', daysData.data, daysData.labels, daysData.colors);
+
+// Longest Win Streak Chart
+const streakData = {
+  labels: [{% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
+  {% endfor %}],
+  data: [{% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}{{ streak }},{% endfor %}],
+  colors: [{% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
+    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
+  {% endfor %}]
+};
+createPieChart('streakChart', streakData.data, streakData.labels, streakData.colors);
+</script>
+{% endblock %} 

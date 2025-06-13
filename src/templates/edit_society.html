@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Edit Society</h2>
+    <form method="post" action="/admin/societies/edit/{{ society.id }}" class="row g-3 mb-4">
+      <div class="col-md-3">
+        <input type="text" name="name" class="form-control" value="{{ society.name }}" required>
+      </div>
+      <div class="col-md-4">
+        <select name="player_ids" class="form-select" multiple required>
+          {% for player in players %}
+          <option value="{{ player.id }}" {% if player.id in selected_players %}selected{% endif %}>{{ player.name }}</option>
+          {% endfor %}
+        </select>
+        <small>Select one or more players (Ctrl/Command + click)</small>
+      </div>
+      <div class="col-md-3">
+        <select name="boardgame_ids" class="form-select" required>
+          {% for game in games %}
+          <option value="{{ game.id }}" {% if game.id in selected_games %}selected{% endif %}>{{ game.name }}</option>
+          {% endfor %}
+        </select>
+        <small>Select één bordspel</small>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-success w-100">Save</button>
+      </div>
+    </form>
+    <a href="/admin/societies" class="btn btn-secondary">Back</a>
+  </div>
+</div>
+{% endblock %} 

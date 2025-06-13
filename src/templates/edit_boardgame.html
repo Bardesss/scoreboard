@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Edit Board Game</h2>
+    <form method="post" action="/admin/boardgames/edit/{{ game.id }}" class="row g-3 mb-4">
+      <div class="col-md-6">
+        <input type="text" name="name" class="form-control" value="{{ game.name }}" required>
+      </div>
+      <div class="col-md-4">
+        <select name="win_type" class="form-select" required>
+          <option value="winner" {% if game.win_type == 'winner' %}selected{% endif %}>Winner (yes/no)</option>
+          <option value="points" {% if game.win_type == 'points' %}selected{% endif %}>Points</option>
+          <option value="task" {% if game.win_type == 'task' %}selected{% endif %}>Task</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-success w-100">Save</button>
+      </div>
+    </form>
+    <a href="/admin/boardgames" class="btn btn-secondary">Back</a>
+  </div>
+</div>
+{% endblock %} 

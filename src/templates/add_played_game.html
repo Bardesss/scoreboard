@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Add Played Game to {{ society.name }}</h2>
+    <div class="mb-3">
+      <label class="form-label">Board Game</label>
+      <div class="form-control-plaintext fw-bold">
+        {{ selected_game.name if selected_game else 'Geen bordspel gevonden' }}
+      </div>
+    </div>
+    {% if selected_game %}
+    <form method="post" action="/societies/{{ society.id }}/games/add">
+      <input type="hidden" name="boardgame_id" value="{{ selected_game.id }}">
+      <input type="hidden" name="win_type" value="{{ win_type }}">
+      {% if players|length > 2 %}
+      <div class="mb-3">
+        <label class="form-label">Aanwezige spelers</label>
+        <div>
+          {% for player in players %}
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="present_{{ player.id }}" id="present_{{ player.id }}" value="1" checked>
+            <label class="form-check-label" for="present_{{ player.id }}">{{ player.name }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {% if win_type == 'winner' %}
+        <div class="mb-3">
+          <label for="winner_id" class="form-label">Winner</label>
+          <select name="winner_id" id="winner_id" class="form-select" required>
+            {% for player in players %}
+            <option value="{{ player.id }}">{{ player.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% elif win_type == 'points' %}
+        <div class="mb-3">
+          <label class="form-label">Points per player</label>
+          {% for player in players %}
+          <div class="input-group mb-1">
+            <span class="input-group-text player-label">{{ player.name }}</span>
+            <input type="number" name="points_{{ player.id }}" class="form-control" value="0" required>
+          </div>
+          {% endfor %}
+        </div>
+      {% elif win_type == 'task' %}
+        <div class="mb-3">
+          <label for="winner_id_task" class="form-label">Winner</label>
+          <select name="winner_id_task" id="winner_id_task" class="form-select" required>
+            {% for player in players %}
+            <option value="{{ player.id }}">{{ player.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="task_id" class="form-label">Task</label>
+          <select name="task_id" id="task_id" class="form-select" required>
+            {% for task in tasks %}
+            <option value="{{ task.id }}">{{ task.number }} - {{ task.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+      <button type="submit" class="btn btn-success">Save Played Game</button>
+      <a href="/societies/{{ society.id }}/games" class="btn btn-secondary">Cancel</a>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} 
