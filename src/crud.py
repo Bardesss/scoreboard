@@ -56,6 +56,12 @@ def update_boardgame(db: Session, game_id: int, name: str, win_type: str):
     return game
 
 def delete_boardgame(db: Session, game_id: int):
+    # Controleer of het bordspel in gebruik is in een society
+    societies = db.query(models.Society).all()
+    for society in societies:
+        if society.boardgame_ids and str(game_id) in society.boardgame_ids.split(','):
+            raise ValueError("Cannot delete boardgame because it is used by one or more societies")
+    
     game = db.query(models.BoardGame).filter(models.BoardGame.id == game_id).first()
     if game:
         db.delete(game)
@@ -87,6 +93,11 @@ def update_task(db: Session, task_id: int, number: int, name: str):
     return task
 
 def delete_task(db: Session, task_id: int):
+    # Controleer of de task in gebruik is in een played game
+    played_game = db.query(models.PlayedGame).filter(models.PlayedGame.task_id == task_id).first()
+    if played_game:
+        raise ValueError("Cannot delete task because it is used in one or more played games")
+    
     task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if task:
         db.delete(task)

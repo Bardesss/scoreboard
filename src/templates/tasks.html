@@ -3,6 +3,11 @@
 <div class="card shadow-sm mb-4">
   <div class="card-body">
     <h2 class="card-title mb-4">Tasks</h2>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+    {% endif %}
     <form method="get" action="/admin/tasks" class="row g-3 mb-4">
       <div class="col-md-6">
         <select name="boardgame_id" class="form-select" required onchange="this.form.submit()">
