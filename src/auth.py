@@ -5,6 +5,8 @@ from passlib.context import CryptContext
 from database import SessionLocal
 from models import User
 from fastapi.templating import Jinja2Templates
+from functools import wraps
+from fastapi import HTTPException
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -68,4 +70,13 @@ def setup(request: Request, username: str = Form(...), password: str = Form(...)
     db.commit()
     request.session['user_id'] = user.id
     request.session['is_admin'] = user.is_admin
-    return RedirectResponse('/', status_code=303) 
+    return RedirectResponse('/', status_code=303)
+
+def admin_required(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        request = kwargs.get('request')
+        if not request or not request.session.get('is_admin'):
+            return RedirectResponse('/login', status_code=303)
+        return await func(*args, **kwargs)
+    return wrapper 
