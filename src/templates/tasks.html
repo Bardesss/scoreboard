@@ -11,7 +11,7 @@
     <form method="get" action="/admin/tasks" class="row g-3 mb-4">
       <div class="col-md-6">
         <select name="boardgame_id" class="form-select" required onchange="this.form.submit()">
-          <option value="">Select Board Game</option>
+          <option value="">Select Boardgame</option>
           {% for game in games %}
           <option value="{{ game.id }}" {% if game.id == selected_boardgame_id %}selected{% endif %}>{{ game.name }}</option>
           {% endfor %}
@@ -32,13 +32,19 @@
       </div>
     </form>
     <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark"><tr><th>Number</th><th>Name</th><th>Actions</th></tr></thead>
+      <thead class="table-dark">
+        <tr>
+          <th class="task-number-col">Number</th>
+          <th class="task-name-col">Name</th>
+          <th class="task-actions-col">Actions</th>
+        </tr>
+      </thead>
       <tbody>
         {% for task in tasks %}
         <tr>
-          <td>{{ task.number }}</td>
-          <td>{{ task.name }}</td>
-          <td>
+          <td class="task-number-col">{{ task.number }}</td>
+          <td class="task-name-col">{{ task.name }}</td>
+          <td class="task-actions-col">
             <a href="/admin/tasks/edit/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" class="btn btn-warning btn-sm">Edit</a>
             <form method="post" action="/admin/tasks/delete/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" style="display:inline;">
               <button type="submit" class="btn btn-danger btn-sm">Delete</button>

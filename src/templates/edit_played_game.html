@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Edit Played Game for {{ society.name }}</h2>
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  {{ error }}
+</div>
+{% endif %}
 <form method="post" action="/societies/{{ society.id }}/games/edit/{{ played_game.id }}">
   <input type="hidden" name="boardgame_id" value="{{ selected_game.id }}">
   <input type="hidden" name="win_type" value="{{ win_type }}">
@@ -63,6 +68,10 @@
       </select>
     </div>
   {% endif %}
+  <div class="mb-3">
+    <label for="played_at" class="form-label">Datum en tijd (dd/mm/yyyy)</label>
+    <input type="datetime-local" class="form-control" id="played_at" name="played_at" value="{{ played_game.played_at.strftime('%Y-%m-%dT%H:%M') }}" required>
+  </div>
   <button type="submit" class="btn btn-success">Save Changes</button>
   <a href="/societies/{{ society.id }}/games" class="btn btn-secondary">Cancel</a>
 </form>

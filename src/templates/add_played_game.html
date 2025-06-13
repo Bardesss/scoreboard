@@ -9,7 +9,7 @@
     </div>
     {% endif %}
     <div class="mb-3">
-      <label class="form-label">Board Game</label>
+      <label class="form-label">Boardgame</label>
       <div class="form-control-plaintext fw-bold">
         {{ selected_game.name if selected_game else 'Geen bordspel gevonden' }}
       </div>
@@ -69,7 +69,7 @@
         </div>
       {% endif %}
       <div class="mb-3">
-        <label for="played_at" class="form-label">Datum en tijd</label>
+        <label for="played_at" class="form-label">Datum en tijd (dd/mm/yyyy)</label>
         <input type="datetime-local" class="form-control" id="played_at" name="played_at" value="{{ now.strftime('%Y-%m-%dT%H:%M') }}" required>
       </div>
       <button type="submit" class="btn btn-success">Save Played Game</button>

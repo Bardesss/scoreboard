@@ -168,10 +168,19 @@ def create_played_game(db: Session, society_id: int, boardgame_id: int, win_type
     db.refresh(played_game)
     return played_game
 
-def update_played_game(db: Session, played_game_id: int, win_type: str, data: dict):
+def update_played_game(db: Session, played_game_id: int, boardgame_id: int, win_type: str, data: dict):
     game = db.query(models.PlayedGame).filter(models.PlayedGame.id == played_game_id).first()
     if not game:
         return None
+    
+    # Update de datum
+    if 'played_at' in data:
+        game.played_at = data['played_at']
+    
+    # Update aanwezige spelers
+    if 'present_players' in data:
+        game.present_player_ids = ','.join(map(str, data['present_players']))
+    
     if win_type == 'winner':
         game.winner_id = data.get('winner_id')
         game.points = None

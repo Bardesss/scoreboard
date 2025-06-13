@@ -24,6 +24,9 @@
       <td>
         <a href="/societies/{{ society.id }}/games" class="btn btn-outline-primary btn-sm">View Games</a>
         <a href="/societies/{{ society.id }}/stats" class="btn btn-outline-info btn-sm">Statistics</a>
+        {% if request.session.get('is_admin') %}
+        <a href="/societies/{{ society.id }}/games/add" class="btn btn-primary btn-sm">Add Game</a>
+        {% endif %}
       </td>
     </tr>
     {% else %}
@@ -33,11 +36,11 @@
 </table>
 <h2>Recent Played Games</h2>
 <table class="table table-striped">
-  <thead><tr><th>Date</th><th>Society</th><th>Board Game</th><th>Winner</th></tr></thead>
+  <thead><tr><th>Date</th><th>Society</th><th>Boardgame</th><th>Winner</th></tr></thead>
   <tbody>
     {% for game in played_games %}
     <tr>
-      <td>{{ game.played_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ game.played_at.strftime('%d/%m/%Y %H:%M') }}</td>
       <td>
         {% for s in societies %}{% if s.id == game.society_id %}{{ s.name }}{% endif %}{% endfor %}
       </td>
