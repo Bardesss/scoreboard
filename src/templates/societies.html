@@ -42,7 +42,7 @@
           <td>
             <a href="/admin/societies/edit/{{ society.id }}" class="btn btn-warning btn-sm">Edit</a>
             <form method="post" action="/admin/societies/delete/{{ society.id }}" style="display:inline;">
-              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Warning: Are you sure you want to delete this society? All associated data will be permanently lost.')">Delete</button>
             </form>
           </td>
         </tr>

@@ -22,6 +22,12 @@ def update_player(db: Session, player_id: int, name: str, color: str):
     return player
 
 def delete_player(db: Session, player_id: int):
+    # Controleer of de speler in gebruik is in een society
+    societies = db.query(models.Society).all()
+    for society in societies:
+        if society.player_ids and str(player_id) in society.player_ids.split(','):
+            raise ValueError("Cannot delete player because they are part of one or more societies")
+    
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
     if player:
         db.delete(player)
@@ -114,6 +120,9 @@ def update_society(db: Session, society_id: int, name: str, player_ids: list, bo
     return society
 
 def delete_society(db: Session, society_id: int):
+    # Verwijder eerst alle gerelateerde played_games
+    db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id).delete()
+    # Verwijder daarna de society
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     if society:
         db.delete(society)

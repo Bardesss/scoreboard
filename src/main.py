@@ -80,8 +80,16 @@ async def add_player(request: Request, name: str = Form(...), color: str = Form(
 @app.post('/admin/players/delete/{player_id}')
 @auth.admin_required
 async def delete_player(request: Request, player_id: int, db: Session = Depends(get_db)):
-    crud.delete_player(db, player_id)
-    return RedirectResponse('/admin/players', status_code=303)
+    try:
+        crud.delete_player(db, player_id)
+        return RedirectResponse('/admin/players', status_code=303)
+    except ValueError as e:
+        players = crud.get_players(db)
+        return templates.TemplateResponse('players.html', {
+            "request": request,
+            "players": players,
+            "error": str(e)
+        })
 
 # PLAYER EDIT
 @app.get('/admin/players/edit/{player_id}', response_class=HTMLResponse)
