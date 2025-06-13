@@ -13,6 +13,29 @@ A self-hosted web application to track board game scores, players, and statistic
 - User authentication (admin setup on first run)
 - Public view for societies and played games
 
+## Screenshots
+
+### Players Management
+![Players Management](screenshots/players.png)
+
+### Board Games Management
+![Board Games Management](screenshots/boardgames.png)
+
+### Tasks Management
+![Tasks Management](screenshots/tasks.png)
+
+### Societies Management
+![Societies Management](screenshots/societies.png)
+
+### Add Played Game
+![Add Played Game](screenshots/addplayedgame.png)
+
+### Played Games Overview
+![Played Games Overview](screenshots/playedgames.png)
+
+### Statistics
+![Statistics](screenshots/statistics.png)
+
 ## Deployment
 
 ### Using Docker Compose
