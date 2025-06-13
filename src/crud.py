@@ -129,43 +129,24 @@ def get_played_games(db: Session, society_id: int = None):
     return query.order_by(models.PlayedGame.played_at.desc()).all()
 
 def create_played_game(db: Session, society_id: int, boardgame_id: int, win_type: str, data: dict):
-    present_player_ids = ','.join(str(pid) for pid in data.get('present_players', [])) if data.get('present_players') else None
+    played_game = models.PlayedGame(
+        society_id=society_id,
+        boardgame_id=boardgame_id,
+        played_at=data.get('played_at', datetime.now()),
+        present_player_ids=','.join(map(str, data['present_players']))
+    )
     if win_type == 'winner':
-        game = models.PlayedGame(
-            society_id=society_id,
-            boardgame_id=boardgame_id,
-            winner_id=data.get('winner_id'),
-            present_player_ids=present_player_ids
-        )
+        played_game.winner_id = data['winner_id']
     elif win_type == 'points':
-        points_dict = data.get('points', {})
-        points_str = ','.join(f"{pid}:{pts}" for pid, pts in points_dict.items())
-        if points_dict:
-            max_points = max(points_dict.values())
-            winner_id = int([pid for pid, pts in points_dict.items() if pts == max_points][0])
-        else:
-            winner_id = None
-        game = models.PlayedGame(
-            society_id=society_id,
-            boardgame_id=boardgame_id,
-            points=points_str,
-            winner_id=winner_id,
-            present_player_ids=present_player_ids
-        )
+        points_str = ','.join(f"{pid}:{pts}" for pid, pts in data['points'].items())
+        played_game.points = points_str
     elif win_type == 'task':
-        game = models.PlayedGame(
-            society_id=society_id,
-            boardgame_id=boardgame_id,
-            winner_id_task=data.get('winner_id_task'),
-            task_id=data.get('task_id'),
-            present_player_ids=present_player_ids
-        )
-    else:
-        raise ValueError('Unknown win_type')
-    db.add(game)
+        played_game.winner_id_task = data['winner_id_task']
+        played_game.task_id = data['task_id']
+    db.add(played_game)
     db.commit()
-    db.refresh(game)
-    return game
+    db.refresh(played_game)
+    return played_game
 
 def update_played_game(db: Session, played_game_id: int, win_type: str, data: dict):
     game = db.query(models.PlayedGame).filter(models.PlayedGame.id == played_game_id).first()
