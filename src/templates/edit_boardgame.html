@@ -2,7 +2,7 @@
 {% block content %}
 <div class="card shadow-sm mb-4">
   <div class="card-body">
-    <h2 class="card-title mb-4">Edit Board Game</h2>
+    <h2 class="card-title mb-4">Edit Boardgame</h2>
     <form method="post" action="/admin/boardgames/edit/{{ game.id }}" class="row g-3 mb-4">
       <div class="col-md-6">
         <input type="text" name="name" class="form-control" value="{{ game.name }}" required>

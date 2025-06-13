@@ -8,7 +8,7 @@
       {% set boardgame_id = played_games[0].boardgame_id %}
       {% for g in games %}
         {% if g.id == boardgame_id %}
-          <div class="mb-3"><strong>Board Game:</strong> {{ g.name }}</div>
+          <div class="mb-3"><strong>Boardgame:</strong> {{ g.name }}</div>
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -28,7 +28,7 @@
       <tbody>
         {% for game in played_games %}
         <tr>
-          <td>{{ game.played_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ game.played_at.strftime('%d/%m/%Y %H:%M') }}</td>
           {# Boardgame kolom verwijderd #}
           <td>
             {% set winner_id = game.winner_id if game.winner_id else game.winner_id_task %}

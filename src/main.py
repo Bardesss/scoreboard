@@ -345,12 +345,38 @@ async def edit_played_game_form(request: Request, society_id: int, game_id: int,
 
 @app.post('/societies/{society_id}/games/edit/{game_id}')
 @auth.admin_required
-async def edit_played_game(request: Request, society_id: int, game_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), db: Session = Depends(get_db)):
+async def edit_played_game(request: Request, society_id: int, game_id: int, boardgame_id: int = Form(...), win_type: str = Form(...), played_at: str = Form(...), db: Session = Depends(get_db)):
+    # Valideer de datum
+    played_at_dt = datetime.fromisoformat(played_at)
+    if played_at_dt > datetime.now():
+        # Haal de benodigde data op voor de template
+        played_game = db.query(models.PlayedGame).filter(models.PlayedGame.id == game_id).first()
+        society = db.query(models.Society).filter(models.Society.id == society_id).first()
+        games = crud.get_boardgames(db)
+        players = crud.get_players(db)
+        selected_game = db.query(models.BoardGame).filter(models.BoardGame.id == played_game.boardgame_id).first()
+        win_type = selected_game.win_type if selected_game else None
+        tasks = crud.get_tasks(db, boardgame_id=played_game.boardgame_id) if win_type == 'task' else []
+        
+        # Toon de template met foutmelding
+        return templates.TemplateResponse('edit_played_game.html', {
+            "request": request,
+            "played_game": played_game,
+            "society": society,
+            "games": games,
+            "players": players,
+            "selected_game": selected_game,
+            "win_type": win_type,
+            "tasks": tasks,
+            "error": "De datum mag niet in de toekomst liggen!"
+        })
+    
     data = {}
     form = await request.form()
     # Verwerk aanwezige spelers (checkboxes)
     present_players = [int(k.split('_')[1]) for k, v in form.items() if k.startswith('present_') and v == '1']
     data['present_players'] = present_players
+    data['played_at'] = played_at_dt
     if win_type == 'winner':
         data['winner_id'] = int(form['winner_id'])
     elif win_type == 'points':

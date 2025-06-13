@@ -21,14 +21,14 @@
           <option value="{{ game.id }}">{{ game.name }}</option>
           {% endfor %}
         </select>
-        <small>Select one board game</small>
+        <small>Select one boardgame</small>
       </div>
       <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Add Society</button>
       </div>
     </form>
     <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark"><tr><th>Name</th><th>Players</th><th>Board Games</th><th>Actions</th></tr></thead>
+      <thead class="table-dark"><tr><th>Name</th><th>Players</th><th>Boardgames</th><th>Actions</th></tr></thead>
       <tbody>
         {% for society in societies %}
         <tr>

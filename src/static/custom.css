@@ -12,4 +12,28 @@ body { background: #f8f9fa; }
 .played-games-table th.date-col { width: 20%; }
 .played-games-table th.winner-col { width: 20%; }
 .played-games-table th.actions-col { width: 20%; }
-.played-games-table th.result-col { width: auto; } 
+.played-games-table th.result-col { width: auto; }
+
+/* Task table column widths */
+.task-number-col {
+    width: 10%;
+}
+
+.task-name-col {
+    width: 70%;
+}
+
+.task-actions-col {
+    width: 20%;
+}
+
+/* Kolombreedtes voor societies tabel in public_home */
+.table th:nth-child(1) { width: 25%; }  /* Name kolom */
+.table th:nth-child(2) { width: 45%; }  /* Players kolom */
+.table th:nth-child(3) { width: 30%; }  /* Actions kolom */
+
+/* Kolombreedtes voor societies tabel in admin sectie */
+.card .table th:nth-child(1) { width: 25%; }  /* Name kolom */
+.card .table th:nth-child(2) { width: 35%; }  /* Players kolom */
+.card .table th:nth-child(3) { width: 20%; }  /* Boardgame kolom */
+.card .table th:nth-child(4) { width: 20%; }  /* Actions kolom */ 
