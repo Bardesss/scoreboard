@@ -19,7 +19,7 @@ A self-hosted web application to track board game scores, players, and statistic
 
 1. Clone this repository:
    ```sh
-   git clone https://github.com/Bardesss/Scoreboard.git
+   git clone git clone https://github.com/Bardesss/Scoreboard.git
    cd scoreboard
    ```
 2. Start the application:
@@ -29,6 +29,27 @@ A self-hosted web application to track board game scores, players, and statistic
 3. On first run, you will be prompted to create an admin user.
 
 The app will be available at [http://localhost:6060](http://localhost:6060)
+
+## Updating the Application
+
+To update the application to the latest version:
+
+1. Stop the running containers:
+   ```sh
+   docker-compose down
+   ```
+
+2. Pull the latest changes:
+   ```sh
+   git pull origin main
+   ```
+
+3. Rebuild and start the containers:
+   ```sh
+   docker-compose up --build
+   ```
+
+Your data will be preserved as it is stored in the SQLite database file.
 
 ## First Run Instructions
 
