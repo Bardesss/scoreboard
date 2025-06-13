@@ -120,8 +120,16 @@ async def add_boardgame(request: Request, name: str = Form(...), win_type: str =
 @app.post('/admin/boardgames/delete/{game_id}')
 @auth.admin_required
 async def delete_boardgame(request: Request, game_id: int, db: Session = Depends(get_db)):
-    crud.delete_boardgame(db, game_id)
-    return RedirectResponse('/admin/boardgames', status_code=303)
+    try:
+        crud.delete_boardgame(db, game_id)
+        return RedirectResponse('/admin/boardgames', status_code=303)
+    except ValueError as e:
+        games = crud.get_boardgames(db)
+        return templates.TemplateResponse('boardgames.html', {
+            "request": request,
+            "games": games,
+            "error": str(e)
+        })
 
 # BOARDGAME EDIT
 @app.get('/admin/boardgames/edit/{game_id}', response_class=HTMLResponse)
@@ -160,9 +168,27 @@ async def add_task(request: Request, number: int = Form(...), name: str = Form(.
 @app.post('/admin/tasks/delete/{task_id}')
 @auth.admin_required
 async def delete_task(request: Request, task_id: int, db: Session = Depends(get_db), boardgame_id: int = None):
-    crud.delete_task(db, task_id)
-    boardgame_id_param = f'?boardgame_id={boardgame_id}' if boardgame_id else ''
-    return RedirectResponse(f'/admin/tasks{boardgame_id_param}', status_code=303)
+    try:
+        crud.delete_task(db, task_id)
+        boardgame_id_param = f'?boardgame_id={boardgame_id}' if boardgame_id else ''
+        return RedirectResponse(f'/admin/tasks{boardgame_id_param}', status_code=303)
+    except ValueError as e:
+        all_games = crud.get_boardgames(db)
+        games = [g for g in all_games if g.win_type == 'task']
+        tasks = crud.get_tasks(db, boardgame_id=boardgame_id) if boardgame_id else []
+        next_number = 1
+        if boardgame_id:
+            existing_numbers = [task.number for task in tasks]
+            while next_number in existing_numbers:
+                next_number += 1
+        return templates.TemplateResponse('tasks.html', {
+            "request": request,
+            "tasks": tasks,
+            "games": games,
+            "selected_boardgame_id": boardgame_id,
+            "next_number": next_number,
+            "error": str(e)
+        })
 
 # TASK EDIT
 @app.get('/admin/tasks/edit/{task_id}', response_class=HTMLResponse)
