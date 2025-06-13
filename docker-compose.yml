@@ -6,5 +6,9 @@ services:
       - "6060:6060"
     volumes:
       - ./src:/app/src
+      - scoreboard_data:/app/data
     environment:
-      - TZ=Europe/Amsterdam 
+      - TZ=Europe/Amsterdam
+
+volumes:
+  scoreboard_data: 
