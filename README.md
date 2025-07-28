@@ -3,7 +3,7 @@
 A self-hosted web application to track boardgame scores, players, and statistics for groups of friends or families. Built with FastAPI, Bootstrap, and SQLite.
 
 > [!WARNING]  
-> This project is the outcome of code vibing. Use at your own risk!
+> This is for personal development. Don't expose to internet!
 
 ## Features
 - Admin panel to manage players, boardgames, and tasks
@@ -15,23 +15,11 @@ A self-hosted web application to track boardgame scores, players, and statistics
 
 ## Screenshots
 
-### Players Management
-![Players Management](screenshots/players.png)
+### Management Views
+![Players](screenshots/players.png) ![Boardgames](screenshots/boardgames.png) ![Tasks](screenshots/tasks.png)
 
-### Boardgames Management
-![Boardgames Management](screenshots/boardgames.png)
-
-### Tasks Management
-![Tasks Management](screenshots/tasks.png)
-
-### Societies Management
-![Societies Management](screenshots/societies.png)
-
-### Add Played Game
-![Add Played Game](screenshots/addplayedgame.png)
-
-### Played Games Overview
-![Played Games Overview](screenshots/playedgames.png)
+### Societies & Games
+![Societies](screenshots/societies.png) ![Add Game](screenshots/addplayedgame.png) ![Played Games](screenshots/playedgames.png)
 
 ### Statistics
 ![Statistics](screenshots/statistics.png)

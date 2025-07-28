@@ -395,19 +395,71 @@ async def delete_played_game(request: Request, society_id: int, game_id: int, db
     return RedirectResponse(f'/societies/{society_id}/games', status_code=303)
 
 @app.get('/societies/{society_id}/stats', response_class=HTMLResponse)
-def society_stats(request: Request, society_id: int, period: str = Query('all'), db: Session = Depends(get_db)):
-    now = datetime.utcnow()
-    if period == 'day':
-        from_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    elif period == 'week':
-        from_date = now - timedelta(days=7)
-    elif period == 'month':
-        from_date = now - timedelta(days=30)
-    elif period == 'year':
-        from_date = now - timedelta(days=365)
+def society_stats(request: Request, society_id: int, period: str = Query('all'), 
+                 year: str = Query(None), month: str = Query(None), day: str = Query(None), 
+                 week: str = Query(None), db: Session = Depends(get_db)):
+    # Converteer string parameters naar integers als ze niet None zijn
+    year_int = int(year) if year and year.strip() else None
+    month_int = int(month) if month and month.strip() else None
+    day_int = int(day) if day and day.strip() else None
+    week_int = int(week) if week and week.strip() else None
+    # Bepaal de datum range op basis van de parameters
+    from_date = None
+    to_date = None
+    
+    if period == 'all':
+        # Alle data
+        pass
+    elif period == 'year' and year_int:
+        # Specifiek jaar
+        from_date = datetime(year_int, 1, 1)
+        to_date = datetime(year_int, 12, 31, 23, 59, 59)
+    elif period == 'month' and year_int and month_int:
+        # Specifieke maand
+        from_date = datetime(year_int, month_int, 1)
+        if month_int == 12:
+            to_date = datetime(year_int + 1, 1, 1) - timedelta(seconds=1)
+        else:
+            to_date = datetime(year_int, month_int + 1, 1) - timedelta(seconds=1)
+    elif period == 'week' and year_int and week_int:
+        # Specifieke week (0-based, zondag als eerste dag)
+        from datetime import date
+        # Week berekening: week 0 is de week die 1 januari bevat
+        jan1 = date(year_int, 1, 1)
+        # Bereken de start van de gewenste week
+        week_start = jan1 + timedelta(weeks=week_int)
+        from_date = datetime.combine(week_start, datetime.min.time())
+        to_date = datetime.combine(week_start + timedelta(days=6), datetime.max.time())
+    elif period == 'day' and year_int and month_int and day_int:
+        # Specifieke dag
+        from_date = datetime(year_int, month_int, day_int)
+        to_date = datetime(year_int, month_int, day_int, 23, 59, 59)
     else:
-        from_date = None
-    to_date = now if from_date else None
+        # Fallback naar huidige periode
+        now = datetime.utcnow()
+        if period == 'day':
+            from_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        elif period == 'week':
+            from_date = now - timedelta(days=7)
+        elif period == 'month':
+            from_date = now - timedelta(days=30)
+        elif period == 'year':
+            from_date = now - timedelta(days=365)
+        to_date = now if from_date else None
+    
+    # Haal beschikbare data op voor de dropdowns met aantal records
+    available_years_with_count = crud.get_available_years_with_count(db, society_id)
+    available_months_with_count = crud.get_available_months_with_count(db, society_id, year_int) if year_int else []
+    available_weeks_with_count = crud.get_available_weeks_with_count(db, society_id, year_int) if year_int else []
+    available_days_with_count = crud.get_available_days_with_count(db, society_id, year_int, month_int) if year_int and month_int else []
+    
+    # Converteer naar de oude format voor backward compatibility
+    available_years = [year for year, count in available_years_with_count]
+    available_months = [(year, month) for year, month, count in available_months_with_count]
+    available_weeks = [(year, week) for year, week, count in available_weeks_with_count]
+    available_days = [(year, month, day) for year, month, day, weekday, count in available_days_with_count]
+    
+    # Haal statistieken op
     players = crud.get_players(db)
     tasks = crud.get_tasks(db)
     most_wins = crud.get_stats_most_wins(db, society_id, from_date, to_date)
@@ -415,19 +467,23 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
     most_won_task = crud.get_stats_most_won_task(db, society_id, from_date, to_date)
     highest_points = crud.get_stats_highest_points_per_game(db, society_id, from_date, to_date)
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
+    
     # Haal het win_type van het bordspel van deze society op
     boardgame_id = int(society.boardgame_ids.split(',')[0]) if society.boardgame_ids else None
     boardgame = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first() if boardgame_id else None
     win_type = boardgame.win_type if boardgame else None
+    
     most_popular_days = crud.get_stats_most_popular_days(db, society_id, from_date, to_date)
     longest_win_streak = crud.get_stats_longest_win_streak(db, society_id, from_date, to_date)
     games_played = crud.get_stats_games_played(db, society_id, from_date, to_date)
+    
     # Winratio per speler: aantal gewonnen / aantal gespeeld (indien >0)
     win_ratios = {}
     for pid, played in games_played.items():
         wins = most_wins.get(pid, 0)
         if played > 0:
             win_ratios[pid] = wins / played
+    
     return templates.TemplateResponse('society_stats.html', {
         "request": request,
         "society": society,
@@ -438,19 +494,73 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
         "most_won_task": most_won_task,
         "highest_points": highest_points,
         "period": period,
+        "year": year,
+        "month": month,
+        "day": day,
+        "week": week,
         "win_type": win_type,
         "most_popular_days": most_popular_days,
         "longest_win_streak": longest_win_streak,
         "win_ratios": win_ratios,
+        "available_years": available_years,
+        "available_months": available_months,
+        "available_weeks": available_weeks,
+        "available_days": available_days,
+        "available_years_with_count": available_years_with_count,
+        "available_months_with_count": available_months_with_count,
+        "available_weeks_with_count": available_weeks_with_count,
+        "available_days_with_count": available_days_with_count,
         # JSON data voor charts
-        "most_wins_json": json.dumps(most_wins),
-        "most_points_json": json.dumps(most_points),
-        "most_won_task_json": json.dumps(most_won_task),
-        "highest_points_json": json.dumps(highest_points),
-        "win_ratios_json": json.dumps(win_ratios),
-        "most_popular_days_json": json.dumps(most_popular_days),
-        "longest_win_streak_json": json.dumps(longest_win_streak),
-        "players_json": json.dumps({p.id: p.name for p in players}),
-        "players_colors_json": json.dumps({p.id: p.color for p in players}),
-        "tasks_json": json.dumps({t.id: t.name for t in tasks}),
-    }) 
+        "most_wins_json": [next((p.name for p in players if p.id == pid), "Unknown") for pid in most_wins.keys()],
+        "most_wins_data_json": list(most_wins.values()),
+        "most_wins_colors_json": [next((p.color for p in players if p.id == pid), "#000000") for pid in most_wins.keys()],
+        "most_points_json": [next((p.name for p in players if p.id == pid), "Unknown") for pid in most_points.keys()],
+        "most_points_data_json": list(most_points.values()),
+        "most_points_colors_json": [next((p.color for p in players if p.id == pid), "#000000") for pid in most_points.keys()],
+        "most_won_task_json": [next((t.name for t in tasks if t.id == tid), "Unknown") for tid in most_won_task.keys()],
+        "most_won_task_data_json": list(most_won_task.values()),
+        "highest_points_json": [next((p.name for p in players if p.id == pid), "Unknown") for pid in highest_points.keys()],
+        "highest_points_data_json": list(highest_points.values()),
+        "highest_points_colors_json": [next((p.color for p in players if p.id == pid), "#000000") for pid in highest_points.keys()],
+        "win_ratios_json": [next((p.name for p in players if p.id == pid), "Unknown") for pid in win_ratios.keys()],
+        "win_ratios_data_json": [ratio * 100 for ratio in win_ratios.values()],
+        "win_ratios_colors_json": [next((p.color for p in players if p.id == pid), "#000000") for pid in win_ratios.keys()],
+        "most_popular_days_json": ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        "most_popular_days_data_json": list(most_popular_days.values()),
+        "longest_win_streak_json": [next((p.name for p in players if p.id == pid), "Unknown") for pid in longest_win_streak.keys()],
+        "longest_win_streak_data_json": list(longest_win_streak.values()),
+        "longest_win_streak_colors_json": [next((p.color for p in players if p.id == pid), "#000000") for pid in longest_win_streak.keys()],
+        "players_json": {p.id: p.name for p in players},
+        "players_colors_json": {p.id: p.color for p in players},
+        "tasks_json": {t.id: t.name for t in tasks},
+    })
+
+def get_month_name(month_number):
+    """Converteer maandnummer naar Engelse maandnaam"""
+    month_names = {
+        1: "January", 2: "February", 3: "March", 4: "April",
+        5: "May", 6: "June", 7: "July", 8: "August",
+        9: "September", 10: "October", 11: "November", 12: "December"
+    }
+    return month_names.get(month_number, str(month_number))
+
+
+
+@app.get('/api/societies/{society_id}/dropdown-data')
+def get_dropdown_data(society_id: int, year: str = Query(None), month: str = Query(None), db: Session = Depends(get_db)):
+    """API endpoint voor het ophalen van dropdown data via AJAX"""
+    year_int = int(year) if year and year.strip() else None
+    month_int = int(month) if month and month.strip() else None
+    
+    # Haal beschikbare data op
+    available_years_with_count = crud.get_available_years_with_count(db, society_id)
+    available_months_with_count = crud.get_available_months_with_count(db, society_id, year_int) if year_int else []
+    available_weeks_with_count = crud.get_available_weeks_with_count(db, society_id, year_int) if year_int else []
+    available_days_with_count = crud.get_available_days_with_count(db, society_id, year_int, month_int) if year_int and month_int else []
+    
+    return {
+        "years": [{"value": year, "text": f"{year} ({count})"} for year, count in available_years_with_count],
+        "months": [{"value": month, "text": f"{get_month_name(month)} ({count})"} for year, month, count in available_months_with_count],
+        "weeks": [{"value": week, "text": f"Week {week} ({count})"} for year, week, count in available_weeks_with_count],
+        "days": [{"value": day, "text": f"{day} - {weekday} ({count})"} for year, month, day, weekday, count in available_days_with_count]
+    } 
