@@ -259,6 +259,37 @@ def list_played_games(request: Request, society_id: int, db: Session = Depends(g
     tasks = crud.get_tasks(db)
     return templates.TemplateResponse('played_games.html', {"request": request, "society": society, "games": games, "players": players, "played_games": played_games, "tasks": tasks})
 
+@app.get('/api/societies/{society_id}/games')
+def get_played_games_paginated(society_id: int, page: int = Query(1, ge=1), limit: int = Query(20, ge=1, le=100), db: Session = Depends(get_db)):
+    offset = (page - 1) * limit
+    played_games = crud.get_played_games_paginated(db, society_id, offset, limit)
+    total_count = crud.get_played_games_count(db, society_id)
+    total_pages = (total_count + limit - 1) // limit
+    
+    # Converteer naar JSON-serializable format
+    games_data = []
+    for game in played_games:
+        games_data.append({
+            'id': game.id,
+            'played_at': game.played_at.strftime('%d/%m/%Y %H:%M'),
+            'winner_id': game.winner_id,
+            'winner_id_task': game.winner_id_task,
+            'points': game.points,
+            'task_id': game.task_id,
+            'boardgame_id': game.boardgame_id
+        })
+    
+    return {
+        'games': games_data,
+        'pagination': {
+            'current_page': page,
+            'total_pages': total_pages,
+            'total_count': total_count,
+            'has_next': page < total_pages,
+            'has_prev': page > 1
+        }
+    }
+
 @app.get('/societies/{society_id}/games/add', response_class=HTMLResponse)
 @auth.admin_required
 async def add_played_game_form(request: Request, society_id: int, db: Session = Depends(get_db)):

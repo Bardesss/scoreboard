@@ -148,6 +148,18 @@ def get_played_games(db: Session, society_id: int = None):
         query = query.filter(models.PlayedGame.society_id == society_id)
     return query.order_by(models.PlayedGame.played_at.desc()).all()
 
+def get_played_games_paginated(db: Session, society_id: int = None, offset: int = 0, limit: int = 20):
+    query = db.query(models.PlayedGame)
+    if society_id:
+        query = query.filter(models.PlayedGame.society_id == society_id)
+    return query.order_by(models.PlayedGame.played_at.desc()).offset(offset).limit(limit).all()
+
+def get_played_games_count(db: Session, society_id: int = None):
+    query = db.query(models.PlayedGame)
+    if society_id:
+        query = query.filter(models.PlayedGame.society_id == society_id)
+    return query.count()
+
 def create_played_game(db: Session, society_id: int, boardgame_id: int, win_type: str, data: dict):
     played_game = models.PlayedGame(
         society_id=society_id,
