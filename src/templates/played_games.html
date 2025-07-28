@@ -16,78 +16,291 @@
       <a href="/societies/{{ society.id }}/games/add" class="btn btn-primary">Add Played Game</a>
       <a href="/societies/{{ society.id }}/stats" class="btn btn-info">View Statistics</a>
     </div>
-    <table class="table table-striped table-hover align-middle played-games-table">
-      <thead class="table-dark">
-        <tr>
-          <th class="date-col">Date</th>
-          <th class="winner-col">Winner</th>
-          <th class="result-col">Result</th>
-          {% if request.session.get('is_admin') %}<th class="actions-col">Actions</th>{% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for game in played_games %}
-        <tr>
-          <td>{{ game.played_at.strftime('%d/%m/%Y %H:%M') }}</td>
-          {# Boardgame kolom verwijderd #}
-          <td>
-            {% set winner_id = game.winner_id if game.winner_id else game.winner_id_task %}
-            {% if winner_id %}
-              {% for p in players %}
-                {% if p.id == winner_id %}
-                  {{ p.name }}
-                {% endif %}
-              {% endfor %}
-            {% else %}
-              -
-            {% endif %}
-          </td>
-          <td>
-            {# Resultaat kolom #}
-            {% set boardgame = (games | selectattr('id', 'equalto', game.boardgame_id) | list)[0] %}
-            {% if boardgame.win_type == 'winner' %}
-              not applicable
-            {% elif boardgame.win_type == 'points' %}
-              {% if game.points %}
-                {% set points_dict = {} %}
-                {% for pair in game.points.split(',') %}
-                  {% set pid, pts = pair.split(':') %}
-                  {% set _ = points_dict.update({pid: pts}) %}
-                {% endfor %}
-                {# Zet punten om naar een lijst van tuples en sorteer aflopend op punten #}
-                {% set points_list = [] %}
-                {% for pid, pts in points_dict.items() %}
-                  {% set _ = points_list.append((pid, pts|int)) %}
-                {% endfor %}
-                {% set points_list = points_list|sort(attribute='1', reverse=True) %}
-                {% set results = [] %}
-                {% for pid, pts in points_list %}
-                  {% for p in players %}{% if p.id == pid|int %}{% set _ = results.append(p.name ~ ': ' ~ pts) %}{% endif %}{% endfor %}
-                {% endfor %}
-                {{ results | join(', ') }}
-              {% else %}-{% endif %}
-            {% elif boardgame.win_type == 'task' %}
-              {% if game.task_id %}
-                {% for t in tasks %}
-                  {% if t.id == game.task_id %}
-                    <span title="{{ t.name }}">{{ t.number }}</span>
+    
+    <div id="games-container">
+      <table class="table table-striped table-hover align-middle played-games-table">
+        <thead class="table-dark">
+          <tr>
+            <th class="date-col">Date</th>
+            <th class="winner-col">Winner</th>
+            <th class="result-col">Result</th>
+            {% if request.session.get('is_admin') %}<th class="actions-col">Actions</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody id="games-tbody">
+          {% for game in played_games[:20] %}
+          <tr>
+            <td>{{ game.played_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+              {% set winner_id = game.winner_id if game.winner_id else game.winner_id_task %}
+              {% if winner_id %}
+                {% for p in players %}
+                  {% if p.id == winner_id %}
+                    {{ p.name }}
                   {% endif %}
                 {% endfor %}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {# Resultaat kolom #}
+              {% set boardgame = (games | selectattr('id', 'equalto', game.boardgame_id) | list)[0] %}
+              {% if boardgame.win_type == 'winner' %}
+                not applicable
+              {% elif boardgame.win_type == 'points' %}
+                {% if game.points %}
+                  {% set points_dict = {} %}
+                  {% for pair in game.points.split(',') %}
+                    {% set pid, pts = pair.split(':') %}
+                    {% set _ = points_dict.update({pid: pts}) %}
+                  {% endfor %}
+                  {# Zet punten om naar een lijst van tuples en sorteer aflopend op punten #}
+                  {% set points_list = [] %}
+                  {% for pid, pts in points_dict.items() %}
+                    {% set _ = points_list.append((pid, pts|int)) %}
+                  {% endfor %}
+                  {% set points_list = points_list|sort(attribute='1', reverse=True) %}
+                  {% set results = [] %}
+                  {% for pid, pts in points_list %}
+                    {% for p in players %}{% if p.id == pid|int %}{% set _ = results.append(p.name ~ ': ' ~ pts) %}{% endif %}{% endfor %}
+                  {% endfor %}
+                  {{ results | join(', ') }}
+                {% else %}-{% endif %}
+              {% elif boardgame.win_type == 'task' %}
+                {% if game.task_id %}
+                  {% for t in tasks %}
+                    {% if t.id == game.task_id %}
+                      <span title="{{ t.name }}">{{ t.number }}</span>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}-{% endif %}
               {% else %}-{% endif %}
-            {% else %}-{% endif %}
-          </td>
-          {% if request.session.get('is_admin') %}
-          <td>
-            <a href="/societies/{{ society.id }}/games/edit/{{ game.id }}" class="btn btn-warning btn-sm">Edit</a>
-            <form method="post" action="/societies/{{ society.id }}/games/delete/{{ game.id }}" style="display:inline;">
-              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-            </form>
-          </td>
-          {% endif %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </td>
+            {% if request.session.get('is_admin') %}
+            <td>
+              <div class="btn-group" role="group">
+                <a href="/societies/{{ society.id }}/games/edit/{{ game.id }}" class="btn btn-warning btn-sm" title="Edit Game">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="post" action="/societies/{{ society.id }}/games/delete/{{ game.id }}" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm" title="Delete Game" onclick="return confirm('Are you sure you want to delete this game?')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+      <div id="pagination-container" class="d-flex justify-content-center mt-3">
+        {% if played_games|length > 20 %}
+        <nav aria-label="Games pagination">
+          <ul class="pagination">
+            <li class="page-item">
+              <button class="page-link" id="prev-page" onclick="loadPage(currentPage - 1)" disabled>Previous</button>
+            </li>
+            <li class="page-item">
+              <span class="page-link" id="page-info">Page 1</span>
+            </li>
+            <li class="page-item">
+              <button class="page-link" id="next-page" onclick="loadPage(currentPage + 1)">Next</button>
+            </li>
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+var currentPage = 1;
+var totalPages = 1;
+var isAdmin = {{ 'true' if request.session.get('is_admin') else 'false' }};
+var players = [
+  {% for player in players %}
+  {
+    "id": {{ player.id }},
+    "name": "{{ player.name }}"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+var games = [
+  {% for game in games %}
+  {
+    "id": {{ game.id }},
+    "name": "{{ game.name }}",
+    "win_type": "{{ game.win_type }}"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+var tasks = [
+  {% for task in tasks %}
+  {
+    "id": {{ task.id }},
+    "name": "{{ task.name }}",
+    "number": {{ task.number }}
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+
+function loadPage(page) {
+  if (page < 1 || page > totalPages) return;
+  
+  fetch('/api/societies/{{ society.id }}/games?page=' + page)
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      currentPage = data.pagination.current_page;
+      totalPages = data.pagination.total_pages;
+      
+      var tbody = document.getElementById('games-tbody');
+      tbody.innerHTML = '';
+      
+      data.games.forEach(function(game) {
+        var row = document.createElement('tr');
+        
+        var dateCell = document.createElement('td');
+        dateCell.textContent = game.played_at;
+        row.appendChild(dateCell);
+        
+        var winnerCell = document.createElement('td');
+        var winnerId = game.winner_id || game.winner_id_task;
+        if (winnerId) {
+          var player = players.find(function(p) { return p.id === winnerId; });
+          winnerCell.textContent = player ? player.name : '-';
+        } else {
+          winnerCell.textContent = '-';
+        }
+        row.appendChild(winnerCell);
+        
+        var resultCell = document.createElement('td');
+        var boardgame = games.find(function(g) { return g.id === game.boardgame_id; });
+        if (boardgame) {
+          if (boardgame.win_type === 'winner') {
+            resultCell.textContent = 'not applicable';
+          } else if (boardgame.win_type === 'points') {
+            if (game.points) {
+              var pointsDict = {};
+              game.points.split(',').forEach(function(pair) {
+                var parts = pair.split(':');
+                pointsDict[parts[0]] = parseInt(parts[1]);
+              });
+              
+              var pointsList = Object.entries(pointsDict)
+                .sort(function(a, b) { return b[1] - a[1]; })
+                .map(function(entry) {
+                  var pid = entry[0];
+                  var pts = entry[1];
+                  var player = players.find(function(p) { return p.id === parseInt(pid); });
+                  return player ? player.name + ': ' + pts : '';
+                })
+                .filter(function(name) { return name; });
+              
+              resultCell.textContent = pointsList.join(', ');
+            } else {
+              resultCell.textContent = '-';
+            }
+          } else if (boardgame.win_type === 'task') {
+            if (game.task_id) {
+              var task = tasks.find(function(t) { return t.id === game.task_id; });
+              if (task) {
+                var span = document.createElement('span');
+                span.title = task.name;
+                span.textContent = task.number;
+                resultCell.appendChild(span);
+              } else {
+                resultCell.textContent = '-';
+              }
+            } else {
+              resultCell.textContent = '-';
+            }
+          } else {
+            resultCell.textContent = '-';
+          }
+        } else {
+          resultCell.textContent = '-';
+        }
+        row.appendChild(resultCell);
+        
+        if (isAdmin) {
+          var actionsCell = document.createElement('td');
+          
+          var btnGroup = document.createElement('div');
+          btnGroup.className = 'btn-group';
+          btnGroup.setAttribute('role', 'group');
+          
+          var editBtn = document.createElement('a');
+          editBtn.href = '/societies/{{ society.id }}/games/edit/' + game.id;
+          editBtn.className = 'btn btn-warning btn-sm';
+          editBtn.title = 'Edit Game';
+          
+          var editIcon = document.createElement('i');
+          editIcon.className = 'bi bi-pencil';
+          editBtn.appendChild(editIcon);
+          btnGroup.appendChild(editBtn);
+          
+          var deleteForm = document.createElement('form');
+          deleteForm.method = 'post';
+          deleteForm.action = '/societies/{{ society.id }}/games/delete/' + game.id;
+          deleteForm.style.display = 'inline';
+          
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'submit';
+          deleteBtn.className = 'btn btn-danger btn-sm';
+          deleteBtn.title = 'Delete Game';
+          deleteBtn.onclick = function() { return confirm('Are you sure you want to delete this game?'); };
+          
+          var deleteIcon = document.createElement('i');
+          deleteIcon.className = 'bi bi-trash';
+          deleteBtn.appendChild(deleteIcon);
+          deleteForm.appendChild(deleteBtn);
+          btnGroup.appendChild(deleteForm);
+          
+          actionsCell.appendChild(btnGroup);
+          
+          row.appendChild(actionsCell);
+        }
+        
+        tbody.appendChild(row);
+      });
+      
+      updatePagination();
+    })
+    .catch(function(error) {
+      console.error('Error loading games:', error);
+    });
+}
+
+function updatePagination() {
+  var prevBtn = document.getElementById('prev-page');
+  var nextBtn = document.getElementById('next-page');
+  var pageInfo = document.getElementById('page-info');
+  var paginationContainer = document.getElementById('pagination-container');
+  
+  if (totalPages <= 1) {
+    paginationContainer.style.display = 'none';
+    return;
+  }
+  
+  paginationContainer.style.display = 'block';
+  prevBtn.disabled = currentPage <= 1;
+  nextBtn.disabled = currentPage >= totalPages;
+  pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if ({{ played_games|length }}) {
+    fetch('/api/societies/{{ society.id }}/games?page=1')
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        totalPages = data.pagination.total_pages;
+        updatePagination();
+      });
+  }
+});
+</script>
 {% endblock %} 
