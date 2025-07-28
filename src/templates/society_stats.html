@@ -4,16 +4,76 @@
 <div class="card shadow-sm mb-4">
   <div class="card-body">
     <h2 class="card-title mb-4">Statistics for {{ society.name }}</h2>
-    <form method="get" class="mb-3">
-      <label for="period" class="form-label">Period:</label>
-      <select name="period" id="period" class="form-select w-auto d-inline" onchange="this.form.submit()">
-        <option value="all" {% if period == 'all' %}selected{% endif %}>All time</option>
-        <option value="day" {% if period == 'day' %}selected{% endif %}>Day</option>
-        <option value="week" {% if period == 'week' %}selected{% endif %}>Week</option>
-        <option value="month" {% if period == 'month' %}selected{% endif %}>Month</option>
-        <option value="year" {% if period == 'year' %}selected{% endif %}>Year</option>
-      </select>
-    </form>
+    
+         <!-- Geavanceerde Datepicker -->
+     <div class="mb-3" id="statsForm">
+      <div class="row g-3 align-items-end">
+        <div class="col-auto">
+          <label for="period" class="form-label">Period:</label>
+          <select name="period" id="period" class="form-select">
+            <option value="all" {% if period == 'all' %}selected{% endif %}>All time</option>
+            <option value="year" {% if period == 'year' %}selected{% endif %}>Year</option>
+            <option value="month" {% if period == 'month' %}selected{% endif %}>Month</option>
+            <option value="week" {% if period == 'week' %}selected{% endif %}>Week</option>
+            <option value="day" {% if period == 'day' %}selected{% endif %}>Day</option>
+          </select>
+        </div>
+        
+        <!-- Year dropdown -->
+        <div class="col-auto" id="yearDiv" style="display: none;">
+          <label for="year" class="form-label">Year:</label>
+          <select name="year" id="year" class="form-select">
+            <option value="">Select year</option>
+            {% for available_year, count in available_years_with_count %}
+            <option value="{{ available_year }}" {% if year and available_year|string == year %}selected{% endif %}>{{ available_year }} ({{ count }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+                 <!-- Month dropdown -->
+         <div class="col-auto" id="monthDiv" style="display: none;">
+           <label for="month" class="form-label">Month:</label>
+           <select name="month" id="month" class="form-select">
+             <option value="">Select month</option>
+             {% for available_year, available_month, count in available_months_with_count %}
+             {% set month_names = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June", 7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"} %}
+                           <option value="{{ available_month }}" {% if month and available_month|string == month and year and available_year|string == year %}selected{% endif %}>
+                {{ month_names[available_month] }} ({{ count }})
+              </option>
+             {% endfor %}
+           </select>
+         </div>
+        
+        <!-- Week dropdown -->
+        <div class="col-auto" id="weekDiv" style="display: none;">
+          <label for="week" class="form-label">Week:</label>
+          <select name="week" id="week" class="form-select">
+            <option value="">Select week</option>
+            {% for available_year, available_week, count in available_weeks_with_count %}
+            <option value="{{ available_week }}" {% if week and available_week|string == week and year and available_year|string == year %}selected{% endif %}>
+              Week {{ available_week }} ({{ count }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+                 <!-- Day dropdown -->
+         <div class="col-auto" id="dayDiv" style="display: none;">
+           <label for="day" class="form-label">Day:</label>
+           <select name="day" id="day" class="form-select">
+             <option value="">Select day</option>
+             {% for available_year, available_month, available_day, available_weekday, count in available_days_with_count %}
+             <option value="{{ available_day }}" {% if day and available_day|string == day and month and available_month|string == month and year and available_year|string == year %}selected{% endif %}>
+               {{ available_day }} - {{ available_weekday }} ({{ count }})
+             </option>
+             {% endfor %}
+           </select>
+         </div>
+        
+        
+             </div>
+     </div>
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       <div class="col">
         <h4>Most Wins</h4>
@@ -143,6 +203,203 @@
 </div>
 
 <script>
+// Datepicker functionaliteit
+function updateDatepicker() {
+  const period = document.getElementById('period').value;
+  const yearDiv = document.getElementById('yearDiv');
+  const monthDiv = document.getElementById('monthDiv');
+  const weekDiv = document.getElementById('weekDiv');
+  const dayDiv = document.getElementById('dayDiv');
+  
+  // Verberg alle dropdowns
+  yearDiv.style.display = 'none';
+  monthDiv.style.display = 'none';
+  weekDiv.style.display = 'none';
+  dayDiv.style.display = 'none';
+  
+  // Toon relevante dropdowns op basis van periode
+  if (period === 'year') {
+    yearDiv.style.display = 'block';
+  } else if (period === 'month') {
+    yearDiv.style.display = 'block';
+    monthDiv.style.display = 'block';
+  } else if (period === 'week') {
+    yearDiv.style.display = 'block';
+    weekDiv.style.display = 'block';
+  } else if (period === 'day') {
+    yearDiv.style.display = 'block';
+    monthDiv.style.display = 'block';
+    dayDiv.style.display = 'block';
+  }
+  
+
+}
+
+// AJAX functie voor het ophalen van dropdown data
+async function updateDropdownData(updateType = 'all') {
+  const societyId = {{ society.id }};
+  const year = document.getElementById('year').value;
+  const month = document.getElementById('month').value;
+  
+  try {
+    const response = await fetch(`/api/societies/${societyId}/dropdown-data?year=${year || ''}&month=${month || ''}`);
+    const data = await response.json();
+    
+    // Update year dropdown alleen als het een periode change is
+    if (updateType === 'all' || updateType === 'period') {
+      const yearSelect = document.getElementById('year');
+      const currentYear = yearSelect.value;
+      yearSelect.innerHTML = '<option value="">Select year</option>';
+      data.years.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value;
+        option.textContent = item.text;
+        if (item.value == currentYear) {
+          option.selected = true;
+        }
+        yearSelect.appendChild(option);
+      });
+    }
+    
+    // Update month dropdown
+    const monthSelect = document.getElementById('month');
+    const currentMonth = monthSelect.value;
+    monthSelect.innerHTML = '<option value="">Select month</option>';
+    data.months.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.value;
+      option.textContent = item.text;
+      if (item.value == currentMonth) {
+        option.selected = true;
+      }
+      monthSelect.appendChild(option);
+    });
+    
+    // Update week dropdown
+    const weekSelect = document.getElementById('week');
+    const currentWeek = weekSelect.value;
+    weekSelect.innerHTML = '<option value="">Select week</option>';
+    data.weeks.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.value;
+      option.textContent = item.text;
+      if (item.value == currentWeek) {
+        option.selected = true;
+      }
+      weekSelect.appendChild(option);
+    });
+    
+    // Update day dropdown
+    const daySelect = document.getElementById('day');
+    const currentDay = daySelect.value;
+    daySelect.innerHTML = '<option value="">Select day</option>';
+    data.days.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.value;
+      option.textContent = item.text;
+      if (item.value == currentDay) {
+        option.selected = true;
+      }
+      daySelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Error updating dropdown data:', error);
+  }
+}
+
+// Functie om te controleren of alle benodigde dropdowns zijn ingevuld
+function checkRequiredFields() {
+  const period = document.getElementById('period').value;
+  const year = document.getElementById('year').value;
+  const month = document.getElementById('month').value;
+  const week = document.getElementById('week').value;
+  const day = document.getElementById('day').value;
+  
+  // Controleer of alle benodigde velden zijn ingevuld
+  if (period === 'all') {
+    return true; // Voor 'all' zijn geen extra velden nodig
+  } else if (period === 'year' && year) {
+    return true;
+  } else if (period === 'month' && year && month) {
+    return true;
+  } else if (period === 'week' && year && week) {
+    return true;
+  } else if (period === 'day' && year && month && day) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Functie om automatisch de pagina te herladen met nieuwe parameters
+function autoUpdateStats() {
+  if (checkRequiredFields()) {
+    const params = new URLSearchParams();
+    
+    // Haal alle dropdown waarden op
+    const period = document.getElementById('period').value;
+    const year = document.getElementById('year').value;
+    const month = document.getElementById('month').value;
+    const week = document.getElementById('week').value;
+    const day = document.getElementById('day').value;
+    
+    // Voeg alle waarden toe aan URL parameters
+    if (period) params.append('period', period);
+    if (year) params.append('year', year);
+    if (month) params.append('month', month);
+    if (week) params.append('week', week);
+    if (day) params.append('day', day);
+    
+    // Navigeer naar de nieuwe URL
+    window.location.href = window.location.pathname + '?' + params.toString();
+  }
+}
+
+// Event listeners toevoegen
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialiseer datepicker bij het laden van de pagina
+  updateDatepicker();
+  
+  // Voeg event listeners toe aan de dropdowns
+  document.getElementById('period').addEventListener('change', function() {
+    // Reset alle dropdown waarden wanneer periode verandert
+    document.getElementById('year').value = '';
+    document.getElementById('month').value = '';
+    document.getElementById('week').value = '';
+    document.getElementById('day').value = '';
+    
+    updateDatepicker();
+    if (this.value !== 'all') {
+      updateDropdownData('period');
+    } else {
+      // Voor 'all' direct updaten
+      autoUpdateStats();
+    }
+  });
+  
+  document.getElementById('year').addEventListener('change', function() {
+    updateDatepicker();
+    updateDropdownData('year');
+    autoUpdateStats();
+  });
+  
+  document.getElementById('month').addEventListener('change', function() {
+    updateDatepicker();
+    updateDropdownData('month');
+    autoUpdateStats();
+  });
+  
+  document.getElementById('week').addEventListener('change', function() {
+    updateDatepicker();
+    autoUpdateStats();
+  });
+  
+  document.getElementById('day').addEventListener('change', function() {
+    updateDatepicker();
+    autoUpdateStats();
+  });
+});
+
 function generatePastelColors(count) {
   const colors = [];
   for (let i = 0; i < count; i++) {
@@ -180,90 +437,69 @@ function createPieChart(canvasId, data, labels, colors) {
   });
 }
 
-// Most Wins Chart
+// Charts data
 const winsData = {
-  labels: [{% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
-  {% endfor %}],
-  data: [{% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}{{ count }},{% endfor %}],
-  colors: [{% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
-  {% endfor %}]
+  labels: {{ most_wins_json | tojson }},
+  data: {{ most_wins_data_json | tojson }},
+  colors: {{ most_wins_colors_json | tojson }}
 };
+
 createPieChart('winsChart', winsData.data, winsData.labels, winsData.colors);
 
-// Win Ratio Chart
 {% if society_player_count > 2 %}
 const winratioData = {
-  labels: [{% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
-  {% endfor %}],
-  data: [{% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}{{ ratio * 100 }},{% endfor %}],
-  colors: [{% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
-  {% endfor %}]
+  labels: {{ win_ratios_json | tojson }},
+  data: {{ win_ratios_data_json | tojson }},
+  colors: {{ win_ratios_colors_json | tojson }}
 };
+
 createPieChart('winratioChart', winratioData.data, winratioData.labels, winratioData.colors);
 {% endif %}
 
-// Most Points Chart
 {% if win_type != 'task' and win_type != 'winner' %}
 const pointsData = {
-  labels: [{% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
-  {% endfor %}],
-  data: [{% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}{{ pts }},{% endfor %}],
-  colors: [{% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
-  {% endfor %}]
+  labels: {{ most_points_json | tojson }},
+  data: {{ most_points_data_json | tojson }},
+  colors: {{ most_points_colors_json | tojson }}
 };
+
 createPieChart('pointsChart', pointsData.data, pointsData.labels, pointsData.colors);
 {% endif %}
 
-// Most Won Task Chart
 {% if win_type != 'points' and win_type != 'winner' %}
 const tasksData = {
-  labels: [{% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
-    {% for t in tasks %}{% if t.id == tid %}'{{ t.name }}'{% endif %}{% endfor %},
-  {% endfor %}],
-  data: [{% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}{{ count }},{% endfor %}],
+  labels: {{ most_won_task_json | tojson }},
+  data: {{ most_won_task_data_json | tojson }},
   colors: generatePastelColors({{ most_won_task|length }})
 };
+
 createPieChart('tasksChart', tasksData.data, tasksData.labels, tasksData.colors);
 {% endif %}
 
-// Highest Points Chart
 {% if win_type == 'points' %}
 const highestPointsData = {
-  labels: [{% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
-  {% endfor %}],
-  data: [{% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}{{ pts }},{% endfor %}],
-  colors: [{% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
-  {% endfor %}]
+  labels: {{ highest_points_json | tojson }},
+  data: {{ highest_points_data_json | tojson }},
+  colors: {{ highest_points_colors_json | tojson }}
 };
+
 createPieChart('highestPointsChart', highestPointsData.data, highestPointsData.labels, highestPointsData.colors);
 {% endif %}
 
-// Most Popular Days Chart
 const daysData = {
-  labels: [{% for day, count in most_popular_days.items() %}'{{ weekdays[day] }}',{% endfor %}],
-  data: [{% for day, count in most_popular_days.items() %}{{ count }},{% endfor %}],
+  labels: {{ most_popular_days_json | tojson }},
+  data: {{ most_popular_days_data_json | tojson }},
   colors: generatePastelColors({{ most_popular_days|length }})
 };
+
 createPieChart('daysChart', daysData.data, daysData.labels, daysData.colors);
 
-// Longest Win Streak Chart
 const streakData = {
-  labels: [{% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.name }}'{% endif %}{% endfor %},
-  {% endfor %}],
-  data: [{% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}{{ streak }},{% endfor %}],
-  colors: [{% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
-    {% for p in players %}{% if p.id == pid %}'{{ p.color }}'{% endif %}{% endfor %},
-  {% endfor %}]
+  labels: {{ longest_win_streak_json | tojson }},
+  data: {{ longest_win_streak_data_json | tojson }},
+  colors: {{ longest_win_streak_colors_json | tojson }}
 };
+
 createPieChart('streakChart', streakData.data, streakData.labels, streakData.colors);
 </script>
 {% endblock %} 

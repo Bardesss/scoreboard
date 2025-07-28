@@ -343,4 +343,183 @@ def get_stats_games_played(db: Session, society_id: int, from_date: datetime = N
             for pid in g.present_player_ids.split(','):
                 pid = int(pid)
                 played_counts[pid] = played_counts.get(pid, 0) + 1
-    return played_counts 
+    return played_counts
+
+def get_available_years(db: Session, society_id: int):
+    """
+    Geeft een lijst van jaren terug waar data van is voor een society.
+    """
+    from sqlalchemy import extract
+    years = db.query(extract('year', models.PlayedGame.played_at)).filter(
+        models.PlayedGame.society_id == society_id
+    ).distinct().order_by(extract('year', models.PlayedGame.played_at).desc()).all()
+    return [int(year[0]) for year in years]
+
+def get_available_months(db: Session, society_id: int, year: int = None):
+    """
+    Geeft een lijst van (jaar, maand) tuples terug waar data van is voor een society.
+    Als year is opgegeven, alleen voor dat jaar.
+    """
+    from sqlalchemy import extract
+    query = db.query(
+        extract('year', models.PlayedGame.played_at),
+        extract('month', models.PlayedGame.played_at)
+    ).filter(models.PlayedGame.society_id == society_id)
+    
+    if year:
+        query = query.filter(extract('year', models.PlayedGame.played_at) == year)
+    
+    months = query.distinct().order_by(
+        extract('year', models.PlayedGame.played_at).desc(),
+        extract('month', models.PlayedGame.played_at).desc()
+    ).all()
+    
+    return [(int(year), int(month)) for year, month in months]
+
+def get_available_weeks(db: Session, society_id: int, year: int = None):
+    """
+    Geeft een lijst van (jaar, week) tuples terug waar data van is voor een society.
+    Als year is opgegeven, alleen voor dat jaar.
+    """
+    # Gebruik dezelfde logica als get_available_weeks_with_count
+    weeks_with_count = get_available_weeks_with_count(db, society_id, year)
+    return [(year, week) for year, week, count in weeks_with_count]
+
+def get_available_days(db: Session, society_id: int, year: int = None, month: int = None):
+    """
+    Geeft een lijst van (jaar, maand, dag) tuples terug waar data van is voor een society.
+    Als year is opgegeven, alleen voor dat jaar.
+    Als month is opgegeven, alleen voor die maand.
+    """
+    from sqlalchemy import extract
+    query = db.query(
+        extract('year', models.PlayedGame.played_at),
+        extract('month', models.PlayedGame.played_at),
+        extract('day', models.PlayedGame.played_at)
+    ).filter(models.PlayedGame.society_id == society_id)
+    
+    if year:
+        query = query.filter(extract('year', models.PlayedGame.played_at) == year)
+    if month:
+        query = query.filter(extract('month', models.PlayedGame.played_at) == month)
+    
+    days = query.distinct().order_by(
+        extract('year', models.PlayedGame.played_at).desc(),
+        extract('month', models.PlayedGame.played_at).desc(),
+        extract('day', models.PlayedGame.played_at).desc()
+    ).all()
+    
+    return [(int(year), int(month), int(day)) for year, month, day in days]
+
+def get_available_years_with_count(db: Session, society_id: int):
+    """
+    Geeft een lijst van (jaar, aantal_records) tuples terug waar data van is voor een society.
+    """
+    from sqlalchemy import extract, func
+    years_with_count = db.query(
+        extract('year', models.PlayedGame.played_at).label('year'),
+        func.count(models.PlayedGame.id).label('count')
+    ).filter(models.PlayedGame.society_id == society_id).group_by(
+        extract('year', models.PlayedGame.played_at)
+    ).order_by(extract('year', models.PlayedGame.played_at).asc()).all()
+    
+    return [(int(year), int(count)) for year, count in years_with_count]
+
+def get_available_months_with_count(db: Session, society_id: int, year: int = None):
+    """
+    Geeft een lijst van (jaar, maand, aantal_records) tuples terug waar data van is voor een society.
+    Als year is opgegeven, alleen voor dat jaar.
+    """
+    from sqlalchemy import extract, func
+    query = db.query(
+        extract('year', models.PlayedGame.played_at).label('year'),
+        extract('month', models.PlayedGame.played_at).label('month'),
+        func.count(models.PlayedGame.id).label('count')
+    ).filter(models.PlayedGame.society_id == society_id)
+    
+    if year:
+        query = query.filter(extract('year', models.PlayedGame.played_at) == year)
+    
+    months_with_count = query.group_by(
+        extract('year', models.PlayedGame.played_at),
+        extract('month', models.PlayedGame.played_at)
+    ).order_by(
+        extract('year', models.PlayedGame.played_at).asc(),
+        extract('month', models.PlayedGame.played_at).asc()
+    ).all()
+    
+    return [(int(year), int(month), int(count)) for year, month, count in months_with_count]
+
+def get_available_weeks_with_count(db: Session, society_id: int, year: int = None):
+    """
+    Geeft een lijst van (jaar, week, aantal_records) tuples terug waar data van is voor een society.
+    Als year is opgegeven, alleen voor dat jaar.
+    """
+    from sqlalchemy import extract, func
+    # Gebruik eenvoudige week berekening met Python
+    games = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id).all()
+    
+    week_counts = {}
+    for game in games:
+        game_year = game.played_at.year
+        if year and game_year != year:
+            continue
+            
+        # Bereken week nummer (0-based, zondag als eerste dag)
+        jan1 = game.played_at.replace(month=1, day=1)
+        days_since_jan1 = (game.played_at - jan1).days
+        week_num = days_since_jan1 // 7
+        
+        key = (game_year, week_num)
+        week_counts[key] = week_counts.get(key, 0) + 1
+    
+    # Converteer naar lijst en sorteer
+    result = [(year, week, count) for (year, week), count in week_counts.items()]
+    result.sort(key=lambda x: (x[0], x[1]), reverse=False)
+    
+    return result
+
+def get_available_days_with_count(db: Session, society_id: int, year: int = None, month: int = None):
+    """
+    Geeft een lijst van (jaar, maand, dag, dag_van_week, aantal_records) tuples terug waar data van is voor een society.
+    Als year is opgegeven, alleen voor dat jaar.
+    Als month is opgegeven, alleen voor die maand.
+    """
+    from sqlalchemy import extract, func
+    from datetime import date
+    
+    query = db.query(
+        extract('year', models.PlayedGame.played_at).label('year'),
+        extract('month', models.PlayedGame.played_at).label('month'),
+        extract('day', models.PlayedGame.played_at).label('day'),
+        func.count(models.PlayedGame.id).label('count')
+    ).filter(models.PlayedGame.society_id == society_id)
+    
+    if year:
+        query = query.filter(extract('year', models.PlayedGame.played_at) == year)
+    if month:
+        query = query.filter(extract('month', models.PlayedGame.played_at) == month)
+    
+    days_with_count = query.group_by(
+        extract('year', models.PlayedGame.played_at),
+        extract('month', models.PlayedGame.played_at),
+        extract('day', models.PlayedGame.played_at)
+    ).order_by(
+        extract('year', models.PlayedGame.played_at).asc(),
+        extract('month', models.PlayedGame.played_at).asc(),
+        extract('day', models.PlayedGame.played_at).asc()
+    ).all()
+    
+    # Voeg dag van de week toe
+    weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    result = []
+    for year, month, day, count in days_with_count:
+        try:
+            d = date(int(year), int(month), int(day))
+            weekday = weekday_names[d.weekday()]
+            result.append((int(year), int(month), int(day), weekday, int(count)))
+        except ValueError:
+            # Skip ongeldige datums
+            continue
+    
+    return result 
