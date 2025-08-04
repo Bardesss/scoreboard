@@ -1,77 +1,92 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Societies</h2>
-    <table class="table table-striped mb-4">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Players</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for society in societies %}
-        <tr>
-          <td>{{ society.name }}</td>
-          <td>
-            {% set player_ids = society.player_ids.split(',') %}
-            {% for player in players %}
-              {% if player.id|string in player_ids %}
-                {{ player.name }}{% if not loop.last %}, {% endif %}
-              {% endif %}
-            {% endfor %}
-          </td>
-          <td>
-            <a href="/societies/{{ society.id }}/games" class="btn btn-primary btn-sm me-1" title="View Games">
-              <i class="bi bi-eye"></i>
-            </a>
-            <a href="/societies/{{ society.id }}/stats" class="btn btn-info btn-sm me-1" title="Statistics">
-              <i class="bi bi-graph-up"></i>
-            </a>
-            {% if request.session.get('is_admin') %}
-            <a href="/societies/{{ society.id }}/games/add" class="btn btn-success btn-sm" title="Add Game">
-              <i class="bi bi-plus-circle"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="3">No societies found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
-    <h2 class="card-title mb-4">Recent Played Games</h2>
-    <table class="table table-striped">
-      <thead><tr><th>Date</th><th>Society</th><th>Boardgame</th><th>Winner</th></tr></thead>
-      <tbody>
-        {% for game in played_games %}
-        <tr>
-          <td>{{ game.played_at.strftime('%d/%m/%Y %H:%M') }}</td>
-          <td>
-            {% for s in societies %}{% if s.id == game.society_id %}{{ s.name }}{% endif %}{% endfor %}
-          </td>
-          <td>
-            {% for g in games %}{% if g.id == game.boardgame_id %}{{ g.name }}{% endif %}{% endfor %}
-          </td>
-          <td>
-            {% set winner_id = game.winner_id if game.winner_id else game.winner_id_task %}
-            {% if winner_id %}
-              {% for p in players %}
-                {% if p.id == winner_id %}
-                  {{ p.name }}
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Societies</h2>
+    <div class="mdc-data-table">
+      <table class="mdc-data-table__table">
+        <thead class="mdc-data-table__header-row">
+          <tr>
+            <th class="mdc-data-table__header-cell">Name</th>
+            <th class="mdc-data-table__header-cell">Players</th>
+            <th class="mdc-data-table__header-cell text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="mdc-data-table__content">
+          {% for society in societies %}
+          <tr class="mdc-data-table__row">
+            <td class="mdc-data-table__cell">{{ society.name }}</td>
+            <td class="mdc-data-table__cell">
+              {% set player_ids = society.player_ids.split(',') %}
+              {% for player in players %}
+                {% if player.id|string in player_ids %}
+                  {{ player.name }}{% if not loop.last %}, {% endif %}
                 {% endif %}
               {% endfor %}
-            {% else %}
-              -
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </td>
+            <td class="mdc-data-table__cell text-right">
+              <div class="btn-group" role="group">
+                <a href="/societies/{{ society.id }}/games" class="mdc-button mdc-button--text" title="View Games">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="/societies/{{ society.id }}/stats" class="mdc-button mdc-button--text" title="Statistics">
+                  <i class="bi bi-graph-up"></i>
+                </a>
+                {% if request.session.get('is_admin') %}
+                <a href="/societies/{{ society.id }}/games/add" class="mdc-button mdc-button--text" title="Add Game">
+                  <i class="bi bi-plus-circle"></i>
+                </a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr class="mdc-data-table__row">
+            <td class="mdc-data-table__cell" colspan="3">No societies found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <h2 class="mdc-typography--headline5 mb-4 mt-5">Recent Played Games</h2>
+    <div class="mdc-data-table">
+      <table class="mdc-data-table__table">
+        <thead class="mdc-data-table__header-row">
+          <tr>
+            <th class="mdc-data-table__header-cell">Date</th>
+            <th class="mdc-data-table__header-cell">Society</th>
+            <th class="mdc-data-table__header-cell">Boardgame</th>
+            <th class="mdc-data-table__header-cell">Winner</th>
+          </tr>
+        </thead>
+        <tbody class="mdc-data-table__content">
+          {% for game in played_games %}
+          <tr class="mdc-data-table__row">
+            <td class="mdc-data-table__cell">{{ game.played_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td class="mdc-data-table__cell">
+              {% for s in societies %}{% if s.id == game.society_id %}{{ s.name }}{% endif %}{% endfor %}
+            </td>
+            <td class="mdc-data-table__cell">
+              {% for g in games %}{% if g.id == game.boardgame_id %}{{ g.name }}{% endif %}{% endfor %}
+            </td>
+            <td class="mdc-data-table__cell">
+              {% set winner_id = game.winner_id if game.winner_id else game.winner_id_task %}
+              {% if winner_id %}
+                {% for p in players %}
+                  {% if p.id == winner_id %}
+                    {{ p.name }}
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %} 

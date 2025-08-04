@@ -1,20 +1,56 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Edit Player</h2>
-    <form method="post" action="/admin/players/edit/{{ player.id }}" class="row g-3 mb-4">
-      <div class="col-md-6">
-        <input type="text" name="name" class="form-control" value="{{ player.name }}" required>
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Edit Player</h2>
+    {% if errors %}
+      {% for error in errors %}
+      <div class="alert alert-danger" role="alert" data-alert-id="{{ loop.index }}">
+        <span>{{ error }}</span>
+        <button type="button" class="alert-close" onclick="closeAlert({{ loop.index }})">
+          <i class="bi bi-x"></i>
+        </button>
       </div>
-      <div class="col-md-4">
-        <input type="color" name="color" class="form-control form-control-color" value="{{ player.color }}" required>
+      {% endfor %}
+    {% endif %}
+    <form method="post" action="/admin/players/edit/{{ player.id }}" class="row mb-4" novalidate>
+      <div class="edit-form-field">
+        <div class="mdc-text-field">
+          <input type="text" name="name" class="mdc-text-field__input" value="{{ player.name }}" required>
+          <label class="mdc-text-field__label">Name</label>
+        </div>
       </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-success w-100">Save</button>
+      <div class="edit-form-field">
+        <input type="color" name="color" class="color-picker" value="{{ player.color }}" required>
+      </div>
+      <div class="edit-form-button">
+        <button type="submit" class="mdc-button mdc-button--raised form-button">Save</button>
       </div>
     </form>
-    <a href="/admin/players" class="btn btn-secondary">Back</a>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert && !alert.classList.contains('fade-out')) {
+                closeAlert(alert.dataset.alertId);
+            }
+        }, 5000);
+    });
+});
+
+// Close alert function
+function closeAlert(alertId) {
+    const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
+    if (alert) {
+        alert.classList.add('fade-out');
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }
+}
+</script>
 {% endblock %} 

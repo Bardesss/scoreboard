@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-# Maak data directory als deze niet bestaat
+
 os.makedirs("data", exist_ok=True)
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./data/scoreboard.db"

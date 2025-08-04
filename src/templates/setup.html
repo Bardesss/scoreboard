@@ -1,24 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6 col-lg-4">
-    <div class="card shadow-sm mt-5">
-      <div class="card-body">
-        <h2 class="card-title mb-4">Initial Admin Setup</h2>
-        <p>No admin user found. Please create the first admin account.</p>
-        <form method="post" action="/setup" class="mb-3">
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" name="username" id="username" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" name="password" id="password" class="form-control" required>
-          </div>
-          <button type="submit" class="btn btn-success w-100">Create Admin</button>
-        </form>
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Setup</h2>
+    <form method="post" action="/setup" class="row mb-4">
+      <div class="col-md-6">
+        <div class="mdc-text-field">
+          <input type="text" name="username" class="mdc-text-field__input" placeholder=" " required>
+          <label class="mdc-text-field__label">Username</label>
+        </div>
       </div>
-    </div>
+      <div class="col-md-6">
+        <div class="mdc-text-field">
+          <input type="password" name="password" class="mdc-text-field__input" placeholder=" " required>
+          <label class="mdc-text-field__label">Password</label>
+        </div>
+      </div>
+      <div class="col-md-12">
+        <button type="submit" class="mdc-button mdc-button--raised">Create Admin User</button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %} 

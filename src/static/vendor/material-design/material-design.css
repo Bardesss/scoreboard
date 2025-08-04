@@ -1,0 +1,492 @@
+/* Material Design CSS - Custom Implementation */
+
+:root {
+  /* Material Design Colors */
+  --mdc-primary: #6200ee;
+  --mdc-primary-variant: #3700b3;
+  --mdc-secondary: #03dac6;
+  --mdc-secondary-variant: #018786;
+  --mdc-background: #ffffff;
+  --mdc-surface: #ffffff;
+  --mdc-error: #b00020;
+  --mdc-on-primary: #ffffff;
+  --mdc-on-secondary: #000000;
+  --mdc-on-background: #000000;
+  --mdc-on-surface: #000000;
+  --mdc-on-error: #ffffff;
+  
+  /* Elevation shadows */
+  --mdc-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  --mdc-elevation-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  --mdc-elevation-4: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  --mdc-elevation-8: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+  
+  /* Typography */
+  --mdc-typography-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mdc-typography-headline1: 96px;
+  --mdc-typography-headline2: 60px;
+  --mdc-typography-headline3: 48px;
+  --mdc-typography-headline4: 34px;
+  --mdc-typography-headline5: 24px;
+  --mdc-typography-headline6: 20px;
+  --mdc-typography-subtitle1: 16px;
+  --mdc-typography-subtitle2: 14px;
+  --mdc-typography-body1: 16px;
+  --mdc-typography-body2: 14px;
+  --mdc-typography-button: 14px;
+  --mdc-typography-caption: 12px;
+  --mdc-typography-overline: 10px;
+  
+  /* Spacing */
+  --mdc-spacing-1: 8px;
+  --mdc-spacing-2: 16px;
+  --mdc-spacing-3: 24px;
+  --mdc-spacing-4: 32px;
+  --mdc-spacing-5: 40px;
+  
+  /* Border radius */
+  --mdc-border-radius: 4px;
+  --mdc-border-radius-large: 8px;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--mdc-typography-font-family);
+  background-color: var(--mdc-background);
+  color: var(--mdc-on-background);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography classes */
+.mdc-typography--headline1 { font-size: var(--mdc-typography-headline1); }
+.mdc-typography--headline2 { font-size: var(--mdc-typography-headline2); }
+.mdc-typography--headline3 { font-size: var(--mdc-typography-headline3); }
+.mdc-typography--headline4 { font-size: var(--mdc-typography-headline4); }
+.mdc-typography--headline5 { font-size: var(--mdc-typography-headline5); }
+.mdc-typography--headline6 { font-size: var(--mdc-typography-headline6); }
+.mdc-typography--subtitle1 { font-size: var(--mdc-typography-subtitle1); }
+.mdc-typography--subtitle2 { font-size: var(--mdc-typography-subtitle2); }
+.mdc-typography--body1 { font-size: var(--mdc-typography-body1); }
+.mdc-typography--body2 { font-size: var(--mdc-typography-body2); }
+.mdc-typography--button { font-size: var(--mdc-typography-button); }
+.mdc-typography--caption { font-size: var(--mdc-typography-caption); }
+.mdc-typography--overline { font-size: var(--mdc-typography-overline); }
+
+/* Material Design Button */
+.mdc-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 64px;
+  border: none;
+  outline: none;
+  line-height: inherit;
+  user-select: none;
+  -webkit-appearance: none;
+  overflow: hidden;
+  vertical-align: middle;
+  border-radius: var(--mdc-border-radius);
+  padding: 0 var(--mdc-spacing-2);
+  height: 36px;
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-button);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.0892857143em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdc-button--raised {
+  background-color: var(--mdc-primary);
+  color: var(--mdc-on-primary);
+  box-shadow: var(--mdc-elevation-1);
+}
+
+.mdc-button--raised:hover {
+  box-shadow: var(--mdc-elevation-2);
+  background-color: var(--mdc-primary-variant);
+}
+
+.mdc-button--outlined {
+  background-color: transparent;
+  color: var(--mdc-primary);
+  border: 1px solid var(--mdc-primary);
+}
+
+.mdc-button--outlined:hover {
+  background-color: rgba(98, 0, 238, 0.04);
+}
+
+.mdc-button--text {
+  background-color: transparent;
+  color: var(--mdc-primary);
+}
+
+.mdc-button--text:hover {
+  background-color: rgba(98, 0, 238, 0.04);
+}
+
+/* Material Design Card */
+.mdc-card {
+  background-color: var(--mdc-surface);
+  border-radius: var(--mdc-border-radius-large);
+  box-shadow: var(--mdc-elevation-1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdc-card:hover {
+  box-shadow: var(--mdc-elevation-2);
+}
+
+.mdc-card__content {
+  padding: var(--mdc-spacing-2);
+}
+
+.mdc-card__actions {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 8px;
+}
+
+/* Material Design Text Field */
+.mdc-text-field {
+  display: inline-flex;
+  position: relative;
+  box-sizing: border-box;
+  height: 56px;
+  margin: 8px 0;
+  border-radius: var(--mdc-border-radius) var(--mdc-border-radius) 0 0;
+  background-color: #f5f5f5;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdc-text-field:hover {
+  background-color: #eeeeee;
+}
+
+.mdc-text-field--focused {
+  background-color: #e0e0e0;
+}
+
+.mdc-text-field__input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 20px 16px 6px;
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-body1);
+  color: var(--mdc-on-surface);
+}
+
+.mdc-text-field__label {
+  position: absolute;
+  left: 16px;
+  top: 20px;
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-body1);
+  color: rgba(0, 0, 0, 0.6);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.mdc-text-field--focused .mdc-text-field__label,
+.mdc-text-field--label-floating .mdc-text-field__label {
+  top: 8px;
+  font-size: var(--mdc-typography-caption);
+  color: var(--mdc-primary);
+}
+
+/* Material Design Navigation */
+.mdc-top-app-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background-color: var(--mdc-primary);
+  color: var(--mdc-on-primary);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--mdc-spacing-2);
+  box-shadow: var(--mdc-elevation-1);
+  z-index: 1000;
+}
+
+.mdc-top-app-bar__row {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.mdc-top-app-bar__section {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+.mdc-top-app-bar__section--align-start {
+  justify-content: flex-start;
+  order: -1;
+}
+
+.mdc-top-app-bar__section--align-end {
+  justify-content: flex-end;
+  order: 1;
+}
+
+.mdc-top-app-bar__title {
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-headline6);
+  font-weight: 500;
+  line-height: 2rem;
+  letter-spacing: 0.0125em;
+  text-decoration: inherit;
+  text-transform: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 0;
+}
+
+.mdc-top-app-bar__navigation-icon {
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  color: var(--mdc-on-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdc-top-app-bar__navigation-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Material Design Table */
+.mdc-data-table {
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--mdc-border-radius);
+  background-color: var(--mdc-surface);
+  box-shadow: var(--mdc-elevation-1);
+}
+
+.mdc-data-table__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mdc-data-table__header-row {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mdc-data-table__header-cell {
+  padding: 0 var(--mdc-spacing-2);
+  height: 56px;
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-subtitle2);
+  font-weight: 500;
+  line-height: 1.375rem;
+  letter-spacing: 0.0071428571em;
+  color: var(--mdc-on-surface);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.mdc-data-table__content {
+  background-color: var(--mdc-surface);
+}
+
+.mdc-data-table__cell {
+  padding: 0 var(--mdc-spacing-2);
+  height: 52px;
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-body2);
+  line-height: 1.25rem;
+  letter-spacing: 0.0178571429em;
+  color: var(--mdc-on-surface);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mdc-data-table__row:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Material Design Chip */
+.mdc-chip {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 32px;
+  border: none;
+  border-radius: 16px;
+  background-color: #e0e0e0;
+  color: var(--mdc-on-surface);
+  font-family: var(--mdc-typography-font-family);
+  font-size: var(--mdc-typography-body2);
+  line-height: 1.25rem;
+  letter-spacing: 0.0178571429em;
+  padding: 0 12px;
+  margin: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdc-chip:hover {
+  background-color: #d5d5d5;
+}
+
+.mdc-chip--selected {
+  background-color: var(--mdc-primary);
+  color: var(--mdc-on-primary);
+}
+
+/* Material Design FAB */
+.mdc-fab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--mdc-secondary);
+  color: var(--mdc-on-secondary);
+  cursor: pointer;
+  box-shadow: var(--mdc-elevation-4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdc-fab:hover {
+  box-shadow: var(--mdc-elevation-8);
+  background-color: var(--mdc-secondary-variant);
+}
+
+/* Layout utilities */
+.mdc-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mdc-layout__content {
+  flex: 1;
+  padding-top: 64px;
+  padding-bottom: var(--mdc-spacing-4);
+}
+
+.mdc-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--mdc-spacing-2);
+}
+
+.mdc-grid {
+  display: grid;
+  gap: var(--mdc-spacing-2);
+}
+
+.mdc-grid--cols-1 { grid-template-columns: 1fr; }
+.mdc-grid--cols-2 { grid-template-columns: repeat(2, 1fr); }
+.mdc-grid--cols-3 { grid-template-columns: repeat(3, 1fr); }
+.mdc-grid--cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Form elements */
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.form-check-input {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mdc-primary);
+}
+
+.form-check-label {
+  font-size: var(--mdc-typography-body2);
+  color: var(--mdc-on-surface);
+  cursor: pointer;
+}
+
+/* Button group */
+.btn-group {
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* Utility classes */
+.w-100 { width: 100%; }
+.d-flex { display: flex; }
+.align-items-center { align-items: center; }
+.justify-content-center { justify-content: center; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-muted { color: rgba(0, 0, 0, 0.6); }
+.small { font-size: var(--mdc-typography-caption); }
+
+.mdc-mt-1 { margin-top: var(--mdc-spacing-1); }
+.mdc-mt-2 { margin-top: var(--mdc-spacing-2); }
+.mdc-mt-3 { margin-top: var(--mdc-spacing-3); }
+.mdc-mt-4 { margin-top: var(--mdc-spacing-4); }
+
+.mdc-mb-1 { margin-bottom: var(--mdc-spacing-1); }
+.mdc-mb-2 { margin-bottom: var(--mdc-spacing-2); }
+.mdc-mb-3 { margin-bottom: var(--mdc-spacing-3); }
+.mdc-mb-4 { margin-bottom: var(--mdc-spacing-4); }
+
+.mdc-p-1 { padding: var(--mdc-spacing-1); }
+.mdc-p-2 { padding: var(--mdc-spacing-2); }
+.mdc-p-3 { padding: var(--mdc-spacing-3); }
+.mdc-p-4 { padding: var(--mdc-spacing-4); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mdc-grid--cols-2,
+  .mdc-grid--cols-3,
+  .mdc-grid--cols-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  .mdc-top-app-bar {
+    height: 56px;
+  }
+  
+  .mdc-layout__content {
+    padding-top: 56px;
+  }
+} 

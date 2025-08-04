@@ -1,24 +1,127 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Edit Boardgame</h2>
-    <form method="post" action="/admin/boardgames/edit/{{ game.id }}" class="row g-3 mb-4">
-      <div class="col-md-6">
-        <input type="text" name="name" class="form-control" value="{{ game.name }}" required>
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Edit Boardgame</h2>
+    {% if errors %}
+      {% for error in errors %}
+      <div class="alert alert-danger" role="alert" data-alert-id="{{ loop.index }}">
+        <span>{{ error }}</span>
+        <button type="button" class="alert-close" onclick="closeAlert({{ loop.index }})">
+          <i class="bi bi-x"></i>
+        </button>
       </div>
-      <div class="col-md-4">
-        <select name="win_type" class="form-select" required>
-          <option value="winner" {% if game.win_type == 'winner' %}selected{% endif %}>Winner (yes/no)</option>
-          <option value="points" {% if game.win_type == 'points' %}selected{% endif %}>Points</option>
-          <option value="task" {% if game.win_type == 'task' %}selected{% endif %}>Task</option>
-        </select>
+      {% endfor %}
+    {% endif %}
+    <form method="post" action="/admin/boardgames/edit/{{ game.id }}" class="row mb-4" novalidate>
+      <div class="edit-form-field">
+        <div class="mdc-text-field">
+          <input type="text" name="name" class="mdc-text-field__input" placeholder=" " value="{{ game.name }}" required>
+          <label class="mdc-text-field__label">Name</label>
+        </div>
       </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-success w-100">Save</button>
+      <div class="edit-form-field">
+        <div class="custom-single-select">
+          <div class="single-select-trigger" id="winTypeSelect">
+            <span id="winTypeSelectText">Select win type</span>
+            <div class="single-select-arrow">▼</div>
+          </div>
+          <div class="single-select-dropdown" id="winTypeSelectDropdown">
+            <div class="single-select-option" data-value="">
+              <span>Select win type</span>
+            </div>
+            <div class="single-select-option" data-value="winner" {% if game.win_type == 'winner' %}data-selected="true"{% endif %}>
+              <span>Winner (yes/no)</span>
+            </div>
+            <div class="single-select-option" data-value="points" {% if game.win_type == 'points' %}data-selected="true"{% endif %}>
+              <span>Points</span>
+            </div>
+            <div class="single-select-option" data-value="task" {% if game.win_type == 'task' %}data-selected="true"{% endif %}>
+              <span>Task</span>
+            </div>
+          </div>
+          <input type="hidden" name="win_type" id="winTypeSelectInput" required>
+        </div>
+      </div>
+      <div class="edit-form-button">
+        <button type="submit" class="mdc-button mdc-button--raised form-button">Save</button>
       </div>
     </form>
-    <a href="/admin/boardgames" class="btn btn-secondary">Back</a>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Custom single select functionality
+    const winTypeSelect = document.getElementById('winTypeSelect');
+    const winTypeDropdown = document.getElementById('winTypeSelectDropdown');
+    const winTypeContainer = winTypeSelect.parentElement;
+    const winTypeTextElement = document.getElementById('winTypeSelectText');
+    const winTypeInputElement = document.getElementById('winTypeSelectInput');
+    const winTypeOptions = winTypeDropdown.querySelectorAll('.single-select-option');
+
+    // Initialize with selected value if exists
+    const selectedOption = winTypeDropdown.querySelector('[data-selected="true"]');
+    if (selectedOption) {
+        const value = selectedOption.dataset.value;
+        const text = selectedOption.querySelector('span').textContent;
+        winTypeInputElement.value = value;
+        winTypeTextElement.textContent = text;
+        selectedOption.classList.add('selected');
+    }
+
+    winTypeSelect.addEventListener('click', function(e) {
+        e.preventDefault();
+        winTypeContainer.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!winTypeContainer.contains(e.target)) {
+            winTypeContainer.classList.remove('active');
+        }
+    });
+
+    // Handle option selection
+    winTypeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const text = this.querySelector('span').textContent;
+            
+            // Update hidden input
+            winTypeInputElement.value = value;
+            
+            // Update display text
+            winTypeTextElement.textContent = text;
+            
+            // Update selected state
+            winTypeOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Close dropdown
+            winTypeContainer.classList.remove('active');
+        });
+    });
+
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert && !alert.classList.contains('fade-out')) {
+                closeAlert(alert.dataset.alertId);
+            }
+        }, 5000);
+    });
+});
+
+// Close alert function
+function closeAlert(alertId) {
+    const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
+    if (alert) {
+        alert.classList.add('fade-out');
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }
+}
+</script>
 {% endblock %} 

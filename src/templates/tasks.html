@@ -1,68 +1,179 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Tasks</h2>
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-      {{ error }}
-    </div>
-    {% endif %}
-    <form method="get" action="/admin/tasks" class="row g-3 mb-4">
-      <div class="col-md-6">
-        <select name="boardgame_id" class="form-select" required onchange="this.form.submit()">
-          <option value="">Select Boardgame</option>
-          {% for game in games %}
-          <option value="{{ game.id }}" {% if game.id == selected_boardgame_id %}selected{% endif %}>{{ game.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </form>
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
     {% if selected_boardgame_id %}
-    <form method="post" action="/admin/tasks/add" class="row g-3 mb-4">
-      <input type="hidden" name="boardgame_id" value="{{ selected_boardgame_id }}">
-      <div class="col-md-2">
-        <input type="number" name="number" class="form-control" placeholder="Number" value="{{ next_number }}" required readonly>
-      </div>
-      <div class="col-md-6">
-        <input type="text" name="name" class="form-control" placeholder="Task Name" required>
-      </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">
-          <i class="bi bi-list-task"></i> Add Task
+      {% for game in games %}
+        {% if game.id == selected_boardgame_id %}
+          <h2 class="mdc-typography--headline5 mb-4">Tasks for {{ game.name }}</h2>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <h2 class="mdc-typography--headline5 mb-4">Tasks</h2>
+    {% endif %}
+    
+    {% if errors %}
+      {% for error in errors %}
+      <div class="alert alert-danger" role="alert" data-alert-id="{{ loop.index }}">
+        <span>{{ error }}</span>
+        <button type="button" class="alert-close" onclick="closeAlert({{ loop.index }})">
+          <i class="bi bi-x"></i>
         </button>
       </div>
+      {% endfor %}
+    {% endif %}
+    
+    {% if not selected_boardgame_id %}
+    <form method="get" action="/admin/tasks" class="row mb-4">
+      <div class="col-md-6">
+        <div class="custom-single-select">
+          <div class="single-select-trigger" id="boardgameSelect">
+            <span id="boardgameSelectText">Select boardgame</span>
+            <div class="single-select-arrow">▼</div>
+          </div>
+          <div class="single-select-dropdown" id="boardgameSelectDropdown">
+            <div class="single-select-option" data-value="">
+              <span>Select boardgame</span>
+            </div>
+            {% for game in games %}
+              <div class="single-select-option" data-value="{{ game.id }}" {% if game.id == selected_boardgame_id %}data-selected="true"{% endif %}>
+                <span>{{ game.name }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="boardgame_id" id="boardgameSelectInput" required>
+        </div>
+      </div>
     </form>
-    <table class="table table-striped table-hover align-middle">
-      <thead>
-        <tr>
-          <th class="task-number-col">Number</th>
-          <th class="task-name-col">Name</th>
-          <th class="task-actions-col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for task in tasks %}
-        <tr>
-          <td class="task-number-col">{{ task.number }}</td>
-          <td class="task-name-col">{{ task.name }}</td>
-          <td class="task-actions-col">
-            <div class="btn-group" role="group">
-              <a href="/admin/tasks/edit/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" class="btn btn-warning btn-sm" title="Edit Task">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <form method="post" action="/admin/tasks/delete/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" style="display:inline;">
-                <button type="submit" class="btn btn-danger btn-sm" title="Delete Task" onclick="return confirm('Are you sure you want to delete this task?')">
+    {% endif %}
+    {% if selected_boardgame_id %}
+    <form method="post" action="/admin/tasks/add" class="row mb-4" novalidate>
+      <input type="hidden" name="boardgame_id" value="{{ selected_boardgame_id }}">
+      <div class="edit-form-field">
+        <div class="mdc-text-field">
+          <input type="number" name="number" class="mdc-text-field__input" placeholder=" " value="{{ next_number }}" required readonly>
+          <label class="mdc-text-field__label">Number</label>
+        </div>
+      </div>
+      <div class="edit-form-field">
+        <div class="mdc-text-field">
+          <input type="text" name="name" class="mdc-text-field__input" placeholder=" " required>
+          <label class="mdc-text-field__label">Task Name</label>
+        </div>
+      </div>
+      <div class="edit-form-button">
+        <button type="submit" class="mdc-button mdc-button--raised form-button">Add Task</button>
+      </div>
+    </form>
+    <div class="mdc-data-table">
+      <table class="mdc-data-table__table">
+        <thead class="mdc-data-table__header-row">
+          <tr>
+            <th class="mdc-data-table__header-cell task-number-col">Number</th>
+            <th class="mdc-data-table__header-cell task-name-col">Name</th>
+            <th class="mdc-data-table__header-cell task-actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="mdc-data-table__content">
+          {% for task in tasks %}
+          <tr class="mdc-data-table__row">
+            <td class="mdc-data-table__cell task-number-col">{{ task.number }}</td>
+            <td class="mdc-data-table__cell task-name-col">{{ task.name }}</td>
+            <td class="mdc-data-table__cell task-actions-col">
+              <div class="btn-group" role="group">
+                <a href="/admin/tasks/edit/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" class="mdc-button mdc-button--text" title="Edit Task">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <button type="submit" form="delete-task-{{ task.id }}" class="mdc-button mdc-button--text" title="Delete Task" onclick="return confirm('Are you sure you want to delete this task?')" style="color: var(--mdc-error);">
                   <i class="bi bi-trash"></i>
                 </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+              </div>
+              <form id="delete-task-{{ task.id }}" method="post" action="/admin/tasks/delete/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" style="display:none;"></form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% endif %}
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Custom single select functionality
+    const boardgameSelect = document.getElementById('boardgameSelect');
+    const boardgameDropdown = document.getElementById('boardgameSelectDropdown');
+    const boardgameContainer = boardgameSelect.parentElement;
+    const boardgameTextElement = document.getElementById('boardgameSelectText');
+    const boardgameInputElement = document.getElementById('boardgameSelectInput');
+    const boardgameOptions = boardgameDropdown.querySelectorAll('.single-select-option');
+
+    // Initialize with selected value if exists
+    const selectedOption = boardgameDropdown.querySelector('[data-selected="true"]');
+    if (selectedOption) {
+        const value = selectedOption.dataset.value;
+        const text = selectedOption.querySelector('span').textContent;
+        boardgameInputElement.value = value;
+        boardgameTextElement.textContent = text;
+        selectedOption.classList.add('selected');
+    }
+
+    boardgameSelect.addEventListener('click', function(e) {
+        e.preventDefault();
+        boardgameContainer.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!boardgameContainer.contains(e.target)) {
+            boardgameContainer.classList.remove('active');
+        }
+    });
+
+    // Handle option selection
+    boardgameOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const text = this.querySelector('span').textContent;
+            
+            // Update hidden input
+            boardgameInputElement.value = value;
+            
+            // Update display text
+            boardgameTextElement.textContent = text;
+            
+            // Update selected state
+            boardgameOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Close dropdown
+            boardgameContainer.classList.remove('active');
+            
+            // Submit form
+            this.closest('form').submit();
+        });
+    });
+
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert && !alert.classList.contains('fade-out')) {
+                closeAlert(alert.dataset.alertId);
+            }
+        }, 5000);
+    });
+});
+
+// Close alert function
+function closeAlert(alertId) {
+    const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
+    if (alert) {
+        alert.classList.add('fade-out');
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }
+}
+</script>
 {% endblock %} 
