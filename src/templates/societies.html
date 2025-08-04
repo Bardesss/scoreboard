@@ -1,62 +1,196 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Societies</h2>
-    <form method="post" action="/admin/societies/add" class="row g-3 mb-4">
-      <div class="col-md-3">
-        <input type="text" name="name" class="form-control" placeholder="Society Name" required>
-      </div>
-      <div class="col-md-4">
-        <select name="player_ids" class="form-select" multiple required>
-          {% for player in players | sort(attribute='name') %}
-          <option value="{{ player.id }}">{{ player.name }}</option>
-          {% endfor %}
-        </select>
-        <small>Select one or more players (Ctrl/Command + click)</small>
-      </div>
-      <div class="col-md-3">
-        <select name="boardgame_ids" class="form-select" required>
-          {% for game in games | sort(attribute='name') %}
-          <option value="{{ game.id }}">{{ game.name }}</option>
-          {% endfor %}
-        </select>
-        <small>Select one boardgame</small>
-      </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">
-          <i class="bi bi-people"></i> Add Society
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Societies</h2>
+    {% if errors %}
+      {% for error in errors %}
+      <div class="alert alert-danger" role="alert" data-alert-id="{{ loop.index }}">
+        <span>{{ error }}</span>
+        <button type="button" class="alert-close" onclick="closeAlert({{ loop.index }})">
+          <i class="bi bi-x"></i>
         </button>
       </div>
+      {% endfor %}
+    {% endif %}
+    <form method="post" action="/admin/societies/add" class="row mb-4" novalidate>
+      <div class="edit-form-field">
+        <div class="mdc-text-field">
+          <input type="text" name="name" class="mdc-text-field__input" placeholder=" " required>
+          <label class="mdc-text-field__label">Society Name</label>
+        </div>
+      </div>
+      <div class="edit-form-field">
+        <div class="custom-multiselect">
+          <div class="form-select multiselect-trigger" id="playerMultiselect">
+            <span id="playerMultiselectText">Select players</span>
+            <div class="multiselect-arrow">▼</div>
+          </div>
+          <div class="multiselect-dropdown" id="playerMultiselectDropdown">
+            {% for player in players | sort(attribute='name') %}
+            <label class="multiselect-option">
+              <input type="checkbox" name="player_ids" value="{{ player.id }}" class="form-check-input">
+              <span>{{ player.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="edit-form-field">
+        <div class="custom-single-select">
+          <div class="single-select-trigger" id="boardgameSelect">
+            <span id="boardgameSelectText">Select boardgame</span>
+            <div class="single-select-arrow">▼</div>
+          </div>
+          <div class="single-select-dropdown" id="boardgameSelectDropdown">
+            <div class="single-select-option" data-value="">
+              <span>Select boardgame</span>
+            </div>
+            {% for game in games | sort(attribute='name') %}
+            <div class="single-select-option" data-value="{{ game.id }}">
+              <span>{{ game.name }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="boardgame_ids" id="boardgameSelectInput" required>
+        </div>
+      </div>
+      <div class="edit-form-button">
+        <button type="submit" class="mdc-button mdc-button--raised form-button">Add Society</button>
+      </div>
     </form>
-    <table class="table table-striped table-hover align-middle">
-      <thead><tr><th>Name</th><th>Players</th><th>Boardgames</th><th>Actions</th></tr></thead>
-      <tbody>
-        {% for society in societies %}
-        <tr>
-          <td>{{ society.name }}</td>
-          <td>
-            {{ players | selectattr('id', 'in', society.player_ids.split(',') | map('int') | list) | sort(attribute='name') | map(attribute='name') | join(', ') }}
-          </td>
-          <td>
-            {{ games | selectattr('id', 'in', society.boardgame_ids.split(',') | map('int') | list) | map(attribute='name') | join(', ') }}
-          </td>
-          <td>
-            <div class="btn-group" role="group">
-              <a href="/admin/societies/edit/{{ society.id }}" class="btn btn-warning btn-sm" title="Edit Society">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <form method="post" action="/admin/societies/delete/{{ society.id }}" style="display:inline;">
-                <button type="submit" class="btn btn-danger btn-sm" title="Delete Society" onclick="return confirm('Warning: Are you sure you want to delete this society? All associated data will be permanently lost.')">
+    <div class="mdc-data-table">
+      <table class="mdc-data-table__table">
+        <thead class="mdc-data-table__header-row">
+          <tr>
+            <th class="mdc-data-table__header-cell">Name</th>
+            <th class="mdc-data-table__header-cell">Players</th>
+            <th class="mdc-data-table__header-cell">Boardgames</th>
+            <th class="mdc-data-table__header-cell text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="mdc-data-table__content">
+          {% for society in societies %}
+          <tr class="mdc-data-table__row">
+            <td class="mdc-data-table__cell">{{ society.name }}</td>
+            <td class="mdc-data-table__cell">
+              {{ players | selectattr('id', 'in', society.player_ids.split(',') | map('int') | list) | sort(attribute='name') | map(attribute='name') | join(', ') }}
+            </td>
+            <td class="mdc-data-table__cell">
+              {{ games | selectattr('id', 'in', society.boardgame_ids.split(',') | map('int') | list) | map(attribute='name') | join(', ') }}
+            </td>
+            <td class="mdc-data-table__cell text-right">
+              <div class="btn-group" role="group">
+                <a href="/admin/societies/edit/{{ society.id }}" class="mdc-button mdc-button--text" title="Edit Society">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <button type="submit" form="delete-society-{{ society.id }}" class="mdc-button mdc-button--text" title="Delete Society" onclick="return confirm('Warning: Are you sure you want to delete this society? All associated data will be permanently lost.')" style="color: var(--mdc-error);">
                   <i class="bi bi-trash"></i>
                 </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+              </div>
+              <form id="delete-society-{{ society.id }}" method="post" action="/admin/societies/delete/{{ society.id }}" style="display:none;"></form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const multiselect = document.getElementById('playerMultiselect');
+    const dropdown = document.getElementById('playerMultiselectDropdown');
+    const container = multiselect.parentElement;
+    const textElement = document.getElementById('playerMultiselectText');
+    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+
+    multiselect.addEventListener('click', function(e) {
+        e.preventDefault();
+        container.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            container.classList.remove('active');
+        }
+    });
+
+    // Update text when checkboxes change
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateText);
+    });
+
+    function updateText() {
+        const selected = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.nextElementSibling.textContent);
+        
+        if (selected.length === 0) {
+            textElement.textContent = 'Select players';
+        } else if (selected.length === 1) {
+            textElement.textContent = selected[0];
+        } else {
+            textElement.textContent = `${selected.length} players selected`;
+        }
+    }
+
+    // Custom single select functionality
+    const boardgameSelect = document.getElementById('boardgameSelect');
+    const boardgameDropdown = document.getElementById('boardgameSelectDropdown');
+    const boardgameContainer = boardgameSelect.parentElement;
+    const boardgameTextElement = document.getElementById('boardgameSelectText');
+    const boardgameInputElement = document.getElementById('boardgameSelectInput');
+    const boardgameOptions = boardgameDropdown.querySelectorAll('.single-select-option');
+
+    boardgameSelect.addEventListener('click', function(e) {
+        e.preventDefault();
+        boardgameContainer.classList.toggle('active');
+    });
+
+    // Handle option selection
+    boardgameOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const text = this.querySelector('span').textContent;
+            
+            // Update hidden input
+            boardgameInputElement.value = value;
+            
+            // Update display text
+            boardgameTextElement.textContent = text;
+            
+            // Update selected state
+            boardgameOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Close dropdown
+            boardgameContainer.classList.remove('active');
+        });
+    });
+
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert && !alert.classList.contains('fade-out')) {
+                closeAlert(alert.dataset.alertId);
+            }
+        }, 5000);
+    });
+});
+
+// Close alert function
+function closeAlert(alertId) {
+    const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
+    if (alert) {
+        alert.classList.add('fade-out');
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }
+}
+</script>
 {% endblock %} 

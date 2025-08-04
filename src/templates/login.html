@@ -2,26 +2,30 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6 col-lg-4">
-    <div class="card shadow-sm mt-5">
-      <div class="card-body">
-        <h2 class="card-title mb-4">Login</h2>
+    <div class="mdc-card mt-5">
+      <div class="mdc-card__content">
+        <h2 class="mdc-typography--headline5 mb-4 text-center">Login</h2>
         {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
         <form method="post" action="/login" class="mb-3">
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" name="username" id="username" class="form-control" required>
+          <div class="form-group mb-3">
+            <div class="mdc-text-field">
+              <input type="text" name="username" id="username" class="mdc-text-field__input" placeholder=" " required>
+              <label class="mdc-text-field__label">Username</label>
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" name="password" id="password" class="form-control" required>
+          <div class="form-group mb-3">
+            <div class="mdc-text-field">
+              <input type="password" name="password" id="password" class="mdc-text-field__input" placeholder=" " required>
+              <label class="mdc-text-field__label">Password</label>
+            </div>
           </div>
-          <div class="mb-3">
+          <div class="form-group mb-4">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" name="remember_me" id="remember_me">
               <label class="form-check-label" for="remember_me">Remember me</label>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary w-100">Login</button>
+          <button type="submit" class="mdc-button mdc-button--raised w-100">Login</button>
         </form>
       </div>
     </div>

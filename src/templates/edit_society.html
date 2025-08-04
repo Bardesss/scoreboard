@@ -1,33 +1,173 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Edit Society</h2>
-    <form method="post" action="/admin/societies/edit/{{ society.id }}" class="row g-3 mb-4">
-      <div class="col-md-3">
-        <input type="text" name="name" class="form-control" value="{{ society.name }}" required>
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Edit Society</h2>
+    {% if errors %}
+      {% for error in errors %}
+      <div class="alert alert-danger" role="alert" data-alert-id="{{ loop.index }}">
+        <span>{{ error }}</span>
+        <button type="button" class="alert-close" onclick="closeAlert({{ loop.index }})">
+          <i class="bi bi-x"></i>
+        </button>
       </div>
-      <div class="col-md-4">
-        <select name="player_ids" class="form-select" multiple required>
-          {% for player in players %}
-          <option value="{{ player.id }}" {% if player.id in selected_players %}selected{% endif %}>{{ player.name }}</option>
-          {% endfor %}
-        </select>
-        <small>Select one or more players (Ctrl/Command + click)</small>
+      {% endfor %}
+    {% endif %}
+    <form method="post" action="/admin/societies/edit/{{ society.id }}" class="row mb-4" novalidate>
+      <div class="edit-form-field">
+        <div class="mdc-text-field">
+          <input type="text" name="name" class="mdc-text-field__input" placeholder=" " value="{{ society.name }}" required>
+          <label class="mdc-text-field__label">Society Name</label>
+        </div>
       </div>
-      <div class="col-md-3">
-        <select name="boardgame_ids" class="form-select" required>
-          {% for game in games %}
-          <option value="{{ game.id }}" {% if game.id in selected_games %}selected{% endif %}>{{ game.name }}</option>
-          {% endfor %}
-        </select>
-        <small>Select één bordspel</small>
+      <div class="edit-form-field">
+        <div class="custom-multiselect">
+          <div class="form-select multiselect-trigger" id="playerMultiselect">
+            <span id="playerMultiselectText">Select players</span>
+            <div class="multiselect-arrow">▼</div>
+          </div>
+          <div class="multiselect-dropdown" id="playerMultiselectDropdown">
+            {% for player in players | sort(attribute='name') %}
+            <label class="multiselect-option">
+              <input type="checkbox" name="player_ids" value="{{ player.id }}" class="form-check-input" {% if player.id|string in society.player_ids.split(',') %}checked{% endif %}>
+              <span>{{ player.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
       </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-success w-100">Save</button>
+      <div class="edit-form-field">
+        <div class="custom-single-select">
+          <div class="single-select-trigger" id="boardgameSelect">
+            <span id="boardgameSelectText">Select boardgame</span>
+            <div class="single-select-arrow">▼</div>
+          </div>
+          <div class="single-select-dropdown" id="boardgameSelectDropdown">
+            <div class="single-select-option" data-value="">
+              <span>Select boardgame</span>
+            </div>
+            {% for game in games | sort(attribute='name') %}
+            <div class="single-select-option" data-value="{{ game.id }}" {% if game.id|string in society.boardgame_ids.split(',') %}data-selected="true"{% endif %}>
+              <span>{{ game.name }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="boardgame_ids" id="boardgameSelectInput" required>
+        </div>
+      </div>
+      <div class="edit-form-button">
+        <button type="submit" class="mdc-button mdc-button--raised form-button">Save</button>
       </div>
     </form>
-    <a href="/admin/societies" class="btn btn-secondary">Back</a>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const multiselect = document.getElementById('playerMultiselect');
+    const dropdown = document.getElementById('playerMultiselectDropdown');
+    const container = multiselect.parentElement;
+    const textElement = document.getElementById('playerMultiselectText');
+    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+
+    multiselect.addEventListener('click', function(e) {
+        e.preventDefault();
+        container.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            container.classList.remove('active');
+        }
+    });
+
+    // Update text when checkboxes change
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateText);
+    });
+
+    function updateText() {
+        const selected = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.nextElementSibling.textContent);
+        
+        if (selected.length === 0) {
+            textElement.textContent = 'Select players';
+        } else if (selected.length === 1) {
+            textElement.textContent = selected[0];
+        } else {
+            textElement.textContent = `${selected.length} players selected`;
+        }
+    }
+
+    // Initialize text on load
+    updateText();
+
+    // Custom single select functionality
+    const boardgameSelect = document.getElementById('boardgameSelect');
+    const boardgameDropdown = document.getElementById('boardgameSelectDropdown');
+    const boardgameContainer = boardgameSelect.parentElement;
+    const boardgameTextElement = document.getElementById('boardgameSelectText');
+    const boardgameInputElement = document.getElementById('boardgameSelectInput');
+    const boardgameOptions = boardgameDropdown.querySelectorAll('.single-select-option');
+
+    // Initialize with selected value if exists
+    const selectedOption = boardgameDropdown.querySelector('[data-selected="true"]');
+    if (selectedOption) {
+        const value = selectedOption.dataset.value;
+        const text = selectedOption.querySelector('span').textContent;
+        boardgameInputElement.value = value;
+        boardgameTextElement.textContent = text;
+        selectedOption.classList.add('selected');
+    }
+
+    boardgameSelect.addEventListener('click', function(e) {
+        e.preventDefault();
+        boardgameContainer.classList.toggle('active');
+    });
+
+    // Handle option selection
+    boardgameOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const text = this.querySelector('span').textContent;
+            
+            // Update hidden input
+            boardgameInputElement.value = value;
+            
+            // Update display text
+            boardgameTextElement.textContent = text;
+            
+            // Update selected state
+            boardgameOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Close dropdown
+            boardgameContainer.classList.remove('active');
+        });
+    });
+
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert && !alert.classList.contains('fade-out')) {
+                closeAlert(alert.dataset.alertId);
+            }
+        }, 5000);
+    });
+});
+
+// Close alert function
+function closeAlert(alertId) {
+    const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
+    if (alert) {
+        alert.classList.add('fade-out');
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }
+}
+</script>
 {% endblock %} 

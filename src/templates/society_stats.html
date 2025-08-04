@@ -1,204 +1,333 @@
 {% extends 'base.html' %}
 {% block content %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Statistics for {{ society.name }}</h2>
+<script src="/static/vendor/chartjs/chart.js"></script>
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">Statistics for {{ society.name }}</h2>
     
-         <!-- Geavanceerde Datepicker -->
-     <div class="mb-3" id="statsForm">
-      <div class="row g-3 align-items-end">
-        <div class="col-auto">
-          <label for="period" class="form-label">Period:</label>
-          <select name="period" id="period" class="form-select">
-            <option value="all" {% if period == 'all' %}selected{% endif %}>All time</option>
-            <option value="year" {% if period == 'year' %}selected{% endif %}>Year</option>
-            <option value="month" {% if period == 'month' %}selected{% endif %}>Month</option>
-            <option value="week" {% if period == 'week' %}selected{% endif %}>Week</option>
-            <option value="day" {% if period == 'day' %}selected{% endif %}>Day</option>
-          </select>
+    <!-- Datepicker -->
+    <div class="mb-4" id="statsForm">
+      <div class="row">
+        <div class="edit-form-field">
+          <div class="custom-single-select">
+            <div class="single-select-trigger" id="periodSelect">
+              <span id="periodSelectText">Select period</span>
+              <div class="single-select-arrow">▼</div>
+            </div>
+            <div class="single-select-dropdown" id="periodSelectDropdown">
+              <div class="single-select-option" data-value="all" {% if period == 'all' %}data-selected="true"{% endif %}>
+                <span>All time</span>
+              </div>
+              <div class="single-select-option" data-value="year" {% if period == 'year' %}data-selected="true"{% endif %}>
+                <span>Year</span>
+              </div>
+              <div class="single-select-option" data-value="month" {% if period == 'month' %}data-selected="true"{% endif %}>
+                <span>Month</span>
+              </div>
+              <div class="single-select-option" data-value="week" {% if period == 'week' %}data-selected="true"{% endif %}>
+                <span>Week</span>
+              </div>
+              <div class="single-select-option" data-value="day" {% if period == 'day' %}data-selected="true"{% endif %}>
+                <span>Day</span>
+              </div>
+            </div>
+            <input type="hidden" name="period" id="periodSelectInput">
+          </div>
         </div>
         
         <!-- Year dropdown -->
-        <div class="col-auto" id="yearDiv" style="display: none;">
-          <label for="year" class="form-label">Year:</label>
-          <select name="year" id="year" class="form-select">
-            <option value="">Select year</option>
-            {% for available_year, count in available_years_with_count %}
-            <option value="{{ available_year }}" {% if year and available_year|string == year %}selected{% endif %}>{{ available_year }} ({{ count }})</option>
-            {% endfor %}
-          </select>
+        <div class="edit-form-field" id="yearDiv" style="display: none;">
+          <div class="custom-single-select">
+            <div class="single-select-trigger" id="yearSelect">
+              <span id="yearSelectText">Select year</span>
+              <div class="single-select-arrow">▼</div>
+            </div>
+            <div class="single-select-dropdown" id="yearSelectDropdown">
+              <div class="single-select-option" data-value="">
+                <span>Select year</span>
+              </div>
+              {% for available_year, count in available_years_with_count %}
+                <div class="single-select-option" data-value="{{ available_year }}" {% if year and available_year|string == year %}data-selected="true"{% endif %}>
+                  <span>{{ available_year }} ({{ count }})</span>
+                </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="year" id="yearSelectInput">
+          </div>
         </div>
         
-                 <!-- Month dropdown -->
-         <div class="col-auto" id="monthDiv" style="display: none;">
-           <label for="month" class="form-label">Month:</label>
-           <select name="month" id="month" class="form-select">
-             <option value="">Select month</option>
-             {% for available_year, available_month, count in available_months_with_count %}
-             {% set month_names = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June", 7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"} %}
-                           <option value="{{ available_month }}" {% if month and available_month|string == month and year and available_year|string == year %}selected{% endif %}>
-                {{ month_names[available_month] }} ({{ count }})
-              </option>
-             {% endfor %}
-           </select>
-         </div>
+        <!-- Month dropdown -->
+        <div class="edit-form-field" id="monthDiv" style="display: none;">
+          <div class="custom-single-select">
+            <div class="single-select-trigger" id="monthSelect">
+              <span id="monthSelectText">Select month</span>
+              <div class="single-select-arrow">▼</div>
+            </div>
+            <div class="single-select-dropdown" id="monthSelectDropdown">
+              <div class="single-select-option" data-value="">
+                <span>Select month</span>
+              </div>
+              {% for available_year, available_month, count in available_months_with_count %}
+              {% set month_names = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June", 7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"} %}
+                <div class="single-select-option" data-value="{{ available_month }}" {% if month and available_month|string == month and year and available_year|string == year %}data-selected="true"{% endif %}>
+                  <span>{{ month_names[available_month] }} ({{ count }})</span>
+                </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="month" id="monthSelectInput">
+          </div>
+        </div>
         
         <!-- Week dropdown -->
-        <div class="col-auto" id="weekDiv" style="display: none;">
-          <label for="week" class="form-label">Week:</label>
-          <select name="week" id="week" class="form-select">
-            <option value="">Select week</option>
-            {% for available_year, available_week, count in available_weeks_with_count %}
-            <option value="{{ available_week }}" {% if week and available_week|string == week and year and available_year|string == year %}selected{% endif %}>
-              Week {{ available_week }} ({{ count }})
-            </option>
-            {% endfor %}
-          </select>
+        <div class="edit-form-field" id="weekDiv" style="display: none;">
+          <div class="custom-single-select">
+            <div class="single-select-trigger" id="weekSelect">
+              <span id="weekSelectText">Select week</span>
+              <div class="single-select-arrow">▼</div>
+            </div>
+            <div class="single-select-dropdown" id="weekSelectDropdown">
+              <div class="single-select-option" data-value="">
+                <span>Select week</span>
+              </div>
+              {% for available_year, available_week, count in available_weeks_with_count %}
+                <div class="single-select-option" data-value="{{ available_week }}" {% if week and available_week|string == week and year and available_year|string == year %}data-selected="true"{% endif %}>
+                  <span>Week {{ available_week }} ({{ count }})</span>
+                </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="week" id="weekSelectInput">
+          </div>
         </div>
         
-                 <!-- Day dropdown -->
-         <div class="col-auto" id="dayDiv" style="display: none;">
-           <label for="day" class="form-label">Day:</label>
-           <select name="day" id="day" class="form-select">
-             <option value="">Select day</option>
-             {% for available_year, available_month, available_day, available_weekday, count in available_days_with_count %}
-             <option value="{{ available_day }}" {% if day and available_day|string == day and month and available_month|string == month and year and available_year|string == year %}selected{% endif %}>
-               {{ available_day }} - {{ available_weekday }} ({{ count }})
-             </option>
-             {% endfor %}
-           </select>
-         </div>
-        
-        
-             </div>
-     </div>
+        <!-- Day dropdown -->
+        <div class="edit-form-field" id="dayDiv" style="display: none;">
+          <div class="custom-single-select">
+            <div class="single-select-trigger" id="daySelect">
+              <span id="daySelectText">Select day</span>
+              <div class="single-select-arrow">▼</div>
+            </div>
+            <div class="single-select-dropdown" id="daySelectDropdown">
+              <div class="single-select-option" data-value="">
+                <span>Select day</span>
+              </div>
+              {% for available_year, available_month, available_day, available_weekday, count in available_days_with_count %}
+                <div class="single-select-option" data-value="{{ available_day }}" {% if day and available_day|string == day and month and available_month|string == month and year and available_year|string == year %}data-selected="true"{% endif %}>
+                  <span>{{ available_day }} - {{ available_weekday }} ({{ count }})</span>
+                </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="day" id="daySelectInput">
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      <div class="col">
-        <h4>Most Wins</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="winsChart" class="mb-3"></canvas>
+    <div class="mdc-grid">
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Most Wins</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="winsChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">
+                    {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ count }}</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
-            <span class="badge bg-primary rounded-pill">{{ count }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
       {% set society_player_count = society.player_ids.split(',')|length %}
       {% if society_player_count > 2 %}
-      <div class="col">
-        <h4>Best winratio</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="winratioChart" class="mb-3"></canvas>
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Best winratio</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="winratioChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">
+                    {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ "%.2f"|format(ratio * 100) }}%</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
-            <span class="badge bg-primary rounded-pill">{{ "%.2f"|format(ratio * 100) }}%</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
       {% endif %}
       {% if win_type != 'task' and win_type != 'winner' %}
-      <div class="col">
-        <h4>Most Points</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="pointsChart" class="mb-3"></canvas>
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Most Points</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="pointsChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">
+                    {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ pts }}</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
-            <span class="badge bg-success rounded-pill">{{ pts }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
       {% endif %}
       {% if win_type != 'points' and win_type != 'winner' %}
-      <div class="col">
-        <h4>Most Won Task</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="tasksChart" class="mb-3"></canvas>
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Most Won Task</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="tasksChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">
+                    {% for t in tasks %}{% if t.id == tid %}{{ t.name }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ count }}</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {% for t in tasks %}{% if t.id == tid %}{{ t.name }}{% endif %}{% endfor %}
-            <span class="badge bg-warning rounded-pill">{{ count }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
       {% endif %}
       {% if win_type == 'points' %}
-      <div class="col">
-        <h4>Highest points</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="highestPointsChart" class="mb-3"></canvas>
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Highest points</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="highestPointsChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">
+                    {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ pts }}</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
-            <span class="badge bg-info rounded-pill">{{ pts }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
       {% endif %}
-      <div class="col">
-        <h4>Most popular days</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="daysChart" class="mb-3"></canvas>
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Most popular days</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="daysChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% set weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                {% for day, count in most_popular_days.items() %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">{{ weekdays[day] }}</td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ count }}</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% set weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
-          {% for day, count in most_popular_days.items() %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ weekdays[day] }}
-            <span class="badge bg-dark rounded-pill">{{ count }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
-      <div class="col">
-        <h4>Longest win streak</h4>
-        <div class="mx-auto" style="max-width: 50%;">
-          <canvas id="streakChart" class="mb-3"></canvas>
+      <div class="mdc-card">
+        <div class="mdc-card__content">
+          <h4 class="mdc-typography--headline6 mb-3">Longest win streak</h4>
+          <div class="mx-auto" style="max-width: 50%;">
+            <canvas id="streakChart" class="mb-3"></canvas>
+          </div>
+          <div class="mdc-data-table">
+            <table class="mdc-data-table__table">
+              <tbody class="mdc-data-table__content">
+                {% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">
+                    {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
+                  </td>
+                  <td class="mdc-data-table__cell text-right">
+                    <span class="mdc-chip">{{ streak }}</span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr class="mdc-data-table__row">
+                  <td class="mdc-data-table__cell">No data</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <ul class="list-group">
-          {% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
-            <span class="badge bg-secondary rounded-pill">{{ streak }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">No data</li>
-          {% endfor %}
-        </ul>
       </div>
     </div>
-    <a href="/societies/{{ society.id }}/games" class="btn btn-secondary mt-4">Back to Played Games</a>
   </div>
 </div>
 
@@ -231,8 +360,6 @@ function updateDatepicker() {
     monthDiv.style.display = 'block';
     dayDiv.style.display = 'block';
   }
-  
-
 }
 
 // AJAX functie voor het ophalen van dropdown data
@@ -249,7 +376,7 @@ async function updateDropdownData(updateType = 'all') {
     if (updateType === 'all' || updateType === 'period') {
       const yearSelect = document.getElementById('year');
       const currentYear = yearSelect.value;
-      yearSelect.innerHTML = '<option value="">Select year</option>';
+      yearSelect.innerHTML = '<option value=""></option>';
       data.years.forEach(item => {
         const option = document.createElement('option');
         option.value = item.value;
@@ -264,7 +391,7 @@ async function updateDropdownData(updateType = 'all') {
     // Update month dropdown
     const monthSelect = document.getElementById('month');
     const currentMonth = monthSelect.value;
-    monthSelect.innerHTML = '<option value="">Select month</option>';
+    monthSelect.innerHTML = '<option value=""></option>';
     data.months.forEach(item => {
       const option = document.createElement('option');
       option.value = item.value;
@@ -278,7 +405,7 @@ async function updateDropdownData(updateType = 'all') {
     // Update week dropdown
     const weekSelect = document.getElementById('week');
     const currentWeek = weekSelect.value;
-    weekSelect.innerHTML = '<option value="">Select week</option>';
+    weekSelect.innerHTML = '<option value=""></option>';
     data.weeks.forEach(item => {
       const option = document.createElement('option');
       option.value = item.value;
@@ -292,7 +419,7 @@ async function updateDropdownData(updateType = 'all') {
     // Update day dropdown
     const daySelect = document.getElementById('day');
     const currentDay = daySelect.value;
-    daySelect.innerHTML = '<option value="">Select day</option>';
+    daySelect.innerHTML = '<option value=""></option>';
     data.days.forEach(item => {
       const option = document.createElement('option');
       option.value = item.value;
@@ -355,18 +482,43 @@ function autoUpdateStats() {
   }
 }
 
-// Event listeners toevoegen
+
 document.addEventListener('DOMContentLoaded', function() {
   // Initialiseer datepicker bij het laden van de pagina
   updateDatepicker();
   
   // Voeg event listeners toe aan de dropdowns
   document.getElementById('period').addEventListener('change', function() {
-    // Reset alle dropdown waarden wanneer periode verandert
-    document.getElementById('year').value = '';
-    document.getElementById('month').value = '';
-    document.getElementById('week').value = '';
-    document.getElementById('day').value = '';
+    const currentPeriod = this.value;
+    const yearSelect = document.getElementById('year');
+    const monthSelect = document.getElementById('month');
+    const weekSelect = document.getElementById('week');
+    const daySelect = document.getElementById('day');
+    
+    // Behoud relevante waarden op basis van nieuwe periode
+    if (currentPeriod === 'all') {
+      // Reset alles voor 'all'
+      yearSelect.value = '';
+      monthSelect.value = '';
+      weekSelect.value = '';
+      daySelect.value = '';
+    } else if (currentPeriod === 'year') {
+      // Behoud year, reset de rest
+      monthSelect.value = '';
+      weekSelect.value = '';
+      daySelect.value = '';
+    } else if (currentPeriod === 'month') {
+      // Behoud year, reset de rest
+      weekSelect.value = '';
+      daySelect.value = '';
+    } else if (currentPeriod === 'week') {
+      // Behoud year, reset de rest
+      monthSelect.value = '';
+      daySelect.value = '';
+    } else if (currentPeriod === 'day') {
+      // Behoud year en month, reset day
+      weekSelect.value = '';
+    }
     
     updateDatepicker();
     if (this.value !== 'all') {
@@ -421,6 +573,7 @@ function createPieChart(canvasId, data, labels, colors) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           display: false
@@ -501,5 +654,137 @@ const streakData = {
 };
 
 createPieChart('streakChart', streakData.data, streakData.labels, streakData.colors);
+
+// Masonry layout voor de grid
+function initMasonry() {
+  const grid = document.querySelector('.mdc-grid');
+  if (!grid) return;
+  
+  const cards = grid.querySelectorAll('.mdc-card');
+  const isMobile = window.innerWidth <= 768;
+  
+  if (isMobile) {
+    // Op mobiel: gewone flexbox layout
+    cards.forEach(card => {
+      card.style.position = 'static';
+      card.style.top = 'auto';
+      card.style.left = 'auto';
+      card.style.width = '100%';
+    });
+    grid.style.height = 'auto';
+    grid.style.position = 'static';
+    return;
+  }
+  
+  // Desktop: masonry layout
+  const columns = 3;
+  const gaps = 24;
+  
+  // Reset heights
+  cards.forEach(card => {
+    card.style.position = 'static';
+    card.style.top = 'auto';
+    card.style.left = 'auto';
+  });
+  
+  // Calculate column heights
+  const columnHeights = new Array(columns).fill(0);
+  
+  cards.forEach(card => {
+    // Find shortest column
+    const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
+    
+    // Position card
+    card.style.position = 'absolute';
+    card.style.top = columnHeights[shortestColumn] + 'px';
+    card.style.left = (shortestColumn * (100 / columns)) + '%';
+    card.style.width = 'calc(' + (100 / columns) + '% - ' + (gaps * (columns - 1) / columns) + 'px)';
+    
+    // Update column height
+    columnHeights[shortestColumn] += card.offsetHeight + gaps;
+  });
+  
+  // Set grid height
+  grid.style.height = Math.max(...columnHeights) + 'px';
+  grid.style.position = 'relative';
+}
+
+// Initialize masonry when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to initialize custom single select
+  function initializeSingleSelect(selectId, dropdownId, textId, inputId) {
+    const select = document.getElementById(selectId);
+    const dropdown = document.getElementById(dropdownId);
+    const textElement = document.getElementById(textId);
+    const inputElement = document.getElementById(inputId);
+    const container = select.parentElement;
+    const options = dropdown.querySelectorAll('.single-select-option');
+
+    if (!select) return; // Element doesn't exist (conditional rendering)
+
+    // Initialize with selected value if exists
+    const selectedOption = dropdown.querySelector('[data-selected="true"]');
+    if (selectedOption) {
+      const value = selectedOption.dataset.value;
+      const text = selectedOption.querySelector('span').textContent;
+      inputElement.value = value;
+      textElement.textContent = text;
+      selectedOption.classList.add('selected');
+    }
+
+    select.addEventListener('click', function(e) {
+      e.preventDefault();
+      container.classList.toggle('active');
+    });
+
+    // Handle option selection
+    options.forEach(option => {
+      option.addEventListener('click', function() {
+        const value = this.dataset.value;
+        const text = this.querySelector('span').textContent;
+        
+        // Update hidden input
+        inputElement.value = value;
+        
+        // Update display text
+        textElement.textContent = text;
+        
+        // Update selected state
+        options.forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        // Close dropdown
+        container.classList.remove('active');
+        
+        // Submit form
+        this.closest('form').submit();
+      });
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const dropdowns = document.querySelectorAll('.custom-single-select');
+    dropdowns.forEach(dropdown => {
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+  });
+
+  // Initialize all custom single selects
+  initializeSingleSelect('periodSelect', 'periodSelectDropdown', 'periodSelectText', 'periodSelectInput');
+  initializeSingleSelect('yearSelect', 'yearSelectDropdown', 'yearSelectText', 'yearSelectInput');
+  initializeSingleSelect('monthSelect', 'monthSelectDropdown', 'monthSelectText', 'monthSelectInput');
+  initializeSingleSelect('weekSelect', 'weekSelectDropdown', 'weekSelectText', 'weekSelectInput');
+  initializeSingleSelect('daySelect', 'daySelectDropdown', 'daySelectText', 'daySelectInput');
+
+  setTimeout(initMasonry, 100); // Small delay to ensure charts are rendered
+});
+
+// Reinitialize on window resize
+window.addEventListener('resize', function() {
+  setTimeout(initMasonry, 100);
+});
 </script>
 {% endblock %} 

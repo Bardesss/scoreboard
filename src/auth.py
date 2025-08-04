@@ -12,7 +12,7 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 templates = Jinja2Templates(directory="templates")
 
-# Add session middleware in main.py: app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
+
 
 def get_db():
     db = SessionLocal()
@@ -40,8 +40,7 @@ def login(request: Request, username: str = Form(...), password: str = Form(...)
     request.session['is_admin'] = user.is_admin
     response = RedirectResponse('/', status_code=303)
     if remember_me:
-        # Zet de sessie-cookie op 30 dagen
-        max_age = 60 * 60 * 24 * 30  # 30 dagen in seconden
+        max_age = 60 * 60 * 24 * 30
         session_cookie = request.cookies.get('session')
         if session_cookie:
             response.set_cookie('session', session_cookie, max_age=max_age)
@@ -52,7 +51,7 @@ def logout(request: Request):
     request.session.clear()
     return RedirectResponse('/', status_code=303)
 
-# Initial admin setup
+
 @router.get('/setup')
 def setup_form(request: Request, db=Depends(get_db)):
     admin_exists = db.query(User).filter(User.is_admin == True).first()

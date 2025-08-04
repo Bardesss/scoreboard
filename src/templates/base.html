@@ -5,60 +5,265 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scoreboard</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/vendor/material-design/material-design.css" rel="stylesheet">
+    <link href="/static/vendor/material-design/icons.css" rel="stylesheet">
     <link href="/static/custom.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light mb-4">
-        <div class="container-fluid">
-            <span class="navbar-brand">♟️</span>
-            <a class="navbar-brand" href="/">Scoreboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <div class="mdc-layout">
+        <header class="mdc-top-app-bar">
+            <div class="mdc-top-app-bar__row">
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                    <a href="/" class="mdc-top-app-bar__title">♟️ Scoreboard</a>
                     {% if request.session.get('is_admin') %}
-                    <li class="nav-item">
-                        <a class="nav-link{% if '/admin/players' in request.url.path %} active{% endif %}" href="/admin/players">Players</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle{% if '/admin/boardgames' in request.url.path or '/admin/tasks' in request.url.path %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Boardgames
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item{% if '/admin/boardgames' in request.url.path %} active{% endif %}" href="/admin/boardgames">Boardgames</a></li>
-                            <li><a class="dropdown-item{% if '/admin/tasks' in request.url.path %} active{% endif %}" href="/admin/tasks">Tasks</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link{% if '/admin/societies' in request.url.path %} active{% endif %}" href="/admin/societies">Societies</a>
-                    </li>
+                    <nav class="mdc-top-app-bar__navigation desktop-nav">
+                        <a href="/admin/players" class="mdc-button mdc-button--text{% if '/admin/players' in request.url.path %} mdc-button--selected{% endif %}">Players</a>
+                        <a href="/admin/boardgames" class="mdc-button mdc-button--text{% if '/admin/boardgames' in request.url.path %} mdc-button--selected{% endif %}">Boardgames</a>
+                        <a href="/admin/tasks" class="mdc-button mdc-button--text{% if '/admin/tasks' in request.url.path %} mdc-button--selected{% endif %}">Tasks</a>
+                        <a href="/admin/societies" class="mdc-button mdc-button--text{% if '/admin/societies' in request.url.path %} mdc-button--selected{% endif %}">Societies</a>
+                    </nav>
                     {% endif %}
-                </ul>
-                <div class="d-flex">
+                </section>
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end">
+                    <div class="mdc-top-app-bar__actions desktop-actions">
+                        <button class="theme-switcher" id="theme-switcher" title="Toggle theme">
+                            <i class="bi bi-sun-fill"></i>
+                        </button>
+                        {% if request.session.get('user_id') %}
+                            <a href="/logout" class="mdc-button mdc-button--outlined">Logout</a>
+                        {% else %}
+                            <a href="/login" class="mdc-button mdc-button--outlined">Login</a>
+                        {% endif %}
+                    </div>
+                    {% if request.session.get('is_admin') %}
+                    <button class="mdc-button mdc-button--text mobile-menu-toggle" id="mobile-menu-toggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    {% endif %}
+                </section>
+            </div>
+        </header>
+        
+        <!-- Mobile menu overlay -->
+        {% if request.session.get('is_admin') %}
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+            <div class="mobile-menu">
+                <nav class="mobile-menu-nav">
+                    <a href="/" class="mobile-menu-item{% if request.url.path == '/' %} mobile-menu-item--selected{% endif %}">
+                        Home
+                    </a>
+                    <a href="/admin/players" class="mobile-menu-item{% if '/admin/players' in request.url.path %} mobile-menu-item--selected{% endif %}">
+                        Players
+                    </a>
+                    <a href="/admin/boardgames" class="mobile-menu-item{% if '/admin/boardgames' in request.url.path %} mobile-menu-item--selected{% endif %}">
+                        Boardgames
+                    </a>
+                    <a href="/admin/tasks" class="mobile-menu-item{% if '/admin/tasks' in request.url.path %} mobile-menu-item--selected{% endif %}">
+                        Tasks
+                    </a>
+                    <a href="/admin/societies" class="mobile-menu-item{% if '/admin/societies' in request.url.path %} mobile-menu-item--selected{% endif %}">
+                        Societies
+                    </a>
+                </nav>
+                <div class="mobile-menu-footer">
                     {% if request.session.get('user_id') %}
-                        <a href="/logout" class="btn btn-outline-secondary ms-2">Logout</a>
+                        <a href="/logout" class="mobile-menu-item mobile-menu-item--logout">Logout</a>
                     {% else %}
-                        <a href="/login" class="btn btn-outline-secondary ms-2">Login</a>
+                        <a href="/login" class="mobile-menu-item mobile-menu-item--login">Login</a>
                     {% endif %}
+                    <div class="mobile-menu-actions">
+                        <button class="theme-switcher mobile-theme-switcher" id="mobile-theme-switcher" title="Toggle theme">
+                            <i class="bi bi-sun-fill"></i>
+                        </button>
+                        <button class="mobile-menu-close" id="mobile-menu-close">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
-    <div class="container mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
+        {% endif %}
+        
+        <main class="mdc-layout__content">
+            <div class="mdc-container">
                 {% block content %}{% endblock %}
             </div>
-        </div>
+        </main>
+        
+        <footer class="mdc-footer">
+            <div class="mdc-container mdc-text-center">
+                <span class="mdc-footer__text">Want to contribute? <a href="https://github.com/Bardesss/scoreboard" target="_blank">Check out our GitHub repository</a> | <a href="https://github.com/Bardesss/scoreboard/blob/main/LICENSE" target="_blank">MIT License</a></span>
+            </div>
+        </footer>
     </div>
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">Want to contribute? <a href="https://github.com/Bardesss/scoreboard" target="_blank">Check out our GitHub repository</a> | <a href="https://github.com/Bardesss/scoreboard/blob/main/LICENSE" target="_blank">MIT License</a></span>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Theme management
+        class ThemeManager {
+            constructor() {
+                this.themeSwitcher = document.getElementById('theme-switcher');
+                this.mobileThemeSwitcher = document.getElementById('mobile-theme-switcher');
+                this.currentTheme = this.getStoredTheme() || this.getSystemTheme();
+                this.init();
+            }
+
+            getStoredTheme() {
+                return localStorage.getItem('theme');
+            }
+
+            getSystemTheme() {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                this.updateThemeSwitcher();
+            }
+
+            updateThemeSwitcher() {
+                const switchers = [this.themeSwitcher, this.mobileThemeSwitcher];
+                switchers.forEach(switcher => {
+                    if (switcher) {
+                        const icon = switcher.querySelector('i');
+                        if (this.currentTheme === 'dark') {
+                            // Bij donker thema: toon zon icoon (om naar licht te gaan)
+                            icon.className = 'bi bi-sun-fill';
+                            switcher.setAttribute('data-theme', 'dark');
+                        } else {
+                            // Bij licht thema: toon maan icoon (om naar donker te gaan)
+                            icon.className = 'bi bi-moon-fill';
+                            switcher.removeAttribute('data-theme');
+                        }
+                    }
+                });
+            }
+
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            }
+
+            init() {
+                this.setTheme(this.currentTheme);
+                
+                const switchers = [this.themeSwitcher, this.mobileThemeSwitcher];
+                switchers.forEach(switcher => {
+                    if (switcher) {
+                        switcher.addEventListener('click', () => this.toggleTheme());
+                    }
+                });
+
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (!this.getStoredTheme()) {
+                        this.setTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            }
+        }
+
+        // Simple Material Design interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme manager
+            new ThemeManager();
+            
+            // Mobile menu functionality
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const mobileMenuClose = document.getElementById('mobile-menu-close');
+            
+            if (mobileMenuToggle && mobileMenuOverlay) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    mobileMenuOverlay.classList.add('mobile-menu-overlay--open');
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                mobileMenuClose.addEventListener('click', function() {
+                    mobileMenuOverlay.classList.remove('mobile-menu-overlay--open');
+                    document.body.style.overflow = '';
+                });
+                
+                mobileMenuOverlay.addEventListener('click', function(e) {
+                    if (e.target === mobileMenuOverlay) {
+                        mobileMenuOverlay.classList.remove('mobile-menu-overlay--open');
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Close menu on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && mobileMenuOverlay.classList.contains('mobile-menu-overlay--open')) {
+                        mobileMenuOverlay.classList.remove('mobile-menu-overlay--open');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+            
+            // Text field focus effects
+            const textFields = document.querySelectorAll('.mdc-text-field');
+            textFields.forEach(field => {
+                const input = field.querySelector('.mdc-text-field__input');
+                const label = field.querySelector('.mdc-text-field__label');
+                
+                if (input && label) {
+                    input.addEventListener('focus', () => {
+                        field.classList.add('mdc-text-field--focused');
+                        field.classList.add('mdc-text-field--label-floating');
+                    });
+                    
+                    input.addEventListener('blur', () => {
+                        field.classList.remove('mdc-text-field--focused');
+                        if (!input.value) {
+                            field.classList.remove('mdc-text-field--label-floating');
+                        }
+                    });
+                    
+                    // Check if input has value on load
+                    if (input.value) {
+                        field.classList.add('mdc-text-field--label-floating');
+                    }
+                }
+            });
+            
+            // Button ripple effect
+            const buttons = document.querySelectorAll('.mdc-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('mdc-ripple');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.left = (e.clientX - button.offsetLeft) + 'px';
+                    ripple.style.top = (e.clientY - button.offsetTop) + 'px';
+                    ripple.style.width = ripple.style.height = '20px';
+                    ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    
+                    button.style.position = 'relative';
+                    button.style.overflow = 'hidden';
+                    button.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html> 
