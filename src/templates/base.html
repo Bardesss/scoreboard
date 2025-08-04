@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Scoreboard</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link href="/static/custom.css" rel="stylesheet">
     <link href="/static/vendor/material-design/material-design.css" rel="stylesheet">
     <link href="/static/vendor/material-design/icons.css" rel="stylesheet">
-    <link href="/static/custom.css" rel="stylesheet">
 </head>
 <body>
     <div class="mdc-layout">
@@ -98,6 +99,14 @@
     </div>
     
     <script>
+        // Apply theme immediately to prevent flash
+        (function() {
+            const storedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = storedTheme || systemTheme;
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+        
         // Theme management
         class ThemeManager {
             constructor() {
