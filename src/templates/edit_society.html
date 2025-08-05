@@ -75,14 +75,12 @@ document.addEventListener('DOMContentLoaded', function() {
         container.classList.toggle('active');
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!container.contains(e.target)) {
             container.classList.remove('active');
         }
     });
 
-    // Update text when checkboxes change
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', updateText);
     });
@@ -101,10 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initialize text on load
     updateText();
 
-    // Custom single select functionality
     const boardgameSelect = document.getElementById('boardgameSelect');
     const boardgameDropdown = document.getElementById('boardgameSelectDropdown');
     const boardgameContainer = boardgameSelect.parentElement;
@@ -112,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const boardgameInputElement = document.getElementById('boardgameSelectInput');
     const boardgameOptions = boardgameDropdown.querySelectorAll('.single-select-option');
 
-    // Initialize with selected value if exists
     const selectedOption = boardgameDropdown.querySelector('[data-selected="true"]');
     if (selectedOption) {
         const value = selectedOption.dataset.value;
@@ -127,28 +122,21 @@ document.addEventListener('DOMContentLoaded', function() {
         boardgameContainer.classList.toggle('active');
     });
 
-    // Handle option selection
     boardgameOptions.forEach(option => {
         option.addEventListener('click', function() {
             const value = this.dataset.value;
             const text = this.querySelector('span').textContent;
             
-            // Update hidden input
             boardgameInputElement.value = value;
-            
-            // Update display text
             boardgameTextElement.textContent = text;
             
-            // Update selected state
             boardgameOptions.forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
             
-            // Close dropdown
             boardgameContainer.classList.remove('active');
         });
     });
 
-    // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -159,7 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Close alert function
 function closeAlert(alertId) {
     const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
     if (alert) {

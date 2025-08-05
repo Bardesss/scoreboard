@@ -10,27 +10,27 @@
         <div class="edit-form-field">
           <div class="custom-single-select">
             <div class="single-select-trigger" id="periodSelect">
-              <span id="periodSelectText">Select period</span>
+              <span id="periodSelectText">All time</span>
               <div class="single-select-arrow">▼</div>
             </div>
             <div class="single-select-dropdown" id="periodSelectDropdown">
-              <div class="single-select-option" data-value="all" {% if period == 'all' %}data-selected="true"{% endif %}>
+              <div class="single-select-option selected" data-value="all">
                 <span>All time</span>
               </div>
-              <div class="single-select-option" data-value="year" {% if period == 'year' %}data-selected="true"{% endif %}>
+              <div class="single-select-option" data-value="year">
                 <span>Year</span>
               </div>
-              <div class="single-select-option" data-value="month" {% if period == 'month' %}data-selected="true"{% endif %}>
+              <div class="single-select-option" data-value="month">
                 <span>Month</span>
               </div>
-              <div class="single-select-option" data-value="week" {% if period == 'week' %}data-selected="true"{% endif %}>
+              <div class="single-select-option" data-value="week">
                 <span>Week</span>
               </div>
-              <div class="single-select-option" data-value="day" {% if period == 'day' %}data-selected="true"{% endif %}>
+              <div class="single-select-option" data-value="day">
                 <span>Day</span>
               </div>
             </div>
-            <input type="hidden" name="period" id="periodSelectInput">
+            <input type="hidden" name="period" id="periodSelectInput" value="all">
           </div>
         </div>
         
@@ -45,7 +45,7 @@
                 <span>Select year</span>
               </div>
               {% for available_year, count in available_years_with_count %}
-                <div class="single-select-option" data-value="{{ available_year }}" {% if year and available_year|string == year %}data-selected="true"{% endif %}>
+                <div class="single-select-option" data-value="{{ available_year }}">
                   <span>{{ available_year }} ({{ count }})</span>
                 </div>
               {% endfor %}
@@ -64,12 +64,6 @@
               <div class="single-select-option" data-value="">
                 <span>Select month</span>
               </div>
-              {% for available_year, available_month, count in available_months_with_count %}
-              {% set month_names = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June", 7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"} %}
-                <div class="single-select-option" data-value="{{ available_month }}" {% if month and available_month|string == month and year and available_year|string == year %}data-selected="true"{% endif %}>
-                  <span>{{ month_names[available_month] }} ({{ count }})</span>
-                </div>
-              {% endfor %}
             </div>
             <input type="hidden" name="month" id="monthSelectInput">
           </div>
@@ -85,11 +79,6 @@
               <div class="single-select-option" data-value="">
                 <span>Select week</span>
               </div>
-              {% for available_year, available_week, count in available_weeks_with_count %}
-                <div class="single-select-option" data-value="{{ available_week }}" {% if week and available_week|string == week and year and available_year|string == year %}data-selected="true"{% endif %}>
-                  <span>Week {{ available_week }} ({{ count }})</span>
-                </div>
-              {% endfor %}
             </div>
             <input type="hidden" name="week" id="weekSelectInput">
           </div>
@@ -105,11 +94,6 @@
               <div class="single-select-option" data-value="">
                 <span>Select day</span>
               </div>
-              {% for available_year, available_month, available_day, available_weekday, count in available_days_with_count %}
-                <div class="single-select-option" data-value="{{ available_day }}" {% if day and available_day|string == day and month and available_month|string == month and year and available_year|string == year %}data-selected="true"{% endif %}>
-                  <span>{{ available_day }} - {{ available_weekday }} ({{ count }})</span>
-                </div>
-              {% endfor %}
             </div>
             <input type="hidden" name="day" id="daySelectInput">
           </div>
@@ -327,21 +311,18 @@
 </div>
 
 <script>
-// Datepicker functionaliteit
 function updateDatepicker() {
-  const period = document.getElementById('period').value;
+  const period = document.getElementById('periodSelectInput').value;
   const yearDiv = document.getElementById('yearDiv');
   const monthDiv = document.getElementById('monthDiv');
   const weekDiv = document.getElementById('weekDiv');
   const dayDiv = document.getElementById('dayDiv');
   
-  // Verberg alle dropdowns
   yearDiv.style.display = 'none';
   monthDiv.style.display = 'none';
   weekDiv.style.display = 'none';
   dayDiv.style.display = 'none';
   
-  // Toon relevante dropdowns op basis van periode
   if (period === 'year') {
     yearDiv.style.display = 'block';
   } else if (period === 'month') {
@@ -357,195 +338,616 @@ function updateDatepicker() {
   }
 }
 
-// AJAX functie voor het ophalen van dropdown data
 async function updateDropdownData(updateType = 'all') {
   const societyId = {{ society.id }};
-  const year = document.getElementById('year').value;
-  const month = document.getElementById('month').value;
+  const year = document.getElementById('yearSelectInput').value;
+  const month = document.getElementById('monthSelectInput').value;
   
   try {
     const response = await fetch(`/api/societies/${societyId}/dropdown-data?year=${year || ''}&month=${month || ''}`);
     const data = await response.json();
     
-    // Update year dropdown alleen als het een periode change is
     if (updateType === 'all' || updateType === 'period') {
-      const yearSelect = document.getElementById('year');
-      const currentYear = yearSelect.value;
-      yearSelect.innerHTML = '<option value=""></option>';
+      const yearDropdown = document.getElementById('yearSelectDropdown');
+      yearDropdown.innerHTML = '<div class="single-select-option" data-value=""><span>Select year</span></div>';
       data.years.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.value;
-        option.textContent = item.text;
-        if (item.value == currentYear) {
-          option.selected = true;
-        }
-        yearSelect.appendChild(option);
+        const option = document.createElement('div');
+        option.className = 'single-select-option';
+        option.dataset.value = item.value;
+        option.innerHTML = `<span>${item.text}</span>`;
+        yearDropdown.appendChild(option);
       });
+      initializeSingleSelect('yearSelect', 'yearSelectDropdown', 'yearSelectText', 'yearSelectInput');
     }
     
-    // Update month dropdown
-    const monthSelect = document.getElementById('month');
-    const currentMonth = monthSelect.value;
-    monthSelect.innerHTML = '<option value=""></option>';
-    data.months.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.value;
-      option.textContent = item.text;
-      if (item.value == currentMonth) {
-        option.selected = true;
-      }
-      monthSelect.appendChild(option);
-    });
+    if (updateType === 'all' || updateType === 'year' || updateType === 'period') {
+      const monthDropdown = document.getElementById('monthSelectDropdown');
+      monthDropdown.innerHTML = '<div class="single-select-option" data-value=""><span>Select month</span></div>';
+      data.months.forEach(item => {
+        const option = document.createElement('div');
+        option.className = 'single-select-option';
+        option.dataset.value = item.value;
+        option.innerHTML = `<span>${item.text}</span>`;
+        monthDropdown.appendChild(option);
+      });
+      initializeSingleSelect('monthSelect', 'monthSelectDropdown', 'monthSelectText', 'monthSelectInput');
+    }
     
-    // Update week dropdown
-    const weekSelect = document.getElementById('week');
-    const currentWeek = weekSelect.value;
-    weekSelect.innerHTML = '<option value=""></option>';
-    data.weeks.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.value;
-      option.textContent = item.text;
-      if (item.value == currentWeek) {
-        option.selected = true;
-      }
-      weekSelect.appendChild(option);
-    });
+    if (updateType === 'all' || updateType === 'year' || updateType === 'period') {
+      const weekDropdown = document.getElementById('weekSelectDropdown');
+      weekDropdown.innerHTML = '<div class="single-select-option" data-value=""><span>Select week</span></div>';
+      data.weeks.forEach(item => {
+        const option = document.createElement('div');
+        option.className = 'single-select-option';
+        option.dataset.value = item.value;
+        option.innerHTML = `<span>${item.text}</span>`;
+        weekDropdown.appendChild(option);
+      });
+      initializeSingleSelect('weekSelect', 'weekSelectDropdown', 'weekSelectText', 'weekSelectInput');
+    }
     
-    // Update day dropdown
-    const daySelect = document.getElementById('day');
-    const currentDay = daySelect.value;
-    daySelect.innerHTML = '<option value=""></option>';
-    data.days.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.value;
-      option.textContent = item.text;
-      if (item.value == currentDay) {
-        option.selected = true;
-      }
-      daySelect.appendChild(option);
-    });
+    if (updateType === 'all' || updateType === 'year' || updateType === 'month' || updateType === 'period') {
+      const dayDropdown = document.getElementById('daySelectDropdown');
+      dayDropdown.innerHTML = '<div class="single-select-option" data-value=""><span>Select day</span></div>';
+      data.days.forEach(item => {
+        const option = document.createElement('div');
+        option.className = 'single-select-option';
+        option.dataset.value = item.value;
+        option.innerHTML = `<span>${item.text}</span>`;
+        dayDropdown.appendChild(option);
+      });
+      initializeSingleSelect('daySelect', 'daySelectDropdown', 'daySelectText', 'daySelectInput');
+    }
   } catch (error) {
     console.error('Error updating dropdown data:', error);
   }
 }
 
-// Functie om te controleren of alle benodigde dropdowns zijn ingevuld
-function checkRequiredFields() {
-  const period = document.getElementById('period').value;
-  const year = document.getElementById('year').value;
-  const month = document.getElementById('month').value;
-  const week = document.getElementById('week').value;
-  const day = document.getElementById('day').value;
+function initializeSingleSelect(selectId, dropdownId, textId, inputId) {
+  const select = document.getElementById(selectId);
+  const dropdown = document.getElementById(dropdownId);
+  const textElement = document.getElementById(textId);
+  const inputElement = document.getElementById(inputId);
+  const container = select.parentElement;
+  const options = dropdown.querySelectorAll('.single-select-option');
   
-  // Controleer of alle benodigde velden zijn ingevuld
-  if (period === 'all') {
-    return true; // Voor 'all' zijn geen extra velden nodig
-  } else if (period === 'year' && year) {
-    return true;
-  } else if (period === 'month' && year && month) {
-    return true;
-  } else if (period === 'week' && year && week) {
-    return true;
-  } else if (period === 'day' && year && month && day) {
-    return true;
-  }
+  if (!select) return;
   
-  return false;
+  select.onclick = function(e) {
+    e.preventDefault();
+    container.classList.toggle('active');
+  };
+  
+  options.forEach(option => {
+    option.onclick = function() {
+      const value = this.dataset.value;
+      const text = this.querySelector('span').textContent;
+      
+      inputElement.value = value;
+      textElement.textContent = text;
+      
+      options.forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      container.classList.remove('active');
+      
+      if (inputId === 'periodSelectInput') {
+        updateDatepicker();
+        if (value !== 'all') {
+          updateDropdownData('period');
+        } else {
+          updateStatsViaAjax();
+        }
+      } else if (inputId === 'yearSelectInput') {
+        updateDropdownData('year');
+        updateStatsViaAjax();
+      } else if (inputId === 'monthSelectInput') {
+        updateDropdownData('month');
+        updateStatsViaAjax();
+      } else if (inputId === 'weekSelectInput') {
+        updateStatsViaAjax();
+      } else if (inputId === 'daySelectInput') {
+        updateStatsViaAjax();
+      }
+    };
+  });
 }
 
-// Functie om automatisch de pagina te herladen met nieuwe parameters
-function autoUpdateStats() {
-  if (checkRequiredFields()) {
-    const params = new URLSearchParams();
-    
-    // Haal alle dropdown waarden op
-    const period = document.getElementById('period').value;
-    const year = document.getElementById('year').value;
-    const month = document.getElementById('month').value;
-    const week = document.getElementById('week').value;
-    const day = document.getElementById('day').value;
-    
-    // Voeg alle waarden toe aan URL parameters
-    if (period) params.append('period', period);
-    if (year) params.append('year', year);
-    if (month) params.append('month', month);
-    if (week) params.append('week', week);
-    if (day) params.append('day', day);
-    
-    // Navigeer naar de nieuwe URL
-    window.location.href = window.location.pathname + '?' + params.toString();
-  }
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialiseer datepicker bij het laden van de pagina
-  updateDatepicker();
+async function updateStatsViaAjax() {
+  const params = new URLSearchParams();
   
-  // Voeg event listeners toe aan de dropdowns
-  document.getElementById('period').addEventListener('change', function() {
-    const currentPeriod = this.value;
-    const yearSelect = document.getElementById('year');
-    const monthSelect = document.getElementById('month');
-    const weekSelect = document.getElementById('week');
-    const daySelect = document.getElementById('day');
+  const period = document.getElementById('periodSelectInput').value;
+  const year = document.getElementById('yearSelectInput').value;
+  const month = document.getElementById('monthSelectInput').value;
+  const week = document.getElementById('weekSelectInput').value;
+  const day = document.getElementById('daySelectInput').value;
+  
+  console.log('Updating stats with:', { period, year, month, week, day });
+  
+  if (period) params.append('period', period);
+  if (year) params.append('year', year);
+  if (month) params.append('month', month);
+  if (week) params.append('week', week);
+  if (day) params.append('day', day);
+  
+  const url = `/api/societies/{{ society.id }}/stats?${params.toString()}`;
+  console.log('Fetching from URL:', url);
+  
+  try {
+    const response = await fetch(url);
+    console.log('Response status:', response.status);
     
-    // Behoud relevante waarden op basis van nieuwe periode
-    if (currentPeriod === 'all') {
-      // Reset alles voor 'all'
-      yearSelect.value = '';
-      monthSelect.value = '';
-      weekSelect.value = '';
-      daySelect.value = '';
-    } else if (currentPeriod === 'year') {
-      // Behoud year, reset de rest
-      monthSelect.value = '';
-      weekSelect.value = '';
-      daySelect.value = '';
-    } else if (currentPeriod === 'month') {
-      // Behoud year, reset de rest
-      weekSelect.value = '';
-      daySelect.value = '';
-    } else if (currentPeriod === 'week') {
-      // Behoud year, reset de rest
-      monthSelect.value = '';
-      daySelect.value = '';
-    } else if (currentPeriod === 'day') {
-      // Behoud year en month, reset day
-      weekSelect.value = '';
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    updateDatepicker();
-    if (this.value !== 'all') {
-      updateDropdownData('period');
+    const data = await response.json();
+    console.log('Received data:', data);
+    
+    updateStatsDisplay(data);
+  } catch (error) {
+    console.error('Error updating stats:', error);
+  }
+}
+
+function updateStatsDisplay(data) {
+  console.log('Updating stats display with data:', data);
+  
+  const chartInstances = [
+    'winsChartInstance',
+    'winratioChartInstance', 
+    'pointsChartInstance',
+    'tasksChartInstance',
+    'highestPointsChartInstance',
+    'daysChartInstance',
+    'streakChartInstance'
+  ];
+  
+  chartInstances.forEach(instanceName => {
+    if (window[instanceName]) {
+      try {
+        window[instanceName].destroy();
+      } catch (e) {
+        console.log(`Error destroying ${instanceName}:`, e);
+      }
+      window[instanceName] = null;
+    }
+  });
+  
+  Chart.helpers.each(Chart.instances, function(instance) {
+    try {
+      instance.destroy();
+    } catch (e) {
+      console.log('Error destroying chart instance:', e);
+    }
+  });
+  
+  const canvasElements = document.querySelectorAll('canvas');
+  canvasElements.forEach(canvas => {
+    try {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    } catch (e) {
+      console.log('Error clearing canvas:', e);
+    }
+  });
+  
+  if (data.most_wins) {
+    const winsChart = document.getElementById('winsChart');
+    if (winsChart) {
+      const ctx = winsChart.getContext('2d');
+      window.winsChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.most_wins.labels,
+          datasets: [{
+            data: data.most_wins.data,
+            backgroundColor: data.most_wins.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const winsTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Most Wins'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Wins table element:', winsTable);
+    console.log('Most wins data:', data.most_wins);
+    if (winsTable) {
+      winsTable.innerHTML = '';
+      if (data.most_wins && data.most_wins.labels && data.most_wins.labels.length > 0) {
+        data.most_wins.labels.forEach((label, index) => {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${data.most_wins.data[index]}</span>
+            </td>
+          `;
+          winsTable.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        winsTable.appendChild(row);
+      }
     } else {
-      // Voor 'all' direct updaten
-      autoUpdateStats();
+      console.log('Wins table not found!');
     }
-  });
+  }
   
-  document.getElementById('year').addEventListener('change', function() {
-    updateDatepicker();
-    updateDropdownData('year');
-    autoUpdateStats();
-  });
+  if (data.win_ratios && data.society_player_count > 2) {
+    const winratioChart = document.getElementById('winratioChart');
+    if (winratioChart) {
+      const ctx = winratioChart.getContext('2d');
+      window.winratioChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.win_ratios.labels,
+          datasets: [{
+            data: data.win_ratios.data,
+            backgroundColor: data.win_ratios.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw.toFixed(2)}%`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const winratioTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Best winratio'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Winratio table element:', winratioTable);
+    console.log('Win ratios data:', data.win_ratios);
+    if (winratioTable) {
+      winratioTable.innerHTML = '';
+      if (data.win_ratios && data.win_ratios.labels && data.win_ratios.labels.length > 0) {
+        data.win_ratios.labels.forEach((label, index) => {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${data.win_ratios.data[index].toFixed(2)}%</span>
+            </td>
+          `;
+          winratioTable.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        winratioTable.appendChild(row);
+      }
+    } else {
+      console.log('Winratio table not found!');
+    }
+  }
   
-  document.getElementById('month').addEventListener('change', function() {
-    updateDatepicker();
-    updateDropdownData('month');
-    autoUpdateStats();
-  });
+  if (data.most_points && data.win_type !== 'task' && data.win_type !== 'winner') {
+    const pointsChart = document.getElementById('pointsChart');
+    if (pointsChart) {
+      const ctx = pointsChart.getContext('2d');
+      window.pointsChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.most_points.labels,
+          datasets: [{
+            data: data.most_points.data,
+            backgroundColor: data.most_points.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const pointsTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Most Points'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Points table element:', pointsTable);
+    console.log('Most points data:', data.most_points);
+    if (pointsTable) {
+      pointsTable.innerHTML = '';
+      if (data.most_points && data.most_points.labels && data.most_points.labels.length > 0) {
+        data.most_points.labels.forEach((label, index) => {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${data.most_points.data[index]}</span>
+            </td>
+          `;
+          pointsTable.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        pointsTable.appendChild(row);
+      }
+    } else {
+      console.log('Points table not found!');
+    }
+  }
   
-  document.getElementById('week').addEventListener('change', function() {
-    updateDatepicker();
-    autoUpdateStats();
-  });
+  if (data.most_won_task && data.win_type !== 'points' && data.win_type !== 'winner') {
+    const tasksChart = document.getElementById('tasksChart');
+    if (tasksChart) {
+      const ctx = tasksChart.getContext('2d');
+      window.tasksChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.most_won_task.labels,
+          datasets: [{
+            data: data.most_won_task.data,
+            backgroundColor: data.most_won_task.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const tasksTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Most Won Task'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Tasks table element:', tasksTable);
+    console.log('Most won task data:', data.most_won_task);
+    if (tasksTable) {
+      tasksTable.innerHTML = '';
+      if (data.most_won_task && data.most_won_task.labels && data.most_won_task.labels.length > 0) {
+        data.most_won_task.labels.forEach((label, index) => {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${data.most_won_task.data[index]}</span>
+            </td>
+          `;
+          tasksTable.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        tasksTable.appendChild(row);
+      }
+    } else {
+      console.log('Tasks table not found!');
+    }
+  }
   
-  document.getElementById('day').addEventListener('change', function() {
-    updateDatepicker();
-    autoUpdateStats();
-  });
-});
+  if (data.highest_points && data.win_type === 'points') {
+    const highestPointsChart = document.getElementById('highestPointsChart');
+    if (highestPointsChart) {
+      const ctx = highestPointsChart.getContext('2d');
+      window.highestPointsChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.highest_points.labels,
+          datasets: [{
+            data: data.highest_points.data,
+            backgroundColor: data.highest_points.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const highestPointsTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Highest points'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Highest points table element:', highestPointsTable);
+    console.log('Highest points data:', data.highest_points);
+    if (highestPointsTable) {
+      highestPointsTable.innerHTML = '';
+      if (data.highest_points && data.highest_points.labels && data.highest_points.labels.length > 0) {
+        data.highest_points.labels.forEach((label, index) => {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${data.highest_points.data[index]}</span>
+            </td>
+          `;
+          highestPointsTable.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        highestPointsTable.appendChild(row);
+      }
+    } else {
+      console.log('Highest points table not found!');
+    }
+  }
+  
+  if (data.most_popular_days) {
+    const daysChart = document.getElementById('daysChart');
+    if (daysChart) {
+      const ctx = daysChart.getContext('2d');
+      window.daysChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.most_popular_days.labels,
+          datasets: [{
+            data: data.most_popular_days.data,
+            backgroundColor: data.most_popular_days.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const daysTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Most popular days'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Days table element:', daysTable);
+    console.log('Most popular days data:', data.most_popular_days);
+    if (daysTable) {
+      daysTable.innerHTML = '';
+      if (data.most_popular_days && data.most_popular_days.labels && data.most_popular_days.labels.length > 0) {
+        data.most_popular_days.labels.forEach((label, index) => {
+          const count = data.most_popular_days.data[index];
+          if (count > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${count}</span>
+              </td>
+            `;
+            daysTable.appendChild(row);
+          }
+        });
+        if (daysTable.children.length === 0) {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+          daysTable.appendChild(row);
+        }
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        daysTable.appendChild(row);
+      }
+    } else {
+      console.log('Days table not found!');
+    }
+  }
+  
+  if (data.longest_win_streak) {
+    const streakChart = document.getElementById('streakChart');
+    if (streakChart) {
+      const ctx = streakChart.getContext('2d');
+      window.streakChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: data.longest_win_streak.labels,
+          datasets: [{
+            data: data.longest_win_streak.data,
+            backgroundColor: data.longest_win_streak.colors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    const streakTable = Array.from(document.querySelectorAll('h4')).find(h4 => h4.textContent.includes('Longest win streak'))?.closest('.mdc-card')?.querySelector('.mdc-data-table__content');
+    console.log('Streak table element:', streakTable);
+    console.log('Longest win streak data:', data.longest_win_streak);
+    if (streakTable) {
+      streakTable.innerHTML = '';
+      if (data.longest_win_streak && data.longest_win_streak.labels && data.longest_win_streak.labels.length > 0) {
+        data.longest_win_streak.labels.forEach((label, index) => {
+          const row = document.createElement('tr');
+          row.className = 'mdc-data-table__row';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${data.longest_win_streak.data[index]}</span>
+            </td>
+          `;
+          streakTable.appendChild(row);
+        });
+      } else {
+        const row = document.createElement('tr');
+        row.className = 'mdc-data-table__row';
+        row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+        streakTable.appendChild(row);
+      }
+    } else {
+      console.log('Streak table not found!');
+    }
+  }
+  
+  setTimeout(initMasonry, 100);
+}
 
 function generatePastelColors(count) {
   const colors = [];
@@ -585,7 +987,75 @@ function createPieChart(canvasId, data, labels, colors) {
   });
 }
 
-// Charts data
+function initMasonry() {
+  const grid = document.querySelector('.mdc-grid');
+  if (!grid) return;
+  
+  const cards = grid.querySelectorAll('.mdc-card');
+  const isMobile = window.innerWidth <= 768;
+  
+  if (isMobile) {
+    cards.forEach(card => {
+      card.style.position = 'static';
+      card.style.top = 'auto';
+      card.style.left = 'auto';
+      card.style.width = '100%';
+    });
+    grid.style.height = 'auto';
+    grid.style.position = 'static';
+    return;
+  }
+  
+  const columns = 3;
+  const gaps = 24;
+  
+  cards.forEach(card => {
+    card.style.position = 'static';
+    card.style.top = 'auto';
+    card.style.left = 'auto';
+  });
+  
+  const columnHeights = new Array(columns).fill(0);
+  
+  cards.forEach(card => {
+    const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
+    
+    card.style.position = 'absolute';
+    card.style.top = columnHeights[shortestColumn] + 'px';
+    card.style.left = (shortestColumn * (100 / columns)) + '%';
+    card.style.width = 'calc(' + (100 / columns) + '% - ' + (gaps * (columns - 1) / columns) + 'px)';
+    
+    columnHeights[shortestColumn] += card.offsetHeight + gaps;
+  });
+  
+  grid.style.height = Math.max(...columnHeights) + 'px';
+  grid.style.position = 'relative';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateDatepicker();
+  initializeSingleSelect('periodSelect', 'periodSelectDropdown', 'periodSelectText', 'periodSelectInput');
+  initializeSingleSelect('yearSelect', 'yearSelectDropdown', 'yearSelectText', 'yearSelectInput');
+  initializeSingleSelect('monthSelect', 'monthSelectDropdown', 'monthSelectText', 'monthSelectInput');
+  initializeSingleSelect('weekSelect', 'weekSelectDropdown', 'weekSelectText', 'weekSelectInput');
+  initializeSingleSelect('daySelect', 'daySelectDropdown', 'daySelectText', 'daySelectInput');
+  
+  setTimeout(initMasonry, 100);
+});
+
+document.addEventListener('click', function(e) {
+  const dropdowns = document.querySelectorAll('.custom-single-select');
+  dropdowns.forEach(dropdown => {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('active');
+    }
+  });
+});
+
+window.addEventListener('resize', function() {
+  setTimeout(initMasonry, 100);
+});
+
 const winsData = {
   labels: {{ most_wins_json | tojson }},
   data: {{ most_wins_data_json | tojson }},
@@ -649,137 +1119,5 @@ const streakData = {
 };
 
 createPieChart('streakChart', streakData.data, streakData.labels, streakData.colors);
-
-// Masonry layout voor de grid
-function initMasonry() {
-  const grid = document.querySelector('.mdc-grid');
-  if (!grid) return;
-  
-  const cards = grid.querySelectorAll('.mdc-card');
-  const isMobile = window.innerWidth <= 768;
-  
-  if (isMobile) {
-    // Op mobiel: gewone flexbox layout
-    cards.forEach(card => {
-      card.style.position = 'static';
-      card.style.top = 'auto';
-      card.style.left = 'auto';
-      card.style.width = '100%';
-    });
-    grid.style.height = 'auto';
-    grid.style.position = 'static';
-    return;
-  }
-  
-  // Desktop: masonry layout
-  const columns = 3;
-  const gaps = 24;
-  
-  // Reset heights
-  cards.forEach(card => {
-    card.style.position = 'static';
-    card.style.top = 'auto';
-    card.style.left = 'auto';
-  });
-  
-  // Calculate column heights
-  const columnHeights = new Array(columns).fill(0);
-  
-  cards.forEach(card => {
-    // Find shortest column
-    const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
-    
-    // Position card
-    card.style.position = 'absolute';
-    card.style.top = columnHeights[shortestColumn] + 'px';
-    card.style.left = (shortestColumn * (100 / columns)) + '%';
-    card.style.width = 'calc(' + (100 / columns) + '% - ' + (gaps * (columns - 1) / columns) + 'px)';
-    
-    // Update column height
-    columnHeights[shortestColumn] += card.offsetHeight + gaps;
-  });
-  
-  // Set grid height
-  grid.style.height = Math.max(...columnHeights) + 'px';
-  grid.style.position = 'relative';
-}
-
-// Initialize masonry when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  // Function to initialize custom single select
-  function initializeSingleSelect(selectId, dropdownId, textId, inputId) {
-    const select = document.getElementById(selectId);
-    const dropdown = document.getElementById(dropdownId);
-    const textElement = document.getElementById(textId);
-    const inputElement = document.getElementById(inputId);
-    const container = select.parentElement;
-    const options = dropdown.querySelectorAll('.single-select-option');
-
-    if (!select) return; // Element doesn't exist (conditional rendering)
-
-    // Initialize with selected value if exists
-    const selectedOption = dropdown.querySelector('[data-selected="true"]');
-    if (selectedOption) {
-      const value = selectedOption.dataset.value;
-      const text = selectedOption.querySelector('span').textContent;
-      inputElement.value = value;
-      textElement.textContent = text;
-      selectedOption.classList.add('selected');
-    }
-
-    select.addEventListener('click', function(e) {
-      e.preventDefault();
-      container.classList.toggle('active');
-    });
-
-    // Handle option selection
-    options.forEach(option => {
-      option.addEventListener('click', function() {
-        const value = this.dataset.value;
-        const text = this.querySelector('span').textContent;
-        
-        // Update hidden input
-        inputElement.value = value;
-        
-        // Update display text
-        textElement.textContent = text;
-        
-        // Update selected state
-        options.forEach(opt => opt.classList.remove('selected'));
-        this.classList.add('selected');
-        
-        // Close dropdown
-        container.classList.remove('active');
-        
-        // Submit form
-        this.closest('form').submit();
-      });
-    });
-  }
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function(e) {
-    const dropdowns = document.querySelectorAll('.custom-single-select');
-    dropdowns.forEach(dropdown => {
-      if (!dropdown.contains(e.target)) {
-        dropdown.classList.remove('active');
-      }
-    });
-  });
-
-  // Initialize all custom single selects
-  initializeSingleSelect('periodSelect', 'periodSelectDropdown', 'periodSelectText', 'periodSelectInput');
-  initializeSingleSelect('yearSelect', 'yearSelectDropdown', 'yearSelectText', 'yearSelectInput');
-  initializeSingleSelect('monthSelect', 'monthSelectDropdown', 'monthSelectText', 'monthSelectInput');
-  initializeSingleSelect('weekSelect', 'weekSelectDropdown', 'weekSelectText', 'weekSelectInput');
-  initializeSingleSelect('daySelect', 'daySelectDropdown', 'daySelectText', 'daySelectInput');
-
-  setTimeout(initMasonry, 100); // Small delay to ensure charts are rendered
-});
-
-// Reinitialize on window resize
-window.addEventListener('resize', function() {
-  setTimeout(initMasonry, 100);
-});
 </script>
 {% endblock %} 

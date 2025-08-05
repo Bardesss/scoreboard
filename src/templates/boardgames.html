@@ -83,7 +83,6 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Custom single select functionality
     const winTypeSelect = document.getElementById('winTypeSelect');
     const winTypeDropdown = document.getElementById('winTypeSelectDropdown');
     const winTypeContainer = winTypeSelect.parentElement;
@@ -96,35 +95,28 @@ document.addEventListener('DOMContentLoaded', function() {
         winTypeContainer.classList.toggle('active');
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!winTypeContainer.contains(e.target)) {
             winTypeContainer.classList.remove('active');
         }
     });
 
-    // Handle option selection
     winTypeOptions.forEach(option => {
         option.addEventListener('click', function() {
             const value = this.dataset.value;
             const text = this.querySelector('span').textContent;
             
-            // Update hidden input
             winTypeInputElement.value = value;
             
-            // Update display text
             winTypeTextElement.textContent = text;
             
-            // Update selected state
             winTypeOptions.forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
             
-            // Close dropdown
             winTypeContainer.classList.remove('active');
         });
     });
 
-    // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -135,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Close alert function
 function closeAlert(alertId) {
     const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
     if (alert) {

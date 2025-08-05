@@ -892,4 +892,109 @@ def get_dropdown_data(society_id: int, year: str = Query(None), month: str = Que
         "months": [{"value": month, "text": f"{get_month_name(month)} ({count})"} for year, month, count in available_months_with_count],
         "weeks": [{"value": week, "text": f"Week {week} ({count})"} for year, week, count in available_weeks_with_count],
         "days": [{"value": day, "text": f"{day} - {weekday} ({count})"} for year, month, day, weekday, count in available_days_with_count]
+    }
+
+@app.get('/api/societies/{society_id}/stats')
+def get_society_stats_json(society_id: int, period: str = Query('all'), 
+                          year: str = Query(None), month: str = Query(None), day: str = Query(None), 
+                          week: str = Query(None), db: Session = Depends(get_db)):
+    year_int = int(year) if year and year.strip() else None
+    month_int = int(month) if month and month.strip() else None
+    day_int = int(day) if day and day.strip() else None
+    week_int = int(week) if week and week.strip() else None
+    from_date = None
+    to_date = None
+    
+    if period == 'all':
+        pass
+    elif period == 'year' and year_int:
+        from_date = datetime(year_int, 1, 1)
+        to_date = datetime(year_int, 12, 31, 23, 59, 59)
+    elif period == 'month' and year_int and month_int:
+        from_date = datetime(year_int, month_int, 1)
+        if month_int == 12:
+            to_date = datetime(year_int + 1, 1, 1) - timedelta(seconds=1)
+        else:
+            to_date = datetime(year_int, month_int + 1, 1) - timedelta(seconds=1)
+    elif period == 'week' and year_int and week_int:
+        from datetime import date
+        jan1 = date(year_int, 1, 1)
+        week_start = jan1 + timedelta(weeks=week_int)
+        from_date = datetime.combine(week_start, datetime.min.time())
+        to_date = datetime.combine(week_start + timedelta(days=6), datetime.max.time())
+    elif period == 'day' and year_int and month_int and day_int:
+        from_date = datetime(year_int, month_int, day_int)
+        to_date = datetime(year_int, month_int, day_int, 23, 59, 59)
+    else:
+        now = datetime.utcnow()
+        if period == 'day':
+            from_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        elif period == 'week':
+            from_date = now - timedelta(days=7)
+        elif period == 'month':
+            from_date = now - timedelta(days=30)
+        elif period == 'year':
+            from_date = now - timedelta(days=365)
+        to_date = now if from_date else None
+    
+    players = crud.get_players(db)
+    tasks = crud.get_tasks(db)
+    most_wins = crud.get_stats_most_wins(db, society_id, from_date, to_date)
+    most_points = crud.get_stats_most_points(db, society_id, from_date, to_date)
+    most_won_task = crud.get_stats_most_won_task(db, society_id, from_date, to_date)
+    highest_points = crud.get_stats_highest_points_per_game(db, society_id, from_date, to_date)
+    society = db.query(models.Society).filter(models.Society.id == society_id).first()
+    
+    boardgame_id = int(society.boardgame_ids.split(',')[0]) if society.boardgame_ids else None
+    boardgame = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first() if boardgame_id else None
+    win_type = boardgame.win_type if boardgame else None
+    
+    most_popular_days = crud.get_stats_most_popular_days(db, society_id, from_date, to_date)
+    longest_win_streak = crud.get_stats_longest_win_streak(db, society_id, from_date, to_date)
+    games_played = crud.get_stats_games_played(db, society_id, from_date, to_date)
+    
+    win_ratios = {}
+    for pid, played in games_played.items():
+        wins = most_wins.get(pid, 0)
+        if played > 0:
+            win_ratios[pid] = wins / played
+    
+    return {
+        "most_wins": {
+            "labels": [next((p.name for p in players if p.id == pid), "Unknown") for pid in most_wins.keys()],
+            "data": list(most_wins.values()),
+            "colors": [next((p.color for p in players if p.id == pid), "#000000") for pid in most_wins.keys()]
+        },
+        "most_points": {
+            "labels": [next((p.name for p in players if p.id == pid), "Unknown") for pid in most_points.keys()],
+            "data": list(most_points.values()),
+            "colors": [next((p.color for p in players if p.id == pid), "#000000") for pid in most_points.keys()]
+        },
+        "most_won_task": {
+            "labels": [next((t.name for t in tasks if t.id == tid), "Unknown") for tid in most_won_task.keys()],
+            "data": list(most_won_task.values()),
+            "colors": [f"hsl({(i * 137.5) % 360}, 70%, 80%)" for i in range(len(most_won_task))]
+        },
+        "highest_points": {
+            "labels": [next((p.name for p in players if p.id == pid), "Unknown") for pid in highest_points.keys()],
+            "data": list(highest_points.values()),
+            "colors": [next((p.color for p in players if p.id == pid), "#000000") for pid in highest_points.keys()]
+        },
+        "win_ratios": {
+            "labels": [next((p.name for p in players if p.id == pid), "Unknown") for pid in win_ratios.keys()],
+            "data": [ratio * 100 for ratio in win_ratios.values()],
+            "colors": [next((p.color for p in players if p.id == pid), "#000000") for pid in win_ratios.keys()]
+        },
+        "most_popular_days": {
+            "labels": ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            "data": list(most_popular_days.values()),
+            "colors": [f"hsl({(i * 137.5) % 360}, 70%, 80%)" for i in range(7)]
+        },
+        "longest_win_streak": {
+            "labels": [next((p.name for p in players if p.id == pid), "Unknown") for pid in longest_win_streak.keys()],
+            "data": list(longest_win_streak.values()),
+            "colors": [next((p.color for p in players if p.id == pid), "#000000") for pid in longest_win_streak.keys()]
+        },
+        "win_type": win_type,
+        "society_player_count": len(society.player_ids.split(',')) if society.player_ids else 0
     } 
