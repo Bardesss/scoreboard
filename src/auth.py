@@ -7,6 +7,7 @@ from models import User
 from fastapi.templating import Jinja2Templates
 from functools import wraps
 from fastapi import HTTPException
+from dependencies import get_db
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -14,12 +15,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)

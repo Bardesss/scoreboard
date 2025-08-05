@@ -7,49 +7,91 @@ from database import SessionLocal, engine, Base
 import crud
 import models
 import auth
-import os
 from datetime import datetime, timedelta
 from starlette.middleware.sessions import SessionMiddleware
-import json
+from dependencies import get_db
+import os
+import secrets
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+def get_common_data(db: Session):
+    return {
+        'players': crud.get_players(db),
+        'games': crud.get_boardgames(db),
+        'societies': crud.get_societies(db)
+    }
+
+def handle_form_errors(template_name: str, request: Request, errors: list, **context):
+    return templates.TemplateResponse(template_name, {
+        "request": request,
+        "errors": errors,
+        **context
+    })
+
+def sanitize_input(text: str) -> str:
+    if not text:
+        return ""
+    import html
+    return html.escape(text.strip())
 
 app = FastAPI()
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:6060", "http://127.0.0.1:6060"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
 Base.metadata.create_all(bind=engine)
 
-app.add_middleware(SessionMiddleware, secret_key="change-this-secret-key")
+app.add_middleware(SessionMiddleware, secret_key=secrets.token_hex(32))
 app.include_router(auth.router)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    return response
 
 @app.get('/', response_class=HTMLResponse)
+@limiter.limit("30/minute")
 def read_root(request: Request, db: Session = Depends(get_db)):
-    # Check of er een admin bestaat
     admin_exists = db.query(models.User).filter(models.User.is_admin == True).first()
     if not admin_exists:
         return RedirectResponse('/setup', status_code=303)
     societies = crud.get_societies(db)
     players = crud.get_players(db)
     games = crud.get_boardgames(db)
-    # Laatste 10 gespeelde spellen over alle societies
     played_games = db.query(models.PlayedGame).order_by(models.PlayedGame.played_at.desc()).limit(10).all()
 
-    # Zoek voor elke society de meest recente played_at
-    all_played_games = db.query(models.PlayedGame).all()
+    from sqlalchemy import func
+    last_played_subquery = db.query(
+        models.PlayedGame.society_id,
+        func.max(models.PlayedGame.played_at).label('last_played')
+    ).group_by(models.PlayedGame.society_id).subquery()
+    
     last_played = {}
-    for game in all_played_games:
-        sid = game.society_id
-        date = game.played_at
-        if sid not in last_played or date > last_played[sid]:
-            last_played[sid] = date
-    # Voeg toe aan society object en sorteer
+    for society_id, last_played_date in db.query(last_played_subquery.c.society_id, last_played_subquery.c.last_played).all():
+        last_played[society_id] = last_played_date
+    
     for s in societies:
         s.last_played = last_played.get(s.id)
     societies_sorted = sorted(
@@ -59,47 +101,34 @@ def read_root(request: Request, db: Session = Depends(get_db)):
     )
 
     return templates.TemplateResponse('public_home.html', {"request": request, "societies": societies_sorted, "players": players, "games": games, "played_games": played_games})
-
-# PLAYER CRUD
 @app.get('/admin/players', response_class=HTMLResponse)
 @auth.admin_required
 async def list_players(request: Request, db: Session = Depends(get_db)):
-    players = crud.get_players(db)
-    return templates.TemplateResponse('players.html', {"request": request, "players": players})
+    common_data = get_common_data(db)
+    return templates.TemplateResponse('players.html', {"request": request, "players": common_data['players']})
 
 @app.post('/admin/players/add')
 @auth.admin_required
 async def add_player(request: Request, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
-    name = form.get('name', '')
-    color = form.get('color', '')
+    name = sanitize_input(form.get('name', ''))
+    color = sanitize_input(form.get('color', ''))
     
-    # Haal players op voor template
     players = crud.get_players(db)
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a player name.")
     
-    # Valideer dat er een kleur is geselecteerd
     if not color or color.strip() == "":
         errors.append("Please select a color.")
     
-    # Valideer dat de kleur uniek is
     if color and any(player.color == color for player in players):
         errors.append("This color is already in use. Please select a different color.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
-        return templates.TemplateResponse('players.html', {
-            "request": request,
-            "players": players,
-            "errors": errors
-        })
+        return handle_form_errors('players.html', request, errors, players=players)
     
     crud.create_player(db, name, color)
     return RedirectResponse('/admin/players', status_code=303)
@@ -118,7 +147,6 @@ async def delete_player(request: Request, player_id: int, db: Session = Depends(
             "error": str(e)
         })
 
-# PLAYER EDIT
 @app.get('/admin/players/edit/{player_id}', response_class=HTMLResponse)
 @auth.admin_required
 async def edit_player_form(request: Request, player_id: int, db: Session = Depends(get_db)):
@@ -128,31 +156,24 @@ async def edit_player_form(request: Request, player_id: int, db: Session = Depen
 @app.post('/admin/players/edit/{player_id}')
 @auth.admin_required
 async def edit_player(request: Request, player_id: int, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     name = form.get('name', '')
     color = form.get('color', '')
     
-    # Haal player en alle players op voor template
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
     all_players = crud.get_players(db)
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a player name.")
     
-    # Valideer dat er een kleur is geselecteerd
     if not color or color.strip() == "":
         errors.append("Please select a color.")
     
-    # Valideer dat de kleur uniek is (exclusief de huidige speler)
     if color and any(p.color == color and p.id != player_id for p in all_players):
         errors.append("This color is already in use. Please select a different color.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('edit_player.html', {
             "request": request,
@@ -163,36 +184,29 @@ async def edit_player(request: Request, player_id: int, db: Session = Depends(ge
     crud.update_player(db, player_id, name, color)
     return RedirectResponse('/admin/players', status_code=303)
 
-# BOARDGAME CRUD
 @app.get('/admin/boardgames', response_class=HTMLResponse)
 @auth.admin_required
 async def list_boardgames(request: Request, db: Session = Depends(get_db)):
-    games = crud.get_boardgames(db)
-    return templates.TemplateResponse('boardgames.html', {"request": request, "games": games})
+    common_data = get_common_data(db)
+    return templates.TemplateResponse('boardgames.html', {"request": request, "games": common_data['games']})
 
 @app.post('/admin/boardgames/add')
 @auth.admin_required
 async def add_boardgame(request: Request, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     name = form.get('name', '')
     win_type = form.get('win_type', '')
     
-    # Haal games op voor template
     games = crud.get_boardgames(db)
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a boardgame name.")
     
-    # Valideer dat er een win type is geselecteerd
     if not win_type or win_type.strip() == "":
         errors.append("Please select a win type.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('boardgames.html', {
             "request": request,
@@ -217,7 +231,6 @@ async def delete_boardgame(request: Request, game_id: int, db: Session = Depends
             "error": str(e)
         })
 
-# BOARDGAME EDIT
 @app.get('/admin/boardgames/edit/{game_id}', response_class=HTMLResponse)
 @auth.admin_required
 async def edit_boardgame_form(request: Request, game_id: int, db: Session = Depends(get_db)):
@@ -227,26 +240,20 @@ async def edit_boardgame_form(request: Request, game_id: int, db: Session = Depe
 @app.post('/admin/boardgames/edit/{game_id}')
 @auth.admin_required
 async def edit_boardgame(request: Request, game_id: int, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     name = form.get('name', '')
     win_type = form.get('win_type', '')
     
-    # Haal game op voor template
     game = db.query(models.BoardGame).filter(models.BoardGame.id == game_id).first()
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a boardgame name.")
     
-    # Valideer dat er een win type is geselecteerd
     if not win_type or win_type.strip() == "":
         errors.append("Please select a win type.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('edit_boardgame.html', {
             "request": request,
@@ -257,7 +264,6 @@ async def edit_boardgame(request: Request, game_id: int, db: Session = Depends(g
     crud.update_boardgame(db, game_id, name, win_type)
     return RedirectResponse('/admin/boardgames', status_code=303)
 
-# TASK CRUD
 @app.get('/admin/tasks', response_class=HTMLResponse)
 @auth.admin_required
 async def list_tasks(request: Request, db: Session = Depends(get_db), boardgame_id: int = None):
@@ -275,13 +281,11 @@ async def list_tasks(request: Request, db: Session = Depends(get_db), boardgame_
 @app.post('/admin/tasks/add')
 @auth.admin_required
 async def add_task(request: Request, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     number = form.get('number', '')
     name = form.get('name', '')
     boardgame_id = form.get('boardgame_id', '')
     
-    # Haal benodigde data op voor template
     all_games = crud.get_boardgames(db)
     games = [g for g in all_games if g.win_type == 'task']
     tasks = crud.get_tasks(db, boardgame_id=boardgame_id) if boardgame_id else []
@@ -291,14 +295,11 @@ async def add_task(request: Request, db: Session = Depends(get_db)):
         while next_number in existing_numbers:
             next_number += 1
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a task name.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('tasks.html', {
             "request": request,
@@ -309,7 +310,6 @@ async def add_task(request: Request, db: Session = Depends(get_db)):
             "errors": errors
         })
     
-    # Converteer naar integers voor database
     try:
         number_int = int(number) if number else next_number
         boardgame_id_int = int(boardgame_id) if boardgame_id else None
@@ -352,7 +352,6 @@ async def delete_task(request: Request, task_id: int, db: Session = Depends(get_
             "error": str(e)
         })
 
-# TASK EDIT
 @app.get('/admin/tasks/edit/{task_id}', response_class=HTMLResponse)
 @auth.admin_required
 async def edit_task_form(request: Request, task_id: int, db: Session = Depends(get_db), boardgame_id: int = None):
@@ -364,25 +363,20 @@ async def edit_task_form(request: Request, task_id: int, db: Session = Depends(g
 @app.post('/admin/tasks/edit/{task_id}')
 @auth.admin_required
 async def edit_task(request: Request, task_id: int, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     number = form.get('number', '')
     name = form.get('name', '')
     boardgame_id = form.get('boardgame_id', '')
     
-    # Haal task en games op voor template
     task = db.query(models.Task).filter(models.Task.id == task_id).first()
     games = crud.get_boardgames(db)
     selected_boardgame_id = boardgame_id or (task.boardgame_id if task else None)
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a task name.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('edit_task.html', {
             "request": request,
@@ -392,7 +386,6 @@ async def edit_task(request: Request, task_id: int, db: Session = Depends(get_db
             "errors": errors
         })
     
-    # Converteer naar integers voor database
     try:
         number_int = int(number) if number else 1
         boardgame_id_int = int(boardgame_id) if boardgame_id else None
@@ -414,19 +407,15 @@ async def edit_task(request: Request, task_id: int, db: Session = Depends(get_db
         db.refresh(task)
     return RedirectResponse(f'/admin/tasks?boardgame_id={boardgame_id}', status_code=303)
 
-# SOCIETY CRUD
 @app.get('/admin/societies', response_class=HTMLResponse)
 @auth.admin_required
 async def list_societies(request: Request, db: Session = Depends(get_db)):
-    societies = crud.get_societies(db)
-    players = crud.get_players(db)
-    games = crud.get_boardgames(db)
-    return templates.TemplateResponse('societies.html', {"request": request, "societies": societies, "players": players, "games": games})
+    common_data = get_common_data(db)
+    return templates.TemplateResponse('societies.html', {"request": request, "societies": common_data['societies'], "players": common_data['players'], "games": common_data['games']})
 
 @app.post('/admin/societies/add')
 @auth.admin_required
 async def add_society(request: Request, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     name = form.get('name', '')
     player_ids = form.getlist('player_ids')
@@ -435,22 +424,17 @@ async def add_society(request: Request, db: Session = Depends(get_db)):
     players = crud.get_players(db)
     games = crud.get_boardgames(db)
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a society name.")
     
-    # Valideer dat er minimaal 2 spelers zijn geselecteerd
     if not player_ids or len(player_ids) < 2:
         errors.append("Please select at least 2 players.")
     
-    # Valideer dat er een boardgame is geselecteerd
     if boardgame_ids is None or not boardgame_ids or boardgame_ids.strip() == "":
         errors.append("Please select a boardgame.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('societies.html', {
             "request": request, 
@@ -460,7 +444,6 @@ async def add_society(request: Request, db: Session = Depends(get_db)):
             "errors": errors
         })
     
-    # boardgame_ids is nu een enkele string, maak er een lijst van
     crud.create_society(db, name, player_ids, [boardgame_ids])
     return RedirectResponse('/admin/societies', status_code=303)
 
@@ -477,7 +460,6 @@ async def edit_society_form(request: Request, society_id: int, db: Session = Dep
 @app.post('/admin/societies/edit/{society_id}')
 @auth.admin_required
 async def edit_society(request: Request, society_id: int, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     name = form.get('name', '')
     player_ids = form.getlist('player_ids')
@@ -488,22 +470,17 @@ async def edit_society(request: Request, society_id: int, db: Session = Depends(
     selected_players = [int(pid) for pid in society.player_ids.split(',')] if society.player_ids else []
     selected_games = [int(bid) for bid in society.boardgame_ids.split(',')] if society.boardgame_ids else []
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een naam is ingevoerd
     if not name or name.strip() == "":
         errors.append("Please enter a society name.")
     
-    # Valideer dat er minimaal 2 spelers zijn geselecteerd
     if not player_ids or len(player_ids) < 2:
         errors.append("Please select at least 2 players.")
     
-    # Valideer dat er een boardgame is geselecteerd
     if boardgame_ids is None or not boardgame_ids or boardgame_ids.strip() == "":
         errors.append("Please select a boardgame.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('edit_society.html', {
             "request": request, 
@@ -515,7 +492,6 @@ async def edit_society(request: Request, society_id: int, db: Session = Depends(
             "errors": errors
         })
     
-    # boardgame_ids is nu een enkele string, maak er een lijst van
     crud.update_society(db, society_id, name, player_ids, [boardgame_ids])
     return RedirectResponse('/admin/societies', status_code=303)
 
@@ -541,7 +517,6 @@ def get_played_games_paginated(society_id: int, page: int = Query(1, ge=1), limi
     total_count = crud.get_played_games_count(db, society_id)
     total_pages = (total_count + limit - 1) // limit
     
-    # Converteer naar JSON-serializable format
     games_data = []
     for game in played_games:
         games_data.append({
@@ -570,11 +545,9 @@ def get_played_games_paginated(society_id: int, page: int = Query(1, ge=1), limi
 async def add_played_game_form(request: Request, society_id: int, db: Session = Depends(get_db)):
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     games = crud.get_boardgames(db)
-    # Alleen spelers van deze society
     player_ids = [int(pid) for pid in society.player_ids.split(',')] if society.player_ids else []
     all_players = crud.get_players(db)
     players = [p for p in all_players if p.id in player_ids]
-    # Haal het enige bordspel van deze society op
     boardgame_id = int(society.boardgame_ids.split(',')[0]) if society.boardgame_ids else None
     selected_game = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first() if boardgame_id else None
     win_type = selected_game.win_type if selected_game else None
@@ -593,13 +566,11 @@ async def add_played_game_form(request: Request, society_id: int, db: Session = 
 @app.post('/societies/{society_id}/games/add')
 @auth.admin_required
 async def add_played_game(request: Request, society_id: int, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     boardgame_id = form.get('boardgame_id', '')
     win_type = form.get('win_type', '')
     played_at = form.get('played_at', '')
     
-    # Haal de benodigde data op voor template
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     games = crud.get_boardgames(db)
     player_ids = [int(pid) for pid in society.player_ids.split(',')] if society.player_ids else []
@@ -610,29 +581,24 @@ async def add_played_game(request: Request, society_id: int, db: Session = Depen
     selected_win_type = selected_game.win_type if selected_game else None
     tasks = crud.get_tasks(db, boardgame_id=selected_boardgame_id) if selected_win_type == 'task' else []
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een datum is ingevoerd
     if not played_at or played_at.strip() == "":
         errors.append("Please enter a date and time.")
     else:
         try:
             played_at_dt = datetime.fromisoformat(played_at)
-            # Valideer dat de datum niet in de toekomst ligt
             if played_at_dt > datetime.now():
                 errors.append("The date cannot be in the future!")
         except ValueError:
             errors.append("Please enter a valid date and time.")
     
-    # Valideer win_type specifieke velden
     if selected_win_type == 'winner':
         winner_id = form.get('winner_id', '')
         if not winner_id or winner_id.strip() == "":
             errors.append("Please select a winner.")
     
     elif selected_win_type == 'points':
-        # Controleer of er minimaal één punt is ingevoerd
         points_entered = False
         for key, value in form.items():
             if key.startswith('points_') and value.strip() != "":
@@ -649,7 +615,6 @@ async def add_played_game(request: Request, society_id: int, db: Session = Depen
         if not winner_id_task or winner_id_task.strip() == "":
             errors.append("Please select a task winner.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('add_played_game.html', {
             "request": request,
@@ -665,7 +630,6 @@ async def add_played_game(request: Request, society_id: int, db: Session = Depen
     
     data = {}
     form = await request.form()
-    # Verwerk aanwezige spelers (checkboxes)
     present_players = [int(k.split('_')[1]) for k, v in form.items() if k.startswith('present_') and v == '1']
     data['present_players'] = present_players
     data['played_at'] = played_at_dt
@@ -695,13 +659,11 @@ async def edit_played_game_form(request: Request, society_id: int, game_id: int,
 @app.post('/societies/{society_id}/games/edit/{game_id}')
 @auth.admin_required
 async def edit_played_game(request: Request, society_id: int, game_id: int, db: Session = Depends(get_db)):
-    # Verwerk form data handmatig
     form = await request.form()
     boardgame_id = form.get('boardgame_id', '')
     win_type = form.get('win_type', '')
     played_at = form.get('played_at', '')
     
-    # Haal de benodigde data op voor template
     played_game = db.query(models.PlayedGame).filter(models.PlayedGame.id == game_id).first()
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     games = crud.get_boardgames(db)
@@ -710,29 +672,24 @@ async def edit_played_game(request: Request, society_id: int, game_id: int, db: 
     selected_win_type = selected_game.win_type if selected_game else None
     tasks = crud.get_tasks(db, boardgame_id=played_game.boardgame_id) if selected_win_type == 'task' else []
     
-    # Verzamel alle fouten
     errors = []
     
-    # Valideer dat er een datum is ingevoerd
     if not played_at or played_at.strip() == "":
         errors.append("Please enter a date and time.")
     else:
         try:
             played_at_dt = datetime.fromisoformat(played_at)
-            # Valideer dat de datum niet in de toekomst ligt
             if played_at_dt > datetime.now():
                 errors.append("The date cannot be in the future!")
         except ValueError:
             errors.append("Please enter a valid date and time.")
     
-    # Valideer win_type specifieke velden
     if selected_win_type == 'winner':
         winner_id = form.get('winner_id', '')
         if not winner_id or winner_id.strip() == "":
             errors.append("Please select a winner.")
     
     elif selected_win_type == 'points':
-        # Controleer of er minimaal één punt is ingevoerd
         points_entered = False
         for key, value in form.items():
             if key.startswith('points_') and value.strip() != "":
@@ -749,7 +706,6 @@ async def edit_played_game(request: Request, society_id: int, game_id: int, db: 
         if not winner_id_task or winner_id_task.strip() == "":
             errors.append("Please select a task winner.")
     
-    # Als er fouten zijn, toon ze allemaal
     if errors:
         return templates.TemplateResponse('edit_played_game.html', {
             "request": request,
@@ -766,7 +722,6 @@ async def edit_played_game(request: Request, society_id: int, game_id: int, db: 
     
     data = {}
     form = await request.form()
-    # Verwerk aanwezige spelers (checkboxes)
     present_players = [int(k.split('_')[1]) for k, v in form.items() if k.startswith('present_') and v == '1']
     data['present_players'] = present_players
     data['played_at'] = played_at_dt
@@ -791,44 +746,34 @@ async def delete_played_game(request: Request, society_id: int, game_id: int, db
 def society_stats(request: Request, society_id: int, period: str = Query('all'), 
                  year: str = Query(None), month: str = Query(None), day: str = Query(None), 
                  week: str = Query(None), db: Session = Depends(get_db)):
-    # Converteer string parameters naar integers als ze niet None zijn
     year_int = int(year) if year and year.strip() else None
     month_int = int(month) if month and month.strip() else None
     day_int = int(day) if day and day.strip() else None
     week_int = int(week) if week and week.strip() else None
-    # Bepaal de datum range op basis van de parameters
     from_date = None
     to_date = None
     
     if period == 'all':
-        # Alle data
         pass
     elif period == 'year' and year_int:
-        # Specifiek jaar
         from_date = datetime(year_int, 1, 1)
         to_date = datetime(year_int, 12, 31, 23, 59, 59)
     elif period == 'month' and year_int and month_int:
-        # Specifieke maand
         from_date = datetime(year_int, month_int, 1)
         if month_int == 12:
             to_date = datetime(year_int + 1, 1, 1) - timedelta(seconds=1)
         else:
             to_date = datetime(year_int, month_int + 1, 1) - timedelta(seconds=1)
     elif period == 'week' and year_int and week_int:
-        # Specifieke week (0-based, zondag als eerste dag)
         from datetime import date
-        # Week berekening: week 0 is de week die 1 januari bevat
         jan1 = date(year_int, 1, 1)
-        # Bereken de start van de gewenste week
         week_start = jan1 + timedelta(weeks=week_int)
         from_date = datetime.combine(week_start, datetime.min.time())
         to_date = datetime.combine(week_start + timedelta(days=6), datetime.max.time())
     elif period == 'day' and year_int and month_int and day_int:
-        # Specifieke dag
         from_date = datetime(year_int, month_int, day_int)
         to_date = datetime(year_int, month_int, day_int, 23, 59, 59)
     else:
-        # Fallback naar huidige periode
         now = datetime.utcnow()
         if period == 'day':
             from_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -840,19 +785,16 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
             from_date = now - timedelta(days=365)
         to_date = now if from_date else None
     
-    # Haal beschikbare data op voor de dropdowns met aantal records
     available_years_with_count = crud.get_available_years_with_count(db, society_id)
     available_months_with_count = crud.get_available_months_with_count(db, society_id, year_int) if year_int else []
     available_weeks_with_count = crud.get_available_weeks_with_count(db, society_id, year_int) if year_int else []
     available_days_with_count = crud.get_available_days_with_count(db, society_id, year_int, month_int) if year_int and month_int else []
     
-    # Converteer naar de oude format voor backward compatibility
     available_years = [year for year, count in available_years_with_count]
     available_months = [(year, month) for year, month, count in available_months_with_count]
     available_weeks = [(year, week) for year, week, count in available_weeks_with_count]
     available_days = [(year, month, day) for year, month, day, weekday, count in available_days_with_count]
     
-    # Haal statistieken op
     players = crud.get_players(db)
     tasks = crud.get_tasks(db)
     most_wins = crud.get_stats_most_wins(db, society_id, from_date, to_date)
@@ -861,7 +803,6 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
     highest_points = crud.get_stats_highest_points_per_game(db, society_id, from_date, to_date)
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     
-    # Haal het win_type van het bordspel van deze society op
     boardgame_id = int(society.boardgame_ids.split(',')[0]) if society.boardgame_ids else None
     boardgame = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first() if boardgame_id else None
     win_type = boardgame.win_type if boardgame else None
@@ -870,7 +811,6 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
     longest_win_streak = crud.get_stats_longest_win_streak(db, society_id, from_date, to_date)
     games_played = crud.get_stats_games_played(db, society_id, from_date, to_date)
     
-    # Winratio per speler: aantal gewonnen / aantal gespeeld (indien >0)
     win_ratios = {}
     for pid, played in games_played.items():
         wins = most_wins.get(pid, 0)
@@ -903,7 +843,6 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
         "available_months_with_count": available_months_with_count,
         "available_weeks_with_count": available_weeks_with_count,
         "available_days_with_count": available_days_with_count,
-        # JSON data voor charts
         "most_wins_json": [next((p.name for p in players if p.id == pid), "Unknown") for pid in most_wins.keys()],
         "most_wins_data_json": list(most_wins.values()),
         "most_wins_colors_json": [next((p.color for p in players if p.id == pid), "#000000") for pid in most_wins.keys()],
@@ -929,7 +868,6 @@ def society_stats(request: Request, society_id: int, period: str = Query('all'),
     })
 
 def get_month_name(month_number):
-    """Converteer maandnummer naar Engelse maandnaam"""
     month_names = {
         1: "January", 2: "February", 3: "March", 4: "April",
         5: "May", 6: "June", 7: "July", 8: "August",
@@ -941,11 +879,9 @@ def get_month_name(month_number):
 
 @app.get('/api/societies/{society_id}/dropdown-data')
 def get_dropdown_data(society_id: int, year: str = Query(None), month: str = Query(None), db: Session = Depends(get_db)):
-    """API endpoint voor het ophalen van dropdown data via AJAX"""
     year_int = int(year) if year and year.strip() else None
     month_int = int(month) if month and month.strip() else None
     
-    # Haal beschikbare data op
     available_years_with_count = crud.get_available_years_with_count(db, society_id)
     available_months_with_count = crud.get_available_months_with_count(db, society_id, year_int) if year_int else []
     available_weeks_with_count = crud.get_available_weeks_with_count(db, society_id, year_int) if year_int else []

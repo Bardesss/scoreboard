@@ -1,0 +1,17 @@
+*   [33ma0598d4[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #12 from Bardesss/dev
+[31m|[m[32m\[m  
+[31m|[m * [33m2061155[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m Better styling and some bug fixes
+[31m|[m[31m/[m  
+*   [33m20b0ba6[m Merge pull request #11 from Bardesss/dev
+[33m|[m[34m\[m  
+[33m|[m * [33m01c6314[m Another fix for mobile.
+[33m|[m[33m/[m  
+*   [33m467bc87[m Merge pull request #10 from Bardesss/dev
+[35m|[m[36m\[m  
+[35m|[m * [33m98b5cc4[m Quick fix for mobile theme.
+* [36m|[m [33m4ee86f4[m Merge pull request #9 from Bardesss/dev
+[1;31m|[m[36m\[m[36m|[m 
+[1;31m|[m * [33ma99a354[m Big update with several bug fixes, redesign (material design) including dark theme and more.
+* [1;32m|[m [33m6a0cc6b[m Merge pull request #8 from Bardesss/dev
+[1;33m|[m[1;32m\[m[1;32m|[m 
+[1;33m|[m * [33m664dd4f[m Fixed some styling

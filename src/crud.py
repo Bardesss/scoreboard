@@ -22,7 +22,6 @@ def update_player(db: Session, player_id: int, name: str, color: str):
     return player
 
 def delete_player(db: Session, player_id: int):
-    # Controleer of de speler in gebruik is in een society
     societies = db.query(models.Society).all()
     for society in societies:
         if society.player_ids and str(player_id) in society.player_ids.split(','):
@@ -33,8 +32,6 @@ def delete_player(db: Session, player_id: int):
         db.delete(player)
         db.commit()
     return player
-
-# BoardGame CRUD
 
 def get_boardgames(db: Session):
     return db.query(models.BoardGame).all()
@@ -56,7 +53,6 @@ def update_boardgame(db: Session, game_id: int, name: str, win_type: str):
     return game
 
 def delete_boardgame(db: Session, game_id: int):
-    # Controleer of het bordspel in gebruik is in een society
     societies = db.query(models.Society).all()
     for society in societies:
         if society.boardgame_ids and str(game_id) in society.boardgame_ids.split(','):
@@ -67,8 +63,6 @@ def delete_boardgame(db: Session, game_id: int):
         db.delete(game)
         db.commit()
     return game
-
-# Task CRUD
 
 def get_tasks(db: Session, boardgame_id: int = None):
     query = db.query(models.Task)
@@ -83,17 +77,9 @@ def create_task(db: Session, number: int, name: str, boardgame_id: int):
     db.refresh(task)
     return task
 
-def update_task(db: Session, task_id: int, number: int, name: str):
-    task = db.query(models.Task).filter(models.Task.id == task_id).first()
-    if task:
-        task.number = number
-        task.name = name
-        db.commit()
-        db.refresh(task)
-    return task
+
 
 def delete_task(db: Session, task_id: int):
-    # Controleer of de task in gebruik is in een played game
     played_game = db.query(models.PlayedGame).filter(models.PlayedGame.task_id == task_id).first()
     if played_game:
         raise ValueError("Cannot delete task because it is used in one or more played games")
@@ -103,8 +89,6 @@ def delete_task(db: Session, task_id: int):
         db.delete(task)
         db.commit()
     return task
-
-# Society CRUD
 
 def get_societies(db: Session):
     return db.query(models.Society).all()
@@ -131,16 +115,12 @@ def update_society(db: Session, society_id: int, name: str, player_ids: list, bo
     return society
 
 def delete_society(db: Session, society_id: int):
-    # Verwijder eerst alle gerelateerde played_games
     db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id).delete()
-    # Verwijder daarna de society
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     if society:
         db.delete(society)
         db.commit()
     return society
-
-# PlayedGame CRUD
 
 def get_played_games(db: Session, society_id: int = None):
     query = db.query(models.PlayedGame)
@@ -185,11 +165,9 @@ def update_played_game(db: Session, played_game_id: int, boardgame_id: int, win_
     if not game:
         return None
     
-    # Update de datum
     if 'played_at' in data:
         game.played_at = data['played_at']
     
-    # Update aanwezige spelers
     if 'present_players' in data:
         game.present_player_ids = ','.join(map(str, data['present_players']))
     
@@ -201,7 +179,6 @@ def update_played_game(db: Session, played_game_id: int, boardgame_id: int, win_
     elif win_type == 'points':
         points_dict = data.get('points', {})
         points_str = ','.join(f"{pid}:{pts}" for pid, pts in points_dict.items())
-        # Bepaal winnaar (meeste punten)
         if points_dict:
             max_points = max(points_dict.values())
             winner_id = int([pid for pid, pts in points_dict.items() if pts == max_points][0])
@@ -292,10 +269,8 @@ def get_stats_most_popular_days(db: Session, society_id: int, from_date: datetim
         q = q.filter(models.PlayedGame.played_at <= to_date)
     day_counts = {}
     for g in q:
-        # 0=maandag, 6=zondag
-        weekday = g.played_at.weekday()
-        day_counts[weekday] = day_counts.get(weekday, 0) + 1
-    # Sorteer op aantal aflopend
+            weekday = g.played_at.weekday()
+    day_counts[weekday] = day_counts.get(weekday, 0) + 1
     return dict(sorted(day_counts.items(), key=lambda item: item[1], reverse=True))
 
 def get_stats_longest_win_streak(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
@@ -308,21 +283,17 @@ def get_stats_longest_win_streak(db: Session, society_id: int, from_date: dateti
         q = q.filter(models.PlayedGame.played_at >= from_date)
     if to_date:
         q = q.filter(models.PlayedGame.played_at <= to_date)
-    # Sorteer op datum oplopend
     games = q.order_by(models.PlayedGame.played_at.asc()).all()
-    streaks = {}  # {player_id: huidige streak}
-    max_streaks = {}  # {player_id: max streak}
+    streaks = {}
+    max_streaks = {}
     last_winner = None
     for g in games:
-        # Bepaal winnaar
         winner_id = g.winner_id or g.winner_id_task
         if winner_id is None:
-            # Geen winnaar, streaks resetten
             for pid in streaks:
                 streaks[pid] = 0
             last_winner = None
             continue
-        # Update streaks
         for pid in streaks:
             if pid != winner_id:
                 streaks[pid] = 0
@@ -333,7 +304,6 @@ def get_stats_longest_win_streak(db: Session, society_id: int, from_date: dateti
                 streaks[winner_id] += 1
             else:
                 streaks[winner_id] = 1
-        # Update max_streaks
         if winner_id not in max_streaks or streaks[winner_id] > max_streaks[winner_id]:
             max_streaks[winner_id] = streaks[winner_id]
         last_winner = winner_id
@@ -402,7 +372,6 @@ def get_available_weeks_with_count(db: Session, society_id: int, year: int = Non
     Als year is opgegeven, alleen voor dat jaar.
     """
     from sqlalchemy import extract, func
-    # Gebruik eenvoudige week berekening met Python
     games = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id).all()
     
     week_counts = {}
@@ -411,7 +380,6 @@ def get_available_weeks_with_count(db: Session, society_id: int, year: int = Non
         if year and game_year != year:
             continue
             
-        # Bereken week nummer (0-based, zondag als eerste dag)
         jan1 = game.played_at.replace(month=1, day=1)
         days_since_jan1 = (game.played_at - jan1).days
         week_num = days_since_jan1 // 7
@@ -419,7 +387,6 @@ def get_available_weeks_with_count(db: Session, society_id: int, year: int = Non
         key = (game_year, week_num)
         week_counts[key] = week_counts.get(key, 0) + 1
     
-    # Converteer naar lijst en sorteer
     result = [(year, week, count) for (year, week), count in week_counts.items()]
     result.sort(key=lambda x: (x[0], x[1]), reverse=False)
     
@@ -456,7 +423,6 @@ def get_available_days_with_count(db: Session, society_id: int, year: int = None
         extract('day', models.PlayedGame.played_at).asc()
     ).all()
     
-    # Voeg dag van de week toe
     weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     result = []
     for year, month, day, count in days_with_count:
@@ -465,7 +431,6 @@ def get_available_days_with_count(db: Session, society_id: int, year: int = None
             weekday = weekday_names[d.weekday()]
             result.append((int(year), int(month), int(day), weekday, int(count)))
         except ValueError:
-            # Skip ongeldige datums
             continue
     
     return result 

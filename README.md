@@ -1,4 +1,4 @@
-# Scoreboard App
+# Scoreboard
 
 A self-hosted web application to track boardgame scores, players, and statistics for groups of friends or families. Built with FastAPI, Material Design, and SQLite.
 

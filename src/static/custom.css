@@ -1,4 +1,3 @@
-
 :root {
 
   --mdc-primary: #5c6bc0;
@@ -550,7 +549,7 @@ a[class*="btn"] {
   }
   
   .mdc-card__content {
-    padding: 16px;
+    padding: 16px 0;
   }
   
   .mdc-layout__content {
@@ -861,7 +860,6 @@ a[class*="btn"] {
   line-height: 1;
 }
 
-/* Desktop: Always show desktop navigation, hide mobile menu */
 .desktop-nav,
 .desktop-actions {
   display: flex !important;
@@ -1178,6 +1176,19 @@ a[class*="btn"] {
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .mdc-container {
+    padding: 16px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .mdc-container {
+    padding: 12px;
+  }
 } 
 
 .mdc-card__content form {
@@ -1410,13 +1421,17 @@ a[class*="btn"] {
     max-width: 100%;
     min-height: 450px;
     flex: 1 1 100%;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
   }
   
   .mdc-grid .mdc-card .mdc-card__content {
-    padding: 24px;
+    padding: 16px 0;
     height: 100%;
     display: flex;
     flex-direction: column;
+    background: transparent !important;
   }
   
   .mdc-grid .mdc-card h4 {
@@ -1462,10 +1477,14 @@ a[class*="btn"] {
   
   .mdc-grid .mdc-card {
     min-height: 400px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
   }
   
   .mdc-grid .mdc-card .mdc-card__content {
-    padding: 20px;
+    padding: 12px 0;
+    background: transparent !important;
   }
   
   .mdc-grid .mdc-card h4 {
@@ -1604,7 +1623,6 @@ a[class*="btn"] {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Ensure smooth theme transitions */
 html {
   transition: background-color 0.3s ease;
 }
@@ -1657,7 +1675,6 @@ html[data-theme="light"] {
   opacity: 0.6;
 }
 
-/* Ensure all Material Design components respect the theme */
 [data-theme="dark"] .mdc-button {
   color: var(--mdc-on-surface);
 }
@@ -1724,7 +1741,6 @@ html[data-theme="light"] {
   border-color: rgba(121, 134, 203, 0.2);
 }
 
-/* Override Material Design CSS for better theme support */
 [data-theme="dark"] .mdc-text-field {
   background-color: var(--mdc-surface);
   border-color: var(--mdc-border);
@@ -1768,7 +1784,6 @@ html[data-theme="light"] {
   background-color: var(--mdc-hover);
 }
 
-/* Dark theme form improvements */
 [data-theme="dark"] .mdc-text-field__label {
   color: rgba(255, 255, 255, 0.6);
 }
@@ -1838,7 +1853,6 @@ html[data-theme="light"] {
   color: var(--mdc-on-surface);
 }
 
-/* Dark theme multiselect improvements */
 [data-theme="dark"] .multiselect-trigger {
   background-color: var(--mdc-surface);
   border-color: var(--mdc-border);
@@ -1872,7 +1886,6 @@ html[data-theme="light"] {
   accent-color: var(--mdc-primary);
 }
 
-/* Dark theme single select improvements */
 [data-theme="dark"] .single-select-trigger {
   background-color: var(--mdc-surface);
   border-color: var(--mdc-border);
@@ -1907,7 +1920,6 @@ html[data-theme="light"] {
   color: var(--mdc-primary);
 }
 
-/* Custom single select component - Material Design styling */
 .custom-single-select {
   position: relative;
   width: 200px;
@@ -1989,7 +2001,6 @@ html[data-theme="light"] {
   transform: translateY(-50%) rotate(180deg);
 }
 
-/* Dark theme mobile menu improvements */
 [data-theme="dark"] .mobile-menu {
   background-color: var(--mdc-surface);
   border-color: var(--mdc-border);
@@ -2050,7 +2061,6 @@ html[data-theme="light"] {
   color: var(--mdc-primary);
 }
 
-/* Light theme overrides for consistency */
 [data-theme="light"] .mdc-text-field {
   background-color: var(--mdc-surface);
   border-color: var(--mdc-border);
@@ -2108,10 +2118,7 @@ html[data-theme="light"] {
   color: var(--mdc-primary) !important;
 }
 
-/* Mobile-specific CSS fixes and improvements */
-/* Ensure proper CSS loading on mobile browsers, especially Firefox */
 
-/* Force hardware acceleration for better mobile performance */
 .mdc-card,
 .mdc-button,
 .mdc-text-field,
@@ -2129,7 +2136,6 @@ html[data-theme="light"] {
   backface-visibility: hidden;
 }
 
-/* Ensure proper touch targets on mobile */
 @media (max-width: 768px) {
   .mdc-button {
     min-height: 44px;
@@ -2150,213 +2156,193 @@ html[data-theme="light"] {
     min-width: 44px;
     min-height: 44px;
   }
-}
-
-/* Fix for mobile Firefox specific issues */
-@-moz-document url-prefix() {
-  .mdc-text-field {
-    background-color: var(--mdc-surface) !important;
-    border-color: var(--mdc-border) !important;
+  
+  .mdc-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
-  .mdc-text-field__input {
+  .mdc-card__content {
+    padding: 16px 0 !important;
     background: transparent !important;
   }
   
-  .mdc-card {
-    background-color: var(--mdc-surface) !important;
+  .mdc-card__actions {
+    padding: 16px 0 !important;
+    background: transparent !important;
+    border: none !important;
   }
   
-  .mdc-top-app-bar {
-    background-color: var(--mdc-surface) !important;
-  }
-}
-
-/* Ensure CSS variables work properly on all mobile browsers */
-:root {
-  /* Force re-evaluation of CSS variables */
-  --mdc-primary: #5c6bc0;
-  --mdc-primary-variant: #3949ab;
-  --mdc-secondary: #26a69a;
-  --mdc-secondary-variant: #00897b;
-  --mdc-background: #fafafa;
-  --mdc-surface: #ffffff;
-  --mdc-error: #ef5350;
-  --mdc-on-primary: #ffffff;
-  --mdc-on-secondary: #ffffff;
-  --mdc-on-background: #212121;
-  --mdc-on-surface: #212121;
-  --mdc-on-error: #ffffff;
-  
-  --mdc-border: rgba(0, 0, 0, 0.08);
-  --mdc-divider: rgba(0, 0, 0, 0.12);
-  --mdc-overlay: rgba(0, 0, 0, 0.04);
-  --mdc-hover: rgba(0, 0, 0, 0.04);
-  
-  --mdc-elevation-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
-  --mdc-elevation-2: 0 2px 4px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.16);
-  --mdc-elevation-4: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
-  --mdc-elevation-8: 0 8px 16px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.24);
-}
-
-/* Mobile-specific viewport fixes */
-@media screen and (max-width: 768px) {
-  body {
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+  .mdc-container {
+    padding: 16px !important;
+    max-width: 100% !important;
   }
   
-  /* Ensure proper scaling on mobile */
-  .mdc-layout__content {
-    padding-top: 120px;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  
-  /* Fix for mobile menu positioning */
-  .mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-  }
-  
-  /* Ensure proper touch scrolling */
   .mdc-data-table {
-    -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
-  }
-}
-
-/* Additional mobile Firefox fixes */
-@supports (-moz-appearance:none) {
-  .mdc-text-field {
-    background-color: var(--mdc-surface);
-    border: 1px solid var(--mdc-border);
+    border-radius: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   
-  .mdc-text-field__input {
-    background: transparent;
+  .row {
+    flex-direction: column !important;
+    gap: 12px !important;
   }
   
-  .mdc-button {
-    background-color: transparent;
+  .col-md-6,
+  .col-md-2,
+  .col-md-5,
+  .col-md-12 {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    min-width: auto !important;
   }
   
-  .mdc-button--raised {
-    background-color: var(--mdc-primary);
+  .edit-form-field {
+    flex: 1 1 100% !important;
+    margin-right: 0 !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .edit-form-field .mdc-text-field {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+  
+  .edit-form-button {
+    flex: 1 1 100% !important;
+    margin-top: 12px !important;
+  }
+  
+  .edit-form-button .mdc-button {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+  
+  .button-group {
+    flex-direction: column !important;
+    gap: 8px !important;
+    height: auto !important;
+  }
+  
+  .button-group .form-button {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: 20px !important;
+  }
+  
+  .mb-5 {
+    margin-bottom: 24px !important;
+  }
+  
+  .mdc-data-table__cell {
+    padding: 12px 8px !important;
+    font-size: 14px !important;
+  }
+  
+  .mdc-data-table__header-cell {
+    padding: 12px 8px !important;
+    font-size: 12px !important;
+  }
+  
+  .btn-group {
+    gap: 4px !important;
+  }
+  
+  .btn-group .mdc-button {
+    padding: 8px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
   }
 }
 
-/* Ensure proper CSS loading order and specificity */
-.mdc-top-app-bar {
-  background-color: var(--mdc-surface) !important;
-  color: var(--mdc-on-surface) !important;
-  box-shadow: var(--mdc-elevation-1) !important;
-  border-bottom: 1px solid var(--mdc-border) !important;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+@media (max-width: 480px) {
+  .mdc-container {
+    padding: 12px !important;
+  }
+  
+  .mdc-card__content {
+    padding: 12px 0 !important;
+  }
+  
+  .mdc-data-table__cell {
+    padding: 10px 6px !important;
+    font-size: 13px !important;
+  }
+  
+  .mdc-data-table__header-cell {
+    padding: 10px 6px !important;
+    font-size: 11px !important;
+  }
+  
+  .edit-form-field,
+  .edit-form-button {
+    margin-bottom: 8px !important;
+  }
+  
+  .btn-group .mdc-button {
+    padding: 6px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+  
+  .btn-group .mdc-button i {
+    font-size: 14px !important;
+  }
 }
 
-.mdc-card {
-  background-color: var(--mdc-surface) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--mdc-elevation-1) !important;
-  border: 1px solid var(--mdc-border) !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease !important;
-  overflow: visible !important;
-  position: relative !important;
-}
-
-/* Force proper rendering on mobile */
 @media (max-width: 768px) {
-  * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-smoothing: antialiased;
+  [data-theme="dark"] .mdc-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
   }
   
-  /* Ensure proper box-sizing */
-  *, *::before, *::after {
-    box-sizing: border-box;
+  [data-theme="dark"] .mdc-card__content {
+    background: transparent !important;
   }
   
-  /* Fix for mobile input zoom */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="url"],
-  select,
-  textarea {
-    font-size: 16px !important;
+  [data-theme="dark"] .mdc-card__actions {
+    background: transparent !important;
+    border: none !important;
+  }
+  
+  [data-theme="dark"] .mdc-grid .mdc-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  [data-theme="dark"] .mdc-grid .mdc-card .mdc-card__content {
+    background: transparent !important;
   }
 }
 
-/* Fallback styles in case CSS variables don't load */
-.mdc-top-app-bar {
-  background-color: #ffffff;
-  color: #212121;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.mdc-card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.mdc-button {
-  border-radius: 8px;
-  font-weight: 500;
-  font-style: normal;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.mdc-button--raised {
-  background-color: #5c6bc0;
-  color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
-}
-
-.mdc-text-field {
-  background-color: rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  min-height: 56px;
-}
-
-/* Dark theme fallbacks */
-[data-theme="dark"] .mdc-top-app-bar {
-  background-color: #1e1e1e;
-  color: #ffffff;
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="dark"] .mdc-card {
-  background-color: #1e1e1e;
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="dark"] .mdc-text-field {
-  background-color: #1e1e1e;
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="dark"] .mdc-button--raised {
-  background-color: #7986cb;
-  color: #000000;
+@media (max-width: 480px) {
+  [data-theme="dark"] .mdc-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  [data-theme="dark"] .mdc-card__content {
+    background: transparent !important;
+  }
+  
+  [data-theme="dark"] .mdc-grid .mdc-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  [data-theme="dark"] .mdc-grid .mdc-card .mdc-card__content {
+    background: transparent !important;
+  }
 }

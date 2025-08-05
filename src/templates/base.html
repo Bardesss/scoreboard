@@ -9,7 +9,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Scoreboard</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <!-- Critical CSS loading -->
     <link rel="stylesheet" href="/static/custom.css">
     <link href="/static/vendor/material-design/material-design.css" rel="stylesheet">
     <link href="/static/vendor/material-design/icons.css" rel="stylesheet">
@@ -49,7 +48,6 @@
             </div>
         </header>
         
-        <!-- Mobile menu overlay -->
         {% if request.session.get('is_admin') %}
         <div class="mobile-menu-overlay" id="mobile-menu-overlay">
                             <div class="mobile-menu">
