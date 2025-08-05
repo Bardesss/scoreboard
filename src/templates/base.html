@@ -43,6 +43,14 @@
                     <button class="mdc-button mdc-button--text mobile-menu-toggle" id="mobile-menu-toggle">
                         <i class="bi bi-list"></i>
                     </button>
+                    {% else %}
+                    <div class="mobile-login-actions">
+                        {% if request.session.get('user_id') %}
+                            <a href="/logout" class="mdc-button mdc-button--outlined">Logout</a>
+                        {% else %}
+                            <a href="/login" class="mdc-button mdc-button--outlined">Login</a>
+                        {% endif %}
+                    </div>
                     {% endif %}
                 </section>
             </div>

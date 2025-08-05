@@ -586,6 +586,11 @@ a[class*="btn"] {
     padding: 6px 12px;
     font-size: 12px;
   }
+  
+  .mobile-login-actions .mdc-button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -604,6 +609,11 @@ a[class*="btn"] {
   .mdc-top-app-bar__actions .mdc-button {
     padding: 4px 8px;
     font-size: 11px;
+  }
+  
+  .mobile-login-actions .mdc-button {
+    padding: 4px 6px;
+    font-size: 10px;
   }
 }
 
@@ -873,11 +883,31 @@ a[class*="btn"] {
   opacity: 0 !important;
 }
 
+.mobile-login-actions {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
 @media (max-width: 768px) {
   .mobile-menu-toggle {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
+  }
+  
+  .mobile-login-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .mobile-login-actions .mdc-button {
+    margin: 0;
+    padding: 6px 12px;
+    font-size: 12px;
   }
   
   .desktop-nav,
