@@ -571,6 +571,22 @@ a[class*="btn"] {
   .mdc-dropdown__menu {
     min-width: 140px;
   }
+  
+  /* Verbeterde dropdown styling voor mobiel */
+  .custom-single-select {
+    width: 100%;
+    min-width: auto;
+    margin-bottom: 8px;
+  }
+  
+  .single-select-dropdown {
+    z-index: 10001;
+    max-height: 150px;
+  }
+  
+  .edit-form-field {
+    margin-bottom: 12px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1954,7 +1970,7 @@ html[data-theme="light"] {
   position: relative;
   width: 200px;
   min-width: 200px;
-  z-index: 9999;
+  z-index: 1;
 }
 
 .single-select-trigger {
@@ -1999,7 +2015,7 @@ html[data-theme="light"] {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   box-shadow: var(--mdc-elevation-2);
-  z-index: 9999;
+  z-index: 10000;
   max-height: 200px;
   overflow-y: auto;
   display: none;
@@ -2029,6 +2045,15 @@ html[data-theme="light"] {
 
 .custom-single-select.active .single-select-arrow {
   transform: translateY(-50%) rotate(180deg);
+}
+
+.custom-single-select.active {
+  z-index: 9999;
+}
+
+/* Zorg ervoor dat actieve dropdowns altijd zichtbaar zijn */
+.custom-single-select.active .single-select-dropdown {
+  z-index: 10002 !important;
 }
 
 [data-theme="dark"] .mobile-menu {
