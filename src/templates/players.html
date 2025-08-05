@@ -66,7 +66,6 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -77,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Close alert function
 function closeAlert(alertId) {
     const alert = document.querySelector(`[data-alert-id="${alertId}"]`);
     if (alert) {

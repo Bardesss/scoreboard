@@ -112,34 +112,28 @@
     </div>
     
     <script>
-        // Apply theme immediately to prevent flash
         (function() {
             const storedTheme = localStorage.getItem('theme');
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = storedTheme || systemTheme;
             document.documentElement.setAttribute('data-theme', theme);
             
-            // Force CSS reload on mobile if needed
             if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                // Ensure CSS is properly loaded on mobile
                 const styleSheets = document.styleSheets;
                 for (let i = 0; i < styleSheets.length; i++) {
                     try {
                         const rules = styleSheets[i].cssRules || styleSheets[i].rules;
                         if (rules && rules.length > 0) {
-                            // CSS is loaded, force a repaint
                             document.body.style.display = 'none';
-                            document.body.offsetHeight; // Force reflow
+                            document.body.offsetHeight;
                             document.body.style.display = '';
                         }
                     } catch (e) {
-                        // Cross-origin stylesheet, skip
                     }
                 }
             }
         })();
         
-        // Theme management
         class ThemeManager {
             constructor() {
                 this.themeSwitcher = document.getElementById('theme-switcher');
@@ -169,11 +163,9 @@
                     if (switcher) {
                         const icon = switcher.querySelector('i');
                         if (this.currentTheme === 'dark') {
-                            // Bij donker thema: toon zon icoon (om naar licht te gaan)
                             icon.className = 'bi bi-sun-fill';
                             switcher.setAttribute('data-theme', 'dark');
                         } else {
-                            // Bij licht thema: toon maan icoon (om naar donker te gaan)
                             icon.className = 'bi bi-moon-fill';
                             switcher.removeAttribute('data-theme');
                         }
@@ -196,7 +188,6 @@
                     }
                 });
 
-                // Listen for system theme changes
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
                     if (!this.getStoredTheme()) {
                         this.setTheme(e.matches ? 'dark' : 'light');
@@ -205,12 +196,9 @@
             }
         }
 
-        // Simple Material Design interactions
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize theme manager
             new ThemeManager();
             
-            // Mobile menu functionality
             const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
             const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
             const mobileMenuClose = document.getElementById('mobile-menu-close');
@@ -233,7 +221,6 @@
                     }
                 });
                 
-                // Close menu on escape key
                 document.addEventListener('keydown', function(e) {
                     if (e.key === 'Escape' && mobileMenuOverlay.classList.contains('mobile-menu-overlay--open')) {
                         mobileMenuOverlay.classList.remove('mobile-menu-overlay--open');
@@ -242,7 +229,6 @@
                 });
             }
             
-            // Text field focus effects
             const textFields = document.querySelectorAll('.mdc-text-field');
             textFields.forEach(field => {
                 const input = field.querySelector('.mdc-text-field__input');
@@ -261,14 +247,12 @@
                         }
                     });
                     
-                    // Check if input has value on load
                     if (input.value) {
                         field.classList.add('mdc-text-field--label-floating');
                     }
                 }
             });
             
-            // Button ripple effect
             const buttons = document.querySelectorAll('.mdc-button');
             buttons.forEach(button => {
                 button.addEventListener('click', function(e) {
@@ -294,7 +278,6 @@
             });
         });
         
-        // Add ripple animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {
