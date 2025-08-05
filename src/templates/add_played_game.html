@@ -14,11 +14,9 @@
       {% endfor %}
     {% endif %}
     <form method="post" action="/societies/{{ society.id }}/games/add" class="row mb-4" novalidate>
-      <!-- Hidden fields -->
       <input type="hidden" name="boardgame_id" value="{{ selected_game.id }}">
       <input type="hidden" name="win_type" value="{{ win_type }}">
       
-      <!-- Date picker -->
       <div class="edit-form-field">
         <div class="mdc-text-field">
           <input type="datetime-local" name="played_at" id="played_at" class="mdc-text-field__input" 
@@ -28,7 +26,6 @@
         </div>
       </div>
       
-      <!-- Winner type fields (shown for winner win_type) -->
       {% if win_type == 'winner' %}
       <div class="edit-form-field">
         <div class="custom-single-select">
@@ -53,7 +50,6 @@
       </div>
       {% endif %}
       
-      <!-- Points fields (shown for points win_type) -->
       {% if win_type == 'points' %}
       <div class="edit-form-field">
         <div class="mdc-text-field">
@@ -69,7 +65,6 @@
       </div>
       {% endif %}
       
-      <!-- Task fields (shown for task win_type) -->
       {% if win_type == 'task' %}
       <div class="edit-form-field">
         <div class="custom-single-select">

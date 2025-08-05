@@ -6,4 +6,5 @@ passlib[bcrypt]
 python-multipart
 itsdangerous
 bcrypt==4.0.1
-starlette 
+starlette
+slowapi 

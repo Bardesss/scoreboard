@@ -19,11 +19,9 @@
     </div>
     {% endif %}
     <form method="post" action="/societies/{{ society.id }}/games/edit/{{ played_game.id }}" class="row mb-4" novalidate>
-      <!-- Hidden fields for backend -->
       <input type="hidden" name="boardgame_id" value="{{ selected_game.id }}">
       <input type="hidden" name="win_type" value="{{ win_type }}">
       
-      <!-- Date picker -->
       <div class="edit-form-field">
         <div class="mdc-text-field">
           <input type="datetime-local" name="played_at" id="played_at" class="mdc-text-field__input" 

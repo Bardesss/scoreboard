@@ -1,6 +1,4 @@
-/* Simple Icon Set - Material Design Style */
 
-/* Icon base styles */
 .bi {
   display: inline-block;
   width: 1em;
@@ -9,7 +7,6 @@
   fill: currentColor;
 }
 
-/* Person icons */
 .bi-person-plus::before {
   content: "👤+";
   font-size: 0.9em;
@@ -25,7 +22,6 @@
   font-size: 0.9em;
 }
 
-/* Edit icons */
 .bi-pencil::before {
   content: "✏️";
   font-size: 0.8em;
@@ -36,7 +32,6 @@
   font-size: 0.8em;
 }
 
-/* Delete icons */
 .bi-trash::before {
   content: "🗑️";
   font-size: 0.8em;
@@ -47,7 +42,6 @@
   font-size: 0.8em;
 }
 
-/* Add icons */
 .bi-plus::before {
   content: "+";
   font-weight: bold;
@@ -65,7 +59,6 @@
   font-size: 1.5em;
 }
 
-/* Navigation icons */
 .bi-arrow-left::before {
   content: "←";
   font-weight: bold;
@@ -86,7 +79,6 @@
   font-size: 0.7em;
 }
 
-/* Game icons */
 .bi-trophy::before {
   content: "🏆";
   font-size: 0.9em;
@@ -97,7 +89,6 @@
   font-size: 0.9em;
 }
 
-/* Stats/Graph icons */
 .bi-graph-up::before {
   content: "📈";
   font-size: 0.9em;
@@ -118,7 +109,6 @@
   font-size: 0.9em;
 }
 
-/* List icons */
 .bi-list::before {
   content: "☰";
   font-weight: bold;
@@ -129,13 +119,11 @@
   font-weight: bold;
 }
 
-/* Search icons */
 .bi-search::before {
   content: "🔍";
   font-size: 0.8em;
 }
 
-/* Settings icons */
 .bi-gear::before {
   content: "⚙️";
   font-size: 0.8em;
@@ -146,7 +134,6 @@
   font-size: 0.8em;
 }
 
-/* Home icons */
 .bi-house::before {
   content: "🏠";
   font-size: 0.9em;
@@ -157,7 +144,6 @@
   font-size: 0.9em;
 }
 
-/* Calendar icons */
 .bi-calendar::before {
   content: "📅";
   font-size: 0.8em;
@@ -168,7 +154,6 @@
   font-size: 0.8em;
 }
 
-/* Time icons */
 .bi-clock::before {
   content: "🕐";
   font-size: 0.8em;
@@ -179,7 +164,6 @@
   font-size: 0.8em;
 }
 
-/* Check icons */
 .bi-check::before {
   content: "✓";
   font-weight: bold;
@@ -195,7 +179,6 @@
   font-size: 0.9em;
 }
 
-/* X icons */
 .bi-x::before {
   content: "✕";
   font-weight: bold;
@@ -212,7 +195,6 @@
   font-size: 1.2em;
 }
 
-/* Info icons */
 .bi-info-circle::before {
   content: "ℹ️";
   font-size: 0.8em;
@@ -223,7 +205,6 @@
   font-size: 0.8em;
 }
 
-/* Warning icons */
 .bi-exclamation-triangle::before {
   content: "⚠️";
   font-size: 0.8em;
@@ -234,7 +215,6 @@
   font-size: 0.8em;
 }
 
-/* Eye icons */
 .bi-eye::before {
   content: "👁️";
   font-size: 0.8em;
@@ -245,7 +225,6 @@
   font-size: 0.8em;
 }
 
-/* Lock icons */
 .bi-lock::before {
   content: "🔒";
   font-size: 0.8em;
@@ -256,7 +235,6 @@
   font-size: 0.8em;
 }
 
-/* Download/Upload icons */
 .bi-download::before {
   content: "⬇️";
   font-size: 0.8em;
@@ -267,7 +245,6 @@
   font-size: 0.8em;
 }
 
-/* Link icons */
 .bi-link::before {
   content: "🔗";
   font-size: 0.8em;
@@ -278,7 +255,6 @@
   font-size: 0.8em;
 }
 
-/* Grid icons */
 .bi-grid::before {
   content: "⊞";
   font-weight: bold;
@@ -289,7 +265,6 @@
   font-weight: bold;
 }
 
-/* Heart icons */
 .bi-heart::before {
   content: "❤️";
   font-size: 0.8em;
@@ -300,7 +275,6 @@
   font-size: 0.8em;
 }
 
-/* Bookmark icons */
 .bi-bookmark::before {
   content: "🔖";
   font-size: 0.8em;
@@ -311,7 +285,6 @@
   font-size: 0.8em;
 }
 
-/* Chat icons */
 .bi-chat::before {
   content: "💬";
   font-size: 0.8em;
@@ -322,7 +295,6 @@
   font-size: 0.8em;
 }
 
-/* Phone icons */
 .bi-telephone::before {
   content: "📞";
   font-size: 0.8em;
@@ -333,7 +305,6 @@
   font-size: 0.8em;
 }
 
-/* Email icons */
 .bi-envelope::before {
   content: "✉️";
   font-size: 0.8em;
@@ -344,7 +315,6 @@
   font-size: 0.8em;
 }
 
-/* Map icons */
 .bi-geo-alt::before {
   content: "📍";
   font-size: 0.8em;
@@ -355,7 +325,6 @@
   font-size: 0.8em;
 }
 
-/* Size modifiers */
 .bi-sm {
   font-size: 0.875em;
 }

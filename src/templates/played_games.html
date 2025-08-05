@@ -29,7 +29,6 @@
     </div>
     
     <div id="games-container">
-      {# Bepaal of er resultaten zijn om te tonen #}
       {% set show_results = false %}
       {% set society_boardgame_id = society.boardgame_ids.split(',')[0] | int %}
       {% set society_boardgame = (games | selectattr('id', 'equalto', society_boardgame_id) | list)[0] %}
@@ -65,7 +64,6 @@
               </td>
               {% if show_results %}
               <td class="mdc-data-table__cell">
-                {# Resultaat kolom #}
                 {% set boardgame = (games | selectattr('id', 'equalto', game.boardgame_id) | list)[0] %}
                 {% if boardgame.win_type == 'winner' %}
                   -
