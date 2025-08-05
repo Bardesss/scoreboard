@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#5c6bc0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Scoreboard</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link href="/static/custom.css" rel="stylesheet">
+    <!-- Critical CSS loading -->
+    <link rel="stylesheet" href="/static/custom.css">
     <link href="/static/vendor/material-design/material-design.css" rel="stylesheet">
     <link href="/static/vendor/material-design/icons.css" rel="stylesheet">
 </head>
@@ -48,8 +52,11 @@
         <!-- Mobile menu overlay -->
         {% if request.session.get('is_admin') %}
         <div class="mobile-menu-overlay" id="mobile-menu-overlay">
-            <div class="mobile-menu">
-                <nav class="mobile-menu-nav">
+                            <div class="mobile-menu">
+                    <div class="mobile-menu-header">
+                        <h3>Menu</h3>
+                    </div>
+                    <nav class="mobile-menu-nav">
                     <a href="/" class="mobile-menu-item{% if request.url.path == '/' %} mobile-menu-item--selected{% endif %}">
                         Home
                     </a>
@@ -105,6 +112,25 @@
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = storedTheme || systemTheme;
             document.documentElement.setAttribute('data-theme', theme);
+            
+            // Force CSS reload on mobile if needed
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                // Ensure CSS is properly loaded on mobile
+                const styleSheets = document.styleSheets;
+                for (let i = 0; i < styleSheets.length; i++) {
+                    try {
+                        const rules = styleSheets[i].cssRules || styleSheets[i].rules;
+                        if (rules && rules.length > 0) {
+                            // CSS is loaded, force a repaint
+                            document.body.style.display = 'none';
+                            document.body.offsetHeight; // Force reflow
+                            document.body.style.display = '';
+                        }
+                    } catch (e) {
+                        // Cross-origin stylesheet, skip
+                    }
+                }
+            }
         })();
         
         // Theme management

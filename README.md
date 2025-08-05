@@ -1,6 +1,6 @@
 # Scoreboard App
 
-A self-hosted web application to track boardgame scores, players, and statistics for groups of friends or families. Built with FastAPI, Bootstrap, and SQLite.
+A self-hosted web application to track boardgame scores, players, and statistics for groups of friends or families. Built with FastAPI, Material Design, and SQLite.
 
 > [!WARNING]  
 > This is for personal development. Don't expose to internet!
@@ -12,17 +12,6 @@ A self-hosted web application to track boardgame scores, players, and statistics
 - View statistics per group (most wins, most points, most won tasks) filterable by day, week, month, year
 - User authentication (admin setup on first run)
 - Public view for societies and played games
-
-## Screenshots
-
-### Management Views
-![Players](screenshots/players.png) ![Boardgames](screenshots/boardgames.png) ![Tasks](screenshots/tasks.png)
-
-### Societies & Games
-![Societies](screenshots/societies.png) ![Add Game](screenshots/addplayedgame.png) ![Played Games](screenshots/playedgames.png)
-
-### Statistics
-![Statistics](screenshots/statistics.png)
 
 ## Deployment
 
@@ -74,5 +63,3 @@ Your data will be preserved as it is stored in the SQLite database file.
 ---
 
 For any issues, make sure your Docker container has write access to the database file (`scoreboard.db`).
-
-More details about configuration and usage will follow as the project is developed. 

@@ -83,15 +83,25 @@
   }
 }
 
+html {
+  background: var(--mdc-background);
+  min-height: 100vh;
+  transition: background-color 0.3s ease;
+}
+
 body { 
   background: var(--mdc-background);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--mdc-on-background);
   line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 
@@ -193,8 +203,13 @@ body {
   background-color: var(--mdc-surface);
   border-top: 1px solid var(--mdc-border);
   padding: 24px 0;
-    margin-top: auto;
+  margin-top: auto;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.mdc-text-center {
+  text-align: center;
 }
 
 .mdc-footer__text {
@@ -854,6 +869,12 @@ a[class*="btn"] {
   opacity: 1 !important;
 }
 
+.mobile-menu-toggle {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
 @media (max-width: 768px) {
   .mobile-menu-toggle {
     display: flex !important;
@@ -883,6 +904,8 @@ a[class*="btn"] {
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .mobile-menu-overlay--open {
@@ -902,6 +925,7 @@ a[class*="btn"] {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid var(--mdc-border);
 }
 
 .mobile-menu-overlay--open .mobile-menu {
@@ -910,7 +934,7 @@ a[class*="btn"] {
 
 .mobile-menu-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid var(--mdc-border);
@@ -922,6 +946,7 @@ a[class*="btn"] {
   margin: 0;
   font-size: 20px;
   font-weight: 500;
+  color: var(--mdc-on-primary);
 }
 
 .mobile-menu-nav {
@@ -937,6 +962,7 @@ a[class*="btn"] {
   font-weight: 500;
   transition: all 0.2s ease;
   border-bottom: 1px solid var(--mdc-border);
+  background-color: transparent;
 }
 
 .mobile-menu-item:last-child {
@@ -946,6 +972,7 @@ a[class*="btn"] {
 .mobile-menu-item:hover {
   background-color: var(--mdc-hover);
   color: var(--mdc-primary);
+  text-decoration: none;
 }
 
 .mobile-menu-item--selected {
@@ -953,6 +980,7 @@ a[class*="btn"] {
   color: var(--mdc-primary);
   font-weight: 600;
   border-left: 4px solid var(--mdc-primary);
+  text-decoration: none;
 }
 
 .mobile-menu-footer {
@@ -963,12 +991,14 @@ a[class*="btn"] {
   background-color: var(--mdc-overlay);
   padding: 0;
   min-height: 56px;
+  margin-top: auto;
 }
 
 .mobile-menu-actions {
   display: flex;
   align-items: stretch;
   border-left: 1px solid var(--mdc-border);
+  flex-shrink: 0;
 }
 
 .mobile-menu-item--logout {
@@ -983,6 +1013,7 @@ a[class*="btn"] {
   text-decoration: none;
   transition: background-color 0.2s ease;
   border-right: 1px solid var(--mdc-border);
+  min-height: 44px;
 }
 
 .mobile-menu-item--logout:hover {
@@ -1002,6 +1033,7 @@ a[class*="btn"] {
   text-decoration: none;
   transition: background-color 0.2s ease;
   border-right: 1px solid var(--mdc-border);
+  min-height: 44px;
 }
 
 .mobile-menu-item--login:hover {
@@ -1022,10 +1054,13 @@ a[class*="btn"] {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .mobile-menu-close:hover {
   background-color: var(--mdc-hover);
+  color: var(--mdc-on-surface);
 } 
 
 .mdc-chip {
@@ -1122,8 +1157,27 @@ a[class*="btn"] {
   max-width: none;
 } 
 
+.mdc-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--mdc-background);
+}
+
 .mdc-layout__content {
   padding-top: 120px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mdc-container {
+  flex: 1;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 } 
 
 .mdc-card__content form {
@@ -1502,6 +1556,8 @@ a[class*="btn"] {
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .mobile-theme-switcher:hover {
@@ -1521,6 +1577,13 @@ a[class*="btn"] {
 .theme-switcher i {
   font-size: 12px;
   transition: transform 0.3s ease;
+  color: var(--mdc-surface);
+}
+
+.mobile-theme-switcher i {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+  color: var(--mdc-surface);
 }
 
 .theme-switcher:hover i {
@@ -2043,4 +2106,257 @@ html[data-theme="light"] {
 [data-theme="light"] .mdc-top-app-bar__navigation .mdc-button--selected {
   background-color: var(--mdc-hover) !important;
   color: var(--mdc-primary) !important;
+}
+
+/* Mobile-specific CSS fixes and improvements */
+/* Ensure proper CSS loading on mobile browsers, especially Firefox */
+
+/* Force hardware acceleration for better mobile performance */
+.mdc-card,
+.mdc-button,
+.mdc-text-field,
+.mdc-data-table,
+.mobile-menu {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Ensure proper touch targets on mobile */
+@media (max-width: 768px) {
+  .mdc-button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+  }
+  
+  .mdc-text-field {
+    min-height: 56px;
+  }
+  
+  .mobile-menu-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .theme-switcher {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Fix for mobile Firefox specific issues */
+@-moz-document url-prefix() {
+  .mdc-text-field {
+    background-color: var(--mdc-surface) !important;
+    border-color: var(--mdc-border) !important;
+  }
+  
+  .mdc-text-field__input {
+    background: transparent !important;
+  }
+  
+  .mdc-card {
+    background-color: var(--mdc-surface) !important;
+  }
+  
+  .mdc-top-app-bar {
+    background-color: var(--mdc-surface) !important;
+  }
+}
+
+/* Ensure CSS variables work properly on all mobile browsers */
+:root {
+  /* Force re-evaluation of CSS variables */
+  --mdc-primary: #5c6bc0;
+  --mdc-primary-variant: #3949ab;
+  --mdc-secondary: #26a69a;
+  --mdc-secondary-variant: #00897b;
+  --mdc-background: #fafafa;
+  --mdc-surface: #ffffff;
+  --mdc-error: #ef5350;
+  --mdc-on-primary: #ffffff;
+  --mdc-on-secondary: #ffffff;
+  --mdc-on-background: #212121;
+  --mdc-on-surface: #212121;
+  --mdc-on-error: #ffffff;
+  
+  --mdc-border: rgba(0, 0, 0, 0.08);
+  --mdc-divider: rgba(0, 0, 0, 0.12);
+  --mdc-overlay: rgba(0, 0, 0, 0.04);
+  --mdc-hover: rgba(0, 0, 0, 0.04);
+  
+  --mdc-elevation-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
+  --mdc-elevation-2: 0 2px 4px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.16);
+  --mdc-elevation-4: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
+  --mdc-elevation-8: 0 8px 16px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.24);
+}
+
+/* Mobile-specific viewport fixes */
+@media screen and (max-width: 768px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Ensure proper scaling on mobile */
+  .mdc-layout__content {
+    padding-top: 120px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  /* Fix for mobile menu positioning */
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+  }
+  
+  /* Ensure proper touch scrolling */
+  .mdc-data-table {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+}
+
+/* Additional mobile Firefox fixes */
+@supports (-moz-appearance:none) {
+  .mdc-text-field {
+    background-color: var(--mdc-surface);
+    border: 1px solid var(--mdc-border);
+  }
+  
+  .mdc-text-field__input {
+    background: transparent;
+  }
+  
+  .mdc-button {
+    background-color: transparent;
+  }
+  
+  .mdc-button--raised {
+    background-color: var(--mdc-primary);
+  }
+}
+
+/* Ensure proper CSS loading order and specificity */
+.mdc-top-app-bar {
+  background-color: var(--mdc-surface) !important;
+  color: var(--mdc-on-surface) !important;
+  box-shadow: var(--mdc-elevation-1) !important;
+  border-bottom: 1px solid var(--mdc-border) !important;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+.mdc-card {
+  background-color: var(--mdc-surface) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--mdc-elevation-1) !important;
+  border: 1px solid var(--mdc-border) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Force proper rendering on mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smoothing: antialiased;
+  }
+  
+  /* Ensure proper box-sizing */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  /* Fix for mobile input zoom */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Fallback styles in case CSS variables don't load */
+.mdc-top-app-bar {
+  background-color: #ffffff;
+  color: #212121;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mdc-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mdc-button {
+  border-radius: 8px;
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mdc-button--raised {
+  background-color: #5c6bc0;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
+}
+
+.mdc-text-field {
+  background-color: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  min-height: 56px;
+}
+
+/* Dark theme fallbacks */
+[data-theme="dark"] .mdc-top-app-bar {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .mdc-card {
+  background-color: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .mdc-text-field {
+  background-color: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .mdc-button--raised {
+  background-color: #7986cb;
+  color: #000000;
 }
