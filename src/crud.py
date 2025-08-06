@@ -269,8 +269,8 @@ def get_stats_most_popular_days(db: Session, society_id: int, from_date: datetim
         q = q.filter(models.PlayedGame.played_at <= to_date)
     day_counts = {}
     for g in q:
-            weekday = g.played_at.weekday()
-    day_counts[weekday] = day_counts.get(weekday, 0) + 1
+        weekday = g.played_at.weekday()
+        day_counts[weekday] = day_counts.get(weekday, 0) + 1
     return dict(sorted(day_counts.items(), key=lambda item: item[1], reverse=True))
 
 def get_stats_longest_win_streak(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
