@@ -987,7 +987,7 @@ def get_society_stats_json(society_id: int, period: str = Query('all'),
         },
         "most_popular_days": {
             "labels": ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-            "data": list(most_popular_days.values()),
+            "data": [most_popular_days.get(i, 0) for i in range(7)],
             "colors": [f"hsl({(i * 137.5) % 360}, 70%, 80%)" for i in range(7)]
         },
         "longest_win_streak": {
