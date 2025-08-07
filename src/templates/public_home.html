@@ -18,25 +18,28 @@
             <td class="mdc-data-table__cell">{{ society.name }}</td>
             <td class="mdc-data-table__cell">
               {% set player_ids = society.player_ids.split(',') %}
+              {% set society_players = [] %}
               {% for player in players %}
                 {% if player.id|string in player_ids %}
-                  {{ player.name }}{% if not loop.last %}, {% endif %}
+                  {% set _ = society_players.append(player.name) %}
                 {% endif %}
               {% endfor %}
+              {% set society_players = society_players|sort %}
+              {{ society_players | join(', ') }}
             </td>
             <td class="mdc-data-table__cell text-right">
               <div class="btn-group" role="group">
+                {% if request.session.get('is_admin') or (request.session.get('user_id') and society.created_by_user_id and society.created_by_user_id == request.session.get('user_id')) %}
+                <a href="/societies/{{ society.id }}/games/add" class="mdc-button mdc-button--text" title="Add Game">
+                  <i class="bi bi-plus-circle"></i>
+                </a>
+                {% endif %}
                 <a href="/societies/{{ society.id }}/games" class="mdc-button mdc-button--text" title="View Games">
                   <i class="bi bi-eye"></i>
                 </a>
                 <a href="/societies/{{ society.id }}/stats" class="mdc-button mdc-button--text" title="Statistics">
                   <i class="bi bi-graph-up"></i>
                 </a>
-                {% if request.session.get('is_admin') %}
-                <a href="/societies/{{ society.id }}/games/add" class="mdc-button mdc-button--text" title="Add Game">
-                  <i class="bi bi-plus-circle"></i>
-                </a>
-                {% endif %}
               </div>
             </td>
           </tr>
@@ -56,7 +59,7 @@
           <tr>
             <th class="mdc-data-table__header-cell">Date</th>
             <th class="mdc-data-table__header-cell">Society</th>
-            <th class="mdc-data-table__header-cell">Boardgame</th>
+            <th class="mdc-data-table__header-cell">Board Game</th>
             <th class="mdc-data-table__header-cell">Winner</th>
           </tr>
         </thead>

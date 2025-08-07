@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mdc-card mb-4">
+  <div class="mdc-card__content">
+    <h2 class="mdc-typography--headline5 mb-4">User Management</h2>
+    <div class="table-responsive">
+      <table class="mdc-data-table__table">
+        <thead>
+          <tr class="mdc-data-table__header-row">
+            <th class="mdc-data-table__header-cell">Username</th>
+            <th class="mdc-data-table__header-cell">Role</th>
+            <th class="mdc-data-table__header-cell">Status</th>
+            <th class="mdc-data-table__header-cell">Created</th>
+            <th class="mdc-data-table__header-cell">Last Login</th>
+            <th class="mdc-data-table__header-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="mdc-data-table__content">
+          {% for user in users %}
+          <tr class="mdc-data-table__row">
+            <td class="mdc-data-table__cell">{{ user.username }}</td>
+            <td class="mdc-data-table__cell">
+              {% if user.is_admin %}
+                <span class="badge badge-primary">Admin</span>
+              {% else %}
+                <span class="badge badge-secondary">User</span>
+              {% endif %}
+            </td>
+            <td class="mdc-data-table__cell">
+              {% if user.is_active %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="mdc-data-table__cell">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
+            <td class="mdc-data-table__cell">{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+            <td class="mdc-data-table__cell">
+              {% if not user.is_admin %}
+                <form method="post" action="/admin/users/{{ user.id }}/toggle-active" style="display: inline;">
+                  <button type="submit" class="mdc-button mdc-button--outlined mdc-button--dense">
+                    {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                  </button>
+                </form>
+                <button class="mdc-button mdc-button--outlined mdc-button--dense" onclick="showResetPassword({{ user.id }}, '{{ user.username }}')">
+                  Reset Password
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="resetPasswordModal" style="display: none;">
+  <div class="modal-content">
+    <h3>Reset Password for <span id="resetUsername"></span></h3>
+    <form method="post" id="resetPasswordForm">
+      <div class="mdc-text-field">
+        <input type="password" name="new_password" class="mdc-text-field__input" placeholder=" " required>
+        <label class="mdc-text-field__label">New Password</label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="mdc-button mdc-button--outlined" onclick="hideResetPassword()">Cancel</button>
+        <button type="submit" class="mdc-button mdc-button--raised">Reset Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function showResetPassword(userId, username) {
+  document.getElementById('resetUsername').textContent = username;
+  document.getElementById('resetPasswordForm').action = `/admin/users/${userId}/reset-password`;
+  document.getElementById('resetPasswordModal').style.display = 'flex';
+}
+
+function hideResetPassword() {
+  document.getElementById('resetPasswordModal').style.display = 'none';
+}
+</script>
+
+<style>
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background: #1976d2;
+  color: white;
+}
+
+.badge-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.badge-success {
+  background: #28a745;
+  color: white;
+}
+
+.badge-danger {
+  background: #dc3545;
+  color: white;
+}
+</style>
+{% endblock %}

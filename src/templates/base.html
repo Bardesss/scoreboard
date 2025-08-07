@@ -19,12 +19,15 @@
             <div class="mdc-top-app-bar__row">
                 <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
                     <a href="/" class="mdc-top-app-bar__title">♟️ Scoreboard</a>
-                    {% if request.session.get('is_admin') %}
+                    {% if request.session.get('user_id') %}
                     <nav class="mdc-top-app-bar__navigation desktop-nav">
                         <a href="/admin/players" class="mdc-button mdc-button--text{% if '/admin/players' in request.url.path %} mdc-button--selected{% endif %}">Players</a>
-                        <a href="/admin/boardgames" class="mdc-button mdc-button--text{% if '/admin/boardgames' in request.url.path %} mdc-button--selected{% endif %}">Boardgames</a>
+                        <a href="/admin/boardgames" class="mdc-button mdc-button--text{% if '/admin/boardgames' in request.url.path %} mdc-button--selected{% endif %}">Board Games</a>
                         <a href="/admin/tasks" class="mdc-button mdc-button--text{% if '/admin/tasks' in request.url.path %} mdc-button--selected{% endif %}">Tasks</a>
                         <a href="/admin/societies" class="mdc-button mdc-button--text{% if '/admin/societies' in request.url.path %} mdc-button--selected{% endif %}">Societies</a>
+                        {% if request.session.get('is_admin') %}
+                        <a href="/admin/users" class="mdc-button mdc-button--text{% if '/admin/users' in request.url.path %} mdc-button--selected{% endif %}">Users</a>
+                        {% endif %}
                     </nav>
                     {% endif %}
                 </section>
@@ -34,29 +37,28 @@
                             <i class="bi bi-sun-fill"></i>
                         </button>
                         {% if request.session.get('user_id') %}
+                            <span class="username-display">{{ request.session.get('username') }}</span>
                             <a href="/logout" class="mdc-button mdc-button--outlined">Logout</a>
                         {% else %}
+                            <a href="/register" class="mdc-button mdc-button--outlined">Register</a>
                             <a href="/login" class="mdc-button mdc-button--outlined">Login</a>
                         {% endif %}
                     </div>
-                    {% if request.session.get('is_admin') %}
+                    {% if request.session.get('user_id') %}
                     <button class="mdc-button mdc-button--text mobile-menu-toggle" id="mobile-menu-toggle">
                         <i class="bi bi-list"></i>
                     </button>
                     {% else %}
                     <div class="mobile-login-actions">
-                        {% if request.session.get('user_id') %}
-                            <a href="/logout" class="mdc-button mdc-button--outlined">Logout</a>
-                        {% else %}
-                            <a href="/login" class="mdc-button mdc-button--outlined">Login</a>
-                        {% endif %}
+                        <a href="/register" class="mdc-button mdc-button--outlined">Register</a>
+                        <a href="/login" class="mdc-button mdc-button--outlined">Login</a>
                     </div>
                     {% endif %}
                 </section>
             </div>
         </header>
         
-        {% if request.session.get('is_admin') %}
+        {% if request.session.get('user_id') %}
         <div class="mobile-menu-overlay" id="mobile-menu-overlay">
                             <div class="mobile-menu">
                     <div class="mobile-menu-header">
@@ -70,7 +72,7 @@
                         Players
                     </a>
                     <a href="/admin/boardgames" class="mobile-menu-item{% if '/admin/boardgames' in request.url.path %} mobile-menu-item--selected{% endif %}">
-                        Boardgames
+Board Games
                     </a>
                     <a href="/admin/tasks" class="mobile-menu-item{% if '/admin/tasks' in request.url.path %} mobile-menu-item--selected{% endif %}">
                         Tasks
@@ -78,6 +80,11 @@
                     <a href="/admin/societies" class="mobile-menu-item{% if '/admin/societies' in request.url.path %} mobile-menu-item--selected{% endif %}">
                         Societies
                     </a>
+                    {% if request.session.get('is_admin') %}
+                    <a href="/admin/users" class="mobile-menu-item{% if '/admin/users' in request.url.path %} mobile-menu-item--selected{% endif %}">
+                        Users
+                    </a>
+                    {% endif %}
                 </nav>
                 <div class="mobile-menu-footer">
                     {% if request.session.get('user_id') %}
@@ -285,6 +292,12 @@
                     transform: scale(4);
                     opacity: 0;
                 }
+            }
+            
+            .username-display {
+                margin-right: 1rem;
+                font-weight: 500;
+                color: var(--mdc-theme-primary);
             }
         `;
         document.head.appendChild(style);
