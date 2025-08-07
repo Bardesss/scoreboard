@@ -39,12 +39,12 @@
       <div class="edit-form-field">
         <div class="custom-single-select">
           <div class="single-select-trigger" id="boardgameSelect">
-            <span id="boardgameSelectText">Select boardgame</span>
+            <span id="boardgameSelectText">Select board game</span>
             <div class="single-select-arrow">▼</div>
           </div>
           <div class="single-select-dropdown" id="boardgameSelectDropdown">
             <div class="single-select-option" data-value="">
-              <span>Select boardgame</span>
+              <span>Select board game</span>
             </div>
             {% for game in games | sort(attribute='name') %}
             <div class="single-select-option" data-value="{{ game.id }}" {% if game.id|string in society.boardgame_ids.split(',') %}data-selected="true"{% endif %}>

@@ -28,12 +28,12 @@
       <div class="col-md-6">
         <div class="custom-single-select">
           <div class="single-select-trigger" id="boardgameSelect">
-            <span id="boardgameSelectText">Select boardgame</span>
+            <span id="boardgameSelectText">Select board game</span>
             <div class="single-select-arrow">▼</div>
           </div>
           <div class="single-select-dropdown" id="boardgameSelectDropdown">
             <div class="single-select-option" data-value="">
-              <span>Select boardgame</span>
+              <span>Select board game</span>
             </div>
             {% for game in games %}
               <div class="single-select-option" data-value="{{ game.id }}" {% if game.id == selected_boardgame_id %}data-selected="true"{% endif %}>
@@ -47,24 +47,40 @@
     </form>
     {% endif %}
     {% if selected_boardgame_id %}
-    <form method="post" action="/admin/tasks/add" class="row mb-4" novalidate>
-      <input type="hidden" name="boardgame_id" value="{{ selected_boardgame_id }}">
-      <div class="edit-form-field">
-        <div class="mdc-text-field">
-          <input type="number" name="number" class="mdc-text-field__input" placeholder=" " value="{{ next_number }}" required readonly>
-          <label class="mdc-text-field__label">Number</label>
+      {% set selected_boardgame = none %}
+      {% for game in all_games %}
+        {% if game.id == selected_boardgame_id %}
+          {% set selected_boardgame = game %}
+        {% endif %}
+      {% endfor %}
+      
+
+      
+      {% if can_add_task %}
+      <form method="post" action="/admin/tasks/add" class="row mb-4" novalidate>
+        <input type="hidden" name="boardgame_id" value="{{ selected_boardgame_id }}">
+        <div class="edit-form-field">
+          <div class="mdc-text-field">
+            <input type="number" name="number" class="mdc-text-field__input" placeholder=" " value="{{ next_number }}" required readonly>
+            <label class="mdc-text-field__label">Number</label>
+          </div>
         </div>
-      </div>
-      <div class="edit-form-field">
-        <div class="mdc-text-field">
-          <input type="text" name="name" class="mdc-text-field__input" placeholder=" " required>
-          <label class="mdc-text-field__label">Task Name</label>
+        <div class="edit-form-field">
+          <div class="mdc-text-field">
+            <input type="text" name="name" class="mdc-text-field__input" placeholder=" " required>
+            <label class="mdc-text-field__label">Task Name</label>
+          </div>
         </div>
+        <div class="edit-form-button">
+          <button type="submit" class="mdc-button mdc-button--raised form-button">Add Task</button>
+        </div>
+      </form>
+      {% else %}
+      <div class="alert alert-info" role="alert" style="margin-bottom: 16px;">
+        <span>You can view tasks for this board game, but only the creator can add new tasks.</span>
       </div>
-      <div class="edit-form-button">
-        <button type="submit" class="mdc-button mdc-button--raised form-button">Add Task</button>
-      </div>
-    </form>
+      {% endif %}
+    {% endif %}
     <div class="mdc-data-table">
       <table class="mdc-data-table__table">
         <thead class="mdc-data-table__header-row">
@@ -80,6 +96,7 @@
             <td class="mdc-data-table__cell task-number-col">{{ task.number }}</td>
             <td class="mdc-data-table__cell task-name-col">{{ task.name }}</td>
             <td class="mdc-data-table__cell task-actions-col">
+              {% if is_admin or task.created_by_user_id == user_id %}
               <div class="btn-group" role="group">
                 <a href="/admin/tasks/edit/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" class="mdc-button mdc-button--text" title="Edit Task">
                   <i class="bi bi-pencil"></i>
@@ -89,13 +106,13 @@
                 </button>
               </div>
               <form id="delete-task-{{ task.id }}" method="post" action="/admin/tasks/delete/{{ task.id }}?boardgame_id={{ selected_boardgame_id }}" style="display:none;"></form>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% endif %}
   </div>
 </div>
 <script>

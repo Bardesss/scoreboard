@@ -112,6 +112,7 @@
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
                 {% for pid, count in most_wins.items()|sort(attribute='1', reverse=True) %}
+                {% if count > 0 %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">
                     {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
@@ -120,6 +121,7 @@
                     <span class="mdc-chip">{{ count }}</span>
                   </td>
                 </tr>
+                {% endif %}
                 {% else %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">No data</td>
@@ -142,6 +144,7 @@
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
                 {% for pid, ratio in win_ratios.items()|sort(attribute='1', reverse=True) %}
+                {% if ratio > 0 %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">
                     {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
@@ -150,6 +153,7 @@
                     <span class="mdc-chip">{{ "%.2f"|format(ratio * 100) }}%</span>
                   </td>
                 </tr>
+                {% endif %}
                 {% else %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">No data</td>
@@ -172,6 +176,7 @@
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
                 {% for pid, pts in most_points.items()|sort(attribute='1', reverse=True) %}
+                {% if pts > 0 %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">
                     {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
@@ -180,6 +185,7 @@
                     <span class="mdc-chip">{{ pts }}</span>
                   </td>
                 </tr>
+                {% endif %}
                 {% else %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">No data</td>
@@ -191,7 +197,7 @@
         </div>
       </div>
       {% endif %}
-      {% if win_type != 'points' and win_type != 'winner' %}
+      {% if win_type == 'task' %}
       <div class="mdc-card">
         <div class="mdc-card__content">
           <h4 class="mdc-typography--headline6 mb-3">Most Won Task</h4>
@@ -202,6 +208,7 @@
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
                 {% for tid, count in most_won_task.items()|sort(attribute='1', reverse=True) %}
+                {% if count > 0 %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">
                     {% for t in tasks %}{% if t.id == tid %}{{ t.name }}{% endif %}{% endfor %}
@@ -210,6 +217,7 @@
                     <span class="mdc-chip">{{ count }}</span>
                   </td>
                 </tr>
+                {% endif %}
                 {% else %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">No data</td>
@@ -232,6 +240,7 @@
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
                 {% for pid, pts in highest_points.items()|sort(attribute='1', reverse=True) %}
+                {% if pts > 0 %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">
                     {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
@@ -240,6 +249,7 @@
                     <span class="mdc-chip">{{ pts }}</span>
                   </td>
                 </tr>
+                {% endif %}
                 {% else %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">No data</td>
@@ -260,10 +270,19 @@
           <div class="mdc-data-table">
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
-                {% set weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
                 {% for day, count in most_popular_days.items() %}
                 <tr class="mdc-data-table__row">
-                  <td class="mdc-data-table__cell">{{ weekdays[day] }}</td>
+                  <td class="mdc-data-table__cell">
+                    {% if day == 0 %}Monday
+                    {% elif day == 1 %}Tuesday
+                    {% elif day == 2 %}Wednesday
+                    {% elif day == 3 %}Thursday
+                    {% elif day == 4 %}Friday
+                    {% elif day == 5 %}Saturday
+                    {% elif day == 6 %}Sunday
+                    {% else %}{{ day }}
+                    {% endif %}
+                  </td>
                   <td class="mdc-data-table__cell text-right">
                     <span class="mdc-chip">{{ count }}</span>
                   </td>
@@ -288,6 +307,7 @@
             <table class="mdc-data-table__table">
               <tbody class="mdc-data-table__content">
                 {% for pid, streak in longest_win_streak.items()|sort(attribute='1', reverse=True) %}
+                {% if streak > 0 %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">
                     {% for p in players %}{% if p.id == pid %}{{ p.name }}{% endif %}{% endfor %}
@@ -296,6 +316,7 @@
                     <span class="mdc-chip">{{ streak }}</span>
                   </td>
                 </tr>
+                {% endif %}
                 {% else %}
                 <tr class="mdc-data-table__row">
                   <td class="mdc-data-table__cell">No data</td>
@@ -568,16 +589,25 @@ function updateStatsDisplay(data) {
       winsTable.innerHTML = '';
       if (data.most_wins && data.most_wins.labels && data.most_wins.labels.length > 0) {
         data.most_wins.labels.forEach((label, index) => {
+          const count = data.most_wins.data[index];
+          if (count > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${count}</span>
+              </td>
+            `;
+            winsTable.appendChild(row);
+          }
+        });
+        if (winsTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = `
-            <td class="mdc-data-table__cell">${label}</td>
-            <td class="mdc-data-table__cell text-right">
-              <span class="mdc-chip">${data.most_wins.data[index]}</span>
-            </td>
-          `;
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
           winsTable.appendChild(row);
-        });
+        }
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -626,16 +656,25 @@ function updateStatsDisplay(data) {
       winratioTable.innerHTML = '';
       if (data.win_ratios && data.win_ratios.labels && data.win_ratios.labels.length > 0) {
         data.win_ratios.labels.forEach((label, index) => {
+          const ratio = data.win_ratios.data[index];
+          if (ratio > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${ratio.toFixed(2)}%</span>
+              </td>
+            `;
+            winratioTable.appendChild(row);
+          }
+        });
+        if (winratioTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = `
-            <td class="mdc-data-table__cell">${label}</td>
-            <td class="mdc-data-table__cell text-right">
-              <span class="mdc-chip">${data.win_ratios.data[index].toFixed(2)}%</span>
-            </td>
-          `;
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
           winratioTable.appendChild(row);
-        });
+        }
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -684,16 +723,25 @@ function updateStatsDisplay(data) {
       pointsTable.innerHTML = '';
       if (data.most_points && data.most_points.labels && data.most_points.labels.length > 0) {
         data.most_points.labels.forEach((label, index) => {
+          const points = data.most_points.data[index];
+          if (points > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${points}</span>
+              </td>
+            `;
+            pointsTable.appendChild(row);
+          }
+        });
+        if (pointsTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = `
-            <td class="mdc-data-table__cell">${label}</td>
-            <td class="mdc-data-table__cell text-right">
-              <span class="mdc-chip">${data.most_points.data[index]}</span>
-            </td>
-          `;
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
           pointsTable.appendChild(row);
-        });
+        }
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -705,7 +753,7 @@ function updateStatsDisplay(data) {
     }
   }
   
-  if (data.most_won_task && data.win_type !== 'points' && data.win_type !== 'winner') {
+  if (data.most_won_task && data.win_type === 'task') {
     const tasksChart = document.getElementById('tasksChart');
     if (tasksChart) {
       const ctx = tasksChart.getContext('2d');
@@ -742,16 +790,25 @@ function updateStatsDisplay(data) {
       tasksTable.innerHTML = '';
       if (data.most_won_task && data.most_won_task.labels && data.most_won_task.labels.length > 0) {
         data.most_won_task.labels.forEach((label, index) => {
+          const count = data.most_won_task.data[index];
+          if (count > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${count}</span>
+              </td>
+            `;
+            tasksTable.appendChild(row);
+          }
+        });
+        if (tasksTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = `
-            <td class="mdc-data-table__cell">${label}</td>
-            <td class="mdc-data-table__cell text-right">
-              <span class="mdc-chip">${data.most_won_task.data[index]}</span>
-            </td>
-          `;
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
           tasksTable.appendChild(row);
-        });
+        }
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -800,16 +857,25 @@ function updateStatsDisplay(data) {
       highestPointsTable.innerHTML = '';
       if (data.highest_points && data.highest_points.labels && data.highest_points.labels.length > 0) {
         data.highest_points.labels.forEach((label, index) => {
+          const points = data.highest_points.data[index];
+          if (points > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${points}</span>
+              </td>
+            `;
+            highestPointsTable.appendChild(row);
+          }
+        });
+        if (highestPointsTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = `
-            <td class="mdc-data-table__cell">${label}</td>
-            <td class="mdc-data-table__cell text-right">
-              <span class="mdc-chip">${data.highest_points.data[index]}</span>
-            </td>
-          `;
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
           highestPointsTable.appendChild(row);
-        });
+        }
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -859,24 +925,16 @@ function updateStatsDisplay(data) {
       if (data.most_popular_days && data.most_popular_days.labels && data.most_popular_days.labels.length > 0) {
         data.most_popular_days.labels.forEach((label, index) => {
           const count = data.most_popular_days.data[index];
-          if (count > 0) {
-            const row = document.createElement('tr');
-            row.className = 'mdc-data-table__row';
-            row.innerHTML = `
-              <td class="mdc-data-table__cell">${label}</td>
-              <td class="mdc-data-table__cell text-right">
-                <span class="mdc-chip">${count}</span>
-              </td>
-            `;
-            daysTable.appendChild(row);
-          }
-        });
-        if (daysTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
+          row.innerHTML = `
+            <td class="mdc-data-table__cell">${label}</td>
+            <td class="mdc-data-table__cell text-right">
+              <span class="mdc-chip">${count}</span>
+            </td>
+          `;
           daysTable.appendChild(row);
-        }
+        });
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -925,16 +983,25 @@ function updateStatsDisplay(data) {
       streakTable.innerHTML = '';
       if (data.longest_win_streak && data.longest_win_streak.labels && data.longest_win_streak.labels.length > 0) {
         data.longest_win_streak.labels.forEach((label, index) => {
+          const streak = data.longest_win_streak.data[index];
+          if (streak > 0) {
+            const row = document.createElement('tr');
+            row.className = 'mdc-data-table__row';
+            row.innerHTML = `
+              <td class="mdc-data-table__cell">${label}</td>
+              <td class="mdc-data-table__cell text-right">
+                <span class="mdc-chip">${streak}</span>
+              </td>
+            `;
+            streakTable.appendChild(row);
+          }
+        });
+        if (streakTable.children.length === 0) {
           const row = document.createElement('tr');
           row.className = 'mdc-data-table__row';
-          row.innerHTML = `
-            <td class="mdc-data-table__cell">${label}</td>
-            <td class="mdc-data-table__cell text-right">
-              <span class="mdc-chip">${data.longest_win_streak.data[index]}</span>
-            </td>
-          `;
+          row.innerHTML = '<td class="mdc-data-table__cell">No data</td>';
           streakTable.appendChild(row);
-        });
+        }
       } else {
         const row = document.createElement('tr');
         row.className = 'mdc-data-table__row';
@@ -1084,7 +1151,7 @@ const pointsData = {
 createPieChart('pointsChart', pointsData.data, pointsData.labels, pointsData.colors);
 {% endif %}
 
-{% if win_type != 'points' and win_type != 'winner' %}
+{% if win_type == 'task' %}
 const tasksData = {
   labels: {{ most_won_task_json | tojson }},
   data: {{ most_won_task_data_json | tojson }},

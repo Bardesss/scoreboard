@@ -8,7 +8,7 @@
       {% set boardgame_id = played_games[0].boardgame_id %}
       {% for g in games %}
         {% if g.id == boardgame_id %}
-          <div class="mb-3"><strong>Boardgame:</strong> {{ g.name }}</div>
+          <div class="mb-3"><strong>Board Game:</strong> {{ g.name }}</div>
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -24,7 +24,9 @@
       {{ society_players | sort | join(', ') }}
     </div>
     <div class="mb-3 d-flex flex-wrap gap-2">
+      {% if request.session.get('is_admin') or (request.session.get('user_id') and society.created_by_user_id and society.created_by_user_id == request.session.get('user_id')) %}
       <a href="/societies/{{ society.id }}/games/add" class="mdc-button mdc-button--raised">Add Played Game</a>
+      {% endif %}
       <a href="/societies/{{ society.id }}/stats" class="mdc-button mdc-button--outlined">View Statistics</a>
     </div>
     
@@ -43,7 +45,7 @@
               <th class="mdc-data-table__header-cell date-col">Date</th>
               <th class="mdc-data-table__header-cell winner-col">Winner</th>
               {% if show_results %}<th class="mdc-data-table__header-cell result-col">Result</th>{% endif %}
-              {% if request.session.get('is_admin') %}<th class="mdc-data-table__header-cell actions-col text-right">Actions</th>{% endif %}
+                             {% if request.session.get('user_id') %}<th class="mdc-data-table__header-cell actions-col text-right">Actions</th>{% endif %}
             </tr>
           </thead>
           <tbody class="mdc-data-table__content" id="games-tbody">
@@ -68,6 +70,27 @@
                 {% if boardgame.win_type == 'winner' %}
                   -
                 {% elif boardgame.win_type == 'points' %}
+                  {% if game.winner_id and game.winner_points is defined and game.winner_points %}
+                    {{ game.winner_points }}
+                  {% elif game.points %}
+                    {% set points_dict = {} %}
+                    {% for pair in game.points.split(',') %}
+                      {% set pid, pts = pair.split(':') %}
+                      {% set _ = points_dict.update({pid: pts}) %}
+                    {% endfor %}
+                    
+                    {% set points_list = [] %}
+                    {% for pid, pts in points_dict.items() %}
+                      {% set _ = points_list.append((pid, pts|int)) %}
+                    {% endfor %}
+                    {% set points_list = points_list|sort(attribute='1', reverse=True) %}
+                    {% set results = [] %}
+                    {% for pid, pts in points_list %}
+                      {% for p in players %}{% if p.id == pid|int %}{% set _ = results.append(p.name ~ ': ' ~ pts) %}{% endif %}{% endfor %}
+                    {% endfor %}
+                    {{ results | join(', ') }}
+                  {% else %}-{% endif %}
+                {% elif boardgame.win_type == 'highest_points' %}
                   {% if game.points %}
                     {% set points_dict = {} %}
                     {% for pair in game.points.split(',') %}
@@ -97,7 +120,7 @@
                 {% else %}-{% endif %}
               </td>
               {% endif %}
-              {% if request.session.get('is_admin') %}
+                             {% if request.session.get('user_id') and (request.session.get('is_admin') or (game.created_by_user_id and game.created_by_user_id == request.session.get('user_id'))) %}
               <td class="mdc-data-table__cell actions-col text-right">
                 <div class="btn-group" role="group">
                   <a href="/societies/{{ society.id }}/games/edit/{{ game.id }}" class="mdc-button mdc-button--text" title="Edit Game">
@@ -135,6 +158,8 @@
 var currentPage = 1;
 var totalPages = 1;
 var isAdmin = {{ 'true' if request.session.get('is_admin') else 'false' }};
+var userId = {{ request.session.get('user_id') or 'null' }};
+var isLoggedIn = {{ 'true' if request.session.get('user_id') else 'false' }};
 var players = [
   {% for player in players %}
   {
@@ -195,8 +220,32 @@ function loadPage(page) {
         var boardgame = games.find(function(g) { return g.id === game.boardgame_id; });
         if (boardgame) {
           if (boardgame.win_type === 'winner') {
-            resultCell.textContent = 'not applicable';
+            resultCell.textContent = '-';
           } else if (boardgame.win_type === 'points') {
+            if (game.winner_id && game.winner_points !== undefined && game.winner_points !== null) {
+              resultCell.textContent = game.winner_points;
+            } else if (game.points) {
+              var pointsDict = {};
+              game.points.split(',').forEach(function(pair) {
+                var parts = pair.split(':');
+                pointsDict[parts[0]] = parseInt(parts[1]);
+              });
+              
+              var pointsList = Object.entries(pointsDict)
+                .sort(function(a, b) { return b[1] - a[1]; })
+                .map(function(entry) {
+                  var pid = entry[0];
+                  var pts = entry[1];
+                  var player = players.find(function(p) { return p.id === parseInt(pid); });
+                  return player ? player.name + ': ' + pts : '';
+                })
+                .filter(function(name) { return name; });
+              
+              resultCell.textContent = pointsList.join(', ');
+            } else {
+              resultCell.textContent = '-';
+            }
+          } else if (boardgame.win_type === 'highest_points') {
             if (game.points) {
               var pointsDict = {};
               game.points.split(',').forEach(function(pair) {
@@ -240,7 +289,7 @@ function loadPage(page) {
         }
         row.appendChild(resultCell);
         
-        if (isAdmin) {
+        if (isLoggedIn && (isAdmin || (userId && game.created_by_user_id && game.created_by_user_id === userId))) {
           var actionsCell = document.createElement('td');
           
           var btnGroup = document.createElement('div');

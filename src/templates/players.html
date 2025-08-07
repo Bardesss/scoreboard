@@ -47,6 +47,7 @@
               </div>
             </td>
             <td class="mdc-data-table__cell text-right">
+              {% if is_admin or player.created_by_user_id == user_id %}
               <div class="btn-group" role="group">
                 <a href="/admin/players/edit/{{ player.id }}" class="mdc-button mdc-button--text" title="Edit Player">
                   <i class="bi bi-pencil"></i>
@@ -56,6 +57,7 @@
                 </button>
               </div>
               <form id="delete-player-{{ player.id }}" method="post" action="/admin/players/delete/{{ player.id }}" style="display:none;"></form>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

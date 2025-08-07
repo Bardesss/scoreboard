@@ -39,12 +39,12 @@
       <div class="edit-form-field">
         <div class="custom-single-select">
           <div class="single-select-trigger" id="boardgameSelect">
-            <span id="boardgameSelectText">Select boardgame</span>
+            <span id="boardgameSelectText">Select board game</span>
             <div class="single-select-arrow">▼</div>
           </div>
           <div class="single-select-dropdown" id="boardgameSelectDropdown">
             <div class="single-select-option" data-value="">
-              <span>Select boardgame</span>
+              <span>Select board game</span>
             </div>
             {% for game in games | sort(attribute='name') %}
             <div class="single-select-option" data-value="{{ game.id }}">
@@ -65,7 +65,7 @@
           <tr>
             <th class="mdc-data-table__header-cell">Name</th>
             <th class="mdc-data-table__header-cell">Players</th>
-            <th class="mdc-data-table__header-cell">Boardgames</th>
+            <th class="mdc-data-table__header-cell">Board Games</th>
             <th class="mdc-data-table__header-cell text-right">Actions</th>
           </tr>
         </thead>
@@ -80,6 +80,7 @@
               {{ games | selectattr('id', 'in', society.boardgame_ids.split(',') | map('int') | list) | map(attribute='name') | join(', ') }}
             </td>
             <td class="mdc-data-table__cell text-right">
+              {% if is_admin or society.created_by_user_id == user_id %}
               <div class="btn-group" role="group">
                 <a href="/admin/societies/edit/{{ society.id }}" class="mdc-button mdc-button--text" title="Edit Society">
                   <i class="bi bi-pencil"></i>
@@ -89,6 +90,7 @@
                 </button>
               </div>
               <form id="delete-society-{{ society.id }}" method="post" action="/admin/societies/delete/{{ society.id }}" style="display:none;"></form>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -102,65 +104,73 @@
 document.addEventListener('DOMContentLoaded', function() {
     const multiselect = document.getElementById('playerMultiselect');
     const dropdown = document.getElementById('playerMultiselectDropdown');
-    const container = multiselect.parentElement;
-    const textElement = document.getElementById('playerMultiselectText');
-    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+    
+    // Only initialize the multiselect functionality if the admin form is present
+    if (multiselect && dropdown) {
+        const container = multiselect.parentElement;
+        const textElement = document.getElementById('playerMultiselectText');
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
 
-    multiselect.addEventListener('click', function(e) {
-        e.preventDefault();
-        container.classList.toggle('active');
-    });
+        multiselect.addEventListener('click', function(e) {
+            e.preventDefault();
+            container.classList.toggle('active');
+        });
 
-    document.addEventListener('click', function(e) {
-        if (!container.contains(e.target)) {
-            container.classList.remove('active');
-        }
-    });
+        document.addEventListener('click', function(e) {
+            if (!container.contains(e.target)) {
+                container.classList.remove('active');
+            }
+        });
 
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateText);
-    });
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateText);
+        });
 
-    function updateText() {
-        const selected = Array.from(checkboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.nextElementSibling.textContent);
-        
-        if (selected.length === 0) {
-            textElement.textContent = 'Select players';
-        } else if (selected.length === 1) {
-            textElement.textContent = selected[0];
-        } else {
-            textElement.textContent = `${selected.length} players selected`;
+        function updateText() {
+            const selected = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.nextElementSibling.textContent);
+            
+            if (selected.length === 0) {
+                textElement.textContent = 'Select players';
+            } else if (selected.length === 1) {
+                textElement.textContent = selected[0];
+            } else {
+                textElement.textContent = `${selected.length} players selected`;
+            }
         }
     }
 
     const boardgameSelect = document.getElementById('boardgameSelect');
     const boardgameDropdown = document.getElementById('boardgameSelectDropdown');
-    const boardgameContainer = boardgameSelect.parentElement;
-    const boardgameTextElement = document.getElementById('boardgameSelectText');
-    const boardgameInputElement = document.getElementById('boardgameSelectInput');
-    const boardgameOptions = boardgameDropdown.querySelectorAll('.single-select-option');
+    
+    // Only initialize the boardgame select functionality if the admin form is present
+    if (boardgameSelect && boardgameDropdown) {
+        const boardgameContainer = boardgameSelect.parentElement;
+        const boardgameTextElement = document.getElementById('boardgameSelectText');
+        const boardgameInputElement = document.getElementById('boardgameSelectInput');
+        const boardgameOptions = boardgameDropdown.querySelectorAll('.single-select-option');
 
-    boardgameSelect.addEventListener('click', function(e) {
-        e.preventDefault();
-        boardgameContainer.classList.toggle('active');
-    });
-
-    boardgameOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            const value = this.dataset.value;
-            const text = this.querySelector('span').textContent;
-            
-            boardgameInputElement.value = value;
-            boardgameTextElement.textContent = text;
-            
-            boardgameOptions.forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
-            
-            boardgameContainer.classList.remove('active');
+        boardgameSelect.addEventListener('click', function(e) {
+            e.preventDefault();
+            boardgameContainer.classList.toggle('active');
         });
-    });
+
+        boardgameOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.dataset.value;
+                const text = this.querySelector('span').textContent;
+                
+                boardgameInputElement.value = value;
+                boardgameTextElement.textContent = text;
+                
+                boardgameOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                boardgameContainer.classList.remove('active');
+            });
+        });
+    }
 
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {

@@ -60,18 +60,52 @@
       
       {% if win_type == 'points' %}
       <div class="edit-form-field">
-        <div class="mdc-text-field">
-                        <input type="number" name="points_{{ society.player_ids.split(',')[0] }}" id="points_{{ society.player_ids.split(',')[0] }}" class="mdc-text-field__input" 
-                     value="{% if played_game.points %}{% for pair in played_game.points.split(',') %}{% set pid, pts = pair.split(':') %}{% if pid|int == society.player_ids.split(',')[0]|int %}{{ pts }}{% endif %}{% endfor %}{% endif %}">
-          <label class="mdc-text-field__label">Player 1 points</label>
+        <div class="custom-single-select">
+          <div class="single-select-trigger" id="pointsWinnerSelect">
+            <span id="pointsWinnerSelectText">Select winner</span>
+            <div class="single-select-arrow">▼</div>
+          </div>
+          <div class="single-select-dropdown" id="pointsWinnerSelectDropdown">
+            <div class="single-select-option" data-value="">
+              <span>Select winner</span>
+            </div>
+            {% for player in players %}
+              {% if player.id|string in society.player_ids.split(',') %}
+                <div class="single-select-option" data-value="{{ player.id }}" {% if played_game.winner_id == player.id %}data-selected="true"{% endif %}>
+                  <span>{{ player.name }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <input type="hidden" name="winner_id_points" id="pointsWinnerSelectInput" required>
         </div>
       </div>
+      
       <div class="edit-form-field">
         <div class="mdc-text-field">
-                        <input type="number" name="points_{{ society.player_ids.split(',')[1] }}" id="points_{{ society.player_ids.split(',')[1] }}" class="mdc-text-field__input" 
-                     value="{% if played_game.points %}{% for pair in played_game.points.split(',') %}{% set pid, pts = pair.split(':') %}{% if pid|int == society.player_ids.split(',')[1]|int %}{{ pts }}{% endif %}{% endfor %}{% endif %}">
-          <label class="mdc-text-field__label">Player 2 points</label>
+          <input type="number" name="winner_points" id="winner_points" class="mdc-text-field__input" placeholder="0" required value="{{ played_game.winner_points or '' }}">
+          <label class="mdc-text-field__label">Winner's points</label>
         </div>
+      </div>
+      <div class="edit-form-button">
+        <button type="submit" class="mdc-button mdc-button--raised form-button">Save Changes</button>
+      </div>
+      {% endif %}
+      
+      {% if win_type == 'highest_points' %}
+      <div class="edit-form-field">
+        <h4 class="mdc-typography--headline6 mb-3">Enter points for each player:</h4>
+        {% for player in players %}
+          {% if player.id|string in society.player_ids.split(',') %}
+          <div class="edit-form-field">
+            <div class="mdc-text-field">
+              <input type="number" name="points_{{ player.id }}" id="points_{{ player.id }}" class="mdc-text-field__input" placeholder="0" 
+                     value="{% if played_game.points %}{% for pair in played_game.points.split(',') %}{% set pid, pts = pair.split(':') %}{% if pid|int == player.id %}{{ pts }}{% endif %}{% endfor %}{% endif %}">
+              <label class="mdc-text-field__label">{{ player.name }} points</label>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
       </div>
       <div class="edit-form-button">
         <button type="submit" class="mdc-button mdc-button--raised form-button">Save Changes</button>
@@ -180,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const winnerSelect = document.getElementById('winnerSelect');
     const taskSelect = document.getElementById('taskSelect');
     const taskWinnerSelect = document.getElementById('taskWinnerSelect');
+    const pointsWinnerSelect = document.getElementById('pointsWinnerSelect');
 
     if (winnerSelect) {
         initializeSingleSelect('winnerSelect', 'winnerSelectDropdown', 'winnerSelectText', 'winnerSelectInput');
@@ -189,6 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (taskWinnerSelect) {
         initializeSingleSelect('taskWinnerSelect', 'taskWinnerSelectDropdown', 'taskWinnerSelectText', 'taskWinnerSelectInput');
+    }
+    if (pointsWinnerSelect) {
+        initializeSingleSelect('pointsWinnerSelect', 'pointsWinnerSelectDropdown', 'pointsWinnerSelectText', 'pointsWinnerSelectInput');
     }
 
     const alerts = document.querySelectorAll('.alert');
@@ -212,3 +250,4 @@ function closeAlert(alertId) {
 }
 </script>
 {% endblock %} 
+

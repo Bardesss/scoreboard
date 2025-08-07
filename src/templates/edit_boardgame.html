@@ -2,7 +2,7 @@
 {% block content %}
 <div class="mdc-card mb-4">
   <div class="mdc-card__content">
-    <h2 class="mdc-typography--headline5 mb-4">Edit Boardgame</h2>
+    <h2 class="mdc-typography--headline5 mb-4">Edit Board Game</h2>
     {% if errors %}
       {% for error in errors %}
       <div class="alert alert-danger" role="alert" data-alert-id="{{ loop.index }}">
@@ -31,10 +31,13 @@
               <span>Select win type</span>
             </div>
             <div class="single-select-option" data-value="winner" {% if game.win_type == 'winner' %}data-selected="true"{% endif %}>
-              <span>Winner (yes/no)</span>
+              <span>Winner</span>
             </div>
             <div class="single-select-option" data-value="points" {% if game.win_type == 'points' %}data-selected="true"{% endif %}>
               <span>Points</span>
+            </div>
+            <div class="single-select-option" data-value="highest_points" {% if game.win_type == 'highest_points' %}data-selected="true"{% endif %}>
+              <span>Highest Points</span>
             </div>
             <div class="single-select-option" data-value="task" {% if game.win_type == 'task' %}data-selected="true"{% endif %}>
               <span>Task</span>
@@ -47,6 +50,11 @@
         <button type="submit" class="mdc-button mdc-button--raised form-button">Save</button>
       </div>
     </form>
+    <div id="winTypeDescription" class="win-type-description" style="display: none; margin-top: 16px;">
+      <p class="mdc-typography--body2" style="margin: 0; color: var(--mdc-theme-secondary);">
+        <span id="winTypeDescriptionText"></span>
+      </p>
+    </div>
   </div>
 </div>
 <script>
@@ -65,6 +73,21 @@ document.addEventListener('DOMContentLoaded', function() {
         winTypeInputElement.value = value;
         winTypeTextElement.textContent = text;
         selectedOption.classList.add('selected');
+        
+        // Show description for pre-selected value
+        if (value) {
+            const descriptions = {
+                'winner': 'Simple winner selection. One player wins the game, others lose.',
+                'points': 'Points-based scoring. Players earn points, highest total wins.',
+                'highest_points': 'Best single-game performance. Tracks highest points achieved in a single game.',
+                'task': 'Task-based objectives. Players complete specific tasks to win.'
+            };
+            
+            const descriptionDiv = document.getElementById('winTypeDescription');
+            const descriptionText = document.getElementById('winTypeDescriptionText');
+            descriptionText.textContent = descriptions[value] || '';
+            descriptionDiv.style.display = 'block';
+        }
     }
 
     winTypeSelect.addEventListener('click', function(e) {
@@ -90,6 +113,24 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('selected');
             
             winTypeContainer.classList.remove('active');
+            
+            // Show/hide description based on selection
+            const descriptionDiv = document.getElementById('winTypeDescription');
+            const descriptionText = document.getElementById('winTypeDescriptionText');
+            
+            if (value) {
+                const descriptions = {
+                    'winner': 'Simple winner selection. One player wins the game, others lose.',
+                    'points': 'Points-based scoring. Players earn points, highest total wins.',
+                    'highest_points': 'Best single-game performance. Tracks highest points achieved in a single game.',
+                    'task': 'Task-based objectives. Players complete specific tasks to win.'
+                };
+                
+                descriptionText.textContent = descriptions[value] || '';
+                descriptionDiv.style.display = 'block';
+            } else {
+                descriptionDiv.style.display = 'none';
+            }
         });
     });
 

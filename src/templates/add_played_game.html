@@ -28,6 +28,20 @@
       
       {% if win_type == 'winner' %}
       <div class="edit-form-field">
+        <h4 class="mdc-typography--headline6 mb-3">Select players who participated:</h4>
+        {% for player in players %}
+          {% if player.id|string in society.player_ids.split(',') %}
+          <div class="form-check mb-2">
+            <input type="checkbox" name="present_{{ player.id }}" value="1" id="present_{{ player.id }}" class="form-check-input">
+            <label class="form-check-label" for="present_{{ player.id }}">
+              {{ player.name }}
+            </label>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
+      <div class="edit-form-field">
         <div class="custom-single-select">
           <div class="single-select-trigger" id="winnerSelect">
             <span id="winnerSelectText">Select winner</span>
@@ -52,20 +66,94 @@
       
       {% if win_type == 'points' %}
       <div class="edit-form-field">
-        <div class="mdc-text-field">
-          <input type="number" name="points_{{ society.player_ids.split(',')[0] }}" id="points_{{ society.player_ids.split(',')[0] }}" class="mdc-text-field__input">
-          <label class="mdc-text-field__label">Player 1 points</label>
+        <h4 class="mdc-typography--headline6 mb-3">Select players who participated:</h4>
+        {% for player in players %}
+          {% if player.id|string in society.player_ids.split(',') %}
+          <div class="form-check mb-2">
+            <input type="checkbox" name="present_{{ player.id }}" value="1" id="present_{{ player.id }}" class="form-check-input">
+            <label class="form-check-label" for="present_{{ player.id }}">
+              {{ player.name }}
+            </label>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
+      <div class="edit-form-field">
+        <div class="custom-single-select">
+          <div class="single-select-trigger" id="pointsWinnerSelect">
+            <span id="pointsWinnerSelectText">Select winner</span>
+            <div class="single-select-arrow">▼</div>
+          </div>
+          <div class="single-select-dropdown" id="pointsWinnerSelectDropdown">
+            <div class="single-select-option" data-value="">
+              <span>Select winner</span>
+            </div>
+            {% for player in players %}
+              {% if player.id|string in society.player_ids.split(',') %}
+                <div class="single-select-option" data-value="{{ player.id }}">
+                  <span>{{ player.name }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <input type="hidden" name="winner_id_points" id="pointsWinnerSelectInput" required>
         </div>
       </div>
+      
       <div class="edit-form-field">
         <div class="mdc-text-field">
-          <input type="number" name="points_{{ society.player_ids.split(',')[1] }}" id="points_{{ society.player_ids.split(',')[1] }}" class="mdc-text-field__input">
-          <label class="mdc-text-field__label">Player 2 points</label>
+          <input type="number" name="winner_points" id="winner_points" class="mdc-text-field__input" placeholder="0" required>
+          <label class="mdc-text-field__label">Winner's points</label>
         </div>
       </div>
       {% endif %}
       
+      {% if win_type == 'highest_points' %}
+      <div class="edit-form-field">
+        <h4 class="mdc-typography--headline6 mb-3">Select players who participated:</h4>
+        {% for player in players %}
+          {% if player.id|string in society.player_ids.split(',') %}
+          <div class="form-check mb-2">
+            <input type="checkbox" name="present_{{ player.id }}" value="1" id="present_{{ player.id }}" class="form-check-input">
+            <label class="form-check-label" for="present_{{ player.id }}">
+              {{ player.name }}
+            </label>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
+      <div class="edit-form-field">
+        <h4 class="mdc-typography--headline6 mb-3">Enter points for each player:</h4>
+        {% for player in players %}
+          {% if player.id|string in society.player_ids.split(',') %}
+          <div class="edit-form-field">
+            <div class="mdc-text-field">
+              <input type="number" name="points_{{ player.id }}" id="points_{{ player.id }}" class="mdc-text-field__input" placeholder="0">
+              <label class="mdc-text-field__label">{{ player.name }} points</label>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+      
       {% if win_type == 'task' %}
+      <div class="edit-form-field">
+        <h4 class="mdc-typography--headline6 mb-3">Select players who participated:</h4>
+        {% for player in players %}
+          {% if player.id|string in society.player_ids.split(',') %}
+          <div class="form-check mb-2">
+            <input type="checkbox" name="present_{{ player.id }}" value="1" id="present_{{ player.id }}" class="form-check-input">
+            <label class="form-check-label" for="present_{{ player.id }}">
+              {{ player.name }}
+            </label>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
       <div class="edit-form-field">
         <div class="custom-single-select">
           <div class="single-select-trigger" id="taskSelect">
@@ -116,6 +204,59 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Function to update visibility of winner options and points fields based on participation
+    function updateParticipationFields() {
+        const winType = '{{ win_type }}';
+        const presentCheckboxes = document.querySelectorAll('input[name^="present_"]');
+        const winnerOptions = document.querySelectorAll('#winnerSelectDropdown .single-select-option, #taskWinnerSelectDropdown .single-select-option, #pointsWinnerSelectDropdown .single-select-option');
+        const pointsFields = document.querySelectorAll('input[name^="points_"]');
+        
+        // Get list of participating players
+        const participatingPlayers = [];
+        presentCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const playerId = checkbox.name.replace('present_', '');
+                participatingPlayers.push(playerId);
+            }
+        });
+        
+        // Update winner options visibility
+        winnerOptions.forEach(option => {
+            const playerId = option.dataset.value;
+            if (playerId && playerId !== '') { // Skip the "Select winner" option
+                if (participatingPlayers.includes(playerId)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                    // If this option was selected, clear the selection
+                    if (option.classList.contains('selected')) {
+                        option.classList.remove('selected');
+                        const inputId = option.closest('.custom-single-select').querySelector('input[type="hidden"]').id;
+                        const textId = inputId.replace('Input', 'Text');
+                        document.getElementById(inputId).value = '';
+                        document.getElementById(textId).textContent = option.closest('.custom-single-select').querySelector('.single-select-option[data-value=""] span').textContent;
+                    }
+                }
+            }
+        });
+        
+        // Update points fields visibility for highest_points win type
+        if (winType === 'highest_points') {
+            pointsFields.forEach(field => {
+                const playerId = field.name.replace('points_', '');
+                const fieldContainer = field.closest('.edit-form-field');
+                if (participatingPlayers.includes(playerId)) {
+                    fieldContainer.style.display = 'block';
+                    field.required = true;
+                } else {
+                    fieldContainer.style.display = 'none';
+                    field.required = false;
+                    field.value = ''; // Clear value when hidden
+                }
+            });
+        }
+    }
+    
     function initializeSingleSelect(selectId, dropdownId, textId, inputId) {
         const select = document.getElementById(selectId);
         const dropdown = document.getElementById(dropdownId);
@@ -160,6 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const winnerSelect = document.getElementById('winnerSelect');
     const taskSelect = document.getElementById('taskSelect');
     const taskWinnerSelect = document.getElementById('taskWinnerSelect');
+    const pointsWinnerSelect = document.getElementById('pointsWinnerSelect');
 
     if (winnerSelect) {
         initializeSingleSelect('winnerSelect', 'winnerSelectDropdown', 'winnerSelectText', 'winnerSelectInput');
@@ -170,7 +312,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (taskWinnerSelect) {
         initializeSingleSelect('taskWinnerSelect', 'taskWinnerSelectDropdown', 'taskWinnerSelectText', 'taskWinnerSelectInput');
     }
+    if (pointsWinnerSelect) {
+        initializeSingleSelect('pointsWinnerSelect', 'pointsWinnerSelectDropdown', 'pointsWinnerSelectText', 'pointsWinnerSelectInput');
+    }
 
+    // Add event listeners to participation checkboxes
+    const presentCheckboxes = document.querySelectorAll('input[name^="present_"]');
+    presentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateParticipationFields);
+    });
+    
+    // Initialize the fields on page load
+    updateParticipationFields();
+    
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {

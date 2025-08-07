@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 import models
 from datetime import datetime, timedelta
 
 def get_players(db: Session):
     return db.query(models.Player).all()
 
-def create_player(db: Session, name: str, color: str):
-    player = models.Player(name=name, color=color)
+def create_player(db: Session, name: str, color: str, created_by_user_id: int = None):
+    player = models.Player(name=name, color=color, created_by_user_id=created_by_user_id)
     db.add(player)
     db.commit()
     db.refresh(player)
@@ -36,8 +37,8 @@ def delete_player(db: Session, player_id: int):
 def get_boardgames(db: Session):
     return db.query(models.BoardGame).all()
 
-def create_boardgame(db: Session, name: str, win_type: str):
-    game = models.BoardGame(name=name, win_type=win_type)
+def create_boardgame(db: Session, name: str, win_type: str, created_by_user_id: int = None):
+    game = models.BoardGame(name=name, win_type=win_type, created_by_user_id=created_by_user_id)
     db.add(game)
     db.commit()
     db.refresh(game)
@@ -70,14 +71,22 @@ def get_tasks(db: Session, boardgame_id: int = None):
         query = query.filter(models.Task.boardgame_id == boardgame_id)
     return query.all()
 
-def create_task(db: Session, number: int, name: str, boardgame_id: int):
-    task = models.Task(number=number, name=name, boardgame_id=boardgame_id)
+def create_task(db: Session, number: int, name: str, boardgame_id: int, created_by_user_id: int = None):
+    task = models.Task(number=number, name=name, boardgame_id=boardgame_id, created_by_user_id=created_by_user_id)
     db.add(task)
     db.commit()
     db.refresh(task)
     return task
 
-
+def update_task(db: Session, task_id: int, number: int, name: str, boardgame_id: int):
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if task:
+        task.number = number
+        task.name = name
+        task.boardgame_id = boardgame_id
+        db.commit()
+        db.refresh(task)
+    return task
 
 def delete_task(db: Session, task_id: int):
     played_game = db.query(models.PlayedGame).filter(models.PlayedGame.task_id == task_id).first()
@@ -93,11 +102,12 @@ def delete_task(db: Session, task_id: int):
 def get_societies(db: Session):
     return db.query(models.Society).all()
 
-def create_society(db: Session, name: str, player_ids: list, boardgame_ids: list):
+def create_society(db: Session, name: str, player_ids: list, boardgame_ids: list, created_by_user_id: int = None):
     society = models.Society(
         name=name,
         player_ids=','.join(str(pid) for pid in player_ids),
-        boardgame_ids=','.join(str(bid) for bid in boardgame_ids)
+        boardgame_ids=','.join(str(bid) for bid in boardgame_ids),
+        created_by_user_id=created_by_user_id
     )
     db.add(society)
     db.commit()
@@ -115,7 +125,6 @@ def update_society(db: Session, society_id: int, name: str, player_ids: list, bo
     return society
 
 def delete_society(db: Session, society_id: int):
-    db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id).delete()
     society = db.query(models.Society).filter(models.Society.id == society_id).first()
     if society:
         db.delete(society)
@@ -140,18 +149,27 @@ def get_played_games_count(db: Session, society_id: int = None):
         query = query.filter(models.PlayedGame.society_id == society_id)
     return query.count()
 
-def create_played_game(db: Session, society_id: int, boardgame_id: int, win_type: str, data: dict):
+def create_played_game(db: Session, society_id: int, boardgame_id: int, win_type: str, data: dict, created_by_user_id: int = None):
     played_game = models.PlayedGame(
         society_id=society_id,
         boardgame_id=boardgame_id,
         played_at=data.get('played_at', datetime.now()),
-        present_player_ids=','.join(map(str, data['present_players']))
+        present_player_ids=','.join(map(str, data['present_players'])),
+        created_by_user_id=created_by_user_id
     )
     if win_type == 'winner':
         played_game.winner_id = data['winner_id']
     elif win_type == 'points':
+        played_game.winner_id = data['winner_id']
+        played_game.winner_points = data['winner_points']
+    elif win_type == 'highest_points':
         points_str = ','.join(f"{pid}:{pts}" for pid, pts in data['points'].items())
         played_game.points = points_str
+        # Find the winner (player with highest points)
+        if data['points']:
+            max_points = max(data['points'].values())
+            winner_id = int([pid for pid, pts in data['points'].items() if pts == max_points][0])
+            played_game.winner_id = winner_id
     elif win_type == 'task':
         played_game.winner_id_task = data['winner_id_task']
         played_game.task_id = data['task_id']
@@ -174,9 +192,16 @@ def update_played_game(db: Session, played_game_id: int, boardgame_id: int, win_
     if win_type == 'winner':
         game.winner_id = data.get('winner_id')
         game.points = None
+        game.winner_points = None
         game.winner_id_task = None
         game.task_id = None
     elif win_type == 'points':
+        game.winner_id = data.get('winner_id')
+        game.winner_points = data.get('winner_points')
+        game.points = None
+        game.winner_id_task = None
+        game.task_id = None
+    elif win_type == 'highest_points':
         points_dict = data.get('points', {})
         points_str = ','.join(f"{pid}:{pts}" for pid, pts in points_dict.items())
         if points_dict:
@@ -186,6 +211,7 @@ def update_played_game(db: Session, played_game_id: int, boardgame_id: int, win_
             winner_id = None
         game.points = points_str
         game.winner_id = winner_id
+        game.winner_points = None
         game.winner_id_task = None
         game.task_id = None
     elif win_type == 'task':
@@ -193,6 +219,7 @@ def update_played_game(db: Session, played_game_id: int, boardgame_id: int, win_
         game.task_id = data.get('task_id')
         game.winner_id = None
         game.points = None
+        game.winner_points = None
     db.commit()
     db.refresh(game)
     return game
@@ -216,7 +243,8 @@ def get_stats_most_wins(db: Session, society_id: int, from_date: datetime = None
             win_counts[g.winner_id] = win_counts.get(g.winner_id, 0) + 1
         if g.winner_id_task:
             win_counts[g.winner_id_task] = win_counts.get(g.winner_id_task, 0) + 1
-    return win_counts
+    # Filter out players with 0 wins
+    return {pid: count for pid, count in win_counts.items() if count > 0}
 
 def get_stats_most_points(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
     q = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id)
@@ -230,7 +258,8 @@ def get_stats_most_points(db: Session, society_id: int, from_date: datetime = No
             for pair in g.points.split(','):
                 pid, pts = pair.split(':')
                 points[int(pid)] = points.get(int(pid), 0) + int(pts)
-    return points
+    # Filter out players with 0 points
+    return {pid: pts for pid, pts in points.items() if pts > 0}
 
 def get_stats_most_won_task(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
     q = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id)
@@ -240,9 +269,10 @@ def get_stats_most_won_task(db: Session, society_id: int, from_date: datetime = 
         q = q.filter(models.PlayedGame.played_at <= to_date)
     task_wins = {}
     for g in q:
-        if g.task_id and g.winner_id_task:
+        if g.task_id:
             task_wins[g.task_id] = task_wins.get(g.task_id, 0) + 1
-    return task_wins
+    # Filter out tasks with 0 wins
+    return {tid: count for tid, count in task_wins.items() if count > 0}
 
 def get_stats_highest_points_per_game(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
     q = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id)
@@ -250,16 +280,17 @@ def get_stats_highest_points_per_game(db: Session, society_id: int, from_date: d
         q = q.filter(models.PlayedGame.played_at >= from_date)
     if to_date:
         q = q.filter(models.PlayedGame.played_at <= to_date)
-    highest = {}
+    highest_points = {}
     for g in q:
         if g.points:
             for pair in g.points.split(','):
                 pid, pts = pair.split(':')
                 pid = int(pid)
                 pts = int(pts)
-                if pid not in highest or pts > highest[pid]:
-                    highest[pid] = pts
-    return highest
+                if pid not in highest_points or pts > highest_points[pid]:
+                    highest_points[pid] = pts
+    # Filter out players with 0 points
+    return {pid: pts for pid, pts in highest_points.items() if pts > 0}
 
 def get_stats_most_popular_days(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
     q = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id)
@@ -267,170 +298,180 @@ def get_stats_most_popular_days(db: Session, society_id: int, from_date: datetim
         q = q.filter(models.PlayedGame.played_at >= from_date)
     if to_date:
         q = q.filter(models.PlayedGame.played_at <= to_date)
-    day_counts = {}
+    day_counts = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
     for g in q:
-        weekday = g.played_at.weekday()
-        day_counts[weekday] = day_counts.get(weekday, 0) + 1
-    return dict(sorted(day_counts.items(), key=lambda item: item[1], reverse=True))
+        day_counts[g.played_at.weekday()] += 1
+    # Filter out days with 0 games
+    return {day: count for day, count in day_counts.items() if count > 0}
 
 def get_stats_longest_win_streak(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
-    """
-    Berekent de langste aaneengesloten win-streak per speler in een society.
-    Geeft een dict terug: {player_id: streak_length}
-    """
     q = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id)
     if from_date:
         q = q.filter(models.PlayedGame.played_at >= from_date)
     if to_date:
         q = q.filter(models.PlayedGame.played_at <= to_date)
-    games = q.order_by(models.PlayedGame.played_at.asc()).all()
-    streaks = {}
-    max_streaks = {}
-    last_winner = None
-    for g in games:
-        winner_id = g.winner_id or g.winner_id_task
-        if winner_id is None:
-            for pid in streaks:
-                streaks[pid] = 0
-            last_winner = None
-            continue
-        for pid in streaks:
-            if pid != winner_id:
-                streaks[pid] = 0
-        if winner_id not in streaks:
-            streaks[winner_id] = 1
-        else:
-            if last_winner == winner_id:
-                streaks[winner_id] += 1
+    games = q.order_by(models.PlayedGame.played_at).all()
+    
+    player_streaks = {}
+    current_streaks = {}
+    
+    for game in games:
+        winners = []
+        if game.winner_id:
+            winners.append(game.winner_id)
+        if game.winner_id_task:
+            winners.append(game.winner_id_task)
+        
+        for player_id in list(current_streaks.keys()):
+            if player_id not in winners:
+                if player_id not in player_streaks:
+                    player_streaks[player_id] = 0
+                player_streaks[player_id] = max(player_streaks[player_id], current_streaks[player_id])
+                del current_streaks[player_id]
+        
+        for winner in winners:
+            if winner in current_streaks:
+                current_streaks[winner] += 1
             else:
-                streaks[winner_id] = 1
-        if winner_id not in max_streaks or streaks[winner_id] > max_streaks[winner_id]:
-            max_streaks[winner_id] = streaks[winner_id]
-        last_winner = winner_id
-    return max_streaks
+                current_streaks[winner] = 1
+    
+    for player_id, streak in current_streaks.items():
+        if player_id not in player_streaks:
+            player_streaks[player_id] = 0
+        player_streaks[player_id] = max(player_streaks[player_id], streak)
+    
+    # Filter out players with 0 streak
+    return {pid: streak for pid, streak in player_streaks.items() if streak > 0}
 
 def get_stats_games_played(db: Session, society_id: int, from_date: datetime = None, to_date: datetime = None):
-    """
-    Geeft een dict terug: {player_id: aantal_gespeeld}
-    Telt voor elke speler hoe vaak hij/zij aanwezig was bij een spel in deze society.
-    """
     q = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id)
     if from_date:
         q = q.filter(models.PlayedGame.played_at >= from_date)
     if to_date:
         q = q.filter(models.PlayedGame.played_at <= to_date)
-    played_counts = {}
+    games_played = {}
     for g in q:
         if g.present_player_ids:
             for pid in g.present_player_ids.split(','):
                 pid = int(pid)
-                played_counts[pid] = played_counts.get(pid, 0) + 1
-    return played_counts
+                games_played[pid] = games_played.get(pid, 0) + 1
+    return games_played
 
 def get_available_years_with_count(db: Session, society_id: int):
-    """
-    Geeft een lijst van (jaar, aantal_records) tuples terug waar data van is voor een society.
-    """
-    from sqlalchemy import extract, func
-    years_with_count = db.query(
-        extract('year', models.PlayedGame.played_at).label('year'),
-        func.count(models.PlayedGame.id).label('count')
+    result = db.query(
+        func.extract('year', models.PlayedGame.played_at).label('year'),
+        func.count().label('count')
     ).filter(models.PlayedGame.society_id == society_id).group_by(
-        extract('year', models.PlayedGame.played_at)
-    ).order_by(extract('year', models.PlayedGame.played_at).asc()).all()
-    
-    return [(int(year), int(count)) for year, count in years_with_count]
+        func.extract('year', models.PlayedGame.played_at)
+    ).order_by(func.extract('year', models.PlayedGame.played_at).desc()).all()
+    return [(int(row.year), row.count) for row in result]
 
 def get_available_months_with_count(db: Session, society_id: int, year: int = None):
-    """
-    Geeft een lijst van (jaar, maand, aantal_records) tuples terug waar data van is voor een society.
-    Als year is opgegeven, alleen voor dat jaar.
-    """
-    from sqlalchemy import extract, func
     query = db.query(
-        extract('year', models.PlayedGame.played_at).label('year'),
-        extract('month', models.PlayedGame.played_at).label('month'),
-        func.count(models.PlayedGame.id).label('count')
+        func.extract('year', models.PlayedGame.played_at).label('year'),
+        func.extract('month', models.PlayedGame.played_at).label('month'),
+        func.count().label('count')
     ).filter(models.PlayedGame.society_id == society_id)
     
     if year:
-        query = query.filter(extract('year', models.PlayedGame.played_at) == year)
+        query = query.filter(func.extract('year', models.PlayedGame.played_at) == year)
     
-    months_with_count = query.group_by(
-        extract('year', models.PlayedGame.played_at),
-        extract('month', models.PlayedGame.played_at)
+    result = query.group_by(
+        func.extract('year', models.PlayedGame.played_at),
+        func.extract('month', models.PlayedGame.played_at)
     ).order_by(
-        extract('year', models.PlayedGame.played_at).asc(),
-        extract('month', models.PlayedGame.played_at).asc()
+        func.extract('year', models.PlayedGame.played_at).desc(),
+        func.extract('month', models.PlayedGame.played_at).desc()
     ).all()
     
-    return [(int(year), int(month), int(count)) for year, month, count in months_with_count]
+    return [(int(row.year), int(row.month), row.count) for row in result]
 
 def get_available_weeks_with_count(db: Session, society_id: int, year: int = None):
-    """
-    Geeft een lijst van (jaar, week, aantal_records) tuples terug waar data van is voor een society.
-    Als year is opgegeven, alleen voor dat jaar.
-    """
-    from sqlalchemy import extract, func
-    games = db.query(models.PlayedGame).filter(models.PlayedGame.society_id == society_id).all()
-    
-    week_counts = {}
-    for game in games:
-        game_year = game.played_at.year
-        if year and game_year != year:
-            continue
-            
-        jan1 = game.played_at.replace(month=1, day=1)
-        days_since_jan1 = (game.played_at - jan1).days
-        week_num = days_since_jan1 // 7
-        
-        key = (game_year, week_num)
-        week_counts[key] = week_counts.get(key, 0) + 1
-    
-    result = [(year, week, count) for (year, week), count in week_counts.items()]
-    result.sort(key=lambda x: (x[0], x[1]), reverse=False)
-    
-    return result
-
-def get_available_days_with_count(db: Session, society_id: int, year: int = None, month: int = None):
-    """
-    Geeft een lijst van (jaar, maand, dag, dag_van_week, aantal_records) tuples terug waar data van is voor een society.
-    Als year is opgegeven, alleen voor dat jaar.
-    Als month is opgegeven, alleen voor die maand.
-    """
-    from sqlalchemy import extract, func
-    from datetime import date
-    
     query = db.query(
-        extract('year', models.PlayedGame.played_at).label('year'),
-        extract('month', models.PlayedGame.played_at).label('month'),
-        extract('day', models.PlayedGame.played_at).label('day'),
-        func.count(models.PlayedGame.id).label('count')
+        func.extract('year', models.PlayedGame.played_at).label('year'),
+        func.extract('week', models.PlayedGame.played_at).label('week'),
+        func.count().label('count')
     ).filter(models.PlayedGame.society_id == society_id)
     
     if year:
-        query = query.filter(extract('year', models.PlayedGame.played_at) == year)
-    if month:
-        query = query.filter(extract('month', models.PlayedGame.played_at) == month)
+        query = query.filter(func.extract('year', models.PlayedGame.played_at) == year)
     
-    days_with_count = query.group_by(
-        extract('year', models.PlayedGame.played_at),
-        extract('month', models.PlayedGame.played_at),
-        extract('day', models.PlayedGame.played_at)
+    result = query.group_by(
+        func.extract('year', models.PlayedGame.played_at),
+        func.extract('week', models.PlayedGame.played_at)
     ).order_by(
-        extract('year', models.PlayedGame.played_at).asc(),
-        extract('month', models.PlayedGame.played_at).asc(),
-        extract('day', models.PlayedGame.played_at).asc()
+        func.extract('year', models.PlayedGame.played_at).desc(),
+        func.extract('week', models.PlayedGame.played_at).desc()
     ).all()
     
-    weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    result = []
-    for year, month, day, count in days_with_count:
-        try:
-            d = date(int(year), int(month), int(day))
-            weekday = weekday_names[d.weekday()]
-            result.append((int(year), int(month), int(day), weekday, int(count)))
-        except ValueError:
-            continue
+    return [(int(row.year), int(row.week), row.count) for row in result]
+
+def get_available_days_with_count(db: Session, society_id: int, year: int = None, month: int = None):
+    query = db.query(
+        func.extract('year', models.PlayedGame.played_at).label('year'),
+        func.extract('month', models.PlayedGame.played_at).label('month'),
+        func.extract('day', models.PlayedGame.played_at).label('day'),
+        func.extract('dow', models.PlayedGame.played_at).label('weekday'),
+        func.count().label('count')
+    ).filter(models.PlayedGame.society_id == society_id)
     
-    return result 
+    if year:
+        query = query.filter(func.extract('year', models.PlayedGame.played_at) == year)
+    if month:
+        query = query.filter(func.extract('month', models.PlayedGame.played_at) == month)
+    
+    result = query.group_by(
+        func.extract('year', models.PlayedGame.played_at),
+        func.extract('month', models.PlayedGame.played_at),
+        func.extract('day', models.PlayedGame.played_at),
+        func.extract('dow', models.PlayedGame.played_at)
+    ).order_by(
+        func.extract('year', models.PlayedGame.played_at).desc(),
+        func.extract('month', models.PlayedGame.played_at).desc(),
+        func.extract('day', models.PlayedGame.played_at).desc()
+    ).all()
+    
+    weekday_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    return [(int(row.year), int(row.month), int(row.day), weekday_names[int(row.weekday)], row.count) for row in result]
+
+def can_edit_player(db: Session, player_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    player = db.query(models.Player).filter(models.Player.id == player_id).first()
+    return player and player.created_by_user_id == user_id
+
+def can_edit_boardgame(db: Session, boardgame_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    boardgame = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first()
+    return boardgame and boardgame.created_by_user_id == user_id
+
+def can_edit_task(db: Session, task_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    return task and task.created_by_user_id == user_id
+
+def can_edit_society(db: Session, society_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    society = db.query(models.Society).filter(models.Society.id == society_id).first()
+    return society and society.created_by_user_id == user_id
+
+def can_edit_played_game(db: Session, played_game_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    played_game = db.query(models.PlayedGame).filter(models.PlayedGame.id == played_game_id).first()
+    return played_game and played_game.created_by_user_id == user_id
+
+def can_add_played_game_to_society(db: Session, society_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    society = db.query(models.Society).filter(models.Society.id == society_id).first()
+    return society and society.created_by_user_id == user_id
+
+def can_add_task_to_boardgame(db: Session, boardgame_id: int, user_id: int, is_admin: bool):
+    if is_admin:
+        return True
+    boardgame = db.query(models.BoardGame).filter(models.BoardGame.id == boardgame_id).first()
+    return boardgame and boardgame.created_by_user_id == user_id 
