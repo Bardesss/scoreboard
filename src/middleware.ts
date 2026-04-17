@@ -1,27 +1,27 @@
-import { auth } from '@/lib/auth'
+import NextAuth from 'next-auth'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from '@/i18n/routing'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { authConfig } from '@/lib/auth.config'
 
 const handleI18n = createMiddleware(routing)
+const { auth } = NextAuth(authConfig)
 
-export default auth(function middleware(req: NextRequest & { auth: any }) {
+export default auth(function middleware(req) {
   const { pathname } = req.nextUrl
   const session = req.auth
 
   if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
-    return NextResponse.next()
+    return
   }
 
   if (pathname.startsWith('/app') || pathname.startsWith('/admin')) {
     if (!session) {
-      return NextResponse.redirect(new URL('/en/auth/login', req.url))
+      return Response.redirect(new URL('/en/auth/login', req.url))
     }
     if (pathname.startsWith('/admin') && session.user?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/en', req.url))
+      return Response.redirect(new URL('/en', req.url))
     }
-    return NextResponse.next()
+    return
   }
 
   return handleI18n(req)
