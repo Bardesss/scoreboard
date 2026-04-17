@@ -39,9 +39,9 @@ export default function ResetPasswordPage() {
       <form action={formAction}>
         <UnderlineInput label={t('reset.password')} name="password" type="password" autoComplete="new-password" required placeholder="••••••••" />
         <UnderlineInput label={t('reset.passwordConfirm')} name="passwordConfirm" type="password" autoComplete="new-password" required placeholder="••••••••" />
-        {state && 'error' in state && (
+        {state && 'error' in state ? (
           <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
-        )}
+        ) : null}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('reset.submit')}
         </PrimaryButton>
