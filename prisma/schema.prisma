@@ -7,11 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Minimal schema for Phase 1a — expanded in Phase 1b
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  emailVerified    DateTime?
+  locale           String    @default("en")
+  role             String    @default("user")
+
+  totpSecret       String?
+  totpEnabled      Boolean   @default(false)
+  totpBackupCodes  String[]
+  requiresMfa      Boolean   @default(false)
+
+  monthlyCredits   Int       @default(75)
+  permanentCredits Int       @default(0)
+  isLifetimeFree   Boolean   @default(false)
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model AdminSettings {
