@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Vault — Store Your Scores Safely</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#005bc0', 'primary-dim': '#004fa9',
+            'primary-container': '#d8e2ff', 'on-primary': '#f7f7ff',
+            secondary: '#5d5f65', 'secondary-container': '#e2e2e9',
+            surface: '#f8f9fa',
+            'surface-container-lowest': '#ffffff',
+            'surface-container-low': '#f1f4f6',
+            'surface-container': '#eaeff1',
+            'surface-container-high': '#e3e9ec',
+            'surface-container-highest': '#dbe4e7',
+            'on-surface': '#2b3437', 'on-surface-variant': '#586064',
+            outline: '#737c7f', 'outline-variant': '#abb3b7',
+            'inverse-surface': '#0c0f10', error: '#9f403d',
+          },
+          fontFamily: { headline: ['Manrope','sans-serif'], body: ['DM Sans','sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #f8f9fa; color: #2b3437; -webkit-font-smoothing: antialiased; }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(rgba(43,52,55,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    h1,h2,h3,h4,h5 { font-family: 'Manrope', sans-serif; }
+    .glass-nav { background: rgba(248,249,250,0.82); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+
+    /* ── Hero mock UI ── */
+    .mock-card {
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 32px 80px rgba(43,52,55,0.18), 0 8px 24px rgba(43,52,55,0.10);
+    }
+    .mock-bar { height: 3px; border-radius: 99px; background: #f1f4f6; overflow: hidden; }
+    .mock-bar-fill { height: 100%; border-radius: 99px; background: #005bc0; }
+
+    /* ── Feature cards ── */
+    .feat-card {
+      background: white; border-radius: 24px; padding: 40px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .feat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(43,52,55,0.10); }
+
+    /* ── Pricing ── */
+    .price-card { border-radius: 28px; padding: 44px; }
+
+    /* ── Testimonial avatars ── */
+    .t-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Manrope', sans-serif; font-weight: 900; font-size: 14px;
+      color: white; flex-shrink: 0;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { animation: fadeUp .6s ease both; }
+    .fade-up-2 { animation: fadeUp .6s .15s ease both; }
+    .fade-up-3 { animation: fadeUp .6s .3s ease both; }
+  </style>
+</head>
+<body class="relative">
+
+<!-- ── NAV ── -->
+<header class="glass-nav fixed top-0 left-0 right-0 z-50" style="border-bottom:1px solid rgba(43,52,55,0.07)">
+  <div class="max-w-6xl mx-auto px-6 h-18 flex items-center justify-between" style="height:72px">
+    <a href="landing.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <div style="width:34px;height:34px;border-radius:10px;background:#005bc0;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,91,192,0.28)">
+        <i data-lucide="dice-6" style="width:18px;height:18px;color:white;stroke-width:2.2"></i>
+      </div>
+      <span style="font-family:'Manrope';font-weight:900;font-size:16px;color:#2b3437;letter-spacing:-.03em">Dice Vault</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="#features" style="font-family:'Manrope';font-weight:600;font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Features</a>
+      <a href="#pricing" style="font-family:'Manrope';font-weight:600;font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Pricing</a>
+      <a href="#reviews" style="font-family:'Manrope';font-weight:600;font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Reviews</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="index.html" style="font-family:'Manrope';font-weight:700;font-size:13px;color:#586064;text-decoration:none;padding:8px 16px;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Log In</a>
+      <a href="index.html" style="display:inline-flex;align-items:center;gap:7px;background:#005bc0;color:#f7f7ff;padding:10px 20px;border-radius:999px;font-family:'Manrope';font-weight:800;font-size:13px;text-decoration:none;box-shadow:0 4px 14px rgba(0,91,192,0.24);transition:background .15s,transform .15s" onmouseover="this.style.background='#004fa9';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#005bc0';this.style.transform='none'">
+        Open Vault <i data-lucide="arrow-right" style="width:14px;height:14px"></i>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<section style="padding:140px 24px 100px;position:relative;overflow:hidden;z-index:1">
+  <div style="position:absolute;top:10%;right:-10%;width:600px;height:600px;border-radius:50%;background:rgba(0,91,192,0.05);filter:blur(80px);pointer-events:none"></div>
+  <div class="max-w-6xl mx-auto" style="display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:64px">
+
+    <!-- Left: copy -->
+    <div class="fade-up">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:#eaf0fc;border-radius:999px;padding:6px 14px 6px 10px;margin-bottom:28px">
+        <i data-lucide="shield-check" style="width:13px;height:13px;color:#005bc0"></i>
+        <span style="font-family:'Manrope';font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#005bc0">Board Game Score Tracker</span>
+      </div>
+      <h1 style="font-family:'Manrope';font-weight:900;font-size:clamp(38px,5vw,62px);letter-spacing:-.04em;color:#2b3437;line-height:1.05;margin-bottom:22px">
+        Store your<br><span style="color:#005bc0">scores safely.</span>
+      </h1>
+      <p style="font-size:17px;color:#586064;line-height:1.65;max-width:420px;margin-bottom:36px">
+        A high-end record of every tabletop victory. Track sessions, rank your group, and build a permanent archive of your game nights.
+      </p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#005bc0,#004fa9);color:#f7f7ff;padding:14px 28px;border-radius:14px;font-family:'Manrope';font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 8px 28px rgba(0,91,192,0.28);transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 36px rgba(0,91,192,0.36)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 28px rgba(0,91,192,0.28)'">
+          Start for free <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+        </a>
+        <a href="#features" style="display:inline-flex;align-items:center;gap:8px;background:white;color:#2b3437;padding:14px 28px;border-radius:14px;font-family:'Manrope';font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 2px 12px rgba(43,52,55,0.08);transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 6px 24px rgba(43,52,55,0.12)'" onmouseout="this.style.boxShadow='0 2px 12px rgba(43,52,55,0.08)'">
+          See how it works
+        </a>
+      </div>
+      <p style="font-size:12px;color:#abb3b7;margin-top:18px;font-weight:500">Free to use · No account required · Works in your browser</p>
+    </div>
+
+    <!-- Right: CSS UI mockup -->
+    <div class="fade-up-2" style="position:relative">
+      <!-- Main dark card -->
+      <div class="mock-card" style="background:linear-gradient(140deg,#1a3a5c 0%,#0b1a2e 100%);padding:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <div style="font-size:8px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:5px">Most Played · 3× sessions</div>
+            <div style="font-family:'Manrope';font-weight:900;font-size:24px;letter-spacing:-.03em;color:white">Terraforming Mars</div>
+          </div>
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center">
+            <i data-lucide="dice-6" style="width:20px;height:20px;color:rgba(255,255,255,0.5)"></i>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#005bc070;border:2px solid #005bc0;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:10px;color:white">JS</div>
+          <span style="color:white;font-family:'Manrope';font-weight:700;font-size:15px">Julian S.</span>
+          <span style="color:#4a8eff;font-family:'Manrope';font-weight:900;font-size:15px;margin-left:auto">428 pts</span>
+        </div>
+        <!-- Leaderboard rows -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:rgba(0,91,192,0.12);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:14px">🥇</span>
+            <div style="width:26px;height:26px;border-radius:50%;background:#005bc0;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:9px;color:white">JS</div>
+            <span style="flex:1;font-size:13px;font-weight:600;color:rgba(255,255,255,0.85)">Julian S.</span>
+            <div style="text-align:right">
+              <div style="font-family:'Manrope';font-weight:900;font-size:18px;color:#4a8eff">428</div>
+              <div class="mock-bar" style="width:72px;margin-top:3px"><div class="mock-bar-fill" style="width:100%"></div></div>
+            </div>
+          </div>
+          <div style="border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:14px">🥈</span>
+            <div style="width:26px;height:26px;border-radius:50%;background:#5f5c78;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:9px;color:white">ER</div>
+            <span style="flex:1;font-size:13px;font-weight:600;color:rgba(255,255,255,0.55)">Elena R.</span>
+            <div style="text-align:right">
+              <div style="font-family:'Manrope';font-weight:900;font-size:18px;color:rgba(255,255,255,0.45)">312</div>
+              <div class="mock-bar" style="width:72px;margin-top:3px"><div class="mock-bar-fill" style="width:73%;background:rgba(255,255,255,0.18)"></div></div>
+            </div>
+          </div>
+          <div style="border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:14px">🥉</span>
+            <div style="width:26px;height:26px;border-radius:50%;background:#8b4a2f;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:9px;color:white">MV</div>
+            <span style="flex:1;font-size:13px;font-weight:600;color:rgba(255,255,255,0.35)">Marcus V.</span>
+            <div style="text-align:right">
+              <div style="font-family:'Manrope';font-weight:900;font-size:18px;color:rgba(255,255,255,0.3)">287</div>
+              <div class="mock-bar" style="width:72px;margin-top:3px"><div class="mock-bar-fill" style="width:67%;background:rgba(255,255,255,0.12)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating stat chip -->
+      <div style="position:absolute;bottom:-18px;left:-24px;background:white;border-radius:16px;padding:14px 18px;box-shadow:0 12px 36px rgba(43,52,55,0.14);display:flex;align-items:center;gap:12px">
+        <div style="width:36px;height:36px;border-radius:10px;background:#eaf0fc;display:flex;align-items:center;justify-content:center">
+          <i data-lucide="trophy" style="width:16px;height:16px;color:#005bc0"></i>
+        </div>
+        <div>
+          <div style="font-family:'Manrope';font-weight:800;font-size:13px;color:#2b3437">Session Saved</div>
+          <div style="font-size:11px;color:#abb3b7;margin-top:1px">Julian S. wins! · 428 pts</div>
+        </div>
+      </div>
+
+      <!-- Floating player count -->
+      <div style="position:absolute;top:-18px;right:-18px;background:#005bc0;border-radius:14px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,91,192,0.32)">
+        <div style="font-family:'Manrope';font-weight:900;font-size:22px;color:white;letter-spacing:-.03em">7</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-top:1px">Players</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── id="features" -->
+<section id="features" style="padding:96px 24px;background:#f1f4f6;position:relative;z-index:1">
+  <div class="max-w-6xl mx-auto">
+    <div style="text-align:center;margin-bottom:64px">
+      <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:12px">Why Dice Vault</p>
+      <h2 style="font-family:'Manrope';font-weight:900;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;color:#2b3437;margin-bottom:14px">Engineered for game nights</h2>
+      <p style="font-size:16px;color:#586064;max-width:480px;margin:0 auto;line-height:1.6">Every round, every point, every triumph — preserved with precision and displayed with intent.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" class="grid-cols-feat">
+      <div class="feat-card">
+        <div style="width:48px;height:48px;background:#eaf0fc;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+          <i data-lucide="zap" style="width:22px;height:22px;color:#005bc0"></i>
+        </div>
+        <h3 style="font-family:'Manrope';font-weight:800;font-size:19px;color:#2b3437;margin-bottom:10px;letter-spacing:-.02em">Frictionless entry</h3>
+        <p style="color:#586064;line-height:1.65;font-size:14.5px">Log scores in seconds with ghost-style inputs. The UI steps aside so you can stay present at the table.</p>
+      </div>
+      <div class="feat-card">
+        <div style="width:48px;height:48px;background:#eaf0fc;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+          <i data-lucide="bar-chart-2" style="width:22px;height:22px;color:#005bc0"></i>
+        </div>
+        <h3 style="font-family:'Manrope';font-weight:800;font-size:19px;color:#2b3437;margin-bottom:10px;letter-spacing:-.02em">Dynamic leaderboards</h3>
+        <p style="color:#586064;line-height:1.65;font-size:14.5px">Win rates, average scores, rival matchups. Watch the meta of your friend group evolve over hundreds of sessions.</p>
+      </div>
+      <div class="feat-card">
+        <div style="width:48px;height:48px;background:#eaf0fc;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+          <i data-lucide="archive" style="width:22px;height:22px;color:#005bc0"></i>
+        </div>
+        <h3 style="font-family:'Manrope';font-weight:800;font-size:19px;color:#2b3437;margin-bottom:10px;letter-spacing:-.02em">Historic archive</h3>
+        <p style="color:#586064;line-height:1.65;font-size:14.5px">Your tabletop legacy, digitized. An editorial record of every session — complete with scores, dates, and player lineups.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── id="pricing" -->
+<section id="pricing" style="padding:96px 24px;position:relative;z-index:1">
+  <div class="max-w-4xl mx-auto">
+    <div style="text-align:center;margin-bottom:64px">
+      <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:12px">Pricing</p>
+      <h2 style="font-family:'Manrope';font-weight:900;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;color:#2b3437;margin-bottom:14px">Choose your rank</h2>
+      <p style="font-size:16px;color:#586064">Scalable tools for casual players and hardcore groups alike.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch">
+      <!-- Free tier -->
+      <div class="price-card" style="background:white;box-shadow:0 2px 16px rgba(43,52,55,0.07)">
+        <div style="margin-bottom:28px">
+          <p style="font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#abb3b7;margin-bottom:8px">Vault Keeper</p>
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span style="font-family:'Manrope';font-weight:900;font-size:42px;color:#2b3437;letter-spacing:-.04em">$0</span>
+            <span style="color:#abb3b7;font-size:14px">/month</span>
+          </div>
+        </div>
+        <ul style="display:flex;flex-direction:column;gap:14px;margin-bottom:36px;flex:1">
+          <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:#586064">
+            <i data-lucide="check" style="width:14px;height:14px;color:#005bc0;flex-shrink:0"></i> Log up to 10 sessions/month
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:#586064">
+            <i data-lucide="check" style="width:14px;height:14px;color:#005bc0;flex-shrink:0"></i> Group player profiles
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:#586064">
+            <i data-lucide="check" style="width:14px;height:14px;color:#005bc0;flex-shrink:0"></i> Live score standings
+          </li>
+        </ul>
+        <a href="index.html" style="display:block;text-align:center;padding:13px;background:#f1f4f6;color:#2b3437;border-radius:12px;font-family:'Manrope';font-weight:800;font-size:14px;text-decoration:none;transition:background .15s" onmouseover="this.style.background='#dbe4e7'" onmouseout="this.style.background='#f1f4f6'">Start free</a>
+      </div>
+
+      <!-- Pro tier -->
+      <div class="price-card" style="background:#0c0f10;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(0,91,192,0.2);border-radius:50%;filter:blur(60px);pointer-events:none"></div>
+        <div style="position:relative;z-index:1">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px">
+            <div>
+              <p style="font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px">Grandmaster</p>
+              <div style="display:flex;align-items:baseline;gap:6px">
+                <span style="font-family:'Manrope';font-weight:900;font-size:42px;color:white;letter-spacing:-.04em">$9</span>
+                <span style="color:rgba(255,255,255,0.35);font-size:14px">/month</span>
+              </div>
+            </div>
+            <span style="background:#005bc0;color:#f7f7ff;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px">Best</span>
+          </div>
+          <ul style="display:flex;flex-direction:column;gap:14px;margin-bottom:36px">
+            <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
+              <i data-lucide="check" style="width:14px;height:14px;color:#4a8eff;flex-shrink:0"></i> Unlimited game sessions
+            </li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
+              <i data-lucide="check" style="width:14px;height:14px;color:#4a8eff;flex-shrink:0"></i> Advanced group analytics
+            </li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
+              <i data-lucide="check" style="width:14px;height:14px;color:#4a8eff;flex-shrink:0"></i> Global leaderboard ranking
+            </li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
+              <i data-lucide="check" style="width:14px;height:14px;color:#4a8eff;flex-shrink:0"></i> Custom tournament tools
+            </li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.6)">
+              <i data-lucide="check" style="width:14px;height:14px;color:#4a8eff;flex-shrink:0"></i> Priority new features
+            </li>
+          </ul>
+          <a href="index.html" style="display:block;text-align:center;padding:13px;background:#005bc0;color:#f7f7ff;border-radius:12px;font-family:'Manrope';font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 6px 20px rgba(0,91,192,0.3);transition:background .15s" onmouseover="this.style.background='#004fa9'" onmouseout="this.style.background='#005bc0'">Go Grandmaster</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── REVIEWS ── id="reviews" -->
+<section id="reviews" style="padding:96px 24px;background:#f1f4f6;position:relative;z-index:1">
+  <div class="max-w-6xl mx-auto">
+    <div style="text-align:center;margin-bottom:64px">
+      <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:12px">Reviews</p>
+      <h2 style="font-family:'Manrope';font-weight:900;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;color:#2b3437">From the table</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <!-- T1 -->
+      <div style="background:white;border-radius:20px;padding:32px;box-shadow:0 2px 12px rgba(43,52,55,0.06)">
+        <div style="display:flex;gap:3px;margin-bottom:18px">
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+        </div>
+        <p style="font-size:15px;color:#2b3437;line-height:1.65;font-style:italic;margin-bottom:24px">"The minimalist design is a breath of fresh air. It feels like an extension of our game night rather than a digital chore."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="t-avatar" style="background:#005bc0">JV</div>
+          <div>
+            <div style="font-family:'Manrope';font-weight:800;font-size:14px;color:#2b3437">Julian Vance</div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#abb3b7;margin-top:2px">Hardcore Hobbyist</div>
+          </div>
+        </div>
+      </div>
+      <!-- T2 -->
+      <div style="background:white;border-radius:20px;padding:32px;box-shadow:0 2px 12px rgba(43,52,55,0.06)">
+        <div style="display:flex;gap:3px;margin-bottom:18px">
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+        </div>
+        <p style="font-size:15px;color:#2b3437;line-height:1.65;font-style:italic;margin-bottom:24px">"Tracking win rates across our Friday night sessions has completely changed the competitive vibe — in the best possible way."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="t-avatar" style="background:#b5446e">ER</div>
+          <div>
+            <div style="font-family:'Manrope';font-weight:800;font-size:14px;color:#2b3437">Elena Rossi</div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#abb3b7;margin-top:2px">Tabletop Streamer</div>
+          </div>
+        </div>
+      </div>
+      <!-- T3 -->
+      <div style="background:white;border-radius:20px;padding:32px;box-shadow:0 2px 12px rgba(43,52,55,0.06)">
+        <div style="display:flex;gap:3px;margin-bottom:18px">
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+          <i data-lucide="star" style="width:14px;height:14px;color:#005bc0;fill:#005bc0"></i>
+        </div>
+        <p style="font-size:15px;color:#2b3437;line-height:1.65;font-style:italic;margin-bottom:24px">"The only score tracker that understands board games are an aesthetic experience. It fits right in at the table."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="t-avatar" style="background:#1a5e8a">MT</div>
+          <div>
+            <div style="font-family:'Manrope';font-weight:800;font-size:14px;color:#2b3437">Marcus Thorne</div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#abb3b7;margin-top:2px">Strategy Consultant</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA BANNER ── -->
+<section style="padding:80px 24px;position:relative;z-index:1">
+  <div class="max-w-3xl mx-auto" style="text-align:center">
+    <div style="background:linear-gradient(140deg,#0c0f10,#192530);border-radius:28px;padding:60px 40px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:rgba(0,91,192,0.18);border-radius:50%;filter:blur(60px);pointer-events:none"></div>
+      <div style="position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:rgba(74,142,255,0.1);border-radius:50%;filter:blur(40px);pointer-events:none"></div>
+      <div style="position:relative;z-index:1">
+        <div style="width:52px;height:52px;border-radius:14px;background:#005bc0;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px rgba(0,91,192,0.4)">
+          <i data-lucide="dice-6" style="width:24px;height:24px;color:white;stroke-width:2.2"></i>
+        </div>
+        <h2 style="font-family:'Manrope';font-weight:900;font-size:clamp(26px,4vw,40px);letter-spacing:-.03em;color:white;margin-bottom:14px">Ready to open the vault?</h2>
+        <p style="font-size:16px;color:rgba(255,255,255,0.45);margin-bottom:32px;line-height:1.6">Start tracking your board game sessions today. No account needed.</p>
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#005bc0,#004fa9);color:#f7f7ff;padding:14px 32px;border-radius:14px;font-family:'Manrope';font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 8px 28px rgba(0,91,192,0.36);transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          Open Dice Vault <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer style="border-top:1px solid rgba(43,52,55,0.07);padding:56px 24px;position:relative;z-index:1">
+  <div class="max-w-6xl mx-auto" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:30px;height:30px;border-radius:9px;background:#005bc0;display:flex;align-items:center;justify-content:center">
+          <i data-lucide="dice-6" style="width:14px;height:14px;color:white;stroke-width:2.2"></i>
+        </div>
+        <span style="font-family:'Manrope';font-weight:900;font-size:14px;color:#2b3437;letter-spacing:-.02em">Dice Vault</span>
+      </div>
+      <p style="font-size:13px;color:#abb3b7;line-height:1.65;max-width:220px">Store your scores safely. Built for the modern board gamer.</p>
+      <p style="font-size:12px;color:#c0c8cc;margin-top:16px">© 2025 dicevault.fun</p>
+    </div>
+    <div>
+      <h4 style="font-family:'Manrope';font-weight:900;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#abb3b7;margin-bottom:18px">Product</h4>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="#features" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Features</a>
+        <a href="#pricing" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Pricing</a>
+        <a href="index.html" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Open App</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-family:'Manrope';font-weight:900;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#abb3b7;margin-bottom:18px">Community</h4>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="#" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Discord</a>
+        <a href="#" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Twitter / X</a>
+        <a href="#" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Instagram</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-family:'Manrope';font-weight:900;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#abb3b7;margin-bottom:18px">Legal</h4>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="#" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Privacy Policy</a>
+        <a href="#" style="font-size:13.5px;color:#586064;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#2b3437'" onmouseout="this.style.color='#586064'">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  lucide.createIcons();
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({behavior:'smooth',block:'start'}); }
+    });
+  });
+</script>
+</body>
+</html>

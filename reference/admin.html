@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Vault — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#005bc0',
+            'primary-dim': '#004fa9',
+            'on-primary': '#f7f7ff',
+            'on-surface': '#2b3437',
+            'outline-variant': '#abb3b7',
+            'inverse-surface': '#0c0f10',
+            error: '#9f403d',
+          },
+          fontFamily: {
+            headline: ['Manrope', 'sans-serif'],
+            body: ['DM Sans', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0c0f10;
+      color: rgba(255,255,255,0.87);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    h1, h2, h3, h4, h5, .font-headline { font-family: 'Manrope', sans-serif; }
+
+    /* Pages */
+    .page { display: none; position: relative; z-index: 1; }
+    .page.active { display: block; animation: pageIn .2s ease forwards; }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sidebar nav links */
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .15s;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      font-family: 'Manrope', sans-serif;
+      user-select: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+    .nav-link.active { background: rgba(255,255,255,0.1); color: #4a8eff; }
+    .nav-link.active svg { stroke: #4a8eff; }
+    .nav-link svg { flex-shrink: 0; }
+
+    /* Card style */
+    .card {
+      background: #161f28;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* Topbar search */
+    .search-input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: rgba(255,255,255,0.8);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      padding: 8px 14px 8px 38px;
+      outline: none;
+      transition: border-color .15s, background .15s;
+      width: 260px;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-input:focus { border-color: rgba(0,91,192,0.5); background: rgba(255,255,255,0.08); }
+
+    /* Filter pills */
+    .filter-pill {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      cursor: pointer;
+      transition: all .15s;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: rgba(255,255,255,0.45);
+    }
+    .filter-pill:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+    .filter-pill.active { background: rgba(0,91,192,0.2); border-color: rgba(0,91,192,0.5); color: #4a8eff; }
+
+    /* Table */
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .admin-table td {
+      padding: 14px 16px;
+      font-size: 13.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: middle;
+    }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: .04em;
+    }
+    .badge-grandmaster { background: rgba(0,91,192,0.2); color: #4a8eff; border: 1px solid rgba(0,91,192,0.3); }
+    .badge-strategist  { background: rgba(95,92,120,0.25); color: #a89fd4; border: 1px solid rgba(95,92,120,0.35); }
+    .badge-casual      { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* Icon button */
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+
+    /* Sparkline bars */
+    .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 32px; }
+    .sparkline-bar { flex: 1; border-radius: 3px 3px 0 0; transition: opacity .15s; }
+
+    /* Status dot */
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .status-active    { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+    .status-suspended { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.6); }
+
+    /* Progress bar */
+    .progress-track {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    /* Live pill */
+    .live-pill {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(22,31,40,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 99px;
+      padding: 8px 18px;
+      font-size: 12.5px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(34,197,94,0.8);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+    .live-divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.12);
+    }
+    .latency { color: #22c55e; }
+
+    /* Initials avatar */
+    .avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      flex-shrink: 0;
+      letter-spacing: .02em;
+    }
+
+    /* Activity icon wrap */
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      width: 240px;
+      height: 100vh;
+      background: #131c24;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      overflow-y: auto;
+    }
+
+    /* Main layout */
+    #main {
+      margin-left: 240px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    #topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(12,15,16,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+
+    /* Content */
+    #content {
+      flex: 1;
+      padding: 32px 28px 80px;
+      max-width: 1200px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside id="sidebar">
+  <!-- Logo -->
+  <a href="landing.html" style="padding:22px 20px 18px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+    <div style="width:36px;height:36px;background:#005bc0;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,91,192,0.35);">
+      <i data-lucide="dice-6" style="width:18px;height:18px;color:#fff;stroke-width:2.2;"></i>
+    </div>
+    <div>
+      <div style="font-family:'Manrope',sans-serif;font-weight:900;font-size:14.5px;color:rgba(255,255,255,0.92);line-height:1.1;letter-spacing:-.02em;">Dice Vault</div>
+      <span style="font-family:'Manrope',sans-serif;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:rgba(0,91,192,0.25);color:#4a8eff;border:1px solid rgba(0,91,192,0.35);border-radius:4px;padding:1px 6px;">Admin</span>
+    </div>
+  </a>
+
+  <!-- Nav -->
+  <nav style="padding: 4px 12px; flex:1; display:flex; flex-direction:column; gap:2px;">
+    <button class="nav-link active" data-page="dashboard" onclick="navigate('dashboard')">
+      <i data-lucide="layout-dashboard" style="width:16px;height:16px;stroke-width:2;"></i>
+      Dashboard
+    </button>
+    <button class="nav-link" data-page="users" onclick="navigate('users')">
+      <i data-lucide="users" style="width:16px;height:16px;stroke-width:2;"></i>
+      Users
+    </button>
+    <button class="nav-link" data-page="billing" onclick="navigate('billing')">
+      <i data-lucide="credit-card" style="width:16px;height:16px;stroke-width:2;"></i>
+      Billing
+    </button>
+
+    <!-- Divider -->
+    <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 2px;"></div>
+
+    <a href="index.html" class="nav-link">
+      <i data-lucide="arrow-left" style="width:16px;height:16px;stroke-width:2;"></i>
+      Back to App
+    </a>
+  </nav>
+
+  <!-- Admin profile -->
+  <div style="padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.07);">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,0.04);">
+      <div class="avatar" style="background:rgba(0,91,192,0.25);color:#4a8eff;font-size:13px;width:36px;height:36px;">AR</div>
+      <div style="overflow:hidden;">
+        <div style="font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.88);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Alex Rivera</div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.35);font-weight:600;letter-spacing:.04em;">Super Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <!-- Left: search -->
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="position:relative;display:flex;align-items:center;">
+        <i data-lucide="search" style="position:absolute;left:10px;width:15px;height:15px;stroke-width:2;color:rgba(255,255,255,0.3);pointer-events:none;"></i>
+        <input class="search-input" type="text" placeholder="Search…">
+      </div>
+      <span id="page-title" style="font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;color:rgba(255,255,255,0.55);"></span>
+    </div>
+    <!-- Right: actions -->
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="icon-btn" style="width:36px;height:36px;border-radius:10px;position:relative;" title="Notifications">
+        <i data-lucide="bell" style="width:17px;height:17px;stroke-width:2;"></i>
+        <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;background:#f87171;border-radius:50%;border:2px solid #0c0f10;"></span>
+      </button>
+      <button style="display:flex;align-items:center;gap:7px;background:#005bc0;color:#f7f7ff;border:none;border-radius:10px;padding:8px 16px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(0,91,192,0.28);" onmouseover="this.style.background='#004fa9';this.style.boxShadow='0 6px 20px rgba(0,91,192,0.38)'" onmouseout="this.style.background='#005bc0';this.style.boxShadow='0 4px 14px rgba(0,91,192,0.28)'">
+        <i data-lucide="file-bar-chart-2" style="width:15px;height:15px;stroke-width:2.5;"></i>
+        New Report
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ══════════ PAGE: DASHBOARD ══════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- Page header -->
+      <div style="margin-bottom:28px;">
+        <h1 style="font-size:26px;font-weight:800;color:rgba(255,255,255,0.92);margin:0 0 6px;letter-spacing:-.01em;">Analytics Overview</h1>
+        <p style="font-size:14px;color:rgba(255,255,255,0.45);margin:0;">Real-time performance metrics and user growth.</p>
+      </div>
+
+      <!-- KPI row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+
+        <!-- KPI 1: Total Users -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 14px;">Total Users</p>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:26px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);">12,842</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;font-family:'Manrope',sans-serif;color:#22c55e;margin-bottom:3px;">
+              <i data-lucide="trending-up" style="width:13px;height:13px;stroke-width:2.5;"></i>+14%
+            </span>
+          </div>
+          <div class="sparkline" style="margin-top:12px;">
+            <div class="sparkline-bar" style="height:40%;background:rgba(0,91,192,0.3);"></div>
+            <div class="sparkline-bar" style="height:55%;background:rgba(0,91,192,0.4);"></div>
+            <div class="sparkline-bar" style="height:45%;background:rgba(0,91,192,0.35);"></div>
+            <div class="sparkline-bar" style="height:75%;background:rgba(0,91,192,0.5);"></div>
+            <div class="sparkline-bar" style="height:100%;background:#005bc0;"></div>
+          </div>
+        </div>
+
+        <!-- KPI 2: MRR -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 14px;">MRR</p>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:26px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);">$42.1k</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;font-family:'Manrope',sans-serif;color:#22c55e;margin-bottom:3px;">
+              <i data-lucide="trending-up" style="width:13px;height:13px;stroke-width:2.5;"></i>+8.2%
+            </span>
+          </div>
+          <div class="sparkline" style="margin-top:12px;">
+            <div class="sparkline-bar" style="height:55%;background:rgba(0,91,192,0.3);"></div>
+            <div class="sparkline-bar" style="height:40%;background:rgba(0,91,192,0.35);"></div>
+            <div class="sparkline-bar" style="height:70%;background:rgba(0,91,192,0.4);"></div>
+            <div class="sparkline-bar" style="height:60%;background:rgba(0,91,192,0.5);"></div>
+            <div class="sparkline-bar" style="height:100%;background:#005bc0;"></div>
+          </div>
+        </div>
+
+        <!-- KPI 3: Active Sessions -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 14px;">Active Sessions</p>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:26px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);">1,409</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.35);margin-bottom:3px;">
+              <i data-lucide="trending-down" style="width:13px;height:13px;stroke-width:2.5;"></i>−1%
+            </span>
+          </div>
+          <div class="sparkline" style="margin-top:12px;">
+            <div class="sparkline-bar" style="height:75%;background:rgba(255,255,255,0.1);"></div>
+            <div class="sparkline-bar" style="height:100%;background:rgba(255,255,255,0.14);"></div>
+            <div class="sparkline-bar" style="height:60%;background:rgba(255,255,255,0.1);"></div>
+            <div class="sparkline-bar" style="height:80%;background:rgba(255,255,255,0.12);"></div>
+            <div class="sparkline-bar" style="height:70%;background:rgba(255,255,255,0.18);"></div>
+          </div>
+        </div>
+
+        <!-- KPI 4: Growth Rate -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 14px;">Growth Rate</p>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:26px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);">2.4%</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;font-family:'Manrope',sans-serif;color:#22c55e;margin-bottom:3px;">
+              <i data-lucide="trending-up" style="width:13px;height:13px;stroke-width:2.5;"></i>+0.4%
+            </span>
+          </div>
+          <div class="sparkline" style="margin-top:12px;">
+            <div class="sparkline-bar" style="height:30%;background:rgba(0,91,192,0.25);"></div>
+            <div class="sparkline-bar" style="height:45%;background:rgba(0,91,192,0.3);"></div>
+            <div class="sparkline-bar" style="height:60%;background:rgba(0,91,192,0.38);"></div>
+            <div class="sparkline-bar" style="height:75%;background:rgba(0,91,192,0.5);"></div>
+            <div class="sparkline-bar" style="height:100%;background:#005bc0;"></div>
+          </div>
+        </div>
+
+      </div><!-- end KPI row -->
+
+      <!-- Main grid: chart + tiers -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;">
+
+        <!-- Area chart -->
+        <div class="card" style="padding:28px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
+            <div>
+              <h3 style="font-size:15px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.88);margin:0 0 4px;">Game Sessions Over Time</h3>
+              <p style="font-size:12.5px;color:rgba(255,255,255,0.35);margin:0;">Daily active session volume</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <span style="padding:4px 12px;border-radius:99px;font-size:10.5px;font-weight:600;font-family:'Manrope',sans-serif;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);">30 Days</span>
+              <span style="padding:4px 12px;border-radius:99px;font-size:10.5px;font-weight:600;font-family:'Manrope',sans-serif;background:rgba(0,91,192,0.15);color:#4a8eff;border:1px solid rgba(0,91,192,0.25);">All Time</span>
+            </div>
+          </div>
+
+          <!-- SVG chart -->
+          <div style="position:relative;height:200px;">
+            <svg width="100%" height="100%" viewBox="0 0 1000 200" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:rgba(0,91,192,0.25);"></stop>
+                  <stop offset="100%" style="stop-color:rgba(0,91,192,0);"></stop>
+                </linearGradient>
+              </defs>
+              <!-- Grid lines -->
+              <line x1="0" y1="50"  x2="1000" y2="50"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="100" x2="1000" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <!-- Area fill -->
+              <path d="M0,200 L0,150 Q100,120 200,160 T400,100 T600,140 T800,80 T1000,120 L1000,200 Z" fill="url(#chartGrad)"/>
+              <!-- Line -->
+              <path d="M0,150 Q100,120 200,160 T400,100 T600,140 T800,80 T1000,120" fill="none" stroke="#005bc0" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Peak dots -->
+              <circle cx="400" cy="100" r="4" fill="#0c0f10" stroke="#005bc0" stroke-width="2"/>
+              <circle cx="800" cy="80"  r="4" fill="#0c0f10" stroke="#4a8eff" stroke-width="2"/>
+            </svg>
+          </div>
+          <!-- x-axis labels -->
+          <div style="display:flex;justify-content:space-between;margin-top:10px;">
+            <span style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Jan 01</span>
+            <span style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Jan 07</span>
+            <span style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Jan 14</span>
+            <span style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Jan 21</span>
+            <span style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Jan 28</span>
+          </div>
+        </div>
+
+        <!-- Subscription tiers -->
+        <div class="card" style="padding:28px;display:flex;flex-direction:column;">
+          <h3 style="font-size:15px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.88);margin:0 0 4px;">Subscription Tiers</h3>
+          <p style="font-size:12.5px;color:rgba(255,255,255,0.35);margin:0 0 28px;">Active player distribution</p>
+
+          <div style="display:flex;flex-direction:column;gap:22px;flex:1;justify-content:center;">
+
+            <!-- Casual -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                <span style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.65);">Casual</span>
+                <span style="font-size:18px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.85);">12k</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:85%;background:#5d5f65;"></div>
+              </div>
+            </div>
+
+            <!-- Strategist -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                <span style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.65);">Strategist</span>
+                <span style="font-size:18px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.85);">8.4k</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:65%;background:#005bc0;"></div>
+              </div>
+            </div>
+
+            <!-- Grandmaster -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                <span style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.65);">Grandmaster</span>
+                <span style="font-size:18px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.85);">4.4k</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:35%;background:#4a8eff;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- end main grid -->
+
+      <!-- Bottom grid: activity + outlook -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+
+        <!-- Recent Activity -->
+        <div class="card" style="padding:28px;">
+          <h3 style="font-size:15px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.88);margin:0 0 22px;">Recent Activity</h3>
+
+          <div style="display:flex;flex-direction:column;gap:0;">
+
+            <!-- Item 1 -->
+            <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div class="activity-icon" style="background:rgba(0,91,192,0.18);border:1px solid rgba(0,91,192,0.25);">
+                <i data-lucide="user-plus" style="width:16px;height:16px;stroke-width:2;color:#4a8eff;"></i>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">New Grandmaster Signup</div>
+                <div style="font-size:12.5px;color:rgba(255,255,255,0.4);margin-top:2px;">Archmage_42 upgraded to yearly plan</div>
+              </div>
+              <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:500;white-space:nowrap;margin-top:2px;">2 mins ago</span>
+            </div>
+
+            <!-- Item 2 -->
+            <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div class="activity-icon" style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.2);">
+                <i data-lucide="trophy" style="width:16px;height:16px;stroke-width:2;color:#eab308;"></i>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Tournament Concluded</div>
+                <div style="font-size:12.5px;color:rgba(255,255,255,0.4);margin-top:2px;">Winter Gambit finalized with 840 participants</div>
+              </div>
+              <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:500;white-space:nowrap;margin-top:2px;">45 mins ago</span>
+            </div>
+
+            <!-- Item 3 -->
+            <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 0;">
+              <div class="activity-icon" style="background:rgba(159,64,61,0.18);border:1px solid rgba(159,64,61,0.25);">
+                <i data-lucide="alert-triangle" style="width:16px;height:16px;stroke-width:2;color:#f87171;"></i>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Server Load Spike</div>
+                <div style="font-size:12.5px;color:rgba(255,255,255,0.4);margin-top:2px;">EU-West reached 92% capacity for 14 minutes</div>
+              </div>
+              <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:500;white-space:nowrap;margin-top:2px;">2 hours ago</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Strategic Outlook -->
+        <div style="background:linear-gradient(145deg, #005bc0, #004fa9);border-radius:16px;border:1px solid rgba(255,255,255,0.1);padding:28px;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <i data-lucide="target" style="width:16px;height:16px;stroke-width:2;color:rgba(255,255,255,0.6);"></i>
+            <span style="font-size:10.5px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.55);">Strategic Outlook</span>
+          </div>
+          <h3 style="font-size:15px;font-weight:700;font-family:'Manrope',sans-serif;color:#fff;margin:0 0 6px;">MRR Goal: $50k</h3>
+          <p style="font-size:12.5px;color:rgba(255,255,255,0.6);margin:0 0 20px;line-height:1.5;">Currently at $42.1k — 84% toward monthly target.</p>
+
+          <!-- Progress bar -->
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
+              <span style="font-size:11.5px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.6);">Progress</span>
+              <span style="font-size:11.5px;font-weight:700;font-family:'Manrope',sans-serif;color:#fff;">84%</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.15);border-radius:99px;overflow:hidden;">
+              <div style="height:100%;width:84%;background:rgba(255,255,255,0.85);border-radius:99px;"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:auto;padding-top:20px;">
+            <button style="width:100%;background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:7px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+              <i data-lucide="file-text" style="width:14px;height:14px;stroke-width:2;"></i>
+              Generate Report
+            </button>
+          </div>
+        </div>
+
+      </div><!-- end bottom grid -->
+
+    </div><!-- end page-dashboard -->
+
+
+    <!-- ══════════ PAGE: USERS ══════════ -->
+    <div class="page" id="page-users">
+
+      <!-- Page header -->
+      <div style="margin-bottom:24px;">
+        <h1 style="font-size:26px;font-weight:800;color:rgba(255,255,255,0.92);margin:0 0 6px;letter-spacing:-.01em;">User Management</h1>
+        <p style="font-size:14px;color:rgba(255,255,255,0.45);margin:0;">Manage player accounts, plans and status.</p>
+      </div>
+
+      <!-- Toolbar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;">
+        <!-- Search -->
+        <div style="position:relative;display:flex;align-items:center;">
+          <i data-lucide="search" style="position:absolute;left:11px;width:14px;height:14px;stroke-width:2;color:rgba(255,255,255,0.3);pointer-events:none;"></i>
+          <input class="search-input" type="text" placeholder="Search users…" style="width:240px;">
+        </div>
+        <!-- Filter pills -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="filter-pill active" onclick="setFilter(this)">All</button>
+          <button class="filter-pill" onclick="setFilter(this)">Grandmaster</button>
+          <button class="filter-pill" onclick="setFilter(this)">Strategist</button>
+          <button class="filter-pill" onclick="setFilter(this)">Casual</button>
+          <button class="filter-pill" onclick="setFilter(this)">Suspended</button>
+        </div>
+      </div>
+
+      <!-- Users table -->
+      <div class="card" style="overflow:hidden;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th>User</th>
+              <th>Plan</th>
+              <th>Games</th>
+              <th>Joined</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- Row 1 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">1</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(74,142,255,0.2);color:#4a8eff;">A4</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">Archmage_42</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@archmage</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-grandmaster">Grandmaster</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">847</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Jan 2023</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-active"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Active</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">2</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(168,159,212,0.2);color:#a89fd4;">ER</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">Elena Rossi</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@elenap</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-strategist">Strategist</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">312</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Mar 2023</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-active"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Active</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">3</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(0,91,192,0.25);color:#60a5fa;">BQ</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">BrassQueen</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@brassq</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-grandmaster">Grandmaster</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">1,204</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Nov 2022</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-active"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Active</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 4 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">4</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(34,197,94,0.15);color:#4ade80;">MT</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">Marcus Thorne</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@marcust</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-casual">Casual</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">89</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Jun 2023</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-active"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Active</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 5 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">5</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(234,179,8,0.15);color:#fbbf24;">DW</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">DiceWitch</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@dicewitch</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-strategist">Strategist</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">445</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Feb 2023</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-active"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Active</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 6 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">6</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(236,72,153,0.15);color:#f472b6;">TX</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">TerraformX</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@terrax</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-casual">Casual</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">23</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Oct 2023</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-active"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Active</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 7 -->
+            <tr>
+              <td style="color:rgba(255,255,255,0.3);font-size:12px;">7</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar" style="background:rgba(159,64,61,0.2);color:#f87171;">SV</div>
+                  <div>
+                    <div style="font-weight:600;color:rgba(255,255,255,0.85);font-size:13.5px;">SilentVault</div>
+                    <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">@silentv</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-grandmaster">Grandmaster</span></td>
+              <td style="color:rgba(255,255,255,0.7);font-weight:600;">2,341</td>
+              <td style="color:rgba(255,255,255,0.45);font-size:12.5px;">Aug 2022</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><span class="status-dot status-suspended"></span><span style="font-size:12.5px;color:rgba(255,255,255,0.55);">Suspended</span></div></td>
+              <td style="text-align:right;">
+                <div style="display:flex;justify-content:flex-end;gap:4px;">
+                  <button class="icon-btn" title="View"><i data-lucide="eye" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                  <button class="icon-btn" title="More"><i data-lucide="more-horizontal" style="width:14px;height:14px;stroke-width:2;"></i></button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- Pagination footer -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:12.5px;color:rgba(255,255,255,0.35);">Showing <strong style="color:rgba(255,255,255,0.6);">7</strong> of <strong style="color:rgba(255,255,255,0.6);">12,842</strong> users</span>
+          <div style="display:flex;gap:6px;">
+            <button style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:7px 14px;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.45);cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+              <i data-lucide="chevron-left" style="width:13px;height:13px;stroke-width:2.5;"></i>Prev
+            </button>
+            <button style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:7px 14px;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.45);cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+              Next<i data-lucide="chevron-right" style="width:13px;height:13px;stroke-width:2.5;"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- end page-users -->
+
+
+    <!-- ══════════ PAGE: BILLING ══════════ -->
+    <div class="page" id="page-billing">
+
+      <!-- Page header -->
+      <div style="margin-bottom:28px;">
+        <h1 style="font-size:26px;font-weight:800;color:rgba(255,255,255,0.92);margin:0 0 6px;letter-spacing:-.01em;">Billing &amp; Subscriptions</h1>
+        <p style="font-size:14px;color:rgba(255,255,255,0.45);margin:0;">Manage recurring revenue, plans, and transaction history.</p>
+      </div>
+
+      <!-- Revenue KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+
+        <!-- MRR -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 12px;">MRR</p>
+          <div style="font-size:24px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);margin-bottom:8px;">$42,100</div>
+          <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.15);color:#4ade80;border-radius:6px;padding:2px 8px;">+8.2%</span>
+        </div>
+
+        <!-- ARR -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 12px;">ARR</p>
+          <div style="font-size:24px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);margin-bottom:8px;">$505,200</div>
+          <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.15);color:#4ade80;border-radius:6px;padding:2px 8px;">+8.2%</span>
+        </div>
+
+        <!-- Churn Rate -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 12px;">Churn Rate</p>
+          <div style="font-size:24px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);margin-bottom:8px;">2.1%</div>
+          <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(74,142,255,0.15);color:#4a8eff;border-radius:6px;padding:2px 8px;">−0.3%</span>
+        </div>
+
+        <!-- Avg Revenue/User -->
+        <div class="card" style="padding:22px 20px;">
+          <p style="font-size:10px;font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:0 0 12px;">Avg Revenue / User</p>
+          <div style="font-size:24px;font-weight:800;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.92);margin-bottom:8px;">$3.28</div>
+          <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.15);color:#4ade80;border-radius:6px;padding:2px 8px;">+4.1%</span>
+        </div>
+
+      </div><!-- end billing KPIs -->
+
+      <!-- Main billing grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+        <!-- Subscription Breakdown -->
+        <div class="card" style="padding:28px;">
+          <h3 style="font-size:15px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.88);margin:0 0 22px;">Subscription Breakdown</h3>
+
+          <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:24px;">
+
+            <!-- Grandmaster tier -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div>
+                  <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Grandmaster</div>
+                  <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">4,440 users · $9/mo</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">$39,960/mo</div>
+                  <div style="font-size:11px;color:#4a8eff;font-weight:600;">94.9% of MRR</div>
+                </div>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:94.9%;background:#005bc0;"></div>
+              </div>
+            </div>
+
+            <!-- Strategist tier -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div>
+                  <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Strategist</div>
+                  <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">8,402 users · Free</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">$0/mo</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;">0% of MRR</div>
+                </div>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:0%;background:#5d5f65;"></div>
+              </div>
+            </div>
+
+            <!-- Casual tier -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div>
+                  <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Casual</div>
+                  <div style="font-size:11.5px;color:rgba(255,255,255,0.35);">Free users</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">$0</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;">—</div>
+                </div>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:0%;background:rgba(255,255,255,0.15);"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Insight chip -->
+          <div style="display:flex;align-items:center;gap:10px;background:rgba(0,91,192,0.1);border:1px solid rgba(0,91,192,0.2);border-radius:10px;padding:12px 14px;">
+            <i data-lucide="zap" style="width:15px;height:15px;stroke-width:2;color:#4a8eff;flex-shrink:0;"></i>
+            <span style="font-size:12.5px;color:rgba(255,255,255,0.6);line-height:1.4;">Upsell opportunity: <strong style="color:rgba(255,255,255,0.8);">1,240 Strategist users</strong> are highly engaged and ready to upgrade.</span>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card" style="padding:28px;">
+          <h3 style="font-size:15px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.88);margin:0 0 22px;">Recent Transactions</h3>
+
+          <div style="display:flex;flex-direction:column;gap:0;">
+
+            <!-- Transaction 1 -->
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div class="avatar" style="background:rgba(74,142,255,0.2);color:#4a8eff;font-size:11px;">A4</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Archmage_42</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);">Grandmaster Annual</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.8);">$108</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);">Jan 15, 2025</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.12);color:#4ade80;border-radius:6px;padding:3px 8px;white-space:nowrap;">✓ Paid</span>
+            </div>
+
+            <!-- Transaction 2 -->
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div class="avatar" style="background:rgba(0,91,192,0.25);color:#60a5fa;font-size:11px;">BQ</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">BrassQueen</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);">Grandmaster Monthly</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.8);">$9</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);">Jan 14, 2025</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.12);color:#4ade80;border-radius:6px;padding:3px 8px;white-space:nowrap;">✓ Paid</span>
+            </div>
+
+            <!-- Transaction 3 -->
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div class="avatar" style="background:rgba(159,64,61,0.2);color:#f87171;font-size:11px;">SV</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">SilentVault</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);">Grandmaster Monthly</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.8);">$9</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);">Jan 14, 2025</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(159,64,61,0.15);color:#f87171;border-radius:6px;padding:3px 8px;white-space:nowrap;">✗ Failed</span>
+            </div>
+
+            <!-- Transaction 4 -->
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div class="avatar" style="background:rgba(234,179,8,0.15);color:#fbbf24;font-size:11px;">DW</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">DiceWitch</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);">Strategist → Grandmaster</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.8);">$9</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);">Jan 13, 2025</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.12);color:#4ade80;border-radius:6px;padding:3px 8px;white-space:nowrap;">✓ Paid</span>
+            </div>
+
+            <!-- Transaction 5 -->
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;">
+              <div class="avatar" style="background:rgba(168,159,212,0.2);color:#a89fd4;font-size:11px;">ER</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.82);">Elena Rossi</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);">Grandmaster Annual</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13.5px;font-weight:700;font-family:'Manrope',sans-serif;color:rgba(255,255,255,0.8);">$108</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);">Jan 12, 2025</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;font-family:'Manrope',sans-serif;background:rgba(34,197,94,0.12);color:#4ade80;border-radius:6px;padding:3px 8px;white-space:nowrap;">✓ Paid</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- end billing main grid -->
+
+    </div><!-- end page-billing -->
+
+  </div><!-- end #content -->
+</div><!-- end #main -->
+
+
+<!-- ══════════ FLOATING LIVE PILL ══════════ -->
+<div class="live-pill" id="live-pill">
+  <span class="live-dot"></span>
+  <span style="color:rgba(255,255,255,0.6);">Live</span>
+  <div class="live-divider"></div>
+  <span>Active Users: <strong style="color:rgba(255,255,255,0.85);">4.2k</strong></span>
+  <div class="live-divider"></div>
+  <span>Latency: <strong class="latency">24ms</strong></span>
+</div>
+
+
+<script>
+  // ── Navigation ──
+  function navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    var target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+
+    document.querySelectorAll('.nav-link').forEach(function(l) {
+      l.classList.toggle('active', l.dataset.page === page);
+    });
+
+    var titles = {
+      dashboard: 'Analytics Overview',
+      users: 'User Management',
+      billing: 'Billing & Subscriptions'
+    };
+    var titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = titles[page] || '';
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    window.scrollTo(0, 0);
+  }
+
+  // ── Filter pills (users page) ──
+  function setFilter(btn) {
+    document.querySelectorAll('.filter-pill').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    btn.classList.add('active');
+  }
+
+  // ── Live pill latency flicker ──
+  (function() {
+    var base = 22, jitter = 18;
+    function tick() {
+      var ms = base + Math.floor(Math.random() * jitter);
+      var el = document.querySelector('.latency');
+      if (el) {
+        el.textContent = ms + 'ms';
+        el.style.color = ms < 30 ? '#22c55e' : ms < 45 ? '#fbbf24' : '#f87171';
+      }
+      setTimeout(tick, 1800 + Math.random() * 1200);
+    }
+    tick();
+  })();
+
+  // ── Init ──
+  document.addEventListener('DOMContentLoaded', function() {
+    navigate('dashboard');
+  });
+</script>
+
+</body>
+</html>

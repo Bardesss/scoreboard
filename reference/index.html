@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Vault — Store Your Scores Safely</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#005bc0', 'primary-dim': '#004fa9',
+            'primary-container': '#d8e2ff', 'on-primary': '#f7f7ff',
+            secondary: '#5d5f65', 'secondary-container': '#e2e2e9',
+            surface: '#f8f9fa',
+            'surface-container-lowest': '#ffffff', 'surface-container-low': '#f1f4f6',
+            'surface-container': '#eaeff1', 'surface-container-high': '#e3e9ec',
+            'surface-container-highest': '#dbe4e7',
+            'on-surface': '#2b3437', 'on-surface-variant': '#586064',
+            outline: '#737c7f', 'outline-variant': '#abb3b7',
+            'inverse-surface': '#0c0f10', error: '#9f403d',
+          },
+          fontFamily: { headline: ['Manrope','sans-serif'], body: ['DM Sans','sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #f8f9fa; color: #2b3437; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(rgba(43,52,55,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    h1,h2,h3,h4,h5 { font-family: 'Manrope', sans-serif; }
+
+    .page { display: none; position: relative; z-index: 1; }
+    .page.active { display: block; animation: pageIn .22s ease forwards; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 11px; padding: 10px 14px;
+      border-radius: 12px; cursor: pointer; transition: all .15s;
+      font-size: 13.5px; font-weight: 600; color: #586064;
+      text-decoration: none; font-family: 'Manrope', sans-serif; user-select: none;
+    }
+    .nav-link:hover { background: #f1f4f6; color: #2b3437; }
+    .nav-link.active { background: white; color: #005bc0; box-shadow: 0 2px 12px rgba(43,52,55,0.09); }
+    .nav-link.active svg { stroke: #005bc0; }
+
+    .mob-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 6px 14px; border-radius: 10px; border: none; background: transparent;
+      cursor: pointer; color: #737c7f; font-size: 9px; font-weight: 800;
+      letter-spacing: .08em; text-transform: uppercase; font-family: 'Manrope', sans-serif;
+      transition: color .15s;
+    }
+    .mob-btn.active { color: #005bc0; }
+    .mob-btn.active svg { stroke: #005bc0; }
+
+    .glass { background: rgba(248,249,250,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .lift { transition: transform .2s ease, box-shadow .2s ease; cursor: pointer; }
+    .lift:hover { transform: translateY(-3px); }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type=number] { -moz-appearance: textfield; }
+    .pfill { transition: width .4s ease; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #dbe4e7; border-radius: 99px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    .toast {
+      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+      background: #0c0f10; color: white; padding: 11px 20px; border-radius: 999px;
+      font-size: 13.5px; font-weight: 600; z-index: 300; white-space: nowrap;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.22); animation: toastIn .22s ease forwards;
+      font-family: 'DM Sans', sans-serif;
+    }
+    @media (min-width: 1024px) { .toast { bottom: 28px; } }
+    @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(8px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+    .toast.out { animation: toastOut .22s ease forwards; }
+    @keyframes toastOut { to { opacity:0; transform: translateX(-50%) translateY(8px); } }
+
+    #gmodal { position: fixed; inset: 0; z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+    #gmodal.open { display: flex; }
+    @media (min-width: 640px) { #gmodal { align-items: center; padding: 16px; } }
+    .mbdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(3px); animation: bdin .2s ease; }
+    .mpanel { position: relative; background: white; width: 100%; max-width: 440px; padding: 28px; box-shadow: 0 -8px 48px rgba(43,52,55,0.14); border-radius: 24px 24px 0 0; animation: mslide .24s ease; }
+    @media (min-width: 640px) { .mpanel { border-radius: 24px; } }
+    @keyframes bdin { from { opacity:0; } to { opacity:1; } }
+    @keyframes mslide { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    .inp {
+      width: 100%; border: none; border-bottom: 1.5px solid #d1dce0;
+      border-radius: 0; padding: 0 2px 10px;
+      height: 44px; box-sizing: border-box;
+      font-size: 14px; color: #2b3437; outline: none; background: transparent;
+      -webkit-appearance: none; appearance: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-bottom-color .22s;
+      display: block; align-self: stretch;
+    }
+    .inp:focus { border-bottom-color: #005bc0; }
+    .inp::placeholder { color: #c0c8cc; font-style: italic; font-size: 13px; }
+
+    /* Suppress every browser-added chrome on list/date/select inputs */
+    input::-webkit-calendar-picker-indicator,
+    input::-webkit-list-button,
+    input::-webkit-inner-spin-button { display: none !important; }
+
+    /* Custom autocomplete menu */
+    .ac-menu {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 600;
+      background: #18242e; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.32), 0 2px 8px rgba(0,0,0,0.18);
+      max-height: 228px; overflow-y: auto;
+    }
+    .ac-menu::-webkit-scrollbar { width: 3px; }
+    .ac-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+    .ac-item {
+      padding: 10px 16px; font-size: 13.5px; color: rgba(255,255,255,0.72);
+      cursor: pointer; transition: background .1s, color .1s;
+      font-family: 'DM Sans', sans-serif; letter-spacing: .01em;
+    }
+    .ac-item:hover { background: rgba(255,255,255,0.09); color: white; }
+    .ac-item + .ac-item { border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* Sort tab group — used in Score Entry form */
+    .sort-tabs { display: flex; border-bottom: 1.5px solid #d1dce0; }
+    .sort-tab {
+      padding: 8px 13px; border: none; border-bottom: 2px solid transparent;
+      background: transparent; cursor: pointer; margin-bottom: -1.5px;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 11px;
+      letter-spacing: .06em; text-transform: uppercase; color: #c0c8cc;
+      transition: color .15s, border-color .15s; white-space: nowrap;
+    }
+    .sort-tab:hover { color: #737c7f; }
+    .sort-tab.active { color: #005bc0; border-bottom-color: #005bc0; }
+
+    /* Players page — Command Bar */
+    .cmd-bar {
+      display: flex; align-items: stretch;
+      background: white; border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(43,52,55,0.07);
+      overflow: visible; margin-bottom: 28px;
+    }
+    .cmd-search-wrap {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 18px; flex: 1; min-width: 0;
+      border-right: 1.5px solid #f1f4f6; position: relative;
+    }
+    .cmd-search-wrap svg { flex-shrink: 0; color: #c0c8cc; transition: color .15s; }
+    .cmd-search-wrap:focus-within svg { color: #005bc0; }
+    .cmd-search {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: #2b3437;
+      padding: 15px 0; line-height: 1;
+    }
+    .cmd-search::placeholder { color: #c0c8cc; font-style: italic; }
+    .sort-pills {
+      display: flex; align-items: center; gap: 3px; padding: 8px 12px; flex-shrink: 0;
+    }
+    .sort-pill {
+      padding: 7px 15px; border-radius: 999px; border: none; cursor: pointer;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 10.5px;
+      letter-spacing: .07em; text-transform: uppercase; color: #abb3b7;
+      background: transparent; transition: all .15s; white-space: nowrap;
+    }
+    .sort-pill:hover { color: #586064; background: #f1f4f6; }
+    .sort-pill.active { color: #005bc0; background: #eaf0fc; }
+
+    /* Players page — Add panel slide-in */
+    .add-panel {
+      overflow: hidden; max-height: 0;
+      transition: max-height .28s cubic-bezier(.4,0,.2,1), opacity .22s ease, margin .28s ease;
+      opacity: 0; margin-bottom: 0;
+    }
+    .add-panel.open { max-height: 120px; opacity: 1; margin-bottom: 20px; }
+    .add-panel-inner {
+      background: white; border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(43,52,55,0.07);
+      padding: 18px 22px; display: flex; align-items: flex-end; gap: 14px;
+    }
+
+    /* Player roster cards */
+    .p-card {
+      background: white; border-radius: 16px;
+      padding: 16px 22px; position: relative; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(43,52,55,0.05);
+      display: flex; align-items: center; gap: 14px;
+      transition: transform .18s ease, box-shadow .18s ease;
+      animation: cardIn .2s ease both;
+    }
+    .p-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(43,52,55,0.10); }
+    @keyframes cardIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+    .p-card-rank {
+      position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+      font-family: 'Manrope', sans-serif; font-weight: 900;
+      font-size: 80px; color: rgba(43,52,55,0.055); letter-spacing: -.05em;
+      line-height: 1; pointer-events: none; user-select: none; z-index: 0;
+    }
+    /* Fixed-width stats block — always same position from right edge */
+    .p-card-stats {
+      flex-shrink: 0; width: 246px;
+      display: grid; grid-template-columns: 74px 86px 86px; gap: 0;
+      position: relative; z-index: 1;
+    }
+    .p-card-fav { flex-shrink: 0; width: 130px; text-align: right; position: relative; z-index: 1; }
+    .p-card-stat { display: flex; flex-direction: column; gap: 3px; }
+    .p-card-stat-label {
+      font-size: 8.5px; font-weight: 900; letter-spacing: .12em;
+      text-transform: uppercase; color: #c0c8cc;
+    }
+    .p-card-stat-val {
+      font-family: 'Manrope', sans-serif; font-weight: 900;
+      font-size: 20px; line-height: 1; color: #2b3437;
+    }
+    .wr-bar {
+      height: 2px; border-radius: 99px; background: #f1f4f6; margin-top: 5px; overflow: hidden; width: 44px;
+    }
+    .wr-bar-fill { height: 100%; border-radius: 99px; background: #005bc0; transition: width .5s ease; }
+
+    /* Score tally inputs — large, centered Manrope numerals */
+    .pscore.inp {
+      font-family: 'Manrope', sans-serif; font-weight: 900; font-size: 26px;
+      color: #005bc0; text-align: center; letter-spacing: -.03em;
+      border-bottom-width: 2px; padding: 0 2px 6px;
+    }
+    .pscore.inp::placeholder { font-family: 'Manrope'; font-weight: 400; font-size: 18px; font-style: normal; color: #d1dce0; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col z-40"
+       style="background:white; box-shadow: 1px 0 0 #eaeff1, 4px 0 24px rgba(43,52,55,0.04)">
+  <div style="padding:22px 20px 8px">
+    <a href="landing.html" style="display:flex;align-items:center;gap:12px;padding:10px 6px 14px;text-decoration:none;border-radius:12px;transition:background .15s" onmouseover="this.style.background='#f1f4f6'" onmouseout="this.style.background='transparent'">
+      <div style="width:36px;height:36px;border-radius:10px;background:#005bc0;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,91,192,0.28)">
+        <i data-lucide="dice-6" style="width:18px;height:18px;color:white;stroke-width:2.2"></i>
+      </div>
+      <div>
+        <div style="font-family:'Manrope';font-weight:900;font-size:14.5px;color:#2b3437;letter-spacing:-.03em">Dice Vault</div>
+        <div style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#abb3b7;margin-top:1px">dicevault.fun</div>
+      </div>
+    </a>
+  </div>
+  <nav style="padding:0 12px;display:flex;flex-direction:column;gap:2px">
+    <a class="nav-link active" data-page="dashboard" onclick="navigate('dashboard')">
+      <i data-lucide="layout-dashboard" style="width:17px;height:17px;flex-shrink:0"></i> Dashboard
+    </a>
+    <a class="nav-link" data-page="new-score" onclick="navigate('new-score')">
+      <i data-lucide="clipboard-list" style="width:17px;height:17px;flex-shrink:0"></i> New Score
+    </a>
+    <a class="nav-link" data-page="players" onclick="navigate('players')">
+      <i data-lucide="users" style="width:17px;height:17px;flex-shrink:0"></i> Players
+    </a>
+    <a class="nav-link" data-page="settings" onclick="navigate('settings')">
+      <i data-lucide="settings" style="width:17px;height:17px;flex-shrink:0"></i> Settings
+    </a>
+  </nav>
+  <div style="flex:1"></div>
+  <div style="padding:16px">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#f1f4f6">
+      <div style="width:32px;height:32px;border-radius:50%;background:#005bc0;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:11px;color:white;flex-shrink:0">AD</div>
+      <div style="overflow:hidden;flex:1">
+        <div style="font-weight:700;font-size:12.5px;color:#2b3437;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Arthur Dent</div>
+        <div style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#abb3b7">Vault Keeper</div>
+      </div>
+      <i data-lucide="chevron-right" style="width:13px;height:13px;color:#abb3b7;flex-shrink:0"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- MOBILE HEADER -->
+<header class="lg:hidden fixed top-0 left-0 right-0 h-14 glass z-50 flex items-center justify-between px-4"
+        style="border-bottom:1px solid rgba(43,52,55,0.07)">
+  <a href="landing.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+    <div style="width:28px;height:28px;border-radius:8px;background:#005bc0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,91,192,0.28)">
+      <i data-lucide="dice-6" style="width:14px;height:14px;color:white;stroke-width:2.2"></i>
+    </div>
+    <span style="font-family:'Manrope';font-weight:900;font-size:15px;color:#2b3437;letter-spacing:-.03em">Dice Vault</span>
+  </a>
+  <button style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:#586064;background:none;border:none;cursor:pointer">
+    <i data-lucide="user-circle" style="width:22px;height:22px"></i>
+  </button>
+</header>
+
+<!-- MAIN -->
+<main class="lg:ml-64 pt-14 lg:pt-0 pb-24 lg:pb-0" style="min-height:100vh;position:relative;z-index:1">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active" style="padding:36px 28px 40px">
+    <div style="margin-bottom:36px">
+      <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:8px">Chronicle</p>
+      <h1 style="font-family:'Manrope';font-weight:900;font-size:clamp(30px,4vw,46px);letter-spacing:-.03em;color:#2b3437;line-height:1.05">Recent Encounters</h1>
+      <p style="color:#737c7f;margin-top:8px;font-size:14px">A record of strategic depth and silent adjudication.</p>
+    </div>
+    <div id="dash-grid" class="grid grid-cols-1 md:grid-cols-12 gap-5 mb-6"></div>
+    <div id="dash-stats" style="background:#f1f4f6;border-radius:20px;padding:32px 36px"></div>
+  </div>
+
+  <!-- NEW SCORE -->
+  <div id="page-new-score" class="page" style="padding:36px 28px 40px">
+    <div style="margin-bottom:32px">
+      <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:8px">Record of Achievement</p>
+      <h1 style="font-family:'Manrope';font-weight:900;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;color:#2b3437">Log New Session</h1>
+      <p style="color:#737c7f;margin-top:8px;font-size:14px;max-width:400px">Enter the final tallies for your session. Every victory deserves a precise record.</p>
+    </div>
+    <div class="flex flex-col lg:flex-row gap-8" style="max-width:920px">
+      <div style="flex:1">
+        <form id="score-form" onsubmit="submitScore(event)">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" style="margin-bottom:28px">
+            <div style="position:relative">
+              <label style="display:block;font-size:9.5px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#abb3b7;margin-bottom:7px">Game Name</label>
+              <input id="f-game" type="text" required placeholder="e.g. Terraforming Mars" class="inp">
+            </div>
+            <div>
+              <label style="display:block;font-size:9.5px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#abb3b7;margin-bottom:7px">Session Date</label>
+              <input id="f-date" type="text" required placeholder="YYYY-MM-DD" class="inp">
+            </div>
+          </div>
+          <div style="margin-bottom:24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid rgba(43,52,55,0.07);margin-bottom:16px">
+              <h2 style="font-family:'Manrope';font-weight:800;font-size:17px;color:#2b3437">Player Scores</h2>
+              <button type="button" onclick="addRow()"
+                style="display:flex;align-items:center;gap:6px;color:#005bc0;font-weight:700;font-size:13.5px;background:none;border:none;cursor:pointer;font-family:'Manrope';transition:opacity .15s"
+                onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+                <i data-lucide="plus-circle" style="width:15px;height:15px"></i> Add Player
+              </button>
+            </div>
+            <div id="prows" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+          <button type="submit"
+            style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#005bc0,#004fa9);color:#f7f7ff;font-family:'Manrope';font-weight:800;font-size:14px;letter-spacing:-.01em;border:none;cursor:pointer;box-shadow:0 8px 28px rgba(0,91,192,0.22);transition:transform .2s,box-shadow .2s"
+            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px rgba(0,91,192,0.3)'"
+            onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 28px rgba(0,91,192,0.22)'">
+            Submit Final Score
+          </button>
+        </form>
+      </div>
+      <div class="w-full lg:w-72 flex-shrink-0 flex flex-col gap-4">
+        <div style="background:#f1f4f6;border-radius:20px;padding:24px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:12px;right:12px;opacity:.04;pointer-events:none">
+            <i data-lucide="trophy" style="width:88px;height:88px;color:#2b3437"></i>
+          </div>
+          <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:20px">Live Standings</p>
+          <div id="standings"><div style="text-align:center;padding:20px 0;color:#abb3b7;font-size:13px">Enter scores to see standings</div></div>
+        </div>
+        <div style="background:linear-gradient(140deg,#0c0f10,#192530);border-radius:18px;padding:20px">
+          <i data-lucide="zap" style="width:16px;height:16px;color:#4a8eff;margin-bottom:10px"></i>
+          <p style="font-family:'Manrope';font-weight:800;font-size:14px;color:white;margin-bottom:6px">Tactical Tip</p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.55">The winner is auto-calculated. Track the gap to see who's in striking distance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div id="page-players" class="page" style="padding:36px 28px 40px">
+
+    <!-- Page header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px">
+      <div>
+        <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:8px">Roster</p>
+        <h1 style="font-family:'Manrope';font-weight:900;font-size:clamp(26px,4vw,42px);letter-spacing:-.03em;color:#2b3437">Players</h1>
+        <p id="p-subtitle" style="color:#abb3b7;margin-top:5px;font-size:13px;font-family:'Manrope';font-weight:600;letter-spacing:.01em"></p>
+      </div>
+      <button id="add-player-btn" onclick="toggleAddPlayer()"
+        style="display:flex;align-items:center;gap:8px;background:#005bc0;color:#f7f7ff;padding:11px 20px;border-radius:999px;font-family:'Manrope';font-weight:800;font-size:13px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,91,192,0.22);transition:background .15s,box-shadow .15s,transform .15s;flex-shrink:0;margin-top:6px"
+        onmouseover="this.style.background='#004fa9';this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='#005bc0';this.style.transform='none'">
+        <i data-lucide="user-plus" style="width:15px;height:15px"></i>
+        <span>Add Player</span>
+      </button>
+    </div>
+
+    <!-- Add-player slide-in panel -->
+    <div class="add-panel" id="add-panel">
+      <div class="add-panel-inner">
+        <div style="flex:1;position:relative">
+          <label style="display:block;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#abb3b7;margin-bottom:6px">Player Name</label>
+          <input id="new-player-input" type="text" placeholder="e.g. Alex" class="inp"
+            onkeydown="if(event.key==='Enter')confirmAddPlayer()" style="max-width:320px">
+        </div>
+        <button onclick="confirmAddPlayer()"
+          style="padding:10px 22px;background:#005bc0;color:white;border:none;border-radius:10px;font-family:'Manrope';font-weight:800;font-size:13px;cursor:pointer;flex-shrink:0;transition:background .15s;margin-bottom:10px"
+          onmouseover="this.style.background='#004fa9'" onmouseout="this.style.background='#005bc0'">
+          Register
+        </button>
+        <button onclick="toggleAddPlayer()"
+          style="padding:10px 14px;background:#f1f4f6;color:#737c7f;border:none;border-radius:10px;font-family:'Manrope';font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;transition:background .15s;margin-bottom:10px"
+          onmouseover="this.style.background='#dbe4e7'" onmouseout="this.style.background='#f1f4f6'">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Command bar: search + sort pills -->
+    <div class="cmd-bar" style="max-width:880px">
+      <div class="cmd-search-wrap" style="position:relative">
+        <i data-lucide="search" style="width:16px;height:16px"></i>
+        <input id="psearch" type="text" placeholder="Search players…" oninput="renderPlayers()" class="cmd-search">
+      </div>
+      <div class="sort-pills">
+        <button class="sort-pill active" data-sort="winrate" onclick="setSort('winrate')">Win Rate</button>
+        <button class="sort-pill" data-sort="games" onclick="setSort('games')">Games</button>
+        <button class="sort-pill" data-sort="avg" onclick="setSort('avg')">Avg</button>
+      </div>
+    </div>
+
+    <!-- Player list -->
+    <div id="plist" style="display:flex;flex-direction:column;gap:8px;max-width:880px"></div>
+
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="page-settings" class="page" style="padding:36px 28px 40px">
+    <div style="margin-bottom:36px">
+      <p style="font-size:9.5px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#abb3b7;margin-bottom:8px">Preferences</p>
+      <h1 style="font-family:'Manrope';font-weight:900;font-size:42px;letter-spacing:-.03em;color:#2b3437">Settings</h1>
+    </div>
+    <div style="max-width:480px;display:flex;flex-direction:column;gap:12px">
+      <div style="background:white;border-radius:18px;padding:24px;box-shadow:0 4px 20px rgba(43,52,55,0.06)">
+        <h3 style="font-family:'Manrope';font-weight:800;font-size:16px;color:#2b3437;margin-bottom:5px">Data Management</h3>
+        <p style="font-size:13px;color:#737c7f;margin-bottom:18px">Manage your game history and player records.</p>
+        <button onclick="resetData()"
+          style="padding:9px 18px;border-radius:10px;background:rgba(159,64,61,0.08);color:#9f403d;font-weight:700;font-size:13px;border:none;cursor:pointer;transition:background .15s"
+          onmouseover="this.style.background='rgba(159,64,61,0.15)'" onmouseout="this.style.background='rgba(159,64,61,0.08)'">
+          Reset to Sample Data
+        </button>
+      </div>
+      <div style="background:white;border-radius:18px;padding:24px;box-shadow:0 4px 20px rgba(43,52,55,0.06)">
+        <h3 style="font-family:'Manrope';font-weight:800;font-size:16px;color:#2b3437;margin-bottom:5px">Admin Panel</h3>
+        <p style="font-size:13px;color:#737c7f;margin-bottom:18px">Analytics, user management, and billing.</p>
+        <a href="admin.html"
+          style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;background:rgba(0,91,192,0.08);color:#005bc0;font-weight:700;font-size:13px;text-decoration:none;transition:background .15s"
+          onmouseover="this.style.background='rgba(0,91,192,0.15)'" onmouseout="this.style.background='rgba(0,91,192,0.08)'">
+          <i data-lucide="layout-dashboard" style="width:15px;height:15px"></i> Open Admin
+        </a>
+      </div>
+      <div style="background:white;border-radius:18px;padding:24px;box-shadow:0 4px 20px rgba(43,52,55,0.06)">
+        <h3 style="font-family:'Manrope';font-weight:800;font-size:16px;color:#2b3437;margin-bottom:5px">About</h3>
+        <p style="font-size:13px;color:#737c7f;font-weight:600;font-family:'Manrope'">Dice Vault · Version 1.0</p>
+        <p style="font-size:12px;color:#abb3b7;margin-top:4px">Store your scores safely · dicevault.fun</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 glass z-50 flex justify-around items-center px-2 py-1.5"
+     style="border-top:1px solid rgba(43,52,55,0.07)">
+  <button class="mob-btn active" data-page="dashboard" onclick="navigate('dashboard')">
+    <i data-lucide="layout-dashboard" style="width:20px;height:20px"></i> Home
+  </button>
+  <button class="mob-btn" data-page="new-score" onclick="navigate('new-score')">
+    <i data-lucide="clipboard-list" style="width:20px;height:20px"></i> Score
+  </button>
+  <button class="mob-btn" data-page="players" onclick="navigate('players')">
+    <i data-lucide="users" style="width:20px;height:20px"></i> Players
+  </button>
+  <button class="mob-btn" data-page="settings" onclick="navigate('settings')">
+    <i data-lucide="settings" style="width:20px;height:20px"></i> Settings
+  </button>
+</nav>
+
+<!-- GAME MODAL -->
+<div id="gmodal">
+  <div class="mbdrop" onclick="closeModal()"></div>
+  <div class="mpanel"><div id="mcontent"></div></div>
+</div>
+
+<script>
+/* ─── SECURITY: HTML escape all user/stored data before insertion ─── */
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+/* ─── DATA ─── */
+const SEED = [
+  { id:1, name:'Terraforming Mars', date:'2023-10-24', players:[
+    {name:'Julian S.',score:428},{name:'Elena R.',score:312},{name:'Marcus V.',score:287}]},
+  { id:2, name:'Wingspan', date:'2023-10-23', players:[
+    {name:'Elena R.',score:91},{name:'Sloane M.',score:83},{name:'Julian S.',score:78}]},
+  { id:3, name:'Root', date:'2023-10-15', players:[
+    {name:'Marcus V.',score:30},{name:'Elias V.',score:28},{name:'Julian S.',score:22}]},
+  { id:4, name:'Dune: Imperium', date:'2023-10-10', players:[
+    {name:'Sara K.',score:62},{name:'Julian S.',score:58}]},
+  { id:5, name:'Brass: Birmingham', date:'2023-10-05', players:[
+    {name:'Elias V.',score:184},{name:'Marcus V.',score:176},{name:'Sloane M.',score:159},{name:'Elena R.',score:142}]},
+  { id:6, name:'Scythe', date:'2023-09-28', players:[
+    {name:'Marcus T.',score:88},{name:'Elias V.',score:82},{name:'Sara K.',score:79}]},
+  { id:7, name:'Terraforming Mars', date:'2023-09-15', players:[
+    {name:'Julian S.',score:392},{name:'Sara K.',score:341},{name:'Marcus V.',score:298}]},
+];
+
+function loadGames() {
+  try {
+    // Migrate legacy key
+    const legacy = localStorage.getItem('te_v1');
+    if (legacy && !localStorage.getItem('dv_v1')) { localStorage.setItem('dv_v1', legacy); localStorage.removeItem('te_v1'); }
+    const g = JSON.parse(localStorage.getItem('dv_v1'));
+    return (g && g.length) ? g : initSeed();
+  } catch { return initSeed(); }
+}
+function initSeed() { localStorage.setItem('dv_v1', JSON.stringify(SEED)); return [...SEED]; }
+function save(games) { localStorage.setItem('dv_v1', JSON.stringify(games)); }
+function resetData() { localStorage.removeItem('dv_v1'); renderDashboard(); showToast('Reset to sample data'); }
+
+/* ─── UTILITIES ─── */
+const AV_COLORS = ['#005bc0','#5f5c78','#2d6a4f','#8b4a2f','#b07a00','#6b3080','#b5446e','#1a5e8a'];
+function hsh(s) { let h=0; for (const c of s) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+function avColor(n) { return AV_COLORS[hsh(n) % AV_COLORS.length]; }
+function inits(n) { return n.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2); }
+
+function avEl(name, sz=36) {
+  const fs = sz<30?9:sz<40?11:13;
+  // initials and color are safe (computed, not user HTML)
+  return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${avColor(name)};display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:${fs}px;color:white;flex-shrink:0">${esc(inits(name))}</div>`;
+}
+
+const GG = [
+  ['#1a3a5c','#0b1a2e'],['#1e3320','#0c1810'],['#3a2010','#1e1008'],
+  ['#1a1a3a','#0c0c1e'],['#1a3a3a','#0b1e1e'],['#2a183a','#160c24'],
+  ['#3a2808','#1e1a08'],['#2a0c18','#16080e'],
+];
+function gg(name) {
+  const p = GG[hsh(name) % GG.length];
+  return `linear-gradient(140deg, ${p[0]} 0%, ${p[1]} 100%)`;
+}
+
+function fmtD(d) {
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function winner(g) {
+  if (!g.players.length) return null;
+  return g.players.reduce((a,b)=>a.score>b.score?a:b);
+}
+
+/* ─── NAVIGATION ─── */
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const t = document.getElementById('page-'+page);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
+  document.querySelectorAll('.mob-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  if (page==='dashboard') renderDashboard();
+  else if (page==='players') renderPlayers();
+  else if (page==='new-score') initForm();
+  lucide.createIcons();
+  window.scrollTo(0,0);
+}
+
+/* ─── DASHBOARD ─── */
+function renderDashboard() {
+  const games = loadGames();
+  const sorted = [...games].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  const cnt = {};
+  games.forEach(g=>cnt[g.name]=(cnt[g.name]||0)+1);
+  const fn = Object.keys(cnt).reduce((a,b)=>cnt[a]>cnt[b]?a:b);
+  const fl = sorted.find(g=>g.name===fn)||sorted[0];
+  const fw = winner(fl);
+
+  const grid = document.getElementById('dash-grid');
+  const rows = [];
+
+  // Featured card
+  rows.push(`
+  <div class="md:col-span-7 lift rounded-2xl p-7 flex flex-col justify-between relative overflow-hidden"
+       style="background:${gg(fn)};min-height:300px" onclick="openModal(${Number(fl.id)})">
+    <div style="position:absolute;top:-50px;right:-50px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-30px;right:50px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.03);pointer-events:none"></div>
+    <div style="position:relative">
+      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);border-radius:999px;padding:4px 12px 4px 8px;margin-bottom:22px">
+        <i data-lucide="flame" style="width:11px;height:11px;color:rgba(255,255,255,0.65)"></i>
+        <span style="font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.65)">Most Played · ${esc(String(cnt[fn]))}× sessions</span>
+      </div>
+      <h2 style="font-family:'Manrope';font-weight:900;font-size:clamp(26px,3.5vw,42px);letter-spacing:-.03em;color:white;line-height:1.06;max-width:360px;margin-bottom:8px">${esc(fn)}</h2>
+      <p style="font-size:13px;color:rgba(255,255,255,0.38);max-width:260px">Strategic depth defined. The numbers tell the story.</p>
+    </div>
+    <div style="position:relative;display:flex;align-items:flex-end;justify-content:space-between;margin-top:28px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:8.5px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:7px">Current Leader</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${fw ? `
+            <div style="width:34px;height:34px;border-radius:50%;background:${avColor(fw.name)}70;border:2px solid ${avColor(fw.name)};display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:900;font-size:11px;color:white;flex-shrink:0">${esc(inits(fw.name))}</div>
+            <span style="color:white;font-family:'Manrope';font-weight:800;font-size:17px;letter-spacing:-.02em">${esc(fw.name)}</span>
+            <span style="color:#4a8eff;font-family:'Manrope';font-weight:900;font-size:17px">${esc(String(fw.score))} pts</span>
+          ` : '<span style="color:rgba(255,255,255,0.3);font-size:13px">—</span>'}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:8.5px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:5px">Last Session</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:13.5px;font-weight:500">${fl?esc(fmtD(fl.date)):'—'}</div>
+      </div>
+    </div>
+  </div>`);
+
+  // Right column: 2 side cards
+  const others = sorted.filter(g=>g!==fl).slice(0,2);
+  const sideCards = others.map(g => {
+    const w = winner(g);
+    return `
+    <div class="flex-1 lift rounded-2xl p-6 flex flex-col justify-between"
+         style="background:white;box-shadow:0 4px 20px rgba(43,52,55,0.06)" onclick="openModal(${Number(g.id)})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <h3 style="font-family:'Manrope';font-weight:800;font-size:19px;letter-spacing:-.02em;color:#2b3437;margin-bottom:3px">${esc(g.name)}</h3>
+          <p style="font-size:12px;color:#abb3b7">${esc(fmtD(g.date))}</p>
+        </div>
+        <div style="width:38px;height:38px;border-radius:10px;background:${gg(g.name)};flex-shrink:0;display:flex;align-items:center;justify-content:center">
+          <i data-lucide="dice-6" style="width:17px;height:17px;color:rgba(255,255,255,0.55)"></i>
+        </div>
+      </div>
+      ${w ? `<div style="display:flex;align-items:center;gap:9px;margin-top:18px">
+        ${avEl(w.name,27)}
+        <span style="font-size:13px;font-weight:600;color:#2b3437;flex:1">${esc(w.name)}</span>
+        <span style="font-family:'Manrope';font-weight:900;font-size:15px;color:#005bc0">${esc(String(w.score))} pts</span>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  rows.push(`<div class="md:col-span-5" style="display:flex;flex-direction:column;gap:16px">${sideCards}</div>`);
+
+  // Bottom 4 small cards
+  const small = sorted.slice(0,4);
+  const smallCards = small.map(g => {
+    const w = winner(g);
+    return `
+    <div class="lift rounded-2xl p-5 flex flex-col gap-4"
+         style="background:white;box-shadow:0 4px 18px rgba(43,52,55,0.05)" onclick="openModal(${Number(g.id)})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div style="width:38px;height:38px;border-radius:10px;flex-shrink:0;background:${gg(g.name)}"></div>
+        <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:rgba(43,52,55,0.22)">#${esc(String(g.id).padStart(3,'0'))}</span>
+      </div>
+      <div>
+        <h4 style="font-family:'Manrope';font-weight:800;font-size:14px;color:#2b3437;line-height:1.25">${esc(g.name)}</h4>
+        <p style="font-size:11px;color:#abb3b7;margin-top:3px">${esc(fmtD(g.date))}</p>
+      </div>
+      ${w ? `<div style="display:flex;align-items:center;gap:7px;margin-top:auto">
+        ${avEl(w.name,20)}
+        <span style="font-size:11px;font-weight:700;color:#005bc0">${esc(w.name)}</span>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  rows.push(`<div class="md:col-span-12" style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">${smallCards}</div>`);
+
+  grid.innerHTML = rows.join('');
+
+  // Stats banner
+  const totPts = games.reduce((s,g)=>s+g.players.reduce((ps,p)=>ps+Number(p.score),0),0);
+  const uPlayers = new Set(games.flatMap(g=>g.players.map(p=>p.name))).size;
+  const uGames = new Set(games.map(g=>g.name)).size;
+
+  const statsBanner = document.getElementById('dash-stats');
+  statsBanner.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px';
+
+  const leftDiv = document.createElement('div');
+  const labelEl = document.createElement('p');
+  labelEl.style.cssText = 'font-size:9px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:#abb3b7;margin-bottom:8px';
+  labelEl.textContent = 'Total Achievement';
+  const numRow = document.createElement('div');
+  numRow.style.cssText = 'display:flex;align-items:baseline;gap:10px';
+  const bigNum = document.createElement('span');
+  bigNum.style.cssText = 'font-family:\'Manrope\';font-weight:900;font-size:clamp(34px,5vw,54px);letter-spacing:-.04em;color:#2b3437';
+  bigNum.textContent = totPts.toLocaleString();
+  const unit = document.createElement('span');
+  unit.style.cssText = 'color:#abb3b7;font-size:14px;font-weight:500';
+  unit.textContent = 'points logged';
+  numRow.append(bigNum, unit);
+  leftDiv.append(labelEl, numRow);
+
+  const rightDiv = document.createElement('div');
+  rightDiv.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+  const stats = [{v:uGames,l:'Games'},{v:uPlayers,l:'Players'},{v:games.length,l:'Sessions'}];
+  stats.forEach((s,i) => {
+    const d = document.createElement('div');
+    d.style.cssText = `text-align:center;padding:0 18px;${i<2?'border-right:1px solid rgba(43,52,55,0.08)':''}`;
+    const n = document.createElement('div');
+    n.style.cssText = 'font-family:\'Manrope\';font-weight:900;font-size:22px;color:#2b3437';
+    n.textContent = s.v;
+    const l = document.createElement('div');
+    l.style.cssText = 'font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#abb3b7;margin-top:3px';
+    l.textContent = s.l;
+    d.append(n,l);
+    rightDiv.appendChild(d);
+  });
+  const newBtn = document.createElement('button');
+  newBtn.style.cssText = 'margin-left:8px;background:linear-gradient(135deg,#005bc0,#004fa9);color:#f7f7ff;padding:11px 20px;border-radius:999px;font-family:\'Manrope\';font-weight:800;font-size:13px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(0,91,192,0.24);transition:transform .18s';
+  newBtn.textContent = 'New Session +';
+  newBtn.addEventListener('mouseover',()=>newBtn.style.transform='translateY(-2px)');
+  newBtn.addEventListener('mouseout',()=>newBtn.style.transform='none');
+  newBtn.addEventListener('click',()=>navigate('new-score'));
+  rightDiv.appendChild(newBtn);
+
+  wrap.append(leftDiv, rightDiv);
+  statsBanner.appendChild(wrap);
+
+  lucide.createIcons();
+}
+
+/* ─── GAME MODAL ─── */
+function openModal(gid) {
+  const g = loadGames().find(x=>x.id===gid);
+  if (!g) return;
+  const ranked = [...g.players].sort((a,b)=>b.score-a.score);
+  const medals = ['🥇','🥈','🥉'];
+  const maxS = ranked[0]?.score||1;
+
+  const rows = ranked.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:11px;padding:11px 10px;border-radius:13px;background:${i===0?'rgba(0,91,192,0.05)':'transparent'}">
+      <span style="font-size:${i<3?18:12}px;width:26px;text-align:center;flex-shrink:0">${medals[i]||`<span style="font-weight:900;color:#abb3b7">${i+1}</span>`}</span>
+      ${avEl(p.name,32)}
+      <span style="flex:1;font-weight:600;font-size:14px;color:#2b3437">${esc(p.name)}</span>
+      <div style="text-align:right">
+        <div style="font-family:'Manrope';font-weight:900;font-size:${i===0?22:17}px;color:${i===0?'#005bc0':'#737c7f'};letter-spacing:-.02em">${esc(String(p.score))}</div>
+        <div style="height:3px;width:${Math.round((p.score/maxS)*72)}px;background:${i===0?'#005bc0':'#dbe4e7'};border-radius:99px;margin:3px 0 0 auto"></div>
+      </div>
+    </div>`).join('');
+
+  const margin = ranked.length>1
+    ? `<span style="font-size:12px;color:#abb3b7">Margin: <strong style="color:#586064">${esc(String(ranked[0].score-ranked[1].score))} pts</strong></span>`
+    : '';
+
+  const content = document.getElementById('mcontent');
+  content.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+      <div>
+        <p style="font-size:9.5px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#abb3b7;margin-bottom:5px">${esc(fmtD(g.date))}</p>
+        <h3 style="font-family:'Manrope';font-weight:900;font-size:22px;letter-spacing:-.03em;color:#2b3437">${esc(g.name)}</h3>
+      </div>
+      <button id="modal-close-btn" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:#abb3b7;background:none;border:none;cursor:pointer;border-radius:50%;transition:background .13s">
+        <i data-lucide="x" style="width:17px;height:17px"></i>
+      </button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">${rows}</div>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #f1f4f6;display:flex;justify-content:space-between">
+      <span style="font-size:12px;color:#abb3b7">${esc(String(ranked.length))} player${ranked.length!==1?'s':''}</span>
+      ${margin}
+    </div>`;
+
+  document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+  document.getElementById('gmodal').classList.add('open');
+  lucide.createIcons();
+}
+function closeModal() { document.getElementById('gmodal').classList.remove('open'); }
+
+/* ─── PLAYERS ─── */
+function calcStats() {
+  const games = loadGames();
+  const s = {};
+  games.forEach(game=>{
+    if (!game.players.length) return;
+    const w = winner(game);
+    game.players.forEach(p=>{
+      if (!s[p.name]) s[p.name]={name:p.name,games:0,wins:0,total:0,gnames:[]};
+      s[p.name].games++;
+      s[p.name].total+=Number(p.score);
+      if (p.name===w.name) s[p.name].wins++;
+      if (!s[p.name].gnames.includes(game.name)) s[p.name].gnames.push(game.name);
+    });
+  });
+  return Object.values(s);
+}
+const EPITHS = ['The Architect','The Strategist','The Wildcard','The Enforcer','The Tactician','The Maverick','The Visionary','The Phantom'];
+
+function renderPlayers() {
+  const q = (document.getElementById('psearch')?.value||'').toLowerCase();
+  const sort = getCurrentSort();
+
+  // Merge stats-based players with pre-registered roster entries (0 games)
+  const stats = calcStats();
+  const roster = loadRoster();
+  const statNames = new Set(stats.map(p=>p.name));
+  const rosterOnly = roster.filter(n=>!statNames.has(n)).map(n=>({name:n,games:0,wins:0,total:0,gnames:[]}));
+  let pl = [...stats, ...rosterOnly].filter(p=>p.name.toLowerCase().includes(q));
+
+  if (sort==='winrate') pl.sort((a,b)=>(b.games?b.wins/b.games:0)-(a.games?a.wins/a.games:0));
+  else if (sort==='games') pl.sort((a,b)=>b.games-a.games);
+  else pl.sort((a,b)=>(b.games?b.total/b.games:0)-(a.games?a.total/a.games:0));
+
+  // Update subtitle
+  const sortLabel = {winrate:'win rate',games:'games played',avg:'avg score'}[sort]||sort;
+  const sub = document.getElementById('p-subtitle');
+  if (sub) sub.textContent = `${pl.length} player${pl.length!==1?'s':''} · sorted by ${sortLabel}`;
+
+  const el = document.getElementById('plist');
+  if (!el) return;
+  if (!pl.length) {
+    el.innerHTML = '<div style="text-align:center;padding:56px 0;color:#c0c8cc;font-family:Manrope;font-weight:700;font-size:14px;letter-spacing:.05em">NO PLAYERS FOUND</div>';
+    return;
+  }
+
+  const medals = ['🥇','🥈','🥉'];
+  const cards = pl.map((p,i)=>{
+    const wr  = p.games ? Math.round((p.wins/p.games)*100) : 0;
+    const avg = p.games ? Math.round(p.total/p.games) : 0;
+    const fav = p.gnames?.length ? p.gnames[p.gnames.length-1] : null;
+    const epi = p.games ? EPITHS[i%EPITHS.length] : 'Pre-registered';
+    const delay = `animation-delay:${i*0.04}s`;
+    const rankCell = i < 3
+      ? `<div style="font-size:18px;text-align:center">${medals[i]}</div>`
+      : `<div style="font-family:'Manrope';font-weight:900;font-size:12px;color:#c0c8cc;text-align:center">${i+1}</div>`;
+    return `
+    <div class="p-card" style="${delay}">
+      <div class="p-card-rank">${i+1}</div>
+      ${rankCell}
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;position:relative;z-index:1">
+        ${avEl(p.name,44)}
+        <div style="min-width:0">
+          <div style="font-family:'Manrope';font-weight:800;font-size:16px;color:#2b3437;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</div>
+          <div style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c0c8cc;margin-top:3px">${esc(epi)}</div>
+        </div>
+      </div>
+      <div class="p-card-stats">
+        <div class="p-card-stat">
+          <div class="p-card-stat-label">Games</div>
+          <div class="p-card-stat-val">${esc(String(p.games))}</div>
+        </div>
+        <div class="p-card-stat">
+          <div class="p-card-stat-label">Win Rate</div>
+          <div class="p-card-stat-val" style="color:${p.games&&wr>=50?'#005bc0':'#2b3437'}">${esc(String(wr))}%</div>
+          <div class="wr-bar"><div class="wr-bar-fill" style="width:${wr}%"></div></div>
+        </div>
+        <div class="p-card-stat">
+          <div class="p-card-stat-label">Avg Score</div>
+          <div class="p-card-stat-val">${esc(String(avg))}</div>
+        </div>
+      </div>
+      <div class="p-card-fav">
+        ${fav ? `<span style="background:#f1f4f6;color:#586064;padding:5px 12px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;font-family:'DM Sans'">${esc(fav)}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = cards;
+  lucide.createIcons();
+}
+
+/* ─── NEW SCORE FORM ─── */
+let rowId = 0;
+
+function initForm() {
+  const di = document.getElementById('f-date');
+  if (di && !di.value) di.value = new Date().toISOString().slice(0,10);
+  const gi = document.getElementById('f-game');
+  if (gi && !gi._acSetup) {
+    gi._acSetup = true;
+    setupAC(gi, () => [...new Set(loadGames().map(g=>g.name))]);
+  }
+  const rows = document.getElementById('prows');
+  if (rows && rows.children.length===0) { rowId=0; addRow(); addRow(); }
+  lucide.createIcons();
+}
+
+function loadRoster() {
+  try { return JSON.parse(localStorage.getItem('dv_roster')||'[]'); } catch{ return []; }
+}
+function saveRoster(r) { localStorage.setItem('dv_roster', JSON.stringify(r)); }
+
+function knownPlayers() {
+  const fromGames = loadGames().flatMap(g=>g.players.map(p=>p.name));
+  const fromRoster = loadRoster();
+  return [...new Set([...fromGames, ...fromRoster])];
+}
+
+function toggleAddPlayer() {
+  const panel = document.getElementById('add-panel');
+  const btn = document.getElementById('add-player-btn');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  const icon = btn.querySelector('svg');
+  const label = btn.querySelector('span');
+  if (!isOpen) {
+    label.textContent = 'Cancel';
+    if (icon) icon.setAttribute('data-lucide', 'x');
+    setTimeout(() => { document.getElementById('new-player-input')?.focus(); }, 280);
+  } else {
+    label.textContent = 'Add Player';
+    if (icon) icon.setAttribute('data-lucide', 'user-plus');
+  }
+  lucide.createIcons();
+}
+
+function confirmAddPlayer() {
+  const input = document.getElementById('new-player-input');
+  const name = input?.value.trim();
+  if (!name) { input?.focus(); return; }
+  const roster = loadRoster();
+  if (!roster.includes(name)) { roster.push(name); saveRoster(roster); }
+  input.value = '';
+  toggleAddPlayer();
+  renderPlayers();
+  showToast(`${name} added to roster`);
+}
+
+function setupAC(inputEl, getSuggestions) {
+  const wrap = inputEl.parentElement;
+  let menu = null;
+  function closeMenu() { if (menu) { menu.remove(); menu = null; } }
+  function openMenu(items) {
+    closeMenu();
+    if (!items.length) return;
+    menu = document.createElement('div');
+    menu.className = 'ac-menu';
+    items.forEach(text => {
+      const it = document.createElement('div');
+      it.className = 'ac-item';
+      it.textContent = text;
+      it.addEventListener('mousedown', e => {
+        e.preventDefault();
+        inputEl.value = text;
+        inputEl.dispatchEvent(new Event('input'));
+        closeMenu();
+      });
+      menu.appendChild(it);
+    });
+    wrap.appendChild(menu);
+  }
+  inputEl.addEventListener('input', () => {
+    const q = inputEl.value.toLowerCase();
+    const all = getSuggestions();
+    const filtered = q ? all.filter(s => s.toLowerCase().includes(q)) : all;
+    if (filtered.length && document.activeElement === inputEl) openMenu(filtered);
+    else closeMenu();
+  });
+  inputEl.addEventListener('focus', () => {
+    const all = getSuggestions();
+    if (all.length) openMenu(all);
+  });
+  inputEl.addEventListener('blur', () => setTimeout(closeMenu, 150));
+  inputEl.addEventListener('keydown', e => {
+    if (!menu) return;
+    const items = menu.querySelectorAll('.ac-item');
+    let idx = [...items].findIndex(el => el.classList.contains('ac-hover'));
+    if (e.key === 'ArrowDown') { e.preventDefault(); idx = Math.min(idx+1, items.length-1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(idx-1, 0); }
+    else if (e.key === 'Enter' && idx >= 0) { e.preventDefault(); items[idx].dispatchEvent(new MouseEvent('mousedown')); return; }
+    else if (e.key === 'Escape') { closeMenu(); return; }
+    else return;
+    items.forEach(el => el.classList.remove('ac-hover'));
+    if (items[idx]) { items[idx].classList.add('ac-hover'); items[idx].style.background='rgba(255,255,255,0.09)'; items[idx].style.color='white'; }
+  });
+}
+
+function setSort(v) {
+  document.querySelectorAll('.sort-pill').forEach(t => t.classList.toggle('active', t.dataset.sort === v));
+  renderPlayers();
+}
+
+function getCurrentSort() {
+  return document.querySelector('.sort-pill.active')?.dataset.sort || 'winrate';
+}
+
+function addRow() {
+  const id = ++rowId;
+  const rows = document.getElementById('prows');
+  if (!rows) return;
+
+  const d = document.createElement('div');
+  d.className = 'prow';
+  d.style.cssText = 'display:flex;align-items:flex-end;gap:10px';
+
+  // Name field
+  const nameWrap = document.createElement('div');
+  nameWrap.style.cssText = 'flex:1;position:relative';
+  const nameLabel = document.createElement('label');
+  nameLabel.style.cssText = 'display:block;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#abb3b7;margin-bottom:6px';
+  nameLabel.textContent = 'Player Name';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.required = true;
+  nameInput.placeholder = 'Enter name…';
+  nameInput.className = 'pname inp';
+  nameInput.addEventListener('input', updateStandings);
+  nameWrap.append(nameLabel, nameInput);
+  setupAC(nameInput, knownPlayers);
+
+  // Score field
+  const scoreWrap = document.createElement('div');
+  scoreWrap.style.cssText = 'width:110px';
+  const scoreLabel = document.createElement('label');
+  scoreLabel.style.cssText = 'display:block;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#abb3b7;margin-bottom:6px';
+  scoreLabel.textContent = 'Score';
+  const scoreInput = document.createElement('input');
+  scoreInput.type = 'number';
+  scoreInput.min = '0';
+  scoreInput.placeholder = '0';
+  scoreInput.className = 'pscore inp';
+  scoreInput.addEventListener('input', updateStandings);
+  scoreWrap.append(scoreLabel, scoreInput);
+
+  // Delete button
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.style.cssText = 'width:36px;height:42px;border-radius:10px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#abb3b7;flex-shrink:0;transition:color .13s,background .13s';
+  delBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px;height:14px"></i>';
+  delBtn.addEventListener('mouseover',()=>{ delBtn.style.color='#9f403d'; delBtn.style.background='rgba(159,64,61,0.07)'; });
+  delBtn.addEventListener('mouseout',()=>{ delBtn.style.color='#abb3b7'; delBtn.style.background='none'; });
+  delBtn.addEventListener('click',()=>{ d.remove(); updateStandings(); });
+
+  d.append(nameWrap, scoreWrap, delBtn);
+  rows.appendChild(d);
+  lucide.createIcons();
+  updateStandings();
+}
+
+function updateStandings() {
+  const players = [];
+  document.querySelectorAll('.prow').forEach(r=>{
+    const n = r.querySelector('.pname')?.value.trim();
+    const sv = r.querySelector('.pscore')?.value;
+    if (n && sv!=='') players.push({name:n,score:Number(sv)});
+  });
+  const el = document.getElementById('standings');
+  if (!el) return;
+  if (!players.length) {
+    el.textContent = '';
+    const ph = document.createElement('div');
+    ph.style.cssText = 'text-align:center;padding:20px 0;color:#abb3b7;font-size:13px';
+    ph.textContent = 'Enter scores to see standings';
+    el.appendChild(ph);
+    return;
+  }
+  const sorted = [...players].sort((a,b)=>b.score-a.score);
+  const max = sorted[0].score||1;
+  const badges = ['Leader','2nd','3rd'];
+  const rows = sorted.map((p,i)=>`
+    <div style="margin-bottom:${i<sorted.length-1?18:0}px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:8.5px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:999px;${i===0?'background:#005bc0;color:#f7f7ff':'background:#eaeff1;color:#737c7f'}">${badges[i]||('#'+(i+1))}</span>
+          <span style="font-size:13px;font-weight:600;color:#2b3437">${esc(p.name)}</span>
+        </div>
+        <span style="font-family:'Manrope';font-weight:900;font-size:${i===0?23:18}px;color:${i===0?'#005bc0':'#586064'};letter-spacing:-.02em">${esc(String(p.score))}</span>
+      </div>
+      <div style="height:3px;background:#e3e9ec;border-radius:99px;overflow:hidden">
+        <div class="pfill" style="height:100%;width:${Math.round((p.score/max)*100)}%;background:${i===0?'#005bc0':'#abb3b7'};border-radius:99px"></div>
+      </div>
+      ${i===1&&sorted.length>1?`<div style="font-size:9.5px;font-weight:700;color:#abb3b7;text-transform:uppercase;letter-spacing:.07em;margin-top:3px">−${esc(String(sorted[0].score-p.score))} pts behind</div>`:''}
+    </div>`).join('');
+  el.innerHTML = rows;
+}
+
+function submitScore(e) {
+  e.preventDefault();
+  const name = document.getElementById('f-game')?.value.trim();
+  const date = document.getElementById('f-date')?.value;
+  if (!name||!date) return;
+  const players = [];
+  document.querySelectorAll('.prow').forEach(r=>{
+    const n = r.querySelector('.pname')?.value.trim();
+    const sc = Number(r.querySelector('.pscore')?.value||0);
+    if (n) players.push({name:n,score:sc});
+  });
+  if (!players.length) return;
+  const games = loadGames();
+  games.push({id:Date.now(),name,date,players});
+  save(games);
+  document.getElementById('score-form').reset();
+  document.getElementById('prows').innerHTML = '';
+  rowId=0;
+  const stdEl = document.getElementById('standings');
+  if (stdEl) {
+    stdEl.textContent='';
+    const ph=document.createElement('div');
+    ph.style.cssText='text-align:center;padding:20px 0;color:#abb3b7;font-size:13px';
+    ph.textContent='Enter scores to see standings';
+    stdEl.appendChild(ph);
+  }
+  const w = players.reduce((a,b)=>a.score>b.score?a:b);
+  navigate('dashboard');
+  setTimeout(()=>showToast('Session saved — '+w.name+' wins!'),120);
+}
+
+/* ─── TOAST ─── */
+function showToast(msg) {
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;  // textContent is safe
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),260); },3200);
+}
+
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded',()=>{
+  const di = document.getElementById('f-date');
+  if (di) di.value = new Date().toISOString().slice(0,10);
+  renderDashboard();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
