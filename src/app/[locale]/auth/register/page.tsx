@@ -17,7 +17,7 @@ export default function RegisterPage() {
     null
   )
 
-  if (state?.success) {
+  if (state && 'success' in state) {
     return (
       <AuthCard>
         <div className="text-center py-4">
@@ -39,7 +39,7 @@ export default function RegisterPage() {
         <UnderlineInput label={t('register.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
         <UnderlineInput label={t('register.password')} name="password" type="password" autoComplete="new-password" required placeholder="••••••••" />
         <UnderlineInput label={t('register.passwordConfirm')} name="passwordConfirm" type="password" autoComplete="new-password" required placeholder="••••••••" />
-        {state?.error && (
+        {state && 'error' in state && (
           <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">

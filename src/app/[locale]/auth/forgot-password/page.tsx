@@ -17,7 +17,7 @@ export default function ForgotPasswordPage() {
     null
   )
 
-  if (state?.success) {
+  if (state && 'success' in state) {
     return (
       <AuthCard>
         <div className="text-center py-4">
@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
       <p className="font-body text-[14px] text-on-surface-variant mb-8">{t('forgot.subtitle')}</p>
       <form action={formAction}>
         <UnderlineInput label={t('forgot.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
-        {state?.error && (
+        {state && 'error' in state && (
           <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">

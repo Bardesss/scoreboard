@@ -38,7 +38,7 @@ export default function TotpChallengePage() {
           placeholder="000000"
           autoFocus
         />
-        {state?.error && (
+        {state && 'error' in state && (
           <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
