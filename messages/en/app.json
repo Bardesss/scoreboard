@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "players": "Players",
+    "games": "Games",
+    "sessions": "Sessions",
+    "credits": "Credits",
+    "settings": "Settings"
+  },
+  "credits": {
+    "balance": "{n} credits",
+    "low": "Running low"
+  }
+}

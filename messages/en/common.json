@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "landing": "Home",
+    "pricing": "Pricing",
+    "login": "Log in",
+    "register": "Sign up"
+  },
+  "cookieBanner": {
+    "message": "We only use essential cookies for your session.",
+    "accept": "Got it",
+    "readMore": "Read our privacy policy"
+  },
+  "errors": {
+    "serverError": "Something went wrong. Please try again."
+  }
+}

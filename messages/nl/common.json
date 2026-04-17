@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "landing": "Home",
+    "pricing": "Prijzen",
+    "login": "Inloggen",
+    "register": "Aanmelden"
+  },
+  "cookieBanner": {
+    "message": "We gebruiken alleen essentiële cookies voor de sessie.",
+    "accept": "Akkoord",
+    "readMore": "Lees ons privacybeleid"
+  },
+  "errors": {
+    "serverError": "Er is iets misgegaan. Probeer het opnieuw."
+  }
+}

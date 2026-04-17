@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "players": "Spelers",
+    "games": "Spellen",
+    "sessions": "Sessies",
+    "credits": "Credits",
+    "settings": "Instellingen"
+  },
+  "credits": {
+    "balance": "{n} credits",
+    "low": "Bijna op"
+  }
+}
