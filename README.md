@@ -62,7 +62,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### 1. Create PostgreSQL service
 
-1. Coolify dashboard → New Resource → Database → PostgreSQL 16
+1. Coolify dashboard → New Resource → Database → PostgreSQL 18
 2. Name: `dicevault-db`
 3. Copy the generated `DATABASE_URL`
 
