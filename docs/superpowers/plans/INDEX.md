@@ -1,0 +1,38 @@
+# Dice Vault — Phase Index
+
+Single source of truth for phase order, plan files, and status.
+
+**Statuses:** `not written` → `ready to execute` → `in progress` → `done`
+
+| Phase | Plan file | Status | Specs covered |
+|---|---|---|---|
+| **1a** | [phase-1a-infrastructure.md](2026-04-16-phase-1a-infrastructure.md) | ready to execute | main spec §17 |
+| **1b** | phase-1b-auth-landing.md | not written | main spec §17 (next-intl, auth, landing, app shell) |
+| **2** | phase-2-core-features.md | not written | main spec §17, group features §2-4, credits spec §3 (credit pool split) |
+| **3** | phase-3-social-features.md | not written | group features §5-8, main spec §17 (dashboard, stats) |
+| **4** | phase-4-admin.md | not written | main spec §15-16, group features §7 (emails), credits spec §4-5 (free mode UI, wallet), tickets spec §phases |
+| **5** | phase-5-payments.md | not written | main spec §11 (Mollie, Stripe) |
+| **6** | phase-6-polish.md | not written | main spec §14 (tax export), credits spec §7 (analytics), cron, final polish |
+| **7** *(future)* | phase-7-bitcoin.md | not written | main spec §11 (Strike/Lightning) |
+
+## Specs
+
+| Spec | Path | Covers |
+|---|---|---|
+| Main design | [specs/2026-04-16-dice-vault-design.md](../specs/2026-04-16-dice-vault-design.md) | Full app architecture, all phases |
+| Group & social features | [specs/2026-04-17-group-social-features-design.md](../specs/2026-04-17-group-social-features-design.md) | Leagues, connections, VaultConnection, notifications |
+| Credits & free mode | [specs/2026-04-17-credits-free-mode-design.md](../specs/2026-04-17-credits-free-mode-design.md) | Credit pools, free mode toggle, free periods, analytics |
+| Support tickets | [specs/2026-04-17-support-tickets-design.md](../specs/2026-04-17-support-tickets-design.md) | Ticket system, admin management, auto-close |
+
+## Archived plans
+
+| File | Reason |
+|---|---|
+| [ARCHIVED-group-social-features.md](ARCHIVED-group-social-features.md) | Superseded by per-phase plans (2, 3, 4) |
+
+## Rules
+
+- Write each plan **just before executing it** — avoids stale plans
+- One plan per phase — pull from all relevant specs
+- Update status in this file as phases progress
+- Never push mid-phase — single push at end of each phase (see main spec §17)
