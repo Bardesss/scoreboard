@@ -143,3 +143,4 @@ npx prisma migrate deploy
 | Phase | What was added |
 |---|---|
 | 1a | Next.js 15 · Prisma 5 · Redis · `/api/health` · Dockerfile · Coolify deploy |
+| 1b | next-intl (nl/en) · NextAuth v5 Credentials · TOTP MFA · Mailgun email verification · landing page · auth pages · app shell (sidebar + bottom nav) |

@@ -6,8 +6,8 @@ Single source of truth for phase order, plan files, and status.
 
 | Phase | Plan file | Status | Specs covered |
 |---|---|---|---|
-| **1a** | [phase-1a-infrastructure.md](2026-04-16-phase-1a-infrastructure.md) | ready to execute | main spec §17 |
-| **1b** | phase-1b-auth-landing.md | not written | main spec §17 (next-intl, auth, landing, app shell) |
+| **1a** | [phase-1a-infrastructure.md](2026-04-16-phase-1a-infrastructure.md) | done | main spec §17 |
+| **1b** | [phase-1b-auth-landing.md](2026-04-16-phase-1b-auth-landing.md) | done | main spec §17 (next-intl, auth, landing, app shell) |
 | **2** | phase-2-core-features.md | not written | main spec §17, group features §2-4, credits spec §3 (credit pool split) |
 | **3** | phase-3-social-features.md | not written | group features §5-8, main spec §17 (dashboard, stats) |
 | **4** | phase-4-admin.md | not written | main spec §15-16, group features §7 (emails), credits spec §4-5 (free mode UI, wallet), tickets spec §phases |
