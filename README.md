@@ -79,7 +79,7 @@ Open [http://localhost:3000](http://localhost:3000).
 3. Build Pack → **Dockerfile**
 4. Dockerfile path: `Dockerfile`
 5. Exposed port: `3000`
-6. Health check path: `/api/health`
+6. After saving, open the **Health Checks** tab → set Path to `/api/health`
 
 ### 4. Set environment variables
 
