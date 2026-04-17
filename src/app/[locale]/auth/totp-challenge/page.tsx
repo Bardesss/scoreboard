@@ -13,7 +13,7 @@ export default function TotpChallengePage() {
   const token = searchParams.get('token') ?? ''
 
   const [state, formAction, pending] = useActionState(
-    async (_: any, formData: FormData) => {
+    async (_: unknown, formData: FormData) => {
       formData.set('token', token)
       formData.set('locale', locale)
       return verifyTotp(formData)
@@ -39,7 +39,7 @@ export default function TotpChallengePage() {
           autoFocus
         />
         {state?.error && (
-          <p className="font-body text-[13px] text-error mb-4">{t(state.error as any)}</p>
+          <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('totp.submit')}

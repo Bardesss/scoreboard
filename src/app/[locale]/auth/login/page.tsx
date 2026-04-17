@@ -10,7 +10,7 @@ export default function LoginPage() {
   const t = useTranslations('auth')
   const locale = useLocale()
   const [state, formAction, pending] = useActionState(
-    async (_: any, formData: FormData) => {
+    async (_: unknown, formData: FormData) => {
       formData.set('locale', locale)
       return login(formData)
     },
@@ -25,7 +25,7 @@ export default function LoginPage() {
         <UnderlineInput label={t('login.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
         <UnderlineInput label={t('login.password')} name="password" type="password" autoComplete="current-password" required placeholder="••••••••" />
         {state?.error && (
-          <p className="font-body text-[13px] text-error mb-4">{t(state.error as any)}</p>
+          <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('login.submit')}

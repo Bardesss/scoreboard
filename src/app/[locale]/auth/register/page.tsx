@@ -10,7 +10,7 @@ export default function RegisterPage() {
   const t = useTranslations('auth')
   const locale = useLocale()
   const [state, formAction, pending] = useActionState(
-    async (_: any, formData: FormData) => {
+    async (_: unknown, formData: FormData) => {
       formData.set('locale', locale)
       return register(formData)
     },
@@ -40,7 +40,7 @@ export default function RegisterPage() {
         <UnderlineInput label={t('register.password')} name="password" type="password" autoComplete="new-password" required placeholder="••••••••" />
         <UnderlineInput label={t('register.passwordConfirm')} name="passwordConfirm" type="password" autoComplete="new-password" required placeholder="••••••••" />
         {state?.error && (
-          <p className="font-body text-[13px] text-error mb-4">{t(state.error as any)}</p>
+          <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('register.submit')}

@@ -14,7 +14,7 @@ export default function ResetPasswordPage() {
   const token = searchParams.get('token') ?? ''
 
   const [state, formAction, pending] = useActionState(
-    async (_: any, formData: FormData) => {
+    async (_: unknown, formData: FormData) => {
       formData.set('token', token)
       return resetPassword(formData)
     },
@@ -40,7 +40,7 @@ export default function ResetPasswordPage() {
         <UnderlineInput label={t('reset.password')} name="password" type="password" autoComplete="new-password" required placeholder="••••••••" />
         <UnderlineInput label={t('reset.passwordConfirm')} name="passwordConfirm" type="password" autoComplete="new-password" required placeholder="••••••••" />
         {state?.error && (
-          <p className="font-body text-[13px] text-error mb-4">{t(state.error as any)}</p>
+          <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('reset.submit')}

@@ -8,11 +8,12 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.role = (user as any).role
-        token.locale = (user as any).locale
-        token.totpEnabled = (user as any).totpEnabled
-        token.requiresMfa = (user as any).requiresMfa
+        const u = user as typeof user & { role: string; locale: string; totpEnabled: boolean; requiresMfa: boolean }
+        token.id = u.id
+        token.role = u.role
+        token.locale = u.locale
+        token.totpEnabled = u.totpEnabled
+        token.requiresMfa = u.requiresMfa
       }
       return token
     },

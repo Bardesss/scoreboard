@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
   const t = useTranslations('auth')
   const locale = useLocale()
   const [state, formAction, pending] = useActionState(
-    async (_: any, formData: FormData) => {
+    async (_: unknown, formData: FormData) => {
       formData.set('locale', locale)
       return forgotPassword(formData)
     },
@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
       <form action={formAction}>
         <UnderlineInput label={t('forgot.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
         {state?.error && (
-          <p className="font-body text-[13px] text-error mb-4">{t(state.error as any)}</p>
+          <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
         )}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('forgot.submit')}

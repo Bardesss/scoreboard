@@ -26,7 +26,7 @@ export default async function VerifyEmailPage({ params, searchParams }: Props) {
     <AuthCard>
       <div className="text-center py-4">
         <h1 className="font-headline font-black text-[22px] text-on-surface tracking-[-0.03em] mb-3">
-          {success ? t('verify.success') : error ? t(error as any) : t('verify.verifying')}
+          {success ? t('verify.success') : error ? t(error as Parameters<typeof t>[0]) : t('verify.verifying')}
         </h1>
         {(success || error) && (
           <Link href={`/${locale}/auth/login`} className="font-body text-[13px] text-primary hover:underline">

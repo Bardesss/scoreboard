@@ -285,7 +285,7 @@ export default async function LandingPage({ params }: Props) {
         <div className="grid md:grid-cols-3 gap-6">
           {reviews.map((review, i) => (
             <div key={i} className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 2px 12px rgba(43,52,55,0.05)' }}>
-              <p className="font-body text-[14px] text-on-surface leading-relaxed mb-5">"{review.review}"</p>
+              <p className="font-body text-[14px] text-on-surface leading-relaxed mb-5">&ldquo;{review.review}&rdquo;</p>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
                   <span className="font-headline font-black text-[11px] text-primary">{review.name.charAt(0)}</span>

@@ -13,7 +13,7 @@ type Props = {
 
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params
-  if (!routing.locales.includes(locale as any)) notFound()
+  if (!(routing.locales as readonly string[]).includes(locale)) notFound()
   const messages = await getMessages()
   return (
     <NextIntlClientProvider messages={messages}>
