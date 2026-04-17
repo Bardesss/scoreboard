@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dice Vault
 
-## Getting Started
+Board game score tracking SaaS. [dicevault.fun](https://dicevault.fun)
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Prerequisites
+
+- Node.js 20+
+- Docker + Docker Compose
+- A Coolify instance (v4+) running on a VPS
+- A GitHub account (for auto-deploy webhook)
+
+---
+
+## Local development
+
+1. Copy the example env file and fill in values:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Start PostgreSQL and Redis:
+   ```bash
+   docker compose up -d db redis
+   ```
+
+3. Run migrations:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+4. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Environment variables
+
+| Variable | Required | Description | Phase |
+|---|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string | 1a |
+| `REDIS_URL` | ✅ | Redis connection string | 1a |
+| `NEXTAUTH_SECRET` | ✅ | Random secret — generate with `openssl rand -base64 32` | 1a |
+| `NEXTAUTH_URL` | ✅ | Full URL of the app (e.g. `https://dicevault.fun`) | 1a |
+| `NEXT_PUBLIC_APP_URL` | ✅ | Same as `NEXTAUTH_URL` — used in client-side code | 1a |
+| `MAILGUN_API_KEY` | ✅ | Mailgun API key | 1b |
+| `MAILGUN_DOMAIN` | ✅ | Mailgun sending domain | 1b |
+| `MAILGUN_FROM` | ✅ | From address, e.g. `Dice Vault <noreply@dicevault.fun>` | 1b |
+| `MOLLIE_API_KEY` | Phase 5 | Mollie live API key | 5 |
+| `STRIPE_SECRET_KEY` | Phase 5 | Stripe secret key | 5 |
+| `STRIPE_WEBHOOK_SECRET` | Phase 5 | Stripe webhook signing secret | 5 |
+| `STRIKE_API_KEY` | Phase 7 | Strike API key (Bitcoin Lightning) | 7 |
+
+---
+
+## Coolify setup
+
+### 1. Create PostgreSQL service
+
+1. Coolify dashboard → New Resource → Database → PostgreSQL 16
+2. Name: `dicevault-db`
+3. Copy the generated `DATABASE_URL`
+
+### 2. Create Redis service
+
+1. Coolify dashboard → New Resource → Database → Redis 7
+2. Name: `dicevault-redis`
+3. Copy the generated `REDIS_URL`
+
+### 3. Create the Next.js application
+
+1. Coolify dashboard → New Resource → Application → GitHub
+2. Select the `scoreboard` repository, branch `main`
+3. Build Pack → **Dockerfile**
+4. Dockerfile path: `Dockerfile`
+5. Exposed port: `3000`
+6. Health check path: `/api/health`
+
+### 4. Set environment variables
+
+Add all variables from the table above. Minimum for Phase 1a:
+- `DATABASE_URL` (from step 1)
+- `REDIS_URL` (from step 2)
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
+- `NEXT_PUBLIC_APP_URL`
+
+### 5. Set post-deploy command
+
+In app settings → Post-deploy command:
+```
+npx prisma migrate deploy
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 6. Deploy
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Click Deploy. First build takes 3–5 minutes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Verify: `curl https://yourdomain.com/api/health` → `{"db":"ok","redis":"ok"}`
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## GitHub auto-deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Coolify app settings → Source → enable **Auto deploy on push** → copy the webhook URL
+2. GitHub repo → Settings → Webhooks → Add webhook
+   - Payload URL: the Coolify webhook URL
+   - Content type: `application/json`
+   - Events: `Just the push event`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Every push to `main` now triggers an automatic Coolify deploy.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Running migrations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Migrations run automatically via the post-deploy command on Coolify. To run manually:
+
+```bash
+# Against a local database
+npx prisma migrate dev
+
+# Against production (from CI or a one-off)
+npx prisma migrate deploy
+```
+
+---
+
+## Phase changelog
+
+| Phase | Deployment changes |
+|---|---|
+| 1a | Initial setup — Next.js 15, Prisma 5, Redis, health check, Dockerfile, Coolify deploy |
