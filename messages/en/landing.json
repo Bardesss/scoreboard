@@ -1,100 +1,100 @@
 {
   "hero": {
-    "badge": "Free to use",
-    "headline": "Store your scores safely.",
-    "subheadline": "Log every game night, track player statistics, and build a permanent archive for your group. Your vault, your data.",
+    "badge": "Free to play",
+    "headline": "Remember who actually won.",
+    "subheadline": "Log every game night, track stats, and settle debates once and for all. Your group's scoreboard, all in one vault.",
     "ctaPrimary": "Start for free",
-    "ctaSecondary": "Explore features"
+    "ctaSecondary": "See how it works"
   },
   "features": {
-    "overline": "Features",
-    "headline": "Everything you need",
+    "overline": "What's in the vault",
+    "headline": "All the tools, none of the spreadsheets",
     "items": [
       {
         "icon": "Dices",
         "title": "Score logging",
-        "description": "Log scores per player and session. Simple, fast, and always available."
+        "description": "Log every session in seconds. Who played, who won, and by how much."
       },
       {
         "icon": "BarChart2",
         "title": "Statistics",
-        "description": "See who wins most often, achieves the highest scores, and plays the most sessions."
+        "description": "Win rates, high scores, most sessions played. The numbers don't lie."
       },
       {
         "icon": "Shield",
-        "title": "Permanent archive",
-        "description": "Your game history is always preserved. No data lost, no more arguments about who won."
+        "title": "Game history",
+        "description": "Every session, forever. Finally settle that argument about who's been on a losing streak."
       }
     ]
   },
   "howItWorks": {
     "overline": "How it works",
-    "headline": "Your vault, your rules.",
-    "subheadline": "Four building blocks. Five minutes to set up. A lifetime of game history.",
+    "headline": "Up and running before the first dice roll.",
+    "subheadline": "Four simple pieces. Five minutes to set up. A whole season of bragging rights.",
     "steps": [
       {
         "label": "Vault",
         "icon": "Vault",
-        "title": "Your private vault",
-        "description": "Every account is a vault — your personal scoreboard that only you manage. Players are labels in your vault, not separate accounts. You stay in control."
+        "title": "Your Vault",
+        "description": "Your personal scoreboard. You manage the players, the games, and the history. Nobody else touches it."
       },
       {
         "label": "Games",
         "icon": "Dices",
         "title": "Game templates",
-        "description": "Create a template for each board game: define the scoring format and notes once, then reuse it forever. Catan, Wingspan, Ticket to Ride — all tracked consistently."
+        "description": "Set up Catan once, use it forever. Define the scoring format, add notes, done. Works for every game in your collection."
       },
       {
         "label": "Players",
         "icon": "Users",
-        "title": "Players in your group",
-        "description": "Add everyone in your group as a player. Connect a player to their own Dice Vault account and they'll see their personal stats automatically — no sharing logins."
+        "title": "Your crew",
+        "description": "Add everyone who shows up. Link them to their own Dice Vault account and they'll see their stats automatically — no sharing logins, no fuss."
       },
       {
         "label": "Leagues",
         "icon": "Trophy",
         "title": "Competitive leagues",
-        "description": "Run a league for any game template. The league tracks standings, wins, and history across sessions. Perfect for season play or long-running rivalries."
+        "description": "Turn any game into a season. Track standings, wins, and history across sessions. Great for long-running rivalries."
       }
     ]
   },
   "group": {
-    "overline": "Group features",
-    "headline": "Play together, win together.",
-    "subheadline": "Dice Vault is built for regular game groups. Connect players, run leagues, and keep everyone sharp.",
+    "overline": "Built for groups",
+    "headline": "More fun with your crew.",
+    "subheadline": "Dice Vault works best when everyone's in on it. Connect your players, run a league, keep the rivalry alive.",
     "items": [
       {
         "icon": "Trophy",
         "title": "Leagues",
-        "description": "Create a league for your favourite game. Rankings, statistics, and history — all tracked per season."
+        "description": "Crown a champion. Run a season for any game — standings, stats, and history tracked automatically."
       },
       {
         "icon": "UserCheck",
         "title": "Connected players",
-        "description": "Invite other Dice Vault users as players in your vault. They see their own scores and statistics instantly in their own account."
+        "description": "Link your friends' accounts and they'll see their own stats the moment you log a session. No login sharing needed."
       },
       {
         "icon": "Share2",
         "title": "Shared results",
-        "description": "Send a public link to any session result. No account needed to view — just share the link."
+        "description": "Brag a little. Share any session result as a public link — no account needed to view it."
       },
       {
         "icon": "Bell",
         "title": "Notifications",
-        "description": "Get notified when someone submits a session, sends a connection request, or invites you to a league."
+        "description": "Stay in the loop. Get notified when sessions are logged, invites arrive, or the leaderboard shifts."
       }
     ],
-    "cta": "Start with your group"
+    "cta": "Get your group started"
   },
   "credits": {
     "overline": "How credits work",
-    "headline": "Simple, transparent, fair.",
-    "subheadline": "No hidden costs. Every action costs a fixed number of credits — you always see what you spend.",
+    "headline": "Pay for what you use. Nothing else.",
+    "subheadline": "Every action costs a fixed number of credits. No surprises, no subscriptions.",
     "free": {
-      "badge": "Every month, free",
+      "badge": "Every month, on us",
       "amount": "75",
       "label": "credits / month",
-      "description": "You receive 75 free credits every month automatically. Enough for an active game group."
+      "description": "75 free credits land in your vault every month. Enough for a busy game group."
     },
     "costs": {
       "title": "What costs what?",
@@ -107,15 +107,15 @@
       "credits": "credits"
     },
     "example": {
-      "title": "What can you do with 75 credits?",
+      "title": "What fits in 75 credits?",
       "description": "Set up your group: 1 game template (25) + 1 league (10) + 3 connected players (30) = 65 credits. Then log 2 sessions with the remaining 10 credits.",
-      "note": "Credits never expire. Unused credits carry over."
+      "note": "Credits never expire. They stack up — so go ahead and take a week off."
     }
   },
   "packs": {
-    "overline": "Extra credits",
-    "headline": "Need more? Buy once.",
-    "subheadline": "No subscription. Credits never expire. Pay only when you need more.",
+    "overline": "Need more fuel?",
+    "headline": "Top up when you're ready.",
+    "subheadline": "No subscription. Credits never expire. Buy once, play on.",
     "items": [
       { "credits": "100",  "price": "€4.99",  "tag": "" },
       { "credits": "300",  "price": "€11.99", "tag": "Popular" },
@@ -123,11 +123,11 @@
       { "credits": "2000", "price": "€49.99", "tag": "" }
     ],
     "priceNote": "Prices shown are indicative for the EU. Your exact price is determined at checkout based on your region.",
-    "cta": "Sign up and buy credits"
+    "cta": "Start free, top up later"
   },
   "payments": {
     "overline": "Payment options",
-    "headline": "Pay how you want.",
+    "headline": "Pay your way.",
     "methods": [
       {
         "title": "iDEAL & Bancontact",
@@ -164,33 +164,33 @@
     }
   },
   "cta": {
-    "headline": "Ready to get started?",
-    "body": "Create a free account and start tracking your scores today. No credit card required.",
-    "button": "Create a free account"
+    "headline": "Your next game night starts here.",
+    "body": "Free to join. No credit card needed. Just bring the dice.",
+    "button": "Create your free vault"
   },
   "reviews": {
-    "overline": "What others say",
-    "headline": "Loved by players",
+    "overline": "From the leaderboard",
+    "headline": "Players who stopped using spreadsheets",
     "placeholder": [
       {
         "name": "Martijn V.",
-        "review": "Finally an app that takes board game score tracking seriously. The league feature is great — our group now plays with a real ranking.",
+        "review": "Finally we know who actually wins at Catan. The league feature turned our game nights into a proper season.",
         "game": "Catan"
       },
       {
         "name": "Sophie K.",
-        "review": "No more arguments about who won. Everything is recorded, and my friends see their own scores immediately.",
+        "review": "No more 'I think I won last time.' It's all there. My friends see their own scores the second I log a session.",
         "game": "Wingspan"
       },
       {
         "name": "Thomas B.",
-        "review": "Simple, fast, and does exactly what you'd expect. Our group uses it every week and the statistics are great.",
+        "review": "Takes 30 seconds to log and we've been using it every week for months. The stats are weirdly addictive.",
         "game": "Ticket to Ride"
       }
     ]
   },
   "footer": {
-    "tagline": "Your game history, safely stored.",
+    "tagline": "Every game night, remembered.",
     "rights": "All rights reserved."
   }
 }

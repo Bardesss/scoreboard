@@ -1,100 +1,100 @@
 {
   "hero": {
-    "badge": "Gratis te gebruiken",
-    "headline": "Bewaar je scores veilig.",
-    "subheadline": "Log elke spelletjesavond, volg statistieken en bouw een permanent archief voor jouw groep. Jouw kluis, jouw data.",
+    "badge": "Gratis te spelen",
+    "headline": "Onthoud wie er echt gewonnen heeft.",
+    "subheadline": "Log elke spelletjesavond, volg statistieken en beslis discussies voorgoed. Het scorebord van jouw groep, in één kluis.",
     "ctaPrimary": "Begin gratis",
-    "ctaSecondary": "Bekijk functies"
+    "ctaSecondary": "Zie hoe het werkt"
   },
   "features": {
-    "overline": "Functies",
-    "headline": "Alles wat je nodig hebt",
+    "overline": "Wat zit er in de kluis",
+    "headline": "Alles wat je nodig hebt, geen spreadsheets meer",
     "items": [
       {
         "icon": "Dices",
         "title": "Score logging",
-        "description": "Log scores per speler en per sessie. Eenvoudig, snel en altijd beschikbaar."
+        "description": "Log elke sessie in seconden. Wie speelde, wie won en met hoeveel."
       },
       {
         "icon": "BarChart2",
         "title": "Statistieken",
-        "description": "Bekijk wie het vaakst wint, de hoogste scores haalt en de meeste sessies speelt."
+        "description": "Winstpercentages, hoge scores, meeste sessies gespeeld. De cijfers liegen niet."
       },
       {
         "icon": "Shield",
-        "title": "Permanent archief",
-        "description": "Jouw spelgeschiedenis blijft altijd bewaard. Geen data verloren, nooit meer discussie over wie er won."
+        "title": "Spelgeschiedenis",
+        "description": "Elke sessie, voor altijd. Leg eindelijk die discussie bij wie al het langst op verlies staat."
       }
     ]
   },
   "howItWorks": {
     "overline": "Hoe het werkt",
-    "headline": "Jouw kluis, jouw regels.",
-    "subheadline": "Vier bouwstenen. Vijf minuten om in te stellen. Een leven lang spelgeschiedenis.",
+    "headline": "Klaar voor de eerste dobbelsteenworp.",
+    "subheadline": "Vier simpele onderdelen. Vijf minuten instellen. Een heel seizoen aan opscheprechten.",
     "steps": [
       {
         "label": "Kluis",
         "icon": "Vault",
-        "title": "Jouw persoonlijke kluis",
-        "description": "Elk account is een kluis — jouw persoonlijk scorebord dat alleen jij beheert. Spelers zijn labels in jouw kluis, geen aparte accounts. Jij blijft in controle."
+        "title": "Jouw Kluis",
+        "description": "Jouw persoonlijk scorebord. Jij beheert de spelers, de spellen en de geschiedenis. Niemand anders komt eraan."
       },
       {
         "label": "Spellen",
         "icon": "Dices",
         "title": "Spelsjablonen",
-        "description": "Maak een sjabloon voor elk bordspel: stel het scoringsformaat eenmalig in en hergebruik het voor altijd. Catan, Wingspan, Ticket to Ride — alles consistent bijgehouden."
+        "description": "Stel Catan eenmalig in en hergebruik het voor altijd. Scoringsformaat, notities, klaar. Werkt voor elk spel in je collectie."
       },
       {
         "label": "Spelers",
         "icon": "Users",
-        "title": "Spelers in jouw groep",
-        "description": "Voeg iedereen in je groep toe als speler. Verbind een speler met hun eigen Dice Vault-account en zij zien hun eigen statistieken automatisch — geen gedeelde logins."
+        "title": "Jouw crew",
+        "description": "Voeg iedereen toe die komt opdagen. Koppel ze aan hun eigen Dice Vault-account en ze zien hun statistieken automatisch — geen gedeelde logins, geen gedoe."
       },
       {
         "label": "Competities",
         "icon": "Trophy",
         "title": "Competitieve leagues",
-        "description": "Start een league voor elk spelsjabloon. De league houdt standen, winsten en historiek bij over sessies heen. Perfect voor seizoensspel of langlopende rivaliteiten."
+        "description": "Maak van elk spel een seizoen. Houd standen, winsten en historiek bij over sessies heen. Perfect voor langlopende rivaliteiten."
       }
     ]
   },
   "group": {
-    "overline": "Groepsfuncties",
-    "headline": "Speel samen, win samen.",
-    "subheadline": "Dice Vault is gebouwd voor vaste spelgroepen. Verbind spelers, maak competities aan en houd iedereen scherp.",
+    "overline": "Gebouwd voor groepen",
+    "headline": "Leuker met je crew.",
+    "subheadline": "Dice Vault werkt het best als iedereen meedoet. Verbind je spelers, start een league en houd de rivaliteit levend.",
     "items": [
       {
         "icon": "Trophy",
         "title": "Competities (Leagues)",
-        "description": "Maak een league aan voor je favoriete spel. Rangschikking, statistieken en historiek — alles bijgehouden per seizoen."
+        "description": "Kroon een kampioen. Start een seizoen voor elk spel — standen, stats en historiek automatisch bijgehouden."
       },
       {
         "icon": "UserCheck",
         "title": "Verbonden spelers",
-        "description": "Nodig andere Dice Vault-gebruikers uit als speler in jouw kluis. Zij zien hun eigen scores en statistieken meteen in hun eigen account."
+        "description": "Koppel de accounts van je vrienden en zij zien hun eigen stats op het moment dat jij een sessie logt. Geen gedeelde logins nodig."
       },
       {
         "icon": "Share2",
         "title": "Gedeelde resultaten",
-        "description": "Stuur een openbare link naar het resultaat van elke sessie. Geen account nodig om te bekijken."
+        "description": "Schep een beetje op. Deel het resultaat van elke sessie als openbare link — geen account nodig om te bekijken."
       },
       {
         "icon": "Bell",
         "title": "Meldingen",
-        "description": "Ontvang een melding als iemand een sessie instuurt, een verbindingsverzoek stuurt of een league-uitnodiging verstuurt."
+        "description": "Blijf op de hoogte. Ontvang een melding als sessies worden gelogd, uitnodigingen binnenkomen of de ranglijst verschuift."
       }
     ],
-    "cta": "Begin met je groep"
+    "cta": "Zet je groep op"
   },
   "credits": {
     "overline": "Hoe credits werken",
-    "headline": "Simpel, transparant, eerlijk.",
-    "subheadline": "Geen verborgen kosten. Elke actie kost een vast aantal credits — je ziet altijd wat je uitgeeft.",
+    "headline": "Betaal voor wat je gebruikt. Niets meer.",
+    "subheadline": "Elke actie kost een vast aantal credits. Geen verrassingen, geen abonnement.",
     "free": {
-      "badge": "Elke maand gratis",
+      "badge": "Elke maand, van ons",
       "amount": "75",
       "label": "credits / maand",
-      "description": "Je krijgt elke maand automatisch 75 gratis credits. Genoeg voor een actieve spelgroep."
+      "description": "75 gratis credits landen elke maand in jouw kluis. Genoeg voor een drukke spelgroep."
     },
     "costs": {
       "title": "Wat kost wat?",
@@ -107,15 +107,15 @@
       "credits": "credits"
     },
     "example": {
-      "title": "Wat kun je met 75 credits?",
+      "title": "Wat past er in 75 credits?",
       "description": "Richt je groep in: 1 spelsjabloon (25) + 1 competitie (10) + 3 spelers verbinden (30) = 65 credits. Dan houd je 10 credits over voor 2 sessies.",
-      "note": "Credits verlopen nooit. Ongebruikte credits blijven staan."
+      "note": "Credits verlopen nooit. Ze stapelen op — neem gerust een weekje pauze."
     }
   },
   "packs": {
-    "overline": "Extra credits",
-    "headline": "Meer nodig? Koop eenmalig bij.",
-    "subheadline": "Geen abonnement. Credits verlopen niet. Betaal alleen als je meer nodig hebt.",
+    "overline": "Meer brandstof nodig?",
+    "headline": "Bijkopen wanneer jij er klaar voor bent.",
+    "subheadline": "Geen abonnement. Credits verlopen niet. Koop eenmalig, speel door.",
     "items": [
       { "credits": "100",  "price": "€4,99",  "tag": "" },
       { "credits": "300",  "price": "€11,99", "tag": "Populair" },
@@ -123,11 +123,11 @@
       { "credits": "2000", "price": "€49,99", "tag": "" }
     ],
     "priceNote": "Prijzen zijn indicatief voor de EU. Exacte prijs wordt bepaald op basis van jouw regio bij het afrekenen.",
-    "cta": "Aanmelden en credits kopen"
+    "cta": "Begin gratis, koop later bij"
   },
   "payments": {
     "overline": "Betaalopties",
-    "headline": "Betaal zoals jij wilt.",
+    "headline": "Betaal op jouw manier.",
     "methods": [
       {
         "title": "iDEAL & Bancontact",
@@ -164,33 +164,33 @@
     }
   },
   "cta": {
-    "headline": "Klaar om te beginnen?",
-    "body": "Maak een gratis account aan en begin vandaag nog met het bijhouden van je scores. Geen creditcard nodig.",
-    "button": "Maak een gratis account"
+    "headline": "Jouw volgende spelletjesavond begint hier.",
+    "body": "Gratis aanmelden. Geen creditcard nodig. Neem gewoon de dobbelstenen mee.",
+    "button": "Maak jouw gratis kluis"
   },
   "reviews": {
-    "overline": "Wat anderen zeggen",
-    "headline": "Geliefd door spelers",
+    "overline": "Van de ranglijst",
+    "headline": "Spelers die gestopt zijn met spreadsheets",
     "placeholder": [
       {
         "name": "Martijn V.",
-        "review": "Eindelijk een app die het bijhouden van spelscores serieus neemt. De league-functie is top — onze groep speelt nu met een echte rangschikking.",
+        "review": "Eindelijk weten we wie er echt wint bij Catan. De league-functie heeft onze spelletjesavonden veranderd in een echt seizoen.",
         "game": "Catan"
       },
       {
         "name": "Sophie K.",
-        "review": "Zo fijn dat je nooit meer hoeft te discussiëren over wie er wint. Alles staat gewoon bij, en mijn vrienden zien hun eigen scores meteen.",
+        "review": "Nooit meer 'ik denk dat ik de vorige keer gewonnen heb.' Het staat er gewoon bij. Mijn vrienden zien hun scores meteen als ik een sessie log.",
         "game": "Wingspan"
       },
       {
         "name": "Thomas B.",
-        "review": "Eenvoudig, snel en doet precies wat je verwacht. Onze groep gebruikt het elke week en de statistieken zijn geweldig.",
+        "review": "Loggen duurt 30 seconden en we gebruiken het al maanden elke week. De statistieken zijn verslavend.",
         "game": "Ticket to Ride"
       }
     ]
   },
   "footer": {
-    "tagline": "Jouw spelgeschiedenis, veilig bewaard.",
+    "tagline": "Elke spelletjesavond, onthouden.",
     "rights": "Alle rechten voorbehouden."
   }
 }

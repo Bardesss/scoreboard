@@ -3,8 +3,8 @@ import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Dice Vault — Store Your Scores Safely',
-  description: 'Track your board game sessions, rank your group, and build a permanent archive of your game nights.',
+  title: 'Dice Vault — Remember who actually won.',
+  description: 'Log every game night, track stats, and settle debates once and for all. Your group\'s scoreboard, all in one vault.',
 }
 
 export default function RootLayout({

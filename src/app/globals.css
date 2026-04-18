@@ -53,3 +53,34 @@ h1, h2, h3, h4, h5 { font-family: 'Manrope', sans-serif; }
 ::-webkit-scrollbar       { width: 4px; height: 4px; }
 ::-webkit-scrollbar-thumb { background: #dbe4e7; border-radius: 99px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Landing Page Dark Theme ──────────────────────────────────────── */
+body:has(.landing-page) {
+  background: #0b0d12;
+}
+
+body:has(.landing-page)::before {
+  background-image: radial-gradient(rgba(245, 166, 35, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+body:has(.landing-page) footer {
+  background: #0b0d12;
+  border-top-color: rgba(245, 166, 35, 0.08) !important;
+}
+
+body:has(.landing-page) footer * {
+  color: #4a5568;
+}
+
+body:has(.landing-page) footer .footer-brand-name {
+  color: #ede8dd !important;
+}
+
+body:has(.landing-page) footer a {
+  color: #7a8799 !important;
+}
+
+body:has(.landing-page) footer a:hover {
+  color: #ede8dd !important;
+}
