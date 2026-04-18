@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
@@ -123,55 +124,72 @@ export default async function LandingPage({ params }: Props) {
     <div className="landing-page relative z-10">
 
       {/* ── Hero ── */}
-      <section className="relative max-w-5xl mx-auto px-6 pt-28 pb-24 text-center overflow-hidden">
-        {/* Warm glow */}
-        <div style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: 720, height: 480, background: 'radial-gradient(ellipse, rgba(245,166,35,0.11) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+      <section className="relative max-w-5xl mx-auto px-6 pt-20 pb-20 overflow-hidden">
+        {/* Warm glow behind text */}
+        <div style={{ position: 'absolute', top: '-10%', left: '20%', width: 560, height: 400, background: 'radial-gradient(ellipse, rgba(245,166,35,0.09) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
 
-        {/* Decorative dice */}
-        <div className="hidden md:block" style={{ position: 'absolute', left: '4%', top: '22%', zIndex: 0 }}>
-          <DieFace value={6} size={68} rotate={-14} opacity={0.11} />
-        </div>
-        <div className="hidden md:block" style={{ position: 'absolute', right: '6%', top: '12%', zIndex: 0 }}>
-          <DieFace value={4} size={50} rotate={17} opacity={0.09} />
-        </div>
-        <div className="hidden md:block" style={{ position: 'absolute', right: '3%', bottom: '22%', zIndex: 0 }}>
-          <DieFace value={2} size={38} rotate={-9} opacity={0.07} />
-        </div>
-        <div className="hidden md:block" style={{ position: 'absolute', left: '12%', bottom: '18%', zIndex: 0 }}>
-          <DieFace value={5} size={42} rotate={11} opacity={0.07} />
-        </div>
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-14">
 
-        <div className="relative z-10">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-8" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.22)' }}>
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: amber }} />
-            <span className="font-headline font-bold text-[11px] uppercase tracking-[.08em]" style={{ color: amber }}>{t('hero.badge')}</span>
+          {/* Left: copy */}
+          <div className="flex-1 text-left">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-7" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.22)' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: amber }} />
+              <span className="font-headline font-bold text-[11px] uppercase tracking-[.08em]" style={{ color: amber }}>{t('hero.badge')}</span>
+            </div>
+
+            <h1 className="font-headline font-black tracking-[-0.04em] leading-[1.03] mb-5" style={{ fontSize: 'clamp(38px,4.8vw,66px)', color: text }}>
+              {t('hero.headline')}
+            </h1>
+
+            <p className="font-body text-[17px] leading-relaxed max-w-md mb-9" style={{ color: muted }}>
+              {t('hero.subheadline')}
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-start gap-3">
+              <Link
+                href={`/${locale}/auth/register`}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-2xl font-headline font-extrabold text-[15px] text-center transition-all hover:brightness-110"
+                style={{ background: amber, color: '#0b0d12', boxShadow: '0 8px 32px rgba(245,166,35,0.3)' }}
+              >
+                {t('hero.ctaPrimary')}
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-2xl font-headline font-bold text-[14px] text-center transition-all"
+                style={{ background: 'rgba(245,166,35,0.07)', border: '1px solid rgba(245,166,35,0.18)', color: text }}
+              >
+                {t('hero.ctaSecondary')}
+              </Link>
+            </div>
           </div>
 
-          <h1 className="font-headline font-black tracking-[-0.04em] leading-[1.03] mb-6" style={{ fontSize: 'clamp(44px,5.5vw,72px)', color: text }}>
-            {t('hero.headline')}
-          </h1>
-
-          <p className="font-body text-[17px] leading-relaxed max-w-lg mx-auto mb-10" style={{ color: muted }}>
-            {t('hero.subheadline')}
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href={`/${locale}/auth/register`}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl font-headline font-extrabold text-[15px] text-center transition-all hover:brightness-110"
-              style={{ background: amber, color: '#0b0d12', boxShadow: '0 8px 32px rgba(245,166,35,0.3)' }}
-            >
-              {t('hero.ctaPrimary')}
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl font-headline font-bold text-[14px] text-center transition-all"
-              style={{ background: 'rgba(245,166,35,0.07)', border: '1px solid rgba(245,166,35,0.18)', color: text }}
-            >
-              {t('hero.ctaSecondary')}
-            </Link>
+          {/* Right: photo */}
+          <div className="hidden md:block flex-shrink-0 relative" style={{ width: 420 }}>
+            {/* Outer amber glow ring */}
+            <div style={{ position: 'absolute', inset: -2, borderRadius: 28, background: 'linear-gradient(135deg, rgba(245,166,35,0.45) 0%, rgba(245,166,35,0.08) 60%, transparent 100%)', zIndex: 0 }} />
+            <div className="relative overflow-hidden" style={{ borderRadius: 24, zIndex: 1 }}>
+              <Image
+                src="/hero-game-night.jpg"
+                alt="Friends rolling dice at game night"
+                width={420}
+                height={300}
+                className="block w-full h-auto"
+                style={{ objectFit: 'cover', display: 'block' }}
+                priority
+              />
+              {/* Subtle inner vignette to blend bottom into page */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '35%', background: 'linear-gradient(to top, rgba(11,13,18,0.7) 0%, transparent 100%)', pointerEvents: 'none' }} />
+            </div>
+            {/* Small floating decorative dice kept for personality */}
+            <div style={{ position: 'absolute', top: -20, right: -18, zIndex: 2 }}>
+              <DieFace value={4} size={46} rotate={17} opacity={0.55} />
+            </div>
+            <div style={{ position: 'absolute', bottom: -16, left: -16, zIndex: 2 }}>
+              <DieFace value={6} size={36} rotate={-11} opacity={0.45} />
+            </div>
           </div>
+
         </div>
       </section>
 
