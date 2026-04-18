@@ -109,13 +109,13 @@
     "example": {
       "title": "What fits in 75 credits?",
       "description": "Set up your group: 1 game template (25) + 1 league (10) + 3 connected players (30) = 65 credits. Then log 2 sessions with the remaining 10 credits.",
-      "note": "Credits never expire. They stack up — so go ahead and take a week off."
+      "note": "Monthly credits refresh each month. Purchased credits never expire — they stack up and stay until you use them."
     }
   },
   "packs": {
     "overline": "Need more fuel?",
     "headline": "Top up when you're ready.",
-    "subheadline": "No subscription. Credits never expire. Buy once, play on.",
+    "subheadline": "No subscription. Purchased credits never expire or reset. Buy once, play on.",
     "items": [
       { "credits": "100",  "price": "€4.99",  "tag": "" },
       { "credits": "300",  "price": "€11.99", "tag": "Popular" },

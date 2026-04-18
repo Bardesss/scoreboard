@@ -228,13 +228,52 @@ Columns: Email | Monthly balance | Permanent balance | Total spent (all time) | 
 
 ---
 
-## 8. Terms of Service additions
+## 8. Credit gifting
+
+Players can send permanent credits to other players by username or email address.
+
+### Flow
+
+1. Sender opens **Gift Credits** from the credit wallet (or user profile page of the recipient).
+2. Enters recipient's **username or email** — live lookup resolves and shows the display name + avatar to confirm the right person.
+3. Enters the **amount** to gift (minimum: 1, maximum: sender's current `permanentCredits` balance).
+4. Confirms — two `CreditTransaction` rows are written in a single `$transaction`:
+   - Sender: `{ pool: "permanent", delta: -amount, reason: "gift_sent", meta: { recipientId } }`
+   - Recipient: `{ pool: "permanent", delta: +amount, reason: "gift_received", meta: { senderId } }`
+5. Recipient's `permanentCredits` increases immediately. Sender cannot gift credits they don't have.
+
+### Constraints
+
+- Only `permanentCredits` can be gifted — monthly credits cannot be transferred.
+- Sender cannot gift to themselves.
+- If the lookup finds no account for the given username/email, show a clear error: "No account found."
+- Gift amount is deducted atomically; no partial success.
+
+### Data model
+
+No new model needed. The existing `CreditTransaction` with `reason: "gift_sent"` / `"gift_received"` and `meta` JSON covering the counterparty is sufficient.
+
+### UI entry points
+
+| Location | Entry |
+|---|---|
+| Credit wallet popout | "Gift credits" button |
+| Another user's profile page | "Gift credits" button (pre-fills recipient) |
+
+### Admin visibility
+
+Gift transactions appear in the per-user `CreditTransaction` log with reason badge `gift_sent` / `gift_received` and the counterparty's email shown in the meta column.
+
+---
+
+## 9. Terms of Service additions
 
 The Terms of Service system page must include:
 
 - During free periods, credits are still deducted as normal. Monthly credits may go negative.
 - When a free period ends, any negative monthly credit balance is reset to zero. Positive monthly balances and all permanent (purchased/gifted) credits are unaffected.
-- Permanent credits (purchased or admin-granted) never expire and are never reset by the monthly cycle.
+- Permanent credits (purchased, admin-granted, or gifted by another player) never expire and are never reset by the monthly cycle.
+- Credits can be gifted to other players. Only permanent credits can be gifted; monthly credits cannot be transferred.
 
 ---
 
@@ -243,5 +282,5 @@ The Terms of Service system page must include:
 | Phase | Work |
 |---|---|
 | **2** | Split `credits` → `monthlyCredits` + `permanentCredits` on `User`; add `pool` to `CreditTransaction`; update `deductCredits()` and monthly reset cron |
-| **4** | Admin free mode toggle + scheduled free periods UI; credit wallet breakdown; free period banner in app |
+| **4** | Admin free mode toggle + scheduled free periods UI; credit wallet breakdown; free period banner in app; credit gifting UI (wallet + profile entry points) |
 | **6** | Credit analytics dashboard (`/admin/credits`); free period end cleanup in cron; Terms additions |
