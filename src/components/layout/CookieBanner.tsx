@@ -24,7 +24,7 @@ export default function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-50 px-4 pb-4 pointer-events-none">
-      <div className="max-w-xl mx-auto pointer-events-auto bg-white rounded-2xl px-5 py-4 flex items-center justify-between gap-4" style={{ boxShadow: '0 8px 28px rgba(43,52,55,0.14)' }}>
+      <div className="max-w-xl mx-auto pointer-events-auto bg-surface-container-lowest rounded-2xl px-5 py-4 flex items-center justify-between gap-4" style={{ boxShadow: '0 8px 28px rgba(30,26,20,0.1)', border: '1px solid rgba(245,166,35,0.1)' }}>
         <p className="font-body text-[13px] text-on-surface-variant">
           {t('message')}{' '}
           <Link href={`/${locale}/p/privacy`} className="text-primary underline underline-offset-2">

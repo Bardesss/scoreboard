@@ -36,10 +36,10 @@ export default function Header({ locale }: { locale: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-50" style={{ background: 'rgba(248,249,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(43,52,55,0.07)' }}>
+    <header className="sticky top-0 z-50" style={{ background: 'rgba(247,243,237,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(245,166,35,0.1)' }}>
       <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href={`/${locale}`} className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 4px 12px rgba(0,91,192,0.28)' }}>
+          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623', boxShadow: '0 4px 12px rgba(245,166,35,0.28)' }}>
             <Dices size={18} strokeWidth={2.2} className="text-on-primary" />
           </div>
           <div>
@@ -48,10 +48,10 @@ export default function Header({ locale }: { locale: string }) {
           </div>
         </Link>
         <nav className="flex items-center gap-1">
-          <Link href={`/${locale}/auth/login`} className="px-4 py-2 rounded-xl font-headline font-semibold text-[13.5px] text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors">
+          <Link href={`/${locale}/auth/login`} className="px-4 py-2 rounded-xl font-headline font-semibold text-[13.5px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
             {t('login')}
           </Link>
-          <Link href={`/${locale}/auth/register`} className="px-4 py-2 rounded-[999px] bg-primary text-on-primary font-headline font-bold text-[13px] transition-all hover:bg-primary-dim" style={{ boxShadow: '0 4px 14px rgba(0,91,192,0.24)' }}>
+          <Link href={`/${locale}/auth/register`} className="px-4 py-2 rounded-[999px] bg-primary text-on-primary font-headline font-bold text-[13px] transition-all hover:bg-primary-dim" style={{ boxShadow: '0 4px 14px rgba(245,166,35,0.28)' }}>
             {t('register')}
           </Link>
         </nav>

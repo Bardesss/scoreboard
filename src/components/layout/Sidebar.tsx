@@ -20,25 +20,25 @@ export default function Sidebar({ email, credits }: { email: string; credits: nu
   const tCredits = useTranslations('app.credits')
 
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 bg-white flex-col z-40" style={{ boxShadow: '0 2px 12px rgba(43,52,55,0.05)' }}>
+    <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col z-40" style={{ background: '#1c1810', borderRight: '1px solid rgba(245,166,35,0.08)' }}>
       {/* Logo */}
       <div className="px-5 pt-6 pb-4">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center" style={{ boxShadow: '0 4px 12px rgba(0,91,192,0.28)' }}>
-            <Dices size={18} strokeWidth={2.2} className="text-on-primary" />
+          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623', boxShadow: '0 4px 16px rgba(245,166,35,0.3)' }}>
+            <Dices size={18} strokeWidth={2.2} style={{ color: '#1c1408' }} />
           </div>
           <div>
-            <div className="font-headline font-black text-[14.5px] text-on-surface tracking-[-0.02em] leading-none">Dice Vault</div>
-            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em] text-outline-variant leading-none mt-0.5">dicevault.fun</div>
+            <div className="font-headline font-black text-[14.5px] tracking-[-0.02em] leading-none" style={{ color: '#f7f3ed' }}>Dice Vault</div>
+            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em] leading-none mt-0.5" style={{ color: '#4a3f2f' }}>dicevault.fun</div>
           </div>
         </Link>
       </div>
 
       {/* Credit chip */}
       <div className="px-4 mb-4">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary-container">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-          <span className="font-headline font-bold text-[12px] text-primary">{tCredits('balance', { n: credits })}</span>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.18)' }}>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f5a623' }} />
+          <span className="font-headline font-bold text-[12px]" style={{ color: '#f5a623' }}>{tCredits('balance', { n: credits })}</span>
         </div>
       </div>
 
@@ -50,8 +50,13 @@ export default function Sidebar({ email, credits }: { email: string; credits: nu
             <Link
               key={key}
               href={href}
-              className={`flex items-center gap-[11px] px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all ${active ? 'bg-white text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}
-              style={active ? { boxShadow: '0 2px 12px rgba(43,52,55,0.09)' } : {}}
+              className="flex items-center gap-[11px] px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all"
+              style={active
+                ? { background: 'rgba(245,166,35,0.12)', color: '#f5a623', boxShadow: 'inset 0 0 0 1px rgba(245,166,35,0.2)' }
+                : { color: '#9a8878' }
+              }
+              onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.06)'; (e.currentTarget as HTMLElement).style.color = '#f7f3ed' }}
+              onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = '#9a8878' } }}
             >
               <Icon size={17} className="flex-shrink-0" />
               {t(key)}
@@ -62,15 +67,15 @@ export default function Sidebar({ email, credits }: { email: string; credits: nu
 
       {/* User footer */}
       <div className="p-4">
-        <div className="flex items-center gap-2.5 p-3 rounded-[14px] bg-surface-container-low">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-            <span className="font-headline font-black text-[11px] text-on-primary tracking-[.02em]">
+        <div className="flex items-center gap-2.5 p-3 rounded-[14px]" style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.08)' }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623' }}>
+            <span className="font-headline font-black text-[11px] tracking-[.02em]" style={{ color: '#1c1408' }}>
               {email.slice(0, 2).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-body font-bold text-[12.5px] text-on-surface truncate">{email}</div>
-            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em] text-outline-variant">User</div>
+            <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{email}</div>
+            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>User</div>
           </div>
         </div>
       </div>

@@ -41,11 +41,11 @@ export default function Footer({ locale }: { locale: string }) {
   }
 
   return (
-    <footer className="border-t border-surface-container py-12 mt-24">
+    <footer className="border-t border-surface-container-high py-12 mt-24">
       <div className="max-w-5xl mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-[8px] bg-primary flex items-center justify-center" style={{ boxShadow: '0 4px 12px rgba(0,91,192,0.28)' }}>
+            <div className="w-7 h-7 rounded-[8px] flex items-center justify-center" style={{ background: '#f5a623', boxShadow: '0 4px 12px rgba(245,166,35,0.28)' }}>
               <Dices size={14} strokeWidth={2.2} className="text-on-primary" />
             </div>
             <div>

@@ -9,8 +9,8 @@ export function AuthCard({ children }: { children: React.ReactNode }) {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center" style={{ boxShadow: '0 4px 12px rgba(0,91,192,0.28)' }}>
-              <Dices size={18} strokeWidth={2.2} className="text-on-primary" />
+            <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: '#f5a623', boxShadow: '0 4px 16px rgba(245,166,35,0.3)' }}>
+              <Dices size={18} strokeWidth={2.2} style={{ color: '#1c1408' }} />
             </div>
             <div>
               <div className="font-headline font-black text-[14.5px] text-on-surface tracking-[-0.02em] leading-none">Dice Vault</div>
@@ -18,7 +18,7 @@ export function AuthCard({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
         </div>
-        <div className="bg-white rounded-3xl p-8" style={{ boxShadow: '0 2px 12px rgba(43,52,55,0.05)' }}>
+        <div className="bg-surface-container-lowest rounded-3xl p-8" style={{ boxShadow: '0 2px 16px rgba(30,26,20,0.07)', border: '1px solid rgba(245,166,35,0.08)' }}>
           {children}
         </div>
       </div>
@@ -37,7 +37,7 @@ export function UnderlineInput({ label, ...props }: InputProps) {
         {label}
       </label>
       <input
-        className="w-full h-11 border-0 border-b border-b-[#d1dce0] focus:border-b-primary rounded-none px-0.5 pb-2.5 font-body text-sm text-on-surface bg-transparent outline-none transition-[border-color] duration-200 placeholder:text-[#c0c8cc] placeholder:italic placeholder:text-[13px]"
+        className="w-full h-11 border-0 border-b border-b-[#c5b89f] focus:border-b-primary rounded-none px-0.5 pb-2.5 font-body text-sm text-on-surface bg-transparent outline-none transition-[border-color] duration-200 placeholder:text-[#c5b89f] placeholder:italic placeholder:text-[13px]"
         {...props}
       />
     </div>
@@ -48,7 +48,7 @@ export function PrimaryButton({ children, className = '', ...props }: React.Butt
   return (
     <button
       className={`w-full h-11 bg-primary hover:bg-primary-dim text-on-primary font-headline font-bold text-sm rounded-[10px] transition-all ${className}`}
-      style={{ boxShadow: '0 4px 14px rgba(0,91,192,0.28)' }}
+      style={{ boxShadow: '0 4px 14px rgba(245,166,35,0.28)' }}
       {...props}
     >
       {children}
