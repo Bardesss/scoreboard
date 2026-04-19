@@ -9,7 +9,7 @@ const NAV = [
   { key: 'dashboard', href: '/app/dashboard', icon: LayoutDashboard },
   { key: 'players',   href: '/app/players',   icon: Users },
   { key: 'games',     href: '/app/games',     icon: Dices },
-  { key: 'sessions',  href: '/app/sessions',  icon: ClipboardList },
+  { key: 'leagues',   href: '/app/leagues',   icon: ClipboardList },
   { key: 'credits',   href: '/app/credits',   icon: CreditCard },
   { key: 'settings',  href: '/app/settings',  icon: Settings },
 ] as const

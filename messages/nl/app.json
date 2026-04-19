@@ -3,12 +3,92 @@
     "dashboard": "Dashboard",
     "players": "Spelers",
     "games": "Spellen",
-    "sessions": "Sessies",
+    "leagues": "Competities",
     "credits": "Credits",
     "settings": "Instellingen"
   },
   "credits": {
     "balance": "{n} credits",
-    "low": "Bijna op"
+    "low": "Bijna op",
+    "lowBanner": "Je credits raken op. Koop meer om te blijven spelen.",
+    "buyCredits": "Credits kopen"
+  },
+  "players": {
+    "title": "Spelers",
+    "add": "Speler toevoegen",
+    "edit": "Speler bewerken",
+    "delete": "Verwijderen",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "empty": "Nog geen spelers. Voeg je eerste speler toe!",
+    "namePlaceholder": "Naam van de speler",
+    "deleteConfirm": "Weet je zeker dat je deze speler wilt verwijderen?",
+    "deleteWarning": "Alle scores van deze speler blijven bewaard."
+  },
+  "games": {
+    "title": "Spellen",
+    "add": "Spel toevoegen",
+    "empty": "Nog geen spelsjablonen. Maak je eerste spel!",
+    "wizard": {
+      "step1Title": "Speldetails",
+      "step2Title": "Puntentelling",
+      "step3Title": "Bevestigen",
+      "namePlaceholder": "Naam van het spel (bijv. Catan)",
+      "descriptionPlaceholder": "Korte beschrijving (optioneel)",
+      "scoringNotesPlaceholder": "Hoe wordt gescoord? (optioneel)",
+      "cost": "Dit kost 25 credits",
+      "confirm": "Spel aanmaken",
+      "back": "Terug",
+      "next": "Volgende",
+      "creating": "Aanmaken..."
+    }
+  },
+  "leagues": {
+    "title": "Competities",
+    "add": "Competitie aanmaken",
+    "empty": "Nog geen competities. Maak je eerste competitie!",
+    "playedGames": "Gespeelde partijen",
+    "logGame": "Partij loggen",
+    "noGames": "Nog geen partijen gespeeld.",
+    "members": "Deelnemers",
+    "wizard": {
+      "step1Title": "Competitiedetails",
+      "step2Title": "Spelers toevoegen",
+      "step3Title": "Bevestigen",
+      "namePlaceholder": "Naam van de competitie (bijv. Woensdag Catan)",
+      "descriptionPlaceholder": "Beschrijving (optioneel)",
+      "pickTemplate": "Kies een spel",
+      "noTemplates": "Maak eerst een spelsjabloon aan.",
+      "pickPlayers": "Selecteer spelers",
+      "noPlayers": "Voeg eerst spelers toe.",
+      "cost": "Dit kost 10 credits",
+      "confirm": "Competitie aanmaken",
+      "back": "Terug",
+      "next": "Volgende",
+      "creating": "Aanmaken..."
+    }
+  },
+  "playedGames": {
+    "log": "Partij loggen",
+    "playedAt": "Gespeeld op",
+    "notes": "Notities (optioneel)",
+    "scores": "Scores",
+    "scorePlaceholder": "Score",
+    "submit": "Opslaan (5 credits)",
+    "submitting": "Opslaan...",
+    "cost": "Dit kost 5 credits"
+  },
+  "errors": {
+    "insufficientCredits": "Niet genoeg credits. Koop meer om door te gaan.",
+    "required": "Dit veld is verplicht.",
+    "notFound": "Niet gevonden.",
+    "serverError": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "toasts": {
+    "playerSaved": "Speler opgeslagen.",
+    "playerDeleted": "Speler verwijderd.",
+    "templateCreated": "Spelsjabloon aangemaakt.",
+    "leagueCreated": "Competitie aangemaakt.",
+    "gameSaved": "Partij opgeslagen."
   }
 }
