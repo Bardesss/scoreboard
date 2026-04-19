@@ -112,6 +112,48 @@ curl https://yourdomain.com/api/health
 
 ---
 
+## 🏁 First-Time Setup After Deploy
+
+Once the app is live and the DB is running, do this once before using the app.
+
+### 1. Run migrations + seed
+
+```bash
+# Migrations (also runs automatically on every deploy via post-deploy command)
+npx prisma migrate deploy
+
+# Seed AdminSettings (action costs, free-mode defaults, thresholds)
+npx prisma db seed
+```
+
+### 2. Register your account
+
+Go to `https://yourdomain.com/en/auth/register` and create an account.
+
+### 3. Verify your email
+
+**If Mailgun is configured:** click the link in the email.
+
+**If Mailgun is NOT set up yet** (local dev or early deploy), verify manually from the terminal:
+
+```bash
+npx tsx scripts/verify-email.ts your@email.com
+```
+
+You can now log in.
+
+### 4. Promote yourself to admin *(optional — needed for Phase 4 admin panel)*
+
+```bash
+npx tsx scripts/make-admin.ts your@email.com
+```
+
+Then log out and back in — the admin panel will be available at `/admin`.
+
+> **Note:** For Coolify deploys, run the scripts above via Coolify's terminal (open the app resource → **Terminal** tab) or SSH into the VPS and `docker exec` into the container.
+
+---
+
 ## 🔄 GitHub Auto-Deploy
 
 1. Coolify app → **Source** tab → enable **Auto deploy on push** → copy the webhook URL
