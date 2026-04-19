@@ -131,7 +131,7 @@ export default async function LandingPage({ params }: Props) {
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-14">
 
           {/* Left: copy */}
-          <div className="flex-1 text-left">
+          <div className="flex-1 text-left order-2 md:order-1">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-7" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.22)' }}>
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: amber }} />
@@ -165,7 +165,7 @@ export default async function LandingPage({ params }: Props) {
           </div>
 
           {/* Right: photo */}
-          <div className="hidden md:block flex-shrink-0 relative" style={{ width: 420 }}>
+          <div className="block flex-shrink-0 relative w-full md:w-auto order-1 md:order-2" style={{ maxWidth: 420 }}>
             {/* Outer amber glow ring */}
             <div style={{ position: 'absolute', inset: -2, borderRadius: 28, background: 'linear-gradient(135deg, rgba(245,166,35,0.45) 0%, rgba(245,166,35,0.08) 60%, transparent 100%)', zIndex: 0 }} />
             <div className="relative overflow-hidden" style={{ borderRadius: 24, zIndex: 1 }}>
