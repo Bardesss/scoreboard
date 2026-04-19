@@ -14,7 +14,7 @@ const NAV = [
   { key: 'settings',  href: '/app/settings',  icon: Settings },
 ] as const
 
-export default function Sidebar({ email, credits }: { email: string; credits: number }) {
+export default function Sidebar({ name, email, credits }: { name: string; email: string; credits: number }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
@@ -70,11 +70,11 @@ export default function Sidebar({ email, credits }: { email: string; credits: nu
         <div className="flex items-center gap-2.5 p-3 rounded-[14px]" style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.08)' }}>
           <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623' }}>
             <span className="font-headline font-black text-[11px] tracking-[.02em]" style={{ color: '#1c1408' }}>
-              {email.slice(0, 2).toUpperCase()}
+              {name.slice(0, 2).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{email}</div>
+            <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{name}</div>
             <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>{t('vaultKeeper')}</div>
           </div>
         </div>
