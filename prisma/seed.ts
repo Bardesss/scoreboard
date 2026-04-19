@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  const settings: { key: string; value: unknown }[] = [
+  const settings: { key: string; value: Prisma.InputJsonValue }[] = [
     { key: 'monthly_free_credits',    value: 75 },
     { key: 'cost_game_template',      value: 25 },
     { key: 'cost_league',             value: 10 },
