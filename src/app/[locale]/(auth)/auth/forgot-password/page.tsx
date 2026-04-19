@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
       <form action={formAction}>
         <UnderlineInput label={t('forgot.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
         {state && 'error' in state ? (
-          <p className="font-body text-[13px] text-error mb-4">{t(state.error as Parameters<typeof t>[0])}</p>
+          <p className="font-body text-[13px] text-error mb-4">{t(state.error.replace(/^auth\./, '') as Parameters<typeof t>[0])}</p>
         ) : null}
         <PrimaryButton type="submit" disabled={pending} className="mt-2">
           {pending ? '…' : t('forgot.submit')}

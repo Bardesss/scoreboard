@@ -248,6 +248,7 @@ Players can send permanent credits to other players by username or email address
 - Sender cannot gift to themselves.
 - If the lookup finds no account for the given username/email, show a clear error: "No account found."
 - Gift amount is deducted atomically; no partial success.
+- **Gifting is disabled when no payment providers are configured.** All "Gift credits" entry points (wallet popout and user profile page) must be hidden. Without payment providers users cannot acquire permanent credits, so the feature is irrelevant.
 
 ### Data model
 
