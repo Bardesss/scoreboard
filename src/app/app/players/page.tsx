@@ -11,10 +11,11 @@ export default async function PlayersPage() {
   const [players] = await Promise.all([
     prisma.player.findMany({
       where: { userId: session.user.id },
+      select: { id: true, name: true, avatarSeed: true, linkedUserId: true },
       orderBy: { createdAt: 'asc' },
     }),
     getTranslations({ locale: session.user.locale ?? 'en', namespace: 'app.players' }),
   ])
 
-  return <PlayersClient players={players} />
+  return <PlayersClient players={players} vaultKeeperId={session.user.id} />
 }

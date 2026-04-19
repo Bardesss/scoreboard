@@ -29,6 +29,7 @@
     "save": "Save",
     "empty": "No players yet. Add your first player!",
     "namePlaceholder": "Player name",
+    "you": "you",
     "deleteConfirm": "Are you sure you want to delete this player?",
     "deleteWarning": "All scores for this player will be kept."
   },

@@ -6,9 +6,9 @@ import { Avatar } from '@/components/shared/Avatar'
 import { createPlayer, updatePlayer, deletePlayer } from './actions'
 import { Pencil, Trash2, Plus, X, Check } from 'lucide-react'
 
-type Player = { id: string; name: string; avatarSeed: string }
+type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null }
 
-export default function PlayersClient({ players: initial }: { players: Player[] }) {
+export default function PlayersClient({ players: initial, vaultKeeperId }: { players: Player[]; vaultKeeperId: string }) {
   const t = useTranslations('app.players')
   const tToasts = useTranslations('app.toasts')
   const tErrors = useTranslations('app.errors')
@@ -82,8 +82,10 @@ export default function PlayersClient({ players: initial }: { players: Player[] 
       )}
 
       <ul className="space-y-2">
-        {players.map(player => (
-          <li key={player.id} className="flex items-center gap-3 p-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+        {players.map(player => {
+          const isVaultKeeper = player.linkedUserId === vaultKeeperId
+          return (
+          <li key={player.id} className="flex items-center gap-3 p-3 rounded-2xl" style={{ background: '#fffdf9', border: `1px solid ${isVaultKeeper ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
             <Avatar seed={player.avatarSeed} name={player.name} size={40} />
             {editId === player.id ? (
               <div className="flex-1 flex gap-2">
@@ -100,13 +102,20 @@ export default function PlayersClient({ players: initial }: { players: Player[] 
               </div>
             ) : (
               <>
-                <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{player.name}</span>
+                <div className="flex-1 flex items-center gap-2 min-w-0">
+                  <span className="font-headline font-semibold text-sm truncate" style={{ color: '#1c1810' }}>{player.name}</span>
+                  {isVaultKeeper && (
+                    <span className="flex-shrink-0 font-headline font-bold text-[9px] uppercase tracking-[.08em] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>{t('you')}</span>
+                  )}
+                </div>
                 <button onClick={() => { setEditId(player.id); setEditName(player.name) }} className="p-1.5 rounded-lg hover:bg-amber-50" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
-                <button onClick={() => setDeleteId(player.id)} className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#9a8878' }}><Trash2 size={14} /></button>
+                {!isVaultKeeper && (
+                  <button onClick={() => setDeleteId(player.id)} className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#9a8878' }}><Trash2 size={14} /></button>
+                )}
               </>
             )}
           </li>
-        ))}
+        )})
       </ul>
 
       {deleteId && (
