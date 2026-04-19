@@ -34,7 +34,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect('/en/auth/login')
 
   const totalCredits = user.monthlyCredits + user.permanentCredits
-  const lowThreshold = (threshold?.value as number) ?? 20
+  const raw = threshold?.value
+  const lowThreshold = typeof raw === 'number' ? raw : 20
   const isLow = totalCredits < lowThreshold
 
   const messages = await loadMessages(locale)

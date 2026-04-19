@@ -108,6 +108,18 @@ describe('deductCredits', () => {
     expect(prisma.$transaction).not.toHaveBeenCalled()
   })
 
+  it('Case C free mode: allows further negative monthly when monthly <= 0 and permanent < cost', async () => {
+    vi.mocked(prisma.adminSettings.findUnique).mockResolvedValue({ key: 'free_mode_active', value: true })
+    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(
+      mockUser({ monthlyCredits: 0, permanentCredits: 5 }) as never
+    )
+    // cost = 25 (game_template default), permanent = 5 < 25
+    const result = await deductCredits('user-1', 'game_template')
+    // permanent drains to 0, monthly goes to -(25 - 5) = -20
+    expect(result.newPermanent).toBe(0)
+    expect(result.newMonthly).toBe(-20)
+  })
+
   it('Case B free mode: allows negative monthly when total < cost', async () => {
     // getActionCost calls findUnique with key 'cost_game_template' → null (use default 25)
     // isFreeModeActive calls findUnique with key 'free_mode_active' → true

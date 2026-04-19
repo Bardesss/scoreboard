@@ -17,7 +17,8 @@ const COST_DEFAULTS: Record<string, number> = {
 
 export async function getActionCost(action: string): Promise<number> {
   const setting = await prisma.adminSettings.findUnique({ where: { key: `cost_${action}` } })
-  return (setting?.value as number) ?? COST_DEFAULTS[action] ?? 0
+  const raw = setting?.value
+  return (typeof raw === 'number' ? raw : null) ?? COST_DEFAULTS[action] ?? 0
 }
 
 export async function isFreeModeActive(): Promise<boolean> {
@@ -79,8 +80,11 @@ export async function deductCredits(
       // freeModeActive guaranteed here (checked above)
       newMonthly = -(remainder - permanent)
       newPermanent = 0
-      txs.push({ pool: 'monthly', delta: newMonthly - monthly })
+      txs.push({ pool: 'monthly', delta: -partial })
       txs.push({ pool: 'permanent', delta: -permanent })
+      if (remainder - permanent > 0) {
+        txs.push({ pool: 'monthly', delta: -(remainder - permanent) })
+      }
     }
   } else {
     // Case C: monthly <= 0, deduct from permanent (or further negative)
@@ -103,7 +107,7 @@ export async function deductCredits(
     }),
     ...txs.map(tx =>
       prisma.creditTransaction.create({
-        data: { userId, delta: tx.delta, pool: tx.pool, reason: action, meta: meta ?? null },
+        data: { userId, delta: tx.delta, pool: tx.pool, reason: action, ...(meta ? { meta } : {}) },
       })
     ),
   ])

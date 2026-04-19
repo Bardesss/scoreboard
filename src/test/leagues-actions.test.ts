@@ -4,6 +4,8 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     league: { create: vi.fn(), findUnique: vi.fn(), delete: vi.fn() },
     leagueMember: { createMany: vi.fn() },
+    gameTemplate: { findUnique: vi.fn() },
+    player: { findMany: vi.fn() },
     playedGame: { create: vi.fn() },
     scoreEntry: { createMany: vi.fn() },
     $transaction: vi.fn(),
@@ -31,6 +33,9 @@ const session = { user: { id: 'user-1', email: 'test@example.com', locale: 'en',
 beforeEach(() => {
   vi.mocked(auth).mockResolvedValue(session as never)
   vi.mocked(prisma.$transaction).mockImplementation(async (ops: unknown[]) => ops)
+  vi.mocked(prisma.gameTemplate.findUnique).mockResolvedValue({ id: 'gt1', userId: 'user-1' } as never)
+  vi.mocked(prisma.player.findMany).mockResolvedValue([{ id: 'p1' }, { id: 'p2' }] as never)
+  vi.mocked(deductCredits).mockResolvedValue({ newMonthly: 65, newPermanent: 0 })
 })
 
 describe('createLeague', () => {

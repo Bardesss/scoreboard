@@ -11,10 +11,11 @@ export function Avatar({ seed, name, size = 36 }: { seed: string; name: string; 
   const initials = name
     .trim()
     .split(/\s+/)
+    .filter(Boolean)
     .map(w => w[0])
     .join('')
     .slice(0, 2)
-    .toUpperCase()
+    .toUpperCase() || '?'
 
   return (
     <div

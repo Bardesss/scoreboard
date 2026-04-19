@@ -22,6 +22,9 @@ export async function createLeague(
   if (!name) return { success: false, error: 'errors.required' }
   if (!input.gameTemplateId) return { success: false, error: 'errors.required' }
 
+  const template = await prisma.gameTemplate.findUnique({ where: { id: input.gameTemplateId } })
+  if (!template || template.userId !== session.user.id) return { success: false, error: 'errors.notFound' }
+
   try {
     await checkRateLimit(session.user.id, 'league')
     await deductCredits(session.user.id, 'league', { action: 'create_league' })
@@ -40,10 +43,16 @@ export async function createLeague(
   })
 
   if (input.playerIds.length > 0) {
-    await prisma.leagueMember.createMany({
-      data: input.playerIds.map(playerId => ({ leagueId: league.id, playerId })),
-      skipDuplicates: true,
+    const ownedPlayers = await prisma.player.findMany({
+      where: { id: { in: input.playerIds }, userId: session.user.id },
+      select: { id: true },
     })
+    if (ownedPlayers.length > 0) {
+      await prisma.leagueMember.createMany({
+        data: ownedPlayers.map(p => ({ leagueId: league.id, playerId: p.id })),
+        skipDuplicates: true,
+      })
+    }
   }
 
   revalidatePath('/app/leagues')
