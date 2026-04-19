@@ -19,8 +19,17 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
 
+vi.mock('@/lib/credits', () => ({
+  deductCredits: vi.fn().mockResolvedValue({ newMonthly: 65, newPermanent: 0 }),
+  checkRateLimit: vi.fn().mockResolvedValue(undefined),
+  InsufficientCreditsError: class InsufficientCreditsError extends Error {
+    constructor() { super('Insufficient credits') }
+  },
+}))
+
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { deductCredits, checkRateLimit } from '@/lib/credits'
 import { createPlayer, updatePlayer, deletePlayer } from '@/app/app/players/actions'
 
 const session = { user: { id: 'user-1', email: 'test@example.com', locale: 'en', role: 'user' } }
@@ -36,6 +45,8 @@ describe('createPlayer', () => {
     fd.set('name', 'Alice')
     const result = await createPlayer(fd)
     expect(result).toEqual({ success: true })
+    expect(checkRateLimit).toHaveBeenCalledWith('user-1', 'add_player')
+    expect(deductCredits).toHaveBeenCalledWith('user-1', 'add_player', { action: 'create_player' })
     expect(prisma.player.create).toHaveBeenCalledWith({
       data: expect.objectContaining({ userId: 'user-1', name: 'Alice', avatarSeed: 'alice' }),
     })
@@ -46,6 +57,17 @@ describe('createPlayer', () => {
     fd.set('name', '   ')
     const result = await createPlayer(fd)
     expect(result).toEqual({ success: false, error: 'errors.required' })
+    expect(prisma.player.create).not.toHaveBeenCalled()
+  })
+
+  it('returns insufficientCredits error on InsufficientCreditsError', async () => {
+    const { InsufficientCreditsError } = await import('@/lib/credits')
+    vi.mocked(checkRateLimit).mockResolvedValueOnce(undefined)
+    vi.mocked(deductCredits).mockRejectedValueOnce(new InsufficientCreditsError())
+    const fd = new FormData()
+    fd.set('name', 'Bob')
+    const result = await createPlayer(fd)
+    expect(result).toEqual({ success: false, error: 'errors.insufficientCredits' })
     expect(prisma.player.create).not.toHaveBeenCalled()
   })
 })

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextIntlClientProvider } from 'next-intl'
-import { setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import Sidebar from '@/components/layout/Sidebar'
 import BottomNav from '@/components/layout/BottomNav'
 import MobileHeader from '@/components/layout/MobileHeader'
@@ -38,10 +38,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isLow = totalCredits < lowThreshold
 
   const messages = await loadMessages(locale)
+  const tCredits = await getTranslations({ locale, namespace: 'app.credits' })
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      {isLow && <LowCreditBanner locale={locale} />}
+      {isLow && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
       <Sidebar email={user.email} credits={totalCredits} />
       <MobileHeader />
       <main
