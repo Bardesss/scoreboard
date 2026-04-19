@@ -12,7 +12,13 @@
     "balance": "{n} credits",
     "low": "Bijna op",
     "lowBanner": "Je credits raken op. Koop meer om te blijven spelen.",
-    "buyCredits": "Credits kopen"
+    "buyCredits": "Credits kopen",
+    "pageTitle": "Credits",
+    "comingSoon": "Binnenkort beschikbaar — beheer en koop hier je credits."
+  },
+  "settings": {
+    "pageTitle": "Instellingen",
+    "comingSoon": "Binnenkort beschikbaar — beheer hier je accountinstellingen."
   },
   "players": {
     "title": "Spelers",

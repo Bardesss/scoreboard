@@ -12,7 +12,13 @@
     "balance": "{n} credits",
     "low": "Running low",
     "lowBanner": "You're running low on credits. Buy more to keep playing.",
-    "buyCredits": "Buy Credits"
+    "buyCredits": "Buy Credits",
+    "pageTitle": "Credits",
+    "comingSoon": "Coming soon — manage and purchase your credits here."
+  },
+  "settings": {
+    "pageTitle": "Settings",
+    "comingSoon": "Coming soon — manage your account settings here."
   },
   "players": {
     "title": "Players",
