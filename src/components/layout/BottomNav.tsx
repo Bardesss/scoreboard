@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, Trophy, Settings } from 'lucide-react'
 
 const NAV = [
   { key: 'dashboard', href: '/app/dashboard', icon: LayoutDashboard },
   { key: 'players',   href: '/app/players',   icon: Users },
   { key: 'games',     href: '/app/games',     icon: Dices },
-  { key: 'sessions',  href: '/app/sessions',  icon: ClipboardList },
+  { key: 'leagues',   href: '/app/leagues',   icon: Trophy },
   { key: 'settings',  href: '/app/settings',  icon: Settings },
 ] as const
 

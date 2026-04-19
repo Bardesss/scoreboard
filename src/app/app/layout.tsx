@@ -2,10 +2,11 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextIntlClientProvider } from 'next-intl'
-import { setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import Sidebar from '@/components/layout/Sidebar'
 import BottomNav from '@/components/layout/BottomNav'
 import MobileHeader from '@/components/layout/MobileHeader'
+import { LowCreditBanner } from '@/components/credits/LowCreditBanner'
 
 async function loadMessages(locale: string) {
   const [common, authMsgs, app] = await Promise.all([
@@ -23,20 +24,32 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const locale = session.user.locale ?? 'en'
   setRequestLocale(locale)
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { email: true, monthlyCredits: true, permanentCredits: true },
-  })
+  const [user, threshold] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { email: true, monthlyCredits: true, permanentCredits: true },
+    }),
+    prisma.adminSettings.findUnique({ where: { key: 'low_credit_threshold' } }),
+  ])
   if (!user) redirect('/en/auth/login')
 
   const totalCredits = user.monthlyCredits + user.permanentCredits
+  const raw = threshold?.value
+  const lowThreshold = typeof raw === 'number' ? raw : 20
+  const isLow = totalCredits < lowThreshold
+
   const messages = await loadMessages(locale)
+  const tCredits = await getTranslations({ locale, namespace: 'app.credits' })
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      {isLow && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
       <Sidebar email={user.email} credits={totalCredits} />
       <MobileHeader />
-      <main className="lg:ml-64 min-h-screen relative z-10 pt-14 pb-20 lg:pt-0 lg:pb-0 px-6 lg:px-7">
+      <main
+        className="lg:ml-64 min-h-screen relative z-10 pt-14 pb-20 lg:pt-0 lg:pb-0 px-6 lg:px-7"
+        style={isLow ? { paddingTop: 'calc(3.5rem + 36px)' } : undefined}
+      >
         {children}
       </main>
       <BottomNav />

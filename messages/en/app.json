@@ -3,12 +3,92 @@
     "dashboard": "Dashboard",
     "players": "Players",
     "games": "Games",
-    "sessions": "Sessions",
+    "leagues": "Leagues",
     "credits": "Credits",
     "settings": "Settings"
   },
   "credits": {
     "balance": "{n} credits",
-    "low": "Running low"
+    "low": "Running low",
+    "lowBanner": "You're running low on credits. Buy more to keep playing.",
+    "buyCredits": "Buy Credits"
+  },
+  "players": {
+    "title": "Players",
+    "add": "Add player",
+    "edit": "Edit player",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "empty": "No players yet. Add your first player!",
+    "namePlaceholder": "Player name",
+    "deleteConfirm": "Are you sure you want to delete this player?",
+    "deleteWarning": "All scores for this player will be kept."
+  },
+  "games": {
+    "title": "Games",
+    "add": "Add game",
+    "empty": "No game templates yet. Create your first game!",
+    "wizard": {
+      "step1Title": "Game details",
+      "step2Title": "Scoring",
+      "step3Title": "Confirm",
+      "namePlaceholder": "Game name (e.g. Catan)",
+      "descriptionPlaceholder": "Short description (optional)",
+      "scoringNotesPlaceholder": "How is scoring done? (optional)",
+      "cost": "This costs 25 credits",
+      "confirm": "Create game",
+      "back": "Back",
+      "next": "Next",
+      "creating": "Creating..."
+    }
+  },
+  "leagues": {
+    "title": "Leagues",
+    "add": "Create league",
+    "empty": "No leagues yet. Create your first league!",
+    "playedGames": "Played games",
+    "logGame": "Log game",
+    "noGames": "No games played yet.",
+    "members": "Members",
+    "wizard": {
+      "step1Title": "League details",
+      "step2Title": "Add players",
+      "step3Title": "Confirm",
+      "namePlaceholder": "League name (e.g. Wednesday Catan)",
+      "descriptionPlaceholder": "Description (optional)",
+      "pickTemplate": "Pick a game",
+      "noTemplates": "Create a game template first.",
+      "pickPlayers": "Select players",
+      "noPlayers": "Add players first.",
+      "cost": "This costs 10 credits",
+      "confirm": "Create league",
+      "back": "Back",
+      "next": "Next",
+      "creating": "Creating..."
+    }
+  },
+  "playedGames": {
+    "log": "Log game",
+    "playedAt": "Played on",
+    "notes": "Notes (optional)",
+    "scores": "Scores",
+    "scorePlaceholder": "Score",
+    "submit": "Save (5 credits)",
+    "submitting": "Saving...",
+    "cost": "This costs 5 credits"
+  },
+  "errors": {
+    "insufficientCredits": "Not enough credits. Buy more to continue.",
+    "required": "This field is required.",
+    "notFound": "Not found.",
+    "serverError": "Something went wrong. Please try again."
+  },
+  "toasts": {
+    "playerSaved": "Player saved.",
+    "playerDeleted": "Player deleted.",
+    "templateCreated": "Game template created.",
+    "leagueCreated": "League created.",
+    "gameSaved": "Game saved."
   }
 }
