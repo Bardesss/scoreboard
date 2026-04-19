@@ -115,7 +115,7 @@ export default function PlayersClient({ players: initial, vaultKeeperId }: { pla
               </>
             )}
           </li>
-        )})
+        )})}
       </ul>
 
       {deleteId && (
