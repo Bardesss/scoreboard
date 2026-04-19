@@ -144,3 +144,4 @@ npx prisma migrate deploy
 |---|---|
 | 1a | Next.js 15 · Prisma 5 · Redis · `/api/health` · Dockerfile · Coolify deploy |
 | 1b | next-intl (nl/en) · NextAuth v5 Credentials · TOTP MFA · Mailgun email verification · landing page · auth pages · app shell (sidebar + bottom nav) |
+| 2 | Players CRUD · Game Template wizard (25 cr) · League creation (10 cr) · PlayedGame logging (5 cr) · credit deduction engine (dual-pool) · low-credit banner. No new env vars. Run `npx prisma db seed` after migrate to populate AdminSettings. |
