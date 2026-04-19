@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 import { redis } from './redis'
 
@@ -40,7 +41,7 @@ export async function checkRateLimit(userId: string, action: string): Promise<vo
 export async function deductCredits(
   userId: string,
   action: string,
-  meta?: Record<string, unknown>
+  meta?: Prisma.InputJsonValue
 ): Promise<{ newMonthly: number; newPermanent: number }> {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
