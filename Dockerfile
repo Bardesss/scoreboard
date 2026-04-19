@@ -9,6 +9,7 @@ RUN npm ci
 # ─── Stage 2: Build the application ──────────────────────────────────────────
 FROM node:20-alpine AS builder
 RUN apk add --no-cache openssl
+RUN npm install -g npm@11
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
