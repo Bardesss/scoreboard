@@ -1,6 +1,10 @@
 import Mailgun from 'mailgun.js'
 import FormData from 'form-data'
 
+export function isMailConfigured(): boolean {
+  return !!(process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN && process.env.MAILGUN_FROM)
+}
+
 function createClient() {
   const mg = new Mailgun(FormData)
   return mg.client({
@@ -11,6 +15,7 @@ function createClient() {
 }
 
 async function send(to: string, subject: string, html: string) {
+  if (!isMailConfigured()) return
   const client = createClient()
   await client.messages.create(process.env.MAILGUN_DOMAIN!, {
     from: process.env.MAILGUN_FROM!,

@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { signIn } from '@/lib/auth'
-import { sendVerificationEmail, sendPasswordResetEmail } from '@/lib/mail'
+import { sendVerificationEmail, sendPasswordResetEmail, isMailConfigured } from '@/lib/mail'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { redirect } from 'next/navigation'
@@ -29,12 +29,19 @@ export async function register(formData: FormData): Promise<ActionResult> {
 
   const passwordHash = await bcrypt.hash(password, 12)
   const user = await prisma.user.create({
-    data: { email, passwordHash, locale },
+    data: {
+      email,
+      passwordHash,
+      locale,
+      emailVerified: isMailConfigured() ? null : new Date(),
+    },
   })
 
-  const token = crypto.randomUUID()
-  await redis.setex(`email_verify:${token}`, 60 * 60 * 24, user.id)
-  await sendVerificationEmail(email, token, locale)
+  if (isMailConfigured()) {
+    const token = crypto.randomUUID()
+    await redis.setex(`email_verify:${token}`, 60 * 60 * 24, user.id)
+    await sendVerificationEmail(email, token, locale)
+  }
 
   return { success: true }
 }
