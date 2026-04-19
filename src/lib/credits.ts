@@ -82,9 +82,7 @@ export async function deductCredits(
       newPermanent = 0
       txs.push({ pool: 'monthly', delta: -partial })
       txs.push({ pool: 'permanent', delta: -permanent })
-      if (remainder - permanent > 0) {
-        txs.push({ pool: 'monthly', delta: -(remainder - permanent) })
-      }
+      txs.push({ pool: 'monthly', delta: -(remainder - permanent) })
     }
   } else {
     // Case C: monthly <= 0, deduct from permanent (or further negative)
