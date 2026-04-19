@@ -5,7 +5,8 @@
     "games": "Spellen",
     "leagues": "Competities",
     "credits": "Credits",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "vaultKeeper": "Vault Keeper"
   },
   "credits": {
     "balance": "{n} credits",

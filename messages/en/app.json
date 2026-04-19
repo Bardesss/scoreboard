@@ -5,7 +5,8 @@
     "games": "Games",
     "leagues": "Leagues",
     "credits": "Credits",
-    "settings": "Settings"
+    "settings": "Settings",
+    "vaultKeeper": "Vault Keeper"
   },
   "credits": {
     "balance": "{n} credits",

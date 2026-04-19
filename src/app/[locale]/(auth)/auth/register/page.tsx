@@ -36,6 +36,7 @@ export default function RegisterPage() {
       <h1 className="font-headline font-black text-[26px] text-on-surface tracking-[-0.03em] mb-1">{t('register.title')}</h1>
       <p className="font-body text-[14px] text-on-surface-variant mb-8">{t('register.subtitle')}</p>
       <form action={formAction}>
+        <UnderlineInput label={t('register.name')} name="name" type="text" autoComplete="name" required placeholder={t('register.namePlaceholder')} />
         <UnderlineInput label={t('register.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
         <UnderlineInput label={t('register.password')} name="password" type="password" autoComplete="new-password" required placeholder="••••••••" />
         <UnderlineInput label={t('register.passwordConfirm')} name="passwordConfirm" type="password" autoComplete="new-password" required placeholder="••••••••" />

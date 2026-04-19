@@ -15,11 +15,13 @@ const emailSchema = z.string().email()
 const passwordSchema = z.string().min(8)
 
 export async function register(formData: FormData): Promise<ActionResult> {
+  const name = (formData.get('name') as string)?.trim()
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const password = formData.get('password') as string
   const passwordConfirm = formData.get('passwordConfirm') as string
   const locale = (formData.get('locale') as string) || 'en'
 
+  if (!name) return { error: 'auth.errors.nameRequired' }
   if (!emailSchema.safeParse(email).success) return { error: 'auth.errors.invalidEmail' }
   if (!passwordSchema.safeParse(password).success) return { error: 'auth.errors.passwordTooShort' }
   if (password !== passwordConfirm) return { error: 'auth.errors.passwordMismatch' }
@@ -34,6 +36,15 @@ export async function register(formData: FormData): Promise<ActionResult> {
       passwordHash,
       locale,
       emailVerified: isMailConfigured() ? null : new Date(),
+    },
+  })
+
+  await prisma.player.create({
+    data: {
+      userId: user.id,
+      linkedUserId: user.id,
+      name,
+      avatarSeed: name.toLowerCase().trim(),
     },
   })
 

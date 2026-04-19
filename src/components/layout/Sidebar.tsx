@@ -75,7 +75,7 @@ export default function Sidebar({ email, credits }: { email: string; credits: nu
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{email}</div>
-            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>User</div>
+            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>{t('vaultKeeper')}</div>
           </div>
         </div>
       </div>
