@@ -24,6 +24,7 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { deductCredits, checkRateLimit } from '@/lib/credits'
 import { createLeague, deleteLeague } from '@/app/app/leagues/actions'
+import { logPlayedGame } from '@/app/app/leagues/[id]/actions'
 
 const session = { user: { id: 'user-1', email: 'test@example.com', locale: 'en', role: 'user' } }
 
@@ -77,5 +78,41 @@ describe('deleteLeague', () => {
     vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'other' } as never)
     const result = await deleteLeague('lg1')
     expect(result).toEqual({ success: false, error: 'errors.notFound' })
+  })
+})
+
+describe('logPlayedGame', () => {
+  it('deducts credits and creates played game with scores', async () => {
+    vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'user-1' } as never)
+    vi.mocked(prisma.$transaction).mockResolvedValue([{ id: 'pg1' }] as never)
+
+    const result = await logPlayedGame('lg1', {
+      playedAt: new Date('2026-04-19'),
+      notes: '',
+      scores: [{ playerId: 'p1', score: 42 }, { playerId: 'p2', score: 31 }],
+    })
+
+    expect(checkRateLimit).toHaveBeenCalledWith('user-1', 'played_game')
+    expect(deductCredits).toHaveBeenCalledWith('user-1', 'played_game', expect.any(Object))
+    expect(result).toEqual({ success: true, id: 'pg1' })
+  })
+
+  it('rejects logging for a league the user does not own', async () => {
+    vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'other' } as never)
+    const result = await logPlayedGame('lg1', {
+      playedAt: new Date(),
+      notes: '',
+      scores: [],
+    })
+    expect(result).toEqual({ success: false, error: 'errors.notFound' })
+    expect(deductCredits).not.toHaveBeenCalled()
+  })
+
+  it('returns insufficientCredits on InsufficientCreditsError', async () => {
+    vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'user-1' } as never)
+    const { InsufficientCreditsError } = await import('@/lib/credits')
+    vi.mocked(deductCredits).mockRejectedValueOnce(new InsufficientCreditsError())
+    const result = await logPlayedGame('lg1', { playedAt: new Date(), notes: '', scores: [] })
+    expect(result).toEqual({ success: false, error: 'errors.insufficientCredits' })
   })
 })
