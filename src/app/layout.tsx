@@ -3,8 +3,11 @@ import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Dice Vault — Remember who actually won.',
-  description: 'Log every game night, track stats, and settle debates once and for all. Your group\'s scoreboard, all in one vault.',
+  title: {
+    default: 'Dice Vault',
+    template: '%s | Dice Vault',
+  },
+  description: 'Log every game night, track stats, and settle debates once and for all.',
 }
 
 export default function RootLayout({
@@ -13,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
