@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import { Dices, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 export default async function GamesPage() {
   const session = await auth()
@@ -37,13 +37,17 @@ export default async function GamesPage() {
         <ul className="space-y-3">
           {templates.map(tmpl => (
             <li key={tmpl.id} className="p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
-                <Dices size={18} style={{ color: '#f5a623' }} />
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                style={{ background: `${tmpl.color}22` }}
+              >
+                {tmpl.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{tmpl.name}</div>
                 {tmpl.description && <div className="text-xs font-body truncate mt-0.5" style={{ color: '#9a8878' }}>{tmpl.description}</div>}
               </div>
+              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: tmpl.color }} />
             </li>
           ))}
         </ul>

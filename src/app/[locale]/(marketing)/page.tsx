@@ -120,6 +120,12 @@ export default async function LandingPage({ params }: Props) {
     game: t(`reviews.placeholder.${i}.game`),
   }))
 
+  const gameTypeItems = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => ({
+    icon: t(`gameTypes.items.${i}.icon` as Parameters<typeof t>[0]),
+    title: t(`gameTypes.items.${i}.title` as Parameters<typeof t>[0]),
+    description: t(`gameTypes.items.${i}.description` as Parameters<typeof t>[0]),
+  }))
+
   return (
     <div className="landing-page relative z-10">
 
@@ -238,6 +244,24 @@ export default async function LandingPage({ params }: Props) {
               )
             })}
           </div>
+        </div>
+      </section>
+
+      {/* ── Game Types ── */}
+      <section className="max-w-5xl mx-auto px-6 py-20">
+        <LPSectionHeader
+          overline={t('gameTypes.overline')}
+          headline={t('gameTypes.headline')}
+          subheadline={t('gameTypes.subheadline')}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {gameTypeItems.map((item, i) => (
+            <div key={i} className="rounded-2xl p-5 transition-all hover:-translate-y-1" style={{ ...card, transitionDuration: '200ms' }}>
+              <div className="text-3xl mb-3">{item.icon}</div>
+              <h3 className="font-headline font-extrabold text-[15px] tracking-[-0.02em] mb-1.5" style={{ color: text }}>{item.title}</h3>
+              <p className="font-body text-[13px] leading-relaxed" style={{ color: muted }}>{item.description}</p>
+            </div>
+          ))}
         </div>
       </section>
 
