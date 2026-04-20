@@ -192,5 +192,21 @@
   "footer": {
     "tagline": "Every game night, remembered.",
     "rights": "All rights reserved."
+  },
+  "gameTypes": {
+    "overline": "Every game type",
+    "headline": "Built for the games you actually play",
+    "subheadline": "Whatever you track, Dice Vault handles it.",
+    "items": [
+      { "icon": "🎲", "title": "Points", "description": "Track scores for every player. Perfect for Catan, Ticket to Ride, and anything with a points tally." },
+      { "icon": "🏆", "title": "High score", "description": "Only the winner's score matters. Great for arcade-style games and speed rounds." },
+      { "icon": "⏱", "title": "Fastest wins", "description": "Race games and speed challenges. Lowest time takes the crown." },
+      { "icon": "🥇", "title": "Finish order", "description": "Who came first, second, third? Track placements across every session." },
+      { "icon": "⚔️", "title": "Last one standing", "description": "Elimination games where the final survivor wins." },
+      { "icon": "👑", "title": "Winner declared", "description": "Card games and hidden-role games where someone wins by declaration." },
+      { "icon": "🛡️", "title": "Co-op", "description": "The whole group wins or loses together. Optionally track difficulty levels." },
+      { "icon": "🤝", "title": "Team vs Team", "description": "Split into teams and track which side comes out on top." },
+      { "icon": "🔮", "title": "Secret mission", "description": "Players have hidden objectives revealed at the end. Who pulled it off?" }
+    ]
   }
 }
