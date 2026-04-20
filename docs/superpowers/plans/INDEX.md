@@ -9,7 +9,7 @@ Single source of truth for phase order, plan files, and status.
 | **1a** | [phase-1a-infrastructure.md](2026-04-16-phase-1a-infrastructure.md) | done | main spec §17 |
 | **1b** | [phase-1b-auth-landing.md](2026-04-16-phase-1b-auth-landing.md) | done | main spec §17 (next-intl, auth, landing, app shell) |
 | **2** | [phase-2-core-features.md](2026-04-19-phase-2-core-features.md) | done | main spec §17, group features §2-4, credits spec §3 (credit pool split) |
-| **2b** | phase-2b-game-wizard.md | not written | Improved game wizard — prerequisite before Phase 3 |
+| **2b** | [phase-2b-game-wizard.md](2026-04-20-game-wizard-phase-2b.md) | done | Improved game wizard — 5-step adaptive wizard with win types, scoring config, buy-in, colour + icon |
 | **3** | [phase-3-social-connections.md](2026-04-19-phase-3-social-connections.md) | ready to execute | group features §5-8, main spec §17 (dashboard, stats) |
 | **4** | phase-4-admin.md | not written | main spec §15-16, group features §7 (emails), credits spec §4-5 (free mode UI, wallet), credits spec §8 (gifting), tickets spec §phases |
 | **5** | phase-5-payments.md | not written | main spec §11 (Mollie, Stripe) |
