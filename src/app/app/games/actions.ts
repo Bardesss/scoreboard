@@ -47,8 +47,8 @@ export async function createGameTemplate(
     data: {
       userId: session.user.id,
       name,
-      color: input.color,
-      icon: input.icon,
+      color: input.color || '#f5a623',
+      icon: input.icon || '🎲',
       winType: input.winType,
       winCondition: input.winCondition ?? null,
       scoreFields: input.scoreFields,
