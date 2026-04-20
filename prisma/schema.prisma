@@ -49,14 +49,28 @@ model Player {
 }
 
 model GameTemplate {
-  id           String    @id @default(cuid())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name         String
-  description  String?
-  scoringNotes String?
-  leagues      League[]
-  createdAt    DateTime  @default(now())
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  scoringNotes    String?
+  color           String    @default("#f5a623")
+  icon            String    @default("🎲")
+  winType         String    @default("points-all")
+  winCondition    String?
+  scoreFields     String[]  @default([])
+  roles           String[]  @default([])
+  missions        String[]  @default([])
+  trackDifficulty Boolean   @default(false)
+  trackTeamScores Boolean   @default(false)
+  timeUnit        String?
+  buyInEnabled    Boolean   @default(false)
+  buyInCurrency   String?
+  minPlayers      Int?
+  maxPlayers      Int?
+  leagues         League[]
+  createdAt       DateTime  @default(now())
 }
 
 model League {
