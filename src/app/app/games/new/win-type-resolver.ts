@@ -1,12 +1,12 @@
 import type { Q1Answer, Q2Answer, Q3Answer, WinType } from './wizard-types'
 
-interface WinTypeQuestions {
+export interface WinTypeQuestions {
   q1: Q1Answer | null
   q2: Q2Answer | null
   q3: Q3Answer | null
 }
 
-interface ResolvedWinType {
+export interface ResolvedWinType {
   winType: WinType | null
   rolesEnabled: boolean
   isComplete: boolean
