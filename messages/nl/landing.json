@@ -200,7 +200,7 @@
     "items": [
       { "icon": "🎲", "title": "Punten", "description": "Scores bijhouden voor elke speler. Perfect voor Catan, Ticket to Ride en alles met punten." },
       { "icon": "🏆", "title": "Hoogste score", "description": "Alleen de score van de winnaar telt. Ideaal voor arcade-spellen en snelheidsrondes." },
-      { "icon": "⏱", "title": "Snelste wint", "description": "Racespellen en tijduitdagingen. De laagste tijd wint." },
+      { "icon": "⏱️", "title": "Snelste wint", "description": "Racespellen en tijduitdagingen. De laagste tijd wint." },
       { "icon": "🥇", "title": "Eindvolgorde", "description": "Wie eindigde als eerste, tweede, derde? Sla elke plaatsing op." },
       { "icon": "⚔️", "title": "Laatste overblijver", "description": "Eliminatiespellen waarbij de laatste speler wint." },
       { "icon": "👑", "title": "Winnaar aanwijzen", "description": "Kaartspellen en verborgen-rolspellen waarbij iemand als winnaar wordt uitgeroepen." },
