@@ -103,24 +103,28 @@ export async function disconnect(connectedUserId: string) {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
 
-  await prisma.$transaction([
-    prisma.vaultConnection.deleteMany({
-      where: {
-        OR: [
-          { userId: session.user.id, connectedUserId },
-          { userId: connectedUserId, connectedUserId: session.user.id },
-        ],
-      },
-    }),
-    prisma.player.updateMany({
-      where: { userId: session.user.id, linkedUserId: connectedUserId },
-      data: { linkedUserId: null },
-    }),
-    prisma.player.updateMany({
-      where: { userId: connectedUserId, linkedUserId: session.user.id },
-      data: { linkedUserId: null },
-    }),
-  ])
+  try {
+    await prisma.$transaction([
+      prisma.vaultConnection.deleteMany({
+        where: {
+          OR: [
+            { userId: session.user.id, connectedUserId },
+            { userId: connectedUserId, connectedUserId: session.user.id },
+          ],
+        },
+      }),
+      prisma.player.updateMany({
+        where: { userId: session.user.id, linkedUserId: connectedUserId },
+        data: { linkedUserId: null },
+      }),
+      prisma.player.updateMany({
+        where: { userId: connectedUserId, linkedUserId: session.user.id },
+        data: { linkedUserId: null },
+      }),
+    ])
 
-  return { success: true }
+    return { success: true }
+  } catch {
+    return { error: 'Failed to disconnect' }
+  }
 }
