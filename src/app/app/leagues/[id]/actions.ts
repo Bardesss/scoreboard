@@ -84,6 +84,7 @@ export async function rejectPlayedGame(playedGameId: string) {
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'rejected' } })
+  await redis.del(`cache:dashboard:${session.user.id}`)
   await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId })
 
   revalidatePath(`/app/leagues/${pg.leagueId}`)
