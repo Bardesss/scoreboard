@@ -97,6 +97,7 @@
       "winConditionHigh": "Highest score wins",
       "winConditionLow": "Lowest score wins",
       "scoreFieldsLabel": "Score fields",
+      "scoreFieldsHint": "Optional — break the score into named categories (e.g. \"Settlements\", \"Cities\"). Leave empty for a single total score.",
       "addField": "+ Add field",
       "fieldPlaceholder": "Field name (e.g. Points)",
       "removeField": "Remove",

@@ -105,7 +105,8 @@ export function Step3Scoring({ state, onChange }: Props) {
           </div>
         </div>
         <div>
-          <p className="font-headline font-bold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('scoreFieldsLabel')}</p>
+          <p className="font-headline font-bold text-xs mb-1" style={{ color: '#4a3f2f' }}>{t('scoreFieldsLabel')}</p>
+          <p className="font-body text-xs mb-2" style={{ color: '#9a8878' }}>{t('scoreFieldsHint')}</p>
           <StringListEditor
             items={state.scoreFields}
             onChange={scoreFields => onChange({ scoreFields })}

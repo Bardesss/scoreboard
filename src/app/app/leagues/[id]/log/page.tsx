@@ -20,9 +20,11 @@ export default function LogGamePage() {
   const [members, setMembers] = useState<Member[]>([])
   const [winType, setWinType] = useState<WinType>('points-all')
   const [missions, setMissions] = useState<string[]>([])
+  const [scoreFields, setScoreFields] = useState<string[]>([])
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState('')
-  const [scores, setScores] = useState<Record<string, string>>({})
+  // scores[playerId][fieldIndex] — single total when no fields defined (fieldIndex 0)
+  const [scores, setScores] = useState<Record<string, string[]>>({})
   const [winnerId, setWinnerId] = useState<string>('')
   const [winningMission, setWinningMission] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -30,12 +32,15 @@ export default function LogGamePage() {
   useEffect(() => {
     fetch(`/api/app/leagues/${leagueId}/members`)
       .then(r => r.json())
-      .then((data: { members: Member[]; winType: WinType; missions: string[] }) => {
+      .then((data: { members: Member[]; winType: WinType; missions: string[]; scoreFields: string[] }) => {
         setMembers(data.members)
         setWinType(data.winType)
         setMissions(data.missions ?? [])
-        const initial: Record<string, string> = {}
-        data.members.forEach(m => { initial[m.player.id] = '' })
+        const fields = data.scoreFields ?? []
+        setScoreFields(fields)
+        const fieldCount = fields.length > 0 ? fields.length : 1
+        const initial: Record<string, string[]> = {}
+        data.members.forEach(m => { initial[m.player.id] = Array(fieldCount).fill('') })
         setScores(initial)
       })
       .catch(() => {})
@@ -50,7 +55,7 @@ export default function LogGamePage() {
     if (isScoreBased) {
       scoreEntries = members.map(m => ({
         playerId: m.player.id,
-        score: parseInt(scores[m.player.id] ?? '0', 10) || 0,
+        score: (scores[m.player.id] ?? []).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0),
       }))
     } else {
       if (!winnerId) { toast.error(tErrors('required')); return }
@@ -98,20 +103,46 @@ export default function LogGamePage() {
         {isScoreBased ? (
           <div>
             <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('scores')}</label>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {members.map(m => (
-                <li key={m.id} className="flex items-center gap-3">
-                  <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
-                  <input
-                    type="number"
-                    value={scores[m.player.id] ?? ''}
-                    onChange={e => setScores(prev => ({ ...prev, [m.player.id]: e.target.value }))}
-                    placeholder={t('scorePlaceholder')}
-                    className="w-28 px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
-                    style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
-                    onFocus={e => (e.target.style.borderColor = '#f5a623')}
-                    onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
-                  />
+                <li key={m.id} className="rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
+                  <span className="block font-headline font-semibold text-sm mb-2" style={{ color: '#1c1810' }}>{m.player.name}</span>
+                  {scoreFields.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {scoreFields.map((field, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="flex-1 font-body text-xs" style={{ color: '#4a3f2f' }}>{field}</span>
+                          <input
+                            type="number"
+                            value={scores[m.player.id]?.[i] ?? ''}
+                            onChange={e => setScores(prev => {
+                              const arr = [...(prev[m.player.id] ?? [])]
+                              arr[i] = e.target.value
+                              return { ...prev, [m.player.id]: arr }
+                            })}
+                            placeholder="0"
+                            className="w-24 px-3 py-1.5 rounded-xl border font-headline font-bold text-sm text-right"
+                            style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                            onFocus={e => (e.target.style.borderColor = '#f5a623')}
+                            onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={scores[m.player.id]?.[0] ?? ''}
+                        onChange={e => setScores(prev => ({ ...prev, [m.player.id]: [e.target.value] }))}
+                        placeholder={t('scorePlaceholder')}
+                        className="w-full px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
+                        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                        onFocus={e => (e.target.style.borderColor = '#f5a623')}
+                        onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
+                      />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

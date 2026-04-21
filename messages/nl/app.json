@@ -97,6 +97,7 @@
       "winConditionHigh": "Hoogste score wint",
       "winConditionLow": "Laagste score wint",
       "scoreFieldsLabel": "Scorevelden",
+      "scoreFieldsHint": "Optioneel — splits de score op in categorieën (bijv. \"Nederzettingen\", \"Steden\"). Laat leeg voor één totaalscore.",
       "addField": "+ Veld toevoegen",
       "fieldPlaceholder": "Veldnaam (bijv. Punten)",
       "removeField": "Verwijderen",
