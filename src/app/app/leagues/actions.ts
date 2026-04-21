@@ -19,18 +19,18 @@ export async function createLeague(
   if (!session) redirect('/en/auth/login')
 
   const name = input.name.trim()
-  if (!name) return { success: false, error: 'errors.required' }
-  if (!input.gameTemplateId) return { success: false, error: 'errors.required' }
+  if (!name) return { success: false, error: 'required' }
+  if (!input.gameTemplateId) return { success: false, error: 'required' }
 
   const template = await prisma.gameTemplate.findUnique({ where: { id: input.gameTemplateId } })
-  if (!template || template.userId !== session.user.id) return { success: false, error: 'errors.notFound' }
+  if (!template || template.userId !== session.user.id) return { success: false, error: 'notFound' }
 
   try {
     await checkRateLimit(session.user.id, 'league')
     await deductCredits(session.user.id, 'league', { action: 'create_league' })
   } catch (err) {
-    if (err instanceof InsufficientCreditsError) return { success: false, error: 'errors.insufficientCredits' }
-    return { success: false, error: 'errors.serverError' }
+    if (err instanceof InsufficientCreditsError) return { success: false, error: 'insufficientCredits' }
+    return { success: false, error: 'serverError' }
   }
 
   const league = await prisma.league.create({
@@ -64,7 +64,7 @@ export async function deleteLeague(id: string): Promise<{ success: boolean; erro
   if (!session) redirect('/en/auth/login')
 
   const league = await prisma.league.findUnique({ where: { id } })
-  if (!league || league.ownerId !== session.user.id) return { success: false, error: 'errors.notFound' }
+  if (!league || league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
 
   await prisma.league.delete({ where: { id } })
   revalidatePath('/app/leagues')

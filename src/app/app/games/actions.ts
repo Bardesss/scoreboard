@@ -30,15 +30,15 @@ export async function createGameTemplate(
   if (!session) redirect('/en/auth/login')
 
   const name = input.name.trim()
-  if (!name) return { success: false, error: 'errors.required' }
+  if (!name) return { success: false, error: 'required' }
 
   try {
     await checkRateLimit(session.user.id, 'game_template')
     await deductCredits(session.user.id, 'game_template', { action: 'create_game_template' })
   } catch (err) {
-    if (err instanceof InsufficientCreditsError) return { success: false, error: 'errors.insufficientCredits' }
-    if ((err as Error).message.startsWith('Rate limit')) return { success: false, error: 'errors.serverError' }
-    return { success: false, error: 'errors.serverError' }
+    if (err instanceof InsufficientCreditsError) return { success: false, error: 'insufficientCredits' }
+    if ((err as Error).message.startsWith('Rate limit')) return { success: false, error: 'serverError' }
+    return { success: false, error: 'serverError' }
   }
 
   const template = await prisma.gameTemplate.create({
@@ -84,10 +84,10 @@ export async function updateGameTemplate(
   if (!session) redirect('/en/auth/login')
 
   const name = input.name.trim()
-  if (!name) return { success: false, error: 'errors.required' }
+  if (!name) return { success: false, error: 'required' }
 
   const template = await prisma.gameTemplate.findUnique({ where: { id } })
-  if (!template || template.userId !== session.user.id) return { success: false, error: 'errors.notFound' }
+  if (!template || template.userId !== session.user.id) return { success: false, error: 'notFound' }
 
   await prisma.gameTemplate.update({
     where: { id },
@@ -111,7 +111,7 @@ export async function deleteGameTemplate(id: string): Promise<{ success: boolean
   if (!session) redirect('/en/auth/login')
 
   const template = await prisma.gameTemplate.findUnique({ where: { id } })
-  if (!template || template.userId !== session.user.id) return { success: false, error: 'errors.notFound' }
+  if (!template || template.userId !== session.user.id) return { success: false, error: 'notFound' }
 
   await prisma.gameTemplate.delete({ where: { id } })
   revalidatePath('/app/games')

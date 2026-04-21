@@ -22,14 +22,14 @@ export async function logPlayedGame(
   if (!session) redirect('/en/auth/login')
 
   const league = await prisma.league.findUnique({ where: { id: leagueId } })
-  if (!league || league.ownerId !== session.user.id) return { success: false, error: 'errors.notFound' }
+  if (!league || league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
 
   try {
     await checkRateLimit(session.user.id, 'played_game')
     await deductCredits(session.user.id, 'played_game', { leagueId, action: 'log_played_game' })
   } catch (err) {
-    if (err instanceof InsufficientCreditsError) return { success: false, error: 'errors.insufficientCredits' }
-    return { success: false, error: 'errors.serverError' }
+    if (err instanceof InsufficientCreditsError) return { success: false, error: 'insufficientCredits' }
+    return { success: false, error: 'serverError' }
   }
 
   const [playedGame] = await prisma.$transaction([
