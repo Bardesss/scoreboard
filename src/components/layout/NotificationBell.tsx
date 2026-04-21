@@ -15,9 +15,11 @@ type Notification = {
 export function NotificationBell({
   initialCount,
   initialNotifications,
+  position = 'down-left',
 }: {
   initialCount: number
   initialNotifications: Notification[]
+  position?: 'down-left' | 'up-right'
 }) {
   const t = useTranslations('app.notifications')
   const [open, setOpen] = useState(false)
@@ -61,7 +63,7 @@ export function NotificationBell({
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-xl z-50 overflow-hidden"
+          className={`absolute w-72 rounded-2xl shadow-xl z-50 overflow-hidden ${position === 'up-right' ? 'left-0 bottom-full mb-2' : 'right-0 top-full mt-2'}`}
           style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}
         >
           {notifications.length === 0 ? (

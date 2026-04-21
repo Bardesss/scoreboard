@@ -87,7 +87,7 @@ export default function Sidebar({ name, credits, unreadCount, notifications }: {
             <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{name}</div>
             <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>{t('vaultKeeper')}</div>
           </div>
-          <NotificationBell initialCount={unreadCount} initialNotifications={notifications} />
+          <NotificationBell initialCount={unreadCount} initialNotifications={notifications} position="up-right" />
         </div>
       </div>
     </aside>
