@@ -6,8 +6,9 @@ import { Avatar } from '@/components/shared/Avatar'
 import { createPlayer, updatePlayer, deletePlayer, linkPlayer } from './actions'
 import { searchUsers, sendConnectionRequest, acceptConnectionRequest, declineConnectionRequest, disconnect } from '../connections/actions'
 import { Pencil, Trash2, Plus, X, Check, UserPlus, Search, Link2, Unlink2 } from 'lucide-react'
+import { COLORS } from '../games/new/wizard-types'
 
-type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null }
+type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null; color: string }
 type VaultKeeper = { id: string; email: string | null; username: string | null }
 type Request = { id: string; fromEmail: string; fromUsername: string | null }
 type SentRequest = { id: string; toEmail: string; toUsername: string | null }
@@ -35,7 +36,9 @@ export default function PlayersClient({
   const [adding, setAdding] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
+  const [newColor, setNewColor] = useState('#f5a623')
   const [editName, setEditName] = useState('')
+  const [editColor, setEditColor] = useState('#f5a623')
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [linkingPlayerId, setLinkingPlayerId] = useState<string | null>(null)
 
@@ -49,17 +52,20 @@ export default function PlayersClient({
   async function handleAdd() {
     const fd = new FormData()
     fd.set('name', newName)
+    fd.set('color', newColor)
     const res = await createPlayer(fd)
     if (!res.success) { toast.error(tErrors(res.error as never)); return }
     toast.success(tToasts('playerSaved'))
     setAdding(false)
     setNewName('')
+    setNewColor('#f5a623')
     window.location.reload()
   }
 
   async function handleUpdate(id: string) {
     const fd = new FormData()
     fd.set('name', editName)
+    fd.set('color', editColor)
     const res = await updatePlayer(id, fd)
     if (!res.success) { toast.error(tErrors(res.error as never)); return }
     toast.success(tToasts('playerSaved'))
@@ -138,18 +144,35 @@ export default function PlayersClient({
       </div>
 
       {adding && (
-        <div className="flex gap-2 mb-4">
-          <input
-            autoFocus
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') setAdding(false) }}
-            placeholder={t('namePlaceholder')}
-            className="flex-1 px-3 py-2 rounded-xl border text-sm font-body"
-            style={{ borderColor: '#f5a623', outline: 'none', background: '#fffdf9' }}
-          />
-          <button onClick={handleAdd} className="p-2 rounded-xl" style={{ background: '#f5a623', color: '#1c1408' }}><Check size={16} /></button>
-          <button onClick={() => setAdding(false)} className="p-2 rounded-xl" style={{ background: '#f0ebe3', color: '#4a3f2f' }}><X size={16} /></button>
+        <div className="rounded-2xl p-4 mb-4 space-y-3" style={{ background: '#fffdf9', border: '1px solid #f5a623' }}>
+          <div className="flex gap-2">
+            <input
+              autoFocus
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') setAdding(false) }}
+              placeholder={t('namePlaceholder')}
+              className="flex-1 px-3 py-2 rounded-xl border text-sm font-body"
+              style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fff' }}
+            />
+            <button onClick={handleAdd} className="p-2 rounded-xl" style={{ background: '#f5a623', color: '#1c1408' }}><Check size={16} /></button>
+            <button onClick={() => setAdding(false)} className="p-2 rounded-xl" style={{ background: '#f0ebe3', color: '#4a3f2f' }}><X size={16} /></button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {COLORS.map(c => (
+              <button
+                key={c}
+                onClick={() => setNewColor(c)}
+                className="w-7 h-7 rounded-full transition-transform"
+                style={{
+                  background: c,
+                  transform: newColor === c ? 'scale(1.25)' : 'scale(1)',
+                  outline: newColor === c ? `2px solid ${c}` : 'none',
+                  outlineOffset: '2px',
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -167,19 +190,39 @@ export default function PlayersClient({
           return (
             <li key={player.id} className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: `1px solid ${isMe ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
               <div className="flex items-center gap-3 p-3">
-                <Avatar seed={player.avatarSeed} name={player.name} size={40} />
+                <div className="relative flex-shrink-0">
+                  <Avatar seed={player.avatarSeed} name={player.name} size={40} />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white" style={{ background: player.color }} />
+                </div>
                 {editId === player.id ? (
-                  <div className="flex-1 flex gap-2">
-                    <input
-                      autoFocus
-                      value={editName}
-                      onChange={e => setEditName(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') handleUpdate(player.id); if (e.key === 'Escape') setEditId(null) }}
-                      className="flex-1 px-3 py-1.5 rounded-xl border text-sm font-body"
-                      style={{ borderColor: '#f5a623', outline: 'none', background: '#fffdf9' }}
-                    />
-                    <button onClick={() => handleUpdate(player.id)} className="p-1.5 rounded-lg" style={{ background: '#f5a623', color: '#1c1408' }}><Check size={14} /></button>
-                    <button onClick={() => setEditId(null)} className="p-1.5 rounded-lg" style={{ background: '#f0ebe3', color: '#4a3f2f' }}><X size={14} /></button>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        autoFocus
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') handleUpdate(player.id); if (e.key === 'Escape') setEditId(null) }}
+                        className="flex-1 px-3 py-1.5 rounded-xl border text-sm font-body"
+                        style={{ borderColor: '#f5a623', outline: 'none', background: '#fffdf9' }}
+                      />
+                      <button onClick={() => handleUpdate(player.id)} className="p-1.5 rounded-lg" style={{ background: '#f5a623', color: '#1c1408' }}><Check size={14} /></button>
+                      <button onClick={() => setEditId(null)} className="p-1.5 rounded-lg" style={{ background: '#f0ebe3', color: '#4a3f2f' }}><X size={14} /></button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {COLORS.map(c => (
+                        <button
+                          key={c}
+                          onClick={() => setEditColor(c)}
+                          className="w-6 h-6 rounded-full transition-transform"
+                          style={{
+                            background: c,
+                            transform: editColor === c ? 'scale(1.3)' : 'scale(1)',
+                            outline: editColor === c ? `2px solid ${c}` : 'none',
+                            outlineOffset: '2px',
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -210,7 +253,7 @@ export default function PlayersClient({
                         </button>
                       )}
                     </div>
-                    <button onClick={() => { setEditId(player.id); setEditName(player.name) }} className="p-1.5 rounded-lg hover:bg-amber-50" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
+                    <button onClick={() => { setEditId(player.id); setEditName(player.name); setEditColor(player.color) }} className="p-1.5 rounded-lg hover:bg-amber-50" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
                     {!isMe && (
                       <button onClick={() => setDeleteId(player.id)} className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#9a8878' }}><Trash2 size={14} /></button>
                     )}

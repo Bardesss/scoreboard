@@ -10,7 +10,7 @@ export default async function PlayersPage() {
   const [players, received, sent, connections] = await Promise.all([
     prisma.player.findMany({
       where: { userId: session.user.id },
-      select: { id: true, name: true, avatarSeed: true, linkedUserId: true },
+      select: { id: true, name: true, avatarSeed: true, linkedUserId: true, color: true },
       orderBy: { createdAt: 'asc' },
     }),
     prisma.connectionRequest.findMany({

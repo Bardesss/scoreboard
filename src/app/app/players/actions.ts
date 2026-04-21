@@ -16,6 +16,8 @@ export async function createPlayer(formData: FormData): Promise<{ success: boole
   const name = String(formData.get('name') ?? '').trim()
   if (!name) return { success: false, error: 'required' }
 
+  const color = String(formData.get('color') ?? '#f5a623')
+
   try {
     await checkRateLimit(session.user.id, 'add_player')
     await deductCredits(session.user.id, 'add_player', { action: 'create_player' })
@@ -26,7 +28,7 @@ export async function createPlayer(formData: FormData): Promise<{ success: boole
   }
 
   await prisma.player.create({
-    data: { userId: session.user.id, name, avatarSeed: makeAvatarSeed(name) },
+    data: { userId: session.user.id, name, avatarSeed: makeAvatarSeed(name), color },
   })
 
   revalidatePath('/app/players')
@@ -43,12 +45,14 @@ export async function updatePlayer(
   const name = String(formData.get('name') ?? '').trim()
   if (!name) return { success: false, error: 'required' }
 
+  const color = String(formData.get('color') ?? '#f5a623')
+
   const player = await prisma.player.findUnique({ where: { id } })
   if (!player || player.userId !== session.user.id) return { success: false, error: 'notFound' }
 
   await prisma.player.update({
     where: { id },
-    data: { name, avatarSeed: makeAvatarSeed(name) },
+    data: { name, avatarSeed: makeAvatarSeed(name), color },
   })
 
   revalidatePath('/app/players')
