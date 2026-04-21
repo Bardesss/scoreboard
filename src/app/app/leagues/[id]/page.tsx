@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { Trophy, Plus } from 'lucide-react'
 import { Avatar } from '@/components/shared/Avatar'
+import { ShareButton } from './ShareButton'
 
 export default async function LeagueDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,7 +23,11 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
           orderBy: { createdAt: 'asc' },
         },
         playedGames: {
-          include: {
+          select: {
+            id: true,
+            playedAt: true,
+            notes: true,
+            shareToken: true,
             scores: {
               include: { player: { select: { name: true } } },
               orderBy: { score: 'desc' },
@@ -80,8 +85,11 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
           <ul className="space-y-3">
             {league.playedGames.map(pg => (
               <li key={pg.id} className="p-4 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <div className="font-headline font-semibold text-xs mb-2" style={{ color: '#9a8878' }}>
-                  {new Date(pg.playedAt).toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB', { dateStyle: 'medium' })}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-headline font-semibold text-xs" style={{ color: '#9a8878' }}>
+                    {new Date(pg.playedAt).toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB', { dateStyle: 'medium' })}
+                  </span>
+                  {pg.shareToken && <ShareButton token={pg.shareToken} />}
                 </div>
                 <ul className="space-y-1">
                   {pg.scores.map((s, i) => (
