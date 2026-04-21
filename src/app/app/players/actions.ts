@@ -66,3 +66,22 @@ export async function deletePlayer(id: string): Promise<{ success: boolean; erro
   revalidatePath('/app/players')
   return { success: true }
 }
+
+export async function linkPlayer(playerId: string, vaultKeeperId: string | null): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session) redirect('/en/auth/login')
+
+  const player = await prisma.player.findUnique({ where: { id: playerId } })
+  if (!player || player.userId !== session.user.id) return { success: false, error: 'errors.notFound' }
+
+  if (vaultKeeperId !== null) {
+    const connection = await prisma.vaultConnection.findFirst({
+      where: { userId: session.user.id, connectedUserId: vaultKeeperId },
+    })
+    if (!connection) return { success: false, error: 'errors.notFound' }
+  }
+
+  await prisma.player.update({ where: { id: playerId }, data: { linkedUserId: vaultKeeperId } })
+  revalidatePath('/app/players')
+  return { success: true }
+}

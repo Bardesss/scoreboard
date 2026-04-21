@@ -43,7 +43,10 @@
     "namePlaceholder": "Naam van de speler",
     "you": "jij",
     "deleteConfirm": "Weet je zeker dat je deze speler wilt verwijderen?",
-    "deleteWarning": "Alle scores van deze speler blijven bewaard."
+    "deleteWarning": "Alle scores van deze speler blijven bewaard.",
+    "linkVaultKeeper": "Koppel aan kluis-beheerder",
+    "linked": "Gekoppeld",
+    "unlink": "Ontkoppelen"
   },
   "games": {
     "title": "Spellen",
@@ -172,15 +175,39 @@
     "save": "Opslaan",
     "usernameSaved": "Gebruikersnaam opgeslagen!",
     "connections": "Verbonden kluis-beheerders",
-    "qrHint": "Anderen kunnen dit scannen om met je te verbinden"
+    "qrHint": "Anderen kunnen dit scannen om met je te verbinden",
+    "usernameHint": "Kleine letters, cijfers en underscores. Min. 3 tekens."
   },
   "connections": {
     "title": "Verbindingen",
-    "find": "Kluis-beheerders zoeken",
+    "find": "Kluis-beheerders",
     "incoming": "Inkomende verzoeken",
     "pending": "Verzonden verzoeken",
     "connected": "Verbonden kluis-beheerders",
-    "empty": "Nog geen verbindingen."
+    "empty": "Nog geen verbindingen.",
+    "searchPlaceholder": "Zoeken op gebruikersnaam of e-mail…",
+    "search": "Zoeken",
+    "connect": "Verbinden",
+    "disconnect": "Verbreken",
+    "awaitingResponse": "Wacht op reactie…",
+    "noConnectionsHint": "Zoek hierboven om te verbinden met andere kluis-beheerders.",
+    "requestSent": "Verbindingsverzoek verzonden",
+    "requestSentFailed": "Verzenden mislukt",
+    "accepted": "Verbinding geaccepteerd",
+    "declined": "Verzoek afgewezen",
+    "disconnected": "Verbinding verbroken",
+    "failed": "Mislukt"
+  },
+  "notifications": {
+    "noNotifications": "Geen meldingen",
+    "someone": "Iemand",
+    "connectionRequest": "{from} wil verbinden",
+    "connectionAccepted": "{from} heeft je verzoek geaccepteerd",
+    "connectionDeclined": "{from} heeft je verzoek afgewezen",
+    "gamePending": "Een partij wacht op goedkeuring",
+    "gameAccepted": "Je partij is goedgekeurd",
+    "gameRejected": "Je partij is afgewezen",
+    "newNotification": "Nieuwe melding"
   },
   "toasts": {
     "playerSaved": "Speler opgeslagen.",

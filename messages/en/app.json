@@ -43,7 +43,10 @@
     "namePlaceholder": "Player name",
     "you": "you",
     "deleteConfirm": "Are you sure you want to delete this player?",
-    "deleteWarning": "All scores for this player will be kept."
+    "deleteWarning": "All scores for this player will be kept.",
+    "linkVaultKeeper": "Link to vault keeper",
+    "linked": "Linked",
+    "unlink": "Unlink"
   },
   "games": {
     "title": "Games",
@@ -172,15 +175,39 @@
     "save": "Save",
     "usernameSaved": "Username saved!",
     "connections": "Connected vault keepers",
-    "qrHint": "Others can scan this to connect with you"
+    "qrHint": "Others can scan this to connect with you",
+    "usernameHint": "Lowercase letters, numbers and underscores. Min 3 characters."
   },
   "connections": {
     "title": "Connections",
-    "find": "Find vault keepers",
+    "find": "Vault keepers",
     "incoming": "Incoming requests",
     "pending": "Pending sent",
     "connected": "Connected vault keepers",
-    "empty": "No connections yet."
+    "empty": "No connections yet.",
+    "searchPlaceholder": "Search by username or email…",
+    "search": "Search",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "awaitingResponse": "Awaiting response…",
+    "noConnectionsHint": "Search above to connect with other vault keepers.",
+    "requestSent": "Connection request sent",
+    "requestSentFailed": "Failed to send request",
+    "accepted": "Connection accepted",
+    "declined": "Request declined",
+    "disconnected": "Disconnected",
+    "failed": "Failed"
+  },
+  "notifications": {
+    "noNotifications": "No notifications",
+    "someone": "Someone",
+    "connectionRequest": "{from} wants to connect",
+    "connectionAccepted": "{from} accepted your request",
+    "connectionDeclined": "{from} declined your request",
+    "gamePending": "A game submission needs your approval",
+    "gameAccepted": "Your game submission was approved",
+    "gameRejected": "Your game submission was rejected",
+    "newNotification": "New notification"
   },
   "toasts": {
     "playerSaved": "Player saved.",

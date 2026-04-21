@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, UserPlus, User } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 
 type NotificationItem = {
@@ -19,7 +19,6 @@ const NAV = [
   { key: 'players',      href: '/app/players',      icon: Users },
   { key: 'games',        href: '/app/games',        icon: Dices },
   { key: 'leagues',      href: '/app/leagues',      icon: ClipboardList },
-  { key: 'connections',  href: '/app/connections',  icon: UserPlus },
   { key: 'profile',      href: '/app/profile',      icon: User },
   { key: 'credits',      href: '/app/credits',      icon: CreditCard },
   { key: 'settings',     href: '/app/settings',     icon: Settings },

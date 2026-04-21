@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Bell } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { markAllNotificationsRead } from '@/app/app/notifications/actions'
 
 type Notification = {
@@ -11,18 +12,6 @@ type Notification = {
   createdAt: string
 }
 
-function notificationLabel(n: Notification): string {
-  switch (n.type) {
-    case 'connection_request': return `${n.meta?.fromEmail ?? 'Someone'} wants to connect`
-    case 'connection_accepted': return `${n.meta?.fromEmail ?? 'Someone'} accepted your request`
-    case 'connection_declined': return `${n.meta?.fromEmail ?? 'Someone'} declined your request`
-    case 'played_game_pending': return 'A game submission needs your approval'
-    case 'played_game_accepted': return 'Your game submission was approved'
-    case 'played_game_rejected': return 'Your game submission was rejected'
-    default: return 'New notification'
-  }
-}
-
 export function NotificationBell({
   initialCount,
   initialNotifications,
@@ -30,9 +19,23 @@ export function NotificationBell({
   initialCount: number
   initialNotifications: Notification[]
 }) {
+  const t = useTranslations('app.notifications')
   const [open, setOpen] = useState(false)
   const [count, setCount] = useState(initialCount)
   const [notifications] = useState(initialNotifications)
+
+  function notificationLabel(n: Notification): string {
+    const from = String(n.meta?.fromEmail ?? t('someone'))
+    switch (n.type) {
+      case 'connection_request':  return t('connectionRequest', { from })
+      case 'connection_accepted': return t('connectionAccepted', { from })
+      case 'connection_declined': return t('connectionDeclined', { from })
+      case 'played_game_pending': return t('gamePending')
+      case 'played_game_accepted': return t('gameAccepted')
+      case 'played_game_rejected': return t('gameRejected')
+      default: return t('newNotification')
+    }
+  }
 
   async function handleOpen() {
     setOpen(o => !o)
@@ -62,7 +65,7 @@ export function NotificationBell({
           style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}
         >
           {notifications.length === 0 ? (
-            <p className="px-4 py-6 text-center font-body text-sm" style={{ color: '#9a8878' }}>No notifications</p>
+            <p className="px-4 py-6 text-center font-body text-sm" style={{ color: '#9a8878' }}>{t('noNotifications')}</p>
           ) : (
             <ul>
               {notifications.map(n => (
