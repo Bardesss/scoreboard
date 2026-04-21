@@ -19,7 +19,7 @@ export default function BottomNav() {
   const t = useTranslations('app.nav')
 
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 flex items-center justify-around px-2 pb-safe" style={{ height: '56px', background: 'rgba(247,243,237,0.94)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(245,166,35,0.1)' }}>
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-2" style={{ background: 'rgba(247,243,237,0.94)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(245,166,35,0.1)' }}>
       {NAV.map(({ key, href, icon: Icon }) => {
         const active = pathname.startsWith(href)
         return (
