@@ -9,7 +9,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const league = await prisma.league.findUnique({
     where: { id },
-    include: { gameTemplate: { select: { winType: true } } },
+    include: { gameTemplate: { select: { winType: true, missions: true } } },
   })
   if (!league || league.ownerId !== session.user.id) return NextResponse.json([], { status: 403 })
 
@@ -19,5 +19,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     orderBy: { createdAt: 'asc' },
   })
 
-  return NextResponse.json({ members, winType: league.gameTemplate.winType })
+  return NextResponse.json({ members, winType: league.gameTemplate.winType, missions: league.gameTemplate.missions })
 }

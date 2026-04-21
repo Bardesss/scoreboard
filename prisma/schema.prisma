@@ -112,10 +112,11 @@ model PlayedGame {
   league        League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
   submittedById String
   submittedBy   User         @relation("SubmittedPlayedGames", fields: [submittedById], references: [id])
-  playedAt      DateTime
-  notes         String?
-  shareToken    String?      @unique
-  status        String       @default("approved")
+  playedAt        DateTime
+  notes           String?
+  winningMission  String?
+  shareToken      String?      @unique
+  status          String       @default("approved")
   scores        ScoreEntry[]
   createdAt     DateTime     @default(now())
 }

@@ -19,18 +19,21 @@ export default function LogGamePage() {
 
   const [members, setMembers] = useState<Member[]>([])
   const [winType, setWinType] = useState<WinType>('points-all')
+  const [missions, setMissions] = useState<string[]>([])
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState('')
   const [scores, setScores] = useState<Record<string, string>>({})
   const [winnerId, setWinnerId] = useState<string>('')
+  const [winningMission, setWinningMission] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetch(`/api/app/leagues/${leagueId}/members`)
       .then(r => r.json())
-      .then((data: { members: Member[]; winType: WinType }) => {
+      .then((data: { members: Member[]; winType: WinType; missions: string[] }) => {
         setMembers(data.members)
         setWinType(data.winType)
+        setMissions(data.missions ?? [])
         const initial: Record<string, string> = {}
         data.members.forEach(m => { initial[m.player.id] = '' })
         setScores(initial)
@@ -39,6 +42,7 @@ export default function LogGamePage() {
   }, [leagueId])
 
   const isScoreBased = SCORE_BASED_TYPES.includes(winType)
+  const isMissionBased = winType === 'secret-mission'
 
   async function handleSubmit() {
     let scoreEntries: { playerId: string; score: number }[]
@@ -49,7 +53,8 @@ export default function LogGamePage() {
         score: parseInt(scores[m.player.id] ?? '0', 10) || 0,
       }))
     } else {
-      if (!winnerId) { toast.error(tErrors('serverError')); return }
+      if (!winnerId) { toast.error(tErrors('required')); return }
+      if (isMissionBased && !winningMission) { toast.error(tErrors('required')); return }
       scoreEntries = members.map(m => ({
         playerId: m.player.id,
         score: m.player.id === winnerId ? 1 : 0,
@@ -60,6 +65,7 @@ export default function LogGamePage() {
     const result = await logPlayedGame(leagueId, {
       playedAt: new Date(playedAt),
       notes,
+      winningMission: isMissionBased ? winningMission : undefined,
       scores: scoreEntries,
     })
     setLoading(false)
@@ -135,6 +141,40 @@ export default function LogGamePage() {
                         {selected && <span className="w-2 h-2 rounded-full" style={{ background: '#f5a623' }} />}
                       </span>
                       {m.player.name}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+
+        {/* Mission picker — only for secret-mission win type */}
+        {isMissionBased && missions.length > 0 && (
+          <div>
+            <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('winningMission')}</label>
+            <ul className="space-y-2">
+              {missions.map(mission => {
+                const selected = winningMission === mission
+                return (
+                  <li key={mission}>
+                    <button
+                      type="button"
+                      onClick={() => setWinningMission(mission)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border font-headline font-semibold text-sm text-left transition-colors"
+                      style={{
+                        borderColor: selected ? '#f5a623' : '#e8e1d8',
+                        background: selected ? 'rgba(245,166,35,0.1)' : '#fffdf9',
+                        color: '#1c1810',
+                      }}
+                    >
+                      <span
+                        className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
+                        style={{ borderColor: selected ? '#f5a623' : '#c4b79a' }}
+                      >
+                        {selected && <span className="w-2 h-2 rounded-full" style={{ background: '#f5a623' }} />}
+                      </span>
+                      {mission}
                     </button>
                   </li>
                 )

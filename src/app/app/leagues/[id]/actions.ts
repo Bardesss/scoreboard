@@ -13,6 +13,7 @@ import { playedGameApprovedEmail, playedGameRejectedEmail } from '@/lib/emailTem
 type LogPlayedGameInput = {
   playedAt: Date
   notes: string
+  winningMission?: string
   scores: { playerId: string; score: number }[]
 }
 
@@ -41,6 +42,7 @@ export async function logPlayedGame(
         submittedById: session.user.id,
         playedAt: input.playedAt,
         notes: input.notes.trim() || null,
+        winningMission: input.winningMission?.trim() || null,
         status: 'approved',
         shareToken: crypto.randomUUID(),
         scores: {
