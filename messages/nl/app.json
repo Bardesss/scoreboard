@@ -52,6 +52,12 @@
     "title": "Spellen",
     "add": "Spel toevoegen",
     "empty": "Nog geen spelsjablonen. Maak je eerste spel!",
+    "edit": "Spel bewerken",
+    "delete": "Verwijderen",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "deleteConfirm": "Dit spelsjabloon verwijderen?",
+    "deleteWarning": "Competities die dit sjabloon gebruiken worden ook verwijderd.",
     "wizard": {
       "step1Title": "Spelidentiteit",
       "namePlaceholder": "Naam van het spel (bijv. Catan)",

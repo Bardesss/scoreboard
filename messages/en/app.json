@@ -52,6 +52,12 @@
     "title": "Games",
     "add": "Add game",
     "empty": "No game templates yet. Create your first game!",
+    "edit": "Edit game",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "deleteConfirm": "Delete this game template?",
+    "deleteWarning": "Leagues using this template will also be deleted.",
     "wizard": {
       "step1Title": "Game identity",
       "namePlaceholder": "Game name (e.g. Catan)",

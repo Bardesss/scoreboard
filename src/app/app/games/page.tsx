@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
-import { VaultRibbon } from '@/components/shared/VaultRibbon'
+import GamesClient from './GamesClient'
 
 export default async function GamesPage() {
   const session = await auth()
@@ -33,15 +33,9 @@ export default async function GamesPage() {
     getTranslations({ locale, namespace: 'app.games' }),
   ])
 
-  // Deduplicate borrowed templates by template id, keeping the first occurrence
   const seenTemplateIds = new Set(templates.map(t => t.id))
   const borrowedTemplates: Array<{
-    id: string
-    name: string
-    color: string
-    icon: string
-    winType: string
-    ownerName: string
+    id: string; name: string; color: string; icon: string; winType: string; ownerName: string
   }> = []
   for (const membership of borrowedMemberships) {
     const tmpl = membership.league.gameTemplate
@@ -53,8 +47,6 @@ export default async function GamesPage() {
       })
     }
   }
-
-  const allEmpty = templates.length === 0 && borrowedTemplates.length === 0
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
@@ -69,42 +61,20 @@ export default async function GamesPage() {
         </Link>
       </div>
 
-      {allEmpty ? (
-        <p className="text-center py-16 font-body" style={{ color: '#9a8878' }}>{t('empty')}</p>
-      ) : (
-        <ul className="space-y-3">
-          {templates.map(tmpl => (
-            <li key={tmpl.id} className="p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                style={{ background: `${tmpl.color}22` }}
-              >
-                {tmpl.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{tmpl.name}</div>
-                {tmpl.description && <div className="text-xs font-body truncate mt-0.5" style={{ color: '#9a8878' }}>{tmpl.description}</div>}
-              </div>
-              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: tmpl.color }} />
-            </li>
-          ))}
-          {borrowedTemplates.map(tmpl => (
-            <li key={tmpl.id} className="relative p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-              <VaultRibbon ownerName={tmpl.ownerName} />
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                style={{ background: `${tmpl.color}22` }}
-              >
-                {tmpl.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{tmpl.name}</div>
-              </div>
-              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: tmpl.color }} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <GamesClient
+        templates={templates.map(tmpl => ({
+          id: tmpl.id,
+          name: tmpl.name,
+          description: tmpl.description,
+          color: tmpl.color,
+          icon: tmpl.icon,
+          winType: tmpl.winType,
+          minPlayers: tmpl.minPlayers,
+          maxPlayers: tmpl.maxPlayers,
+          scoringNotes: tmpl.scoringNotes,
+        }))}
+        borrowedTemplates={borrowedTemplates}
+      />
     </div>
   )
 }

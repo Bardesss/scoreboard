@@ -66,6 +66,46 @@ export async function createGameTemplate(
   return { success: true, id: template.id }
 }
 
+export type UpdateGameTemplateInput = {
+  name: string
+  color: string
+  icon: string
+  description: string
+  minPlayers: number | null
+  maxPlayers: number | null
+  scoringNotes: string
+}
+
+export async function updateGameTemplate(
+  id: string,
+  input: UpdateGameTemplateInput
+): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session) redirect('/en/auth/login')
+
+  const name = input.name.trim()
+  if (!name) return { success: false, error: 'errors.required' }
+
+  const template = await prisma.gameTemplate.findUnique({ where: { id } })
+  if (!template || template.userId !== session.user.id) return { success: false, error: 'errors.notFound' }
+
+  await prisma.gameTemplate.update({
+    where: { id },
+    data: {
+      name,
+      color: input.color,
+      icon: input.icon,
+      description: input.description.trim() || null,
+      minPlayers: input.minPlayers,
+      maxPlayers: input.maxPlayers,
+      scoringNotes: input.scoringNotes.trim() || null,
+    },
+  })
+
+  revalidatePath('/app/games')
+  return { success: true }
+}
+
 export async function deleteGameTemplate(id: string): Promise<{ success: boolean; error?: string }> {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
