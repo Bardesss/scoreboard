@@ -7,7 +7,8 @@
     "leaderboard": "Ranglijst",
     "recentGames": "Recente potjes",
     "wins": "{count} gewonnen",
-    "empty": "Nog geen potjes gelogd. Maak een competitie en log je eerste spel!"
+    "empty": "Nog geen potjes gelogd. Maak een competitie en log je eerste spel!",
+    "winRatio": "{ratio}%"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -163,7 +164,12 @@
     "cancel": "Annuleren",
     "delete": "Verwijderen",
     "deleteConfirm": "Competitie verwijderen?",
-    "deleteWarning": "Dit verwijdert de competitie en alle gespeelde partijen. Dit kan niet ongedaan worden gemaakt."
+    "deleteWarning": "Dit verwijdert de competitie en alle gespeelde partijen. Dit kan niet ongedaan worden gemaakt.",
+    "winsStats": "{wins}W / {games}P — {ratio}%",
+    "deleteSessionConfirm": "Sessie verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "deleteSessionCancel": "Annuleren",
+    "deleteSessionConfirmBtn": "Verwijderen",
+    "deleting": "Verwijderen..."
   },
   "playedGames": {
     "log": "Partij loggen",
@@ -175,7 +181,17 @@
     "scorePlaceholder": "Score",
     "submit": "Opslaan (5 credits)",
     "submitting": "Opslaan...",
-    "cost": "Dit kost 5 credits"
+    "cost": "Dit kost 5 credits",
+    "selectParticipants": "Selecteer deelnemers",
+    "playersSelected": "{count} spelers geselecteerd",
+    "playerHint": "{min}–{max} spelers",
+    "minPlayersNote": "Selecteer minimaal {min} spelers om door te gaan",
+    "maxPlayersNote": "Selecteer maximaal {max} spelers om door te gaan",
+    "continue": "Doorgaan →",
+    "back": "← Terug",
+    "edit": "Sessie bewerken",
+    "saveChanges": "Wijzigingen opslaan",
+    "saving": "Opslaan..."
   },
   "errors": {
     "insufficientCredits": "Niet genoeg credits. Koop meer om door te gaan.",
@@ -231,6 +247,8 @@
     "leagueCreated": "Competitie aangemaakt.",
     "leagueSaved": "Competitie opgeslagen.",
     "leagueDeleted": "Competitie verwijderd.",
-    "gameSaved": "Partij opgeslagen."
+    "gameSaved": "Partij opgeslagen.",
+    "sessionUpdated": "Sessie bijgewerkt.",
+    "sessionDeleted": "Sessie verwijderd."
   }
 }

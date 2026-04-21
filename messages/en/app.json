@@ -7,7 +7,8 @@
     "leaderboard": "Leaderboard",
     "recentGames": "Recent games",
     "wins": "{count} wins",
-    "empty": "No games logged yet. Create a league and log your first game!"
+    "empty": "No games logged yet. Create a league and log your first game!",
+    "winRatio": "{ratio}%"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -163,7 +164,12 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "deleteConfirm": "Delete league?",
-    "deleteWarning": "This deletes the league and all played games. This cannot be undone."
+    "deleteWarning": "This deletes the league and all played games. This cannot be undone.",
+    "winsStats": "{wins}W / {games}G — {ratio}%",
+    "deleteSessionConfirm": "Delete this session? This cannot be undone.",
+    "deleteSessionCancel": "Cancel",
+    "deleteSessionConfirmBtn": "Delete",
+    "deleting": "Deleting..."
   },
   "playedGames": {
     "log": "Log game",
@@ -175,7 +181,17 @@
     "scorePlaceholder": "Score",
     "submit": "Save (5 credits)",
     "submitting": "Saving...",
-    "cost": "This costs 5 credits"
+    "cost": "This costs 5 credits",
+    "selectParticipants": "Select participants",
+    "playersSelected": "{count} players selected",
+    "playerHint": "{min}–{max} players",
+    "minPlayersNote": "Select at least {min} players to continue",
+    "maxPlayersNote": "Select at most {max} players to continue",
+    "continue": "Continue →",
+    "back": "← Back",
+    "edit": "Edit session",
+    "saveChanges": "Save changes",
+    "saving": "Saving..."
   },
   "errors": {
     "insufficientCredits": "Not enough credits. Buy more to continue.",
@@ -231,6 +247,8 @@
     "leagueCreated": "League created.",
     "leagueSaved": "League saved.",
     "leagueDeleted": "League deleted.",
-    "gameSaved": "Game saved."
+    "gameSaved": "Game saved.",
+    "sessionUpdated": "Session updated.",
+    "sessionDeleted": "Session deleted."
   }
 }
