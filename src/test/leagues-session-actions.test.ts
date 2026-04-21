@@ -41,6 +41,13 @@ describe('editPlayedGame', () => {
     })
 
     expect(prisma.$transaction).toHaveBeenCalled()
+    expect(prisma.scoreEntry.deleteMany).toHaveBeenCalledWith({ where: { playedGameId: 'pg1' } })
+    expect(prisma.scoreEntry.createMany).toHaveBeenCalledWith({
+      data: [
+        { playedGameId: 'pg1', playerId: 'p1', score: 10 },
+        { playedGameId: 'pg1', playerId: 'p2', score: 5 },
+      ],
+    })
     expect(result).toEqual({ success: true })
   })
 

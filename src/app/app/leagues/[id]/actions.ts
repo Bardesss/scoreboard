@@ -158,6 +158,7 @@ export async function editPlayedGame(
   ])
 
   await redis.del(`cache:dashboard:${session.user.id}`)
+  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:${pg.submittedById}`)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true }
 }
@@ -177,6 +178,7 @@ export async function deletePlayedGame(
 
   await prisma.playedGame.delete({ where: { id: playedGameId } })
   await redis.del(`cache:dashboard:${session.user.id}`)
+  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:${pg.submittedById}`)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true }
 }
