@@ -25,7 +25,11 @@ export async function searchUsers(query: string) {
     select: { id: true, email: true, username: true },
     take: 10,
   })
-  return users
+  return users.map(u => ({
+    id: u.id,
+    email: u.username ? null : u.email,  // only expose email if no username
+    username: u.username,
+  }))
 }
 
 export async function sendConnectionRequest(toUserId: string) {
@@ -64,7 +68,7 @@ export async function acceptConnectionRequest(requestId: string) {
   if (!session) redirect('/en/auth/login')
 
   const req = await prisma.connectionRequest.findUnique({ where: { id: requestId } })
-  if (!req || req.toUserId !== session.user.id || req.status !== 'pending') {
+  if (!req || !req.toUserId || req.toUserId !== session.user.id || req.status !== 'pending') {
     return { error: 'notFound' }
   }
 
@@ -89,7 +93,7 @@ export async function declineConnectionRequest(requestId: string) {
   if (!session) redirect('/en/auth/login')
 
   const req = await prisma.connectionRequest.findUnique({ where: { id: requestId } })
-  if (!req || req.toUserId !== session.user.id || req.status !== 'pending') {
+  if (!req || !req.toUserId || req.toUserId !== session.user.id || req.status !== 'pending') {
     return { error: 'notFound' }
   }
 
@@ -102,6 +106,11 @@ export async function declineConnectionRequest(requestId: string) {
 export async function disconnect(connectedUserId: string) {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
+
+  const connection = await prisma.vaultConnection.findFirst({
+    where: { userId: session.user.id, connectedUserId },
+  })
+  if (!connection) return { error: 'Not connected' }
 
   try {
     await prisma.$transaction([

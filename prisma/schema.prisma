@@ -168,6 +168,9 @@ model ConnectionRequest {
   status      String   @default("pending")
   createdAt   DateTime @default(now())
   expiresAt   DateTime?
+
+  @@index([toUserId, status])
+  @@index([fromUserId, status])
 }
 
 model VaultConnection {
@@ -179,6 +182,7 @@ model VaultConnection {
   createdAt       DateTime @default(now())
 
   @@unique([userId, connectedUserId])
+  @@index([userId])
 }
 
 model Notification {
@@ -189,4 +193,6 @@ model Notification {
   meta      Json?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([userId, read])
 }

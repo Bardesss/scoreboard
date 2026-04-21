@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { UserPlus, Check, X, Users, Search } from 'lucide-react'
 import { searchUsers, sendConnectionRequest, acceptConnectionRequest, declineConnectionRequest, disconnect } from './actions'
 
-type User = { id: string; email: string; username: string | null }
+type User = { id: string; email: string | null; username: string | null }
 type Request = { id: string; fromEmail: string; fromUsername: string | null }
 type SentRequest = { id: string; toEmail: string; toUsername: string | null }
 
@@ -84,7 +84,7 @@ export function ConnectionsClient({
               <li key={u.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
                 <div>
                   <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{u.username ?? u.email}</p>
-                  {u.username && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{u.email}</p>}
+                  {u.username && u.email && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{u.email}</p>}
                 </div>
                 <button
                   onClick={() => handleSend(u.id)}
@@ -151,7 +151,7 @@ export function ConnectionsClient({
               <li key={c.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
                 <div>
                   <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{c.username ?? c.email}</p>
-                  {c.username && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{c.email}</p>}
+                  {c.username && c.email && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{c.email}</p>}
                 </div>
                 <button
                   onClick={() => handleDisconnect(c.id)}

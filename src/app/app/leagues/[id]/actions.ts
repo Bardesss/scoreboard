@@ -66,6 +66,7 @@ export async function approvePlayedGame(playedGameId: string) {
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'approved' } })
   await redis.del(`cache:dashboard:${session.user.id}`)
+  await redis.del(`cache:dashboard:${pg.submittedById}`)
   await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId })
 
   revalidatePath(`/app/leagues/${pg.leagueId}`)
@@ -85,6 +86,7 @@ export async function rejectPlayedGame(playedGameId: string) {
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'rejected' } })
   await redis.del(`cache:dashboard:${session.user.id}`)
+  await redis.del(`cache:dashboard:${pg.submittedById}`)
   await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId })
 
   revalidatePath(`/app/leagues/${pg.leagueId}`)
