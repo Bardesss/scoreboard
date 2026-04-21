@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import Image from 'next/image'
+import { prisma } from '@/lib/prisma'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
@@ -114,11 +115,18 @@ export default async function LandingPage({ params }: Props) {
     tagVariant: t(`payments.methods.${i}.tagVariant`),
   }))
 
-  const reviews = [0, 1, 2].map(i => ({
-    name: t(`reviews.placeholder.${i}.name`),
-    review: t(`reviews.placeholder.${i}.review`),
-    game: t(`reviews.placeholder.${i}.game`),
-  }))
+  const dbReviews = await prisma.review.findMany({
+    where: { visible: true },
+    orderBy: { order: 'asc' },
+  })
+
+  const reviews = dbReviews.length > 0
+    ? dbReviews.map(r => ({ name: r.name, review: r.review, game: r.favoriteBoardGame }))
+    : [0, 1, 2].map(i => ({
+        name: t(`reviews.placeholder.${i}.name`),
+        review: t(`reviews.placeholder.${i}.review`),
+        game: t(`reviews.placeholder.${i}.game`),
+      }))
 
   const gameTypeItems = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => ({
     icon: t(`gameTypes.items.${i}.icon` as Parameters<typeof t>[0]),

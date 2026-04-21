@@ -209,3 +209,14 @@ model Notification {
 
   @@index([userId, read])
 }
+
+model Review {
+  id                String   @id @default(cuid())
+  name              String
+  review            String
+  favoriteBoardGame String
+  visible           Boolean  @default(true)
+  order             Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
