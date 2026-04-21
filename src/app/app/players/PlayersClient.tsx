@@ -190,8 +190,8 @@ export default function PlayersClient({
                           <span className="flex-shrink-0 font-headline font-bold text-[9px] uppercase tracking-[.08em] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>{t('you')}</span>
                         )}
                       </div>
-                      {/* Link row */}
-                      {!isMe && connectionsList.length > 0 && (
+                      {/* Link row — always visible for non-me players */}
+                      {!isMe && (
                         <button
                           onClick={() => setLinkingPlayerId(linkingPlayerId === player.id ? null : player.id)}
                           className="flex items-center gap-1 mt-0.5"
@@ -222,32 +222,36 @@ export default function PlayersClient({
               {linkingPlayerId === player.id && (
                 <div className="px-3 pb-3 pt-2 border-t" style={{ borderColor: '#f0ebe3', background: '#faf7f2' }}>
                   <p className="font-body text-xs mb-2" style={{ color: '#9a8878' }}>{t('linkVaultKeeper')}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {connectionsList.map(c => (
-                      <button
-                        key={c.id}
-                        onClick={() => handleLink(player.id, c.id)}
-                        className="px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
-                        style={{
-                          background: player.linkedUserId === c.id ? 'rgba(245,166,35,0.15)' : '#fffdf9',
-                          color: player.linkedUserId === c.id ? '#f5a623' : '#4a3f2f',
-                          border: `1px solid ${player.linkedUserId === c.id ? 'rgba(245,166,35,0.3)' : '#e8e1d8'}`,
-                        }}
-                      >
-                        {displayName(c)}
-                      </button>
-                    ))}
-                    {player.linkedUserId && player.linkedUserId !== vaultKeeperId && (
-                      <button
-                        onClick={() => handleLink(player.id, null)}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
-                        style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}
-                      >
-                        <Unlink2 size={11} />
-                        {t('unlink')}
-                      </button>
-                    )}
-                  </div>
+                  {connectionsList.length === 0 ? (
+                    <p className="font-body text-xs" style={{ color: '#c4b79a' }}>{tc('noConnectionsHint')}</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {connectionsList.map(c => (
+                        <button
+                          key={c.id}
+                          onClick={() => handleLink(player.id, c.id)}
+                          className="px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
+                          style={{
+                            background: player.linkedUserId === c.id ? 'rgba(245,166,35,0.15)' : '#fffdf9',
+                            color: player.linkedUserId === c.id ? '#f5a623' : '#4a3f2f',
+                            border: `1px solid ${player.linkedUserId === c.id ? 'rgba(245,166,35,0.3)' : '#e8e1d8'}`,
+                          }}
+                        >
+                          {displayName(c)}
+                        </button>
+                      ))}
+                      {player.linkedUserId && player.linkedUserId !== vaultKeeperId && (
+                        <button
+                          onClick={() => handleLink(player.id, null)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
+                          style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}
+                        >
+                          <Unlink2 size={11} />
+                          {t('unlink')}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </li>
