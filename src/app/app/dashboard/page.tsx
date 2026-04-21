@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { Trophy, Users, Dices, ClipboardList } from 'lucide-react'
+import { Users, Dices, ClipboardList } from 'lucide-react'
 import { Avatar } from '@/components/shared/Avatar'
 
 type DashboardStats = {

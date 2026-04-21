@@ -25,7 +25,7 @@ const NAV = [
   { key: 'settings',     href: '/app/settings',     icon: Settings },
 ] as const
 
-export default function Sidebar({ name, email, credits, unreadCount, notifications }: { name: string; email: string; credits: number; unreadCount: number; notifications: NotificationItem[] }) {
+export default function Sidebar({ name, credits, unreadCount, notifications }: { name: string; email?: string; credits: number; unreadCount: number; notifications: NotificationItem[] }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')

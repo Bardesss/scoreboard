@@ -14,6 +14,10 @@ export default auth(function middleware(req) {
     return
   }
 
+  if (pathname.startsWith('/share')) {
+    return
+  }
+
   if (pathname.startsWith('/app') || pathname.startsWith('/admin')) {
     if (!session) {
       return Response.redirect(new URL('/en/auth/login', req.url))
