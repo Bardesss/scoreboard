@@ -143,26 +143,16 @@ export function Step3Scoring({ state, onChange }: Props) {
   }
 
   if (wt === 'secret-mission') {
-    const missionsOn = state.missions.length > 0
     return (
       <div className="space-y-4">
-        <Toggle
-          value={missionsOn}
-          onToggle={() => onChange({ missions: missionsOn ? [] : [''] })}
-          label={t('missionsToggle')}
+        <p className="font-headline font-bold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('missionsLabel')}</p>
+        <StringListEditor
+          items={state.missions.length > 0 ? state.missions : ['']}
+          onChange={missions => onChange({ missions })}
+          placeholder={t('missionPlaceholder')}
+          addLabel={t('addMission')}
+          removeLabel={t('removeField')}
         />
-        {missionsOn && (
-          <div>
-            <p className="font-headline font-bold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('missionsLabel')}</p>
-            <StringListEditor
-              items={state.missions}
-              onChange={missions => onChange({ missions })}
-              placeholder={t('missionPlaceholder')}
-              addLabel={t('addMission')}
-              removeLabel={t('removeField')}
-            />
-          </div>
-        )}
       </div>
     )
   }
