@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [user, linkedPlayer, threshold, unreadCount, recentNotifications] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { email: true, monthlyCredits: true, permanentCredits: true },
+      select: { email: true, monthlyCredits: true, permanentCredits: true, role: true },
     }),
     prisma.player.findFirst({
       where: { linkedUserId: session.user.id },
@@ -62,7 +62,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       {isLow && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
-      <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} unreadCount={unreadCount} notifications={serializedNotifications} />
+      <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
       <MobileHeader unreadCount={unreadCount} notifications={serializedNotifications} />
       <main
         className="lg:ml-64 min-h-screen relative z-10 pt-14 pb-20 lg:pt-0 lg:pb-0 px-6 lg:px-7"

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User, ShieldCheck } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 
 type NotificationItem = {
@@ -24,7 +24,7 @@ const NAV = [
   { key: 'settings',     href: '/app/settings',     icon: Settings },
 ] as const
 
-export default function Sidebar({ name, credits, unreadCount, notifications }: { name: string; email?: string; credits: number; unreadCount: number; notifications: NotificationItem[] }) {
+export default function Sidebar({ name, credits, unreadCount, notifications, isAdmin }: { name: string; email?: string; credits: number; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
@@ -74,6 +74,20 @@ export default function Sidebar({ name, credits, unreadCount, notifications }: {
           )
         })}
       </nav>
+
+      {/* Admin link */}
+      {isAdmin && (
+        <div className="px-3 mb-2">
+          <Link
+            href="/admin"
+            className="flex items-center gap-[11px] px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all w-full"
+            style={{ color: '#4a8eff', background: 'rgba(74,142,255,0.08)', border: '1px solid rgba(74,142,255,0.15)' }}
+          >
+            <ShieldCheck size={17} className="flex-shrink-0" />
+            Admin
+          </Link>
+        </div>
+      )}
 
       {/* User footer */}
       <div className="p-4">
