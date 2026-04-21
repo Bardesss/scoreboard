@@ -145,6 +145,18 @@ model AdminSettings {
   value Json
 }
 
+model DiscountCode {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  type       String    // "FIXED" | "PERCENT"
+  value      Int       // credits if FIXED, percentage 0-100 if PERCENT
+  usageLimit Int?      // null = unlimited
+  usedCount  Int       @default(0)
+  expiresAt  DateTime?
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+}
+
 model FreePeriod {
   id           String   @id @default(cuid())
   label        String
