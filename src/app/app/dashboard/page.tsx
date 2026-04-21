@@ -10,7 +10,7 @@ type DashboardStats = {
   totalGames: number
   totalPlayers: number
   topGame: string | null
-  leaderboard: { name: string; avatarSeed: string; wins: number }[]
+  leaderboard: { name: string; avatarSeed: string; wins: number; gamesPlayed: number; winRatio: number }[]
   recentGames: {
     id: string
     leagueName: string
@@ -47,15 +47,20 @@ async function loadStats(userId: string): Promise<DashboardStats> {
   }
   const topGame = Object.entries(gameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
 
-  const winCounts: Record<string, { name: string; avatarSeed: string; wins: number }> = {}
+  const playerStats: Record<string, { name: string; avatarSeed: string; wins: number; gamesPlayed: number }> = {}
   for (const pg of playedGames) {
+    for (const s of pg.scores) {
+      const key = s.player.name
+      if (!playerStats[key]) playerStats[key] = { name: s.player.name, avatarSeed: s.player.avatarSeed, wins: 0, gamesPlayed: 0 }
+      playerStats[key].gamesPlayed++
+    }
     const winner = pg.scores[0]
-    if (!winner) continue
-    const key = winner.player.name
-    if (!winCounts[key]) winCounts[key] = { name: winner.player.name, avatarSeed: winner.player.avatarSeed, wins: 0 }
-    winCounts[key].wins++
+    if (winner) playerStats[winner.player.name].wins++
   }
-  const leaderboard = Object.values(winCounts).sort((a, b) => b.wins - a.wins).slice(0, 5)
+  const leaderboard = Object.values(playerStats)
+    .map(p => ({ ...p, winRatio: p.gamesPlayed > 0 ? Math.round((p.wins / p.gamesPlayed) * 100) : 0 }))
+    .sort((a, b) => b.wins - a.wins)
+    .slice(0, 5)
 
   const recentGames = playedGames.slice(0, 5).map(pg => ({
     id: pg.id,
@@ -112,7 +117,10 @@ export default async function DashboardPage() {
                 <span className="font-headline font-black text-sm w-5" style={{ color: i === 0 ? '#f5a623' : '#c4b79a' }}>#{i + 1}</span>
                 <Avatar seed={p.avatarSeed} name={p.name} size={28} />
                 <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{p.name}</span>
-                <span className="font-headline font-bold text-xs" style={{ color: '#9a8878' }}>{t('wins', { count: p.wins })}</span>
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className="font-headline font-bold text-xs" style={{ color: '#9a8878' }}>{t('wins', { count: p.wins })}</span>
+                  <span className="font-headline text-xs" style={{ color: '#c4b79a' }}>{t('winRatio', { ratio: p.winRatio })}</span>
+                </div>
               </li>
             ))}
           </ul>
