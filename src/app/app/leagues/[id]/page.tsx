@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Trophy, Plus } from 'lucide-react'
 import { Avatar } from '@/components/shared/Avatar'
 import { ShareButton } from './ShareButton'
+import { PendingApprovalSection } from './PendingApprovalSection'
 
 export default async function LeagueDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -13,7 +14,7 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
   if (!session) redirect('/en/auth/login')
 
   const locale = session.user.locale ?? 'en'
-  const [league, t] = await Promise.all([
+  const [league, pendingGames, t] = await Promise.all([
     prisma.league.findUnique({
       where: { id },
       include: {
@@ -23,6 +24,7 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
           orderBy: { createdAt: 'asc' },
         },
         playedGames: {
+          where: { status: 'approved' },
           select: {
             id: true,
             playedAt: true,
@@ -37,6 +39,17 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
           take: 20,
         },
       },
+    }),
+    prisma.playedGame.findMany({
+      where: { leagueId: id, status: 'pending_approval' },
+      include: {
+        submittedBy: { select: { email: true } },
+        scores: {
+          include: { player: { select: { name: true } } },
+          orderBy: { score: 'desc' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     }),
     getTranslations({ locale, namespace: 'app.leagues' }),
   ])
@@ -75,6 +88,16 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
           ))}
         </div>
       </section>
+
+      {/* Pending approval */}
+      <PendingApprovalSection
+        games={pendingGames.map(pg => ({
+          id: pg.id,
+          playedAt: pg.playedAt.toISOString(),
+          submittedByEmail: pg.submittedBy.email,
+          scores: pg.scores.map(s => ({ playerName: s.player.name, score: s.score })),
+        }))}
+      />
 
       {/* Played games */}
       <section>
