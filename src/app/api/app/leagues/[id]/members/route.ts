@@ -7,7 +7,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const session = await auth()
   if (!session) return NextResponse.json([], { status: 401 })
 
-  const league = await prisma.league.findUnique({ where: { id } })
+  const league = await prisma.league.findUnique({
+    where: { id },
+    include: { gameTemplate: { select: { winType: true } } },
+  })
   if (!league || league.ownerId !== session.user.id) return NextResponse.json([], { status: 403 })
 
   const members = await prisma.leagueMember.findMany({
@@ -16,5 +19,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     orderBy: { createdAt: 'asc' },
   })
 
-  return NextResponse.json(members)
+  return NextResponse.json({ members, winType: league.gameTemplate.winType })
 }

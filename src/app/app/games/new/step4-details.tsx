@@ -7,7 +7,6 @@ interface Props {
   onChange: (patch: Partial<WizardState>) => void
 }
 
-const CURRENCIES = ['€', '$', '£', 'kr', 'pts']
 
 const fieldStyle: React.CSSProperties = {
   borderColor: '#e8e1d8',
@@ -66,44 +65,6 @@ export function Step4Details({ state, onChange }: Props) {
         onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
       />
 
-      <div className="rounded-xl p-4 space-y-3" style={{ background: '#f9f5ee', border: '1px solid #e8e1d8' }}>
-        <div className="flex items-center justify-between">
-          <span className="font-headline font-bold text-sm" style={{ color: '#4a3f2f' }}>{t('buyInToggle')}</span>
-          <button
-            type="button"
-            onClick={() => onChange({ buyInEnabled: !state.buyInEnabled })}
-            className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-            style={{ background: state.buyInEnabled ? '#f5a623' : '#e8e1d8' }}
-          >
-            <span
-              className="absolute top-0.5 w-5 h-5 rounded-full transition-all"
-              style={{ background: '#fff', left: state.buyInEnabled ? 'calc(100% - 22px)' : 2 }}
-            />
-          </button>
-        </div>
-
-        {state.buyInEnabled && (
-          <div>
-            <p className="font-headline font-bold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('buyInCurrencyLabel')}</p>
-            <div className="flex gap-2 flex-wrap">
-              {CURRENCIES.map(c => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => onChange({ buyInCurrency: c })}
-                  className="px-4 py-2 rounded-xl font-headline font-bold text-sm"
-                  style={{
-                    background: state.buyInCurrency === c ? '#f5a623' : '#f0ebe3',
-                    color: state.buyInCurrency === c ? '#1c1408' : '#4a3f2f',
-                  }}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   )
 }

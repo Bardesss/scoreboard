@@ -153,7 +153,47 @@ Creating a game template costs **25 credits** — unchanged from current impleme
 
 ---
 
-## 8. Out of scope (this phase)
+## 8. Landing page — Game Types section
+
+A new section on the marketing landing page showcases the 9 win types as a "works for any kind of game" feature highlight.
+
+### Placement
+Between the existing "Core Features" section and "How It Works" — or after "How It Works". To be confirmed during implementation.
+
+### Content
+- Section overline: e.g. "Every game type"
+- Section headline: e.g. "Built for the games you actually play"
+- Short subheadline: one sentence positioning Dice Vault as flexible
+- 9 cards (or tiles), one per win type, each showing:
+  - An emoji icon (from the curated 30-icon set in §7)
+  - A short label (plain-language name, not the internal ID)
+  - One sentence describing what kind of game fits this type
+
+### Win type display names & icons
+
+| ID | Display name | Icon |
+|---|---|---|
+| `points-all` | Points | 🎲 |
+| `points-winner` | High score | 🏆 |
+| `time` | Fastest wins | ⏱ |
+| `ranking` | Finish order | 🥇 |
+| `elimination` | Last one standing | ⚔️ |
+| `winner` | Winner declared | 👑 |
+| `cooperative` | Co-op | 🛡️ |
+| `team` | Team vs Team | ⚔️ |
+| `secret-mission` | Secret mission | 🔮 |
+
+### Layout
+- Grid: 3 columns on desktop, 2 on tablet, 1 on mobile (or 3-3-3 if 9 cards)
+- Cards match the existing landing page card style (`#141820` bg, amber border at 8% opacity)
+- Emoji displayed large (e.g. 28–32px), title below, description below that
+
+### i18n
+Strings added to `messages/en/landing.json` and `messages/nl/landing.json` under a new `gameTypes` key.
+
+---
+
+## 9. Out of scope (this phase)
 
 - Session logger UI updates (Phase 3)
 - Feedback form for missing win types (later phase)

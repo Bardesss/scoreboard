@@ -4,8 +4,11 @@ import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { logPlayedGame } from '../actions'
+import type { WinType } from '@/app/app/games/new/wizard-types'
 
 type Member = { id: string; player: { id: string; name: string } }
+
+const SCORE_BASED_TYPES: WinType[] = ['points-all', 'points-winner', 'time', 'ranking']
 
 export default function LogGamePage() {
   const t = useTranslations('app.playedGames')
@@ -15,28 +18,43 @@ export default function LogGamePage() {
   const { id: leagueId } = useParams<{ id: string }>()
 
   const [members, setMembers] = useState<Member[]>([])
+  const [winType, setWinType] = useState<WinType>('points-all')
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState('')
   const [scores, setScores] = useState<Record<string, string>>({})
+  const [winnerId, setWinnerId] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetch(`/api/app/leagues/${leagueId}/members`)
       .then(r => r.json())
-      .then((data: Member[]) => {
-        setMembers(data)
+      .then((data: { members: Member[]; winType: WinType }) => {
+        setMembers(data.members)
+        setWinType(data.winType)
         const initial: Record<string, string> = {}
-        data.forEach(m => { initial[m.player.id] = '' })
+        data.members.forEach(m => { initial[m.player.id] = '' })
         setScores(initial)
       })
       .catch(() => {})
   }, [leagueId])
 
+  const isScoreBased = SCORE_BASED_TYPES.includes(winType)
+
   async function handleSubmit() {
-    const scoreEntries = members.map(m => ({
-      playerId: m.player.id,
-      score: parseInt(scores[m.player.id] ?? '0', 10) || 0,
-    }))
+    let scoreEntries: { playerId: string; score: number }[]
+
+    if (isScoreBased) {
+      scoreEntries = members.map(m => ({
+        playerId: m.player.id,
+        score: parseInt(scores[m.player.id] ?? '0', 10) || 0,
+      }))
+    } else {
+      if (!winnerId) { toast.error(tErrors('serverError')); return }
+      scoreEntries = members.map(m => ({
+        playerId: m.player.id,
+        score: m.player.id === winnerId ? 1 : 0,
+      }))
+    }
 
     setLoading(true)
     const result = await logPlayedGame(leagueId, {
@@ -70,27 +88,60 @@ export default function LogGamePage() {
           />
         </div>
 
-        {/* Scores */}
-        <div>
-          <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('scores')}</label>
-          <ul className="space-y-2">
-            {members.map(m => (
-              <li key={m.id} className="flex items-center gap-3">
-                <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
-                <input
-                  type="number"
-                  value={scores[m.player.id] ?? ''}
-                  onChange={e => setScores(prev => ({ ...prev, [m.player.id]: e.target.value }))}
-                  placeholder={t('scorePlaceholder')}
-                  className="w-28 px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
-                  style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
-                  onFocus={e => (e.target.style.borderColor = '#f5a623')}
-                  onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Scores or Winner picker */}
+        {isScoreBased ? (
+          <div>
+            <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('scores')}</label>
+            <ul className="space-y-2">
+              {members.map(m => (
+                <li key={m.id} className="flex items-center gap-3">
+                  <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
+                  <input
+                    type="number"
+                    value={scores[m.player.id] ?? ''}
+                    onChange={e => setScores(prev => ({ ...prev, [m.player.id]: e.target.value }))}
+                    placeholder={t('scorePlaceholder')}
+                    className="w-28 px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
+                    style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                    onFocus={e => (e.target.style.borderColor = '#f5a623')}
+                    onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div>
+            <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('winner')}</label>
+            <ul className="space-y-2">
+              {members.map(m => {
+                const selected = winnerId === m.player.id
+                return (
+                  <li key={m.id}>
+                    <button
+                      type="button"
+                      onClick={() => setWinnerId(m.player.id)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border font-headline font-semibold text-sm text-left transition-colors"
+                      style={{
+                        borderColor: selected ? '#f5a623' : '#e8e1d8',
+                        background: selected ? 'rgba(245,166,35,0.1)' : '#fffdf9',
+                        color: '#1c1810',
+                      }}
+                    >
+                      <span
+                        className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
+                        style={{ borderColor: selected ? '#f5a623' : '#c4b79a' }}
+                      >
+                        {selected && <span className="w-2 h-2 rounded-full" style={{ background: '#f5a623' }} />}
+                      </span>
+                      {m.player.name}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
 
         {/* Notes */}
         <div>

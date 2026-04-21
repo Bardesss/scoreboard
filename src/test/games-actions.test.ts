@@ -40,8 +40,6 @@ const fullInput = {
   minPlayers: null as number | null,
   maxPlayers: null as number | null,
   scoringNotes: '',
-  buyInEnabled: false,
-  buyInCurrency: null as string | null,
 }
 
 beforeEach(() => {
@@ -78,15 +76,11 @@ describe('createGameTemplate', () => {
       winType: 'winner',
       winCondition: null,
       roles: ['Werewolf', 'Villager'],
-      buyInEnabled: true,
-      buyInCurrency: '€',
     })
     expect(prisma.gameTemplate.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         winType: 'winner',
         roles: ['Werewolf', 'Villager'],
-        buyInEnabled: true,
-        buyInCurrency: '€',
       }),
     })
   })

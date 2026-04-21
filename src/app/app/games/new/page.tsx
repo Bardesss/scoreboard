@@ -65,8 +65,6 @@ export default function NewGamePage() {
       minPlayers: state.minPlayers ? parseInt(state.minPlayers, 10) : null,
       maxPlayers: state.maxPlayers ? parseInt(state.maxPlayers, 10) : null,
       scoringNotes: state.scoringNotes,
-      buyInEnabled: state.buyInEnabled,
-      buyInCurrency: state.buyInEnabled ? state.buyInCurrency : null,
     })
     setLoading(false)
     if (!result.success) {

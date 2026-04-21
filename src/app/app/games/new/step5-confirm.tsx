@@ -28,10 +28,6 @@ export function Step5Confirm({ state }: Props) {
     ? t('winConditionLow')
     : null
 
-  const buyInLabel = state.buyInEnabled
-    ? t('buyInEnabled', { currency: state.buyInCurrency })
-    : t('buyInDisabled')
-
   const playersLabel = (state.minPlayers || state.maxPlayers)
     ? `${state.minPlayers || '?'} – ${state.maxPlayers || '?'}`
     : '—'
@@ -63,7 +59,6 @@ export function Step5Confirm({ state }: Props) {
         {winConditionLabel && <SummaryRow label={t('summaryWinCondition')} value={winConditionLabel} />}
         {scoreFieldsSummary && <SummaryRow label={t('summaryScoreFields')} value={scoreFieldsSummary} />}
         <SummaryRow label={t('summaryPlayers')} value={playersLabel} />
-        <SummaryRow label={t('summaryBuyIn')} value={buyInLabel} />
       </div>
 
       {/* Credit cost notice */}

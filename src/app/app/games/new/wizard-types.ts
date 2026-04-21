@@ -33,8 +33,6 @@ export interface WizardState {
   minPlayers: string
   maxPlayers: string
   scoringNotes: string
-  buyInEnabled: boolean
-  buyInCurrency: string
 }
 
 export const INITIAL_WIZARD_STATE: WizardState = {
@@ -57,8 +55,6 @@ export const INITIAL_WIZARD_STATE: WizardState = {
   minPlayers: '',
   maxPlayers: '',
   scoringNotes: '',
-  buyInEnabled: false,
-  buyInCurrency: '€',
 }
 
 export const COLORS: string[] = [

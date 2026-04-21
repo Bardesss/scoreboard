@@ -21,8 +21,6 @@ export type CreateGameTemplateInput = {
   minPlayers: number | null
   maxPlayers: number | null
   scoringNotes: string
-  buyInEnabled: boolean
-  buyInCurrency: string | null
 }
 
 export async function createGameTemplate(
@@ -61,8 +59,6 @@ export async function createGameTemplate(
       minPlayers: input.minPlayers,
       maxPlayers: input.maxPlayers,
       scoringNotes: input.scoringNotes.trim() || null,
-      buyInEnabled: input.buyInEnabled,
-      buyInCurrency: input.buyInCurrency ?? null,
     },
   })
 
