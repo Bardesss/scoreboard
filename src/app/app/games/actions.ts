@@ -110,10 +110,19 @@ export async function deleteGameTemplate(id: string): Promise<{ success: boolean
   const session = await auth()
   if (!session) redirect('/en/auth/login')
 
-  const template = await prisma.gameTemplate.findUnique({ where: { id } })
+  const template = await prisma.gameTemplate.findUnique({
+    where: { id },
+    include: { _count: { select: { leagues: true } } },
+  })
   if (!template || template.userId !== session.user.id) return { success: false, error: 'notFound' }
+  if (template._count.leagues > 0) return { success: false, error: 'inUse' }
 
-  await prisma.gameTemplate.delete({ where: { id } })
+  try {
+    await prisma.gameTemplate.delete({ where: { id } })
+  } catch {
+    return { success: false, error: 'serverError' }
+  }
+
   revalidatePath('/app/games')
   return { success: true }
 }

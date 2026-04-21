@@ -173,7 +173,8 @@
     "insufficientCredits": "Niet genoeg credits. Koop meer om door te gaan.",
     "required": "Dit veld is verplicht.",
     "notFound": "Niet gevonden.",
-    "serverError": "Er is iets misgegaan. Probeer het opnieuw."
+    "serverError": "Er is iets misgegaan. Probeer het opnieuw.",
+    "inUse": "Dit spel wordt nog gebruikt door een competitie en kan niet worden verwijderd."
   },
   "profile": {
     "title": "Profiel",

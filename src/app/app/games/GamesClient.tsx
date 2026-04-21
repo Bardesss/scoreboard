@@ -84,10 +84,14 @@ export default function GamesClient({
 
   async function handleDelete() {
     if (!deleteId) return
-    const res = await deleteGameTemplate(deleteId)
-    if (!res.success) { toast.error(tErrors(res.error as never)); return }
-    setTemplates(ts => ts.filter(x => x.id !== deleteId))
-    setDeleteId(null)
+    try {
+      const res = await deleteGameTemplate(deleteId)
+      if (!res.success) { toast.error(tErrors(res.error as never)); return }
+      setTemplates(ts => ts.filter(x => x.id !== deleteId))
+      setDeleteId(null)
+    } catch {
+      toast.error(tErrors('serverError'))
+    }
   }
 
   const allEmpty = templates.length === 0 && borrowedTemplates.length === 0

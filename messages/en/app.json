@@ -173,7 +173,8 @@
     "insufficientCredits": "Not enough credits. Buy more to continue.",
     "required": "This field is required.",
     "notFound": "Not found.",
-    "serverError": "Something went wrong. Please try again."
+    "serverError": "Something went wrong. Please try again.",
+    "inUse": "This game is still used by a league and cannot be deleted."
   },
   "profile": {
     "title": "Profile",
