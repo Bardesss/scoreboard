@@ -188,3 +188,4 @@ npx prisma migrate deploy
 | 1b | next-intl (nl/en) · NextAuth v5 Credentials · TOTP MFA · Mailgun email verification · landing page · auth pages · app shell (sidebar + bottom nav) |
 | 2 | Players CRUD · Game Template wizard (25 cr) · League creation (10 cr) · PlayedGame logging (5 cr) · credit deduction engine (dual-pool) · low-credit banner. No new env vars. Run `npx prisma db seed` after migrate to populate AdminSettings. |
 | Phase 3 | Social connections, notification bell, dashboard stats, shareable game links, PlayedGame approval flow — no new env vars |
+| Phase 4 | Admin panel (Dutch-only) · user management · credit adjustment · discount codes · landing CMS + reviews · Pages CMS (terms/privacy/why-bitcoin) · cookie consent banner · email notifications (connections + played game approval) · admin approvals view — no new env vars. **Promote first admin:** `UPDATE "User" SET role = 'admin' WHERE email = 'your@email.com';` |
