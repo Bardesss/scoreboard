@@ -1,10 +1,22 @@
 {
+  "dashboard": {
+    "title": "Dashboard",
+    "totalGames": "Games played",
+    "totalPlayers": "Players",
+    "topGame": "Top game",
+    "leaderboard": "Leaderboard",
+    "recentGames": "Recent games",
+    "wins": "{count} wins",
+    "empty": "No games logged yet. Create a league and log your first game!"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "players": "Players",
     "games": "Games",
     "leagues": "Leagues",
     "credits": "Credits",
+    "connections": "Connections",
+    "profile": "Profile",
     "settings": "Settings",
     "vaultKeeper": "Vault Keeper"
   },
@@ -153,6 +165,22 @@
     "required": "This field is required.",
     "notFound": "Not found.",
     "serverError": "Something went wrong. Please try again."
+  },
+  "profile": {
+    "title": "Profile",
+    "username": "Username",
+    "save": "Save",
+    "usernameSaved": "Username saved!",
+    "connections": "Connected vault keepers",
+    "qrHint": "Others can scan this to connect with you"
+  },
+  "connections": {
+    "title": "Connections",
+    "find": "Find vault keepers",
+    "incoming": "Incoming requests",
+    "pending": "Pending sent",
+    "connected": "Connected vault keepers",
+    "empty": "No connections yet."
   },
   "toasts": {
     "playerSaved": "Player saved.",
