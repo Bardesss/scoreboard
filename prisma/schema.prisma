@@ -47,6 +47,7 @@ model Player {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
   avatarSeed    String
+  color         String         @default("#f5a623")
   linkedUserId  String?
   linkedUser    User?          @relation("LinkedPlayer", fields: [linkedUserId], references: [id], onDelete: SetNull)
   scores        ScoreEntry[]
