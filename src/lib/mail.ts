@@ -34,6 +34,10 @@ export async function sendVerificationEmail(to: string, token: string, locale: s
   await send(to, subject, html)
 }
 
+export async function sendEmail(to: string, subject: string, html: string) {
+  await send(to, subject, html)
+}
+
 export async function sendPasswordResetEmail(to: string, token: string, locale: string) {
   const link = `${process.env.NEXTAUTH_URL}/${locale}/auth/reset-password?token=${token}`
   const subject = locale === 'nl' ? 'Wachtwoord resetten — Dice Vault' : 'Reset your password — Dice Vault'

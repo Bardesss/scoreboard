@@ -7,6 +7,8 @@ import { deductCredits, checkRateLimit, InsufficientCreditsError } from '@/lib/c
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createNotification } from '@/lib/notifications'
+import { sendEmail } from '@/lib/mail'
+import { playedGameApprovedEmail, playedGameRejectedEmail } from '@/lib/emailTemplates'
 
 type LogPlayedGameInput = {
   playedAt: Date
@@ -59,7 +61,7 @@ export async function approvePlayedGame(playedGameId: string) {
 
   const pg = await prisma.playedGame.findUnique({
     where: { id: playedGameId },
-    include: { league: { select: { ownerId: true } } },
+    include: { league: { select: { ownerId: true, name: true } } },
   })
   if (!pg || pg.league.ownerId !== session.user.id) return { error: 'notFound' }
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
@@ -68,6 +70,18 @@ export async function approvePlayedGame(playedGameId: string) {
   await redis.del(`cache:dashboard:${session.user.id}`)
   await redis.del(`cache:dashboard:${pg.submittedById}`)
   await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId })
+
+  // Fire-and-forget email to the submitter
+  try {
+    const submitter = await prisma.user.findUnique({
+      where: { id: pg.submittedById },
+      select: { email: true, locale: true },
+    })
+    if (submitter?.email) {
+      const tpl = playedGameApprovedEmail(submitter.locale ?? 'en', pg.league.name)
+      sendEmail(submitter.email, tpl.subject, tpl.html).catch(() => {})
+    }
+  } catch { /* email failure must not break the action */ }
 
   revalidatePath(`/app/leagues/${pg.leagueId}`)
   return { success: true }
@@ -79,7 +93,7 @@ export async function rejectPlayedGame(playedGameId: string) {
 
   const pg = await prisma.playedGame.findUnique({
     where: { id: playedGameId },
-    include: { league: { select: { ownerId: true } } },
+    include: { league: { select: { ownerId: true, name: true } } },
   })
   if (!pg || pg.league.ownerId !== session.user.id) return { error: 'notFound' }
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
@@ -88,6 +102,18 @@ export async function rejectPlayedGame(playedGameId: string) {
   await redis.del(`cache:dashboard:${session.user.id}`)
   await redis.del(`cache:dashboard:${pg.submittedById}`)
   await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId })
+
+  // Fire-and-forget email to the submitter
+  try {
+    const submitter = await prisma.user.findUnique({
+      where: { id: pg.submittedById },
+      select: { email: true, locale: true },
+    })
+    if (submitter?.email) {
+      const tpl = playedGameRejectedEmail(submitter.locale ?? 'en', pg.league.name)
+      sendEmail(submitter.email, tpl.subject, tpl.html).catch(() => {})
+    }
+  } catch { /* email failure must not break the action */ }
 
   revalidatePath(`/app/leagues/${pg.leagueId}`)
   return { success: true }
