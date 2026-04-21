@@ -4,6 +4,15 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, UserPlus, User } from 'lucide-react'
+import { NotificationBell } from './NotificationBell'
+
+type NotificationItem = {
+  id: string
+  type: string
+  meta: Record<string, unknown> | null
+  read: boolean
+  createdAt: string
+}
 
 const NAV = [
   { key: 'dashboard',    href: '/app/dashboard',    icon: LayoutDashboard },
@@ -16,7 +25,7 @@ const NAV = [
   { key: 'settings',     href: '/app/settings',     icon: Settings },
 ] as const
 
-export default function Sidebar({ name, email, credits }: { name: string; email: string; credits: number }) {
+export default function Sidebar({ name, email, credits, unreadCount, notifications }: { name: string; email: string; credits: number; unreadCount: number; notifications: NotificationItem[] }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
@@ -79,6 +88,7 @@ export default function Sidebar({ name, email, credits }: { name: string; email:
             <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{name}</div>
             <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>{t('vaultKeeper')}</div>
           </div>
+          <NotificationBell initialCount={unreadCount} initialNotifications={notifications} />
         </div>
       </div>
     </aside>
