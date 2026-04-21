@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { Avatar } from '@/components/shared/Avatar'
 import { createPlayer, updatePlayer, deletePlayer, linkPlayer } from './actions'
 import { searchUsers, sendConnectionRequest, acceptConnectionRequest, declineConnectionRequest, disconnect } from '../connections/actions'
-import { Pencil, Trash2, Plus, X, Check, UserPlus, Search, Link, Unlink } from 'lucide-react'
+import { Pencil, Trash2, Plus, X, Check, UserPlus, Search, Link2, Unlink2 } from 'lucide-react'
 
 type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null }
 type VaultKeeper = { id: string; email: string | null; username: string | null }
@@ -165,7 +165,7 @@ export default function PlayersClient({
             : null
 
           return (
-            <li key={player.id} className="rounded-2xl" style={{ background: '#fffdf9', border: `1px solid ${isMe ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
+            <li key={player.id} className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: `1px solid ${isMe ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
               <div className="flex items-center gap-3 p-3">
                 <Avatar seed={player.avatarSeed} name={player.name} size={40} />
                 {editId === player.id ? (
@@ -183,25 +183,33 @@ export default function PlayersClient({
                   </div>
                 ) : (
                   <>
-                    <div className="flex-1 flex items-center gap-2 min-w-0">
-                      <span className="font-headline font-semibold text-sm truncate" style={{ color: '#1c1810' }}>{player.name}</span>
-                      {isMe && (
-                        <span className="flex-shrink-0 font-headline font-bold text-[9px] uppercase tracking-[.08em] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>{t('you')}</span>
-                      )}
-                      {linkedVK && (
-                        <span className="flex-shrink-0 font-headline font-bold text-[9px] uppercase tracking-[.08em] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(245,166,35,0.1)', color: '#9a8878' }}>{t('linked')}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-headline font-semibold text-sm truncate" style={{ color: '#1c1810' }}>{player.name}</span>
+                        {isMe && (
+                          <span className="flex-shrink-0 font-headline font-bold text-[9px] uppercase tracking-[.08em] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>{t('you')}</span>
+                        )}
+                      </div>
+                      {/* Link row */}
+                      {!isMe && connectionsList.length > 0 && (
+                        <button
+                          onClick={() => setLinkingPlayerId(linkingPlayerId === player.id ? null : player.id)}
+                          className="flex items-center gap-1 mt-0.5"
+                        >
+                          {linkedVK ? (
+                            <>
+                              <Link2 size={11} style={{ color: '#f5a623' }} />
+                              <span className="font-body text-xs" style={{ color: '#f5a623' }}>{displayName(linkedVK)}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Link2 size={11} style={{ color: '#c4b79a' }} />
+                              <span className="font-body text-xs" style={{ color: '#c4b79a' }}>{t('linkVaultKeeper')}</span>
+                            </>
+                          )}
+                        </button>
                       )}
                     </div>
-                    {!isMe && connectionsList.length > 0 && (
-                      <button
-                        onClick={() => setLinkingPlayerId(linkingPlayerId === player.id ? null : player.id)}
-                        className="p-1.5 rounded-lg hover:bg-amber-50"
-                        style={{ color: linkedVK ? '#f5a623' : '#9a8878' }}
-                        title={t('linkVaultKeeper')}
-                      >
-                        {linkedVK ? <Unlink size={14} /> : <Link size={14} />}
-                      </button>
-                    )}
                     <button onClick={() => { setEditId(player.id); setEditName(player.name) }} className="p-1.5 rounded-lg hover:bg-amber-50" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
                     {!isMe && (
                       <button onClick={() => setDeleteId(player.id)} className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#9a8878' }}><Trash2 size={14} /></button>
@@ -212,7 +220,7 @@ export default function PlayersClient({
 
               {/* Link picker */}
               {linkingPlayerId === player.id && (
-                <div className="px-3 pb-3 pt-1 border-t" style={{ borderColor: '#f0ebe3' }}>
+                <div className="px-3 pb-3 pt-2 border-t" style={{ borderColor: '#f0ebe3', background: '#faf7f2' }}>
                   <p className="font-body text-xs mb-2" style={{ color: '#9a8878' }}>{t('linkVaultKeeper')}</p>
                   <div className="flex flex-wrap gap-2">
                     {connectionsList.map(c => (
@@ -221,9 +229,9 @@ export default function PlayersClient({
                         onClick={() => handleLink(player.id, c.id)}
                         className="px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
                         style={{
-                          background: player.linkedUserId === c.id ? 'rgba(245,166,35,0.15)' : '#f5f0e8',
+                          background: player.linkedUserId === c.id ? 'rgba(245,166,35,0.15)' : '#fffdf9',
                           color: player.linkedUserId === c.id ? '#f5a623' : '#4a3f2f',
-                          border: player.linkedUserId === c.id ? '1px solid rgba(245,166,35,0.3)' : '1px solid transparent',
+                          border: `1px solid ${player.linkedUserId === c.id ? 'rgba(245,166,35,0.3)' : '#e8e1d8'}`,
                         }}
                       >
                         {displayName(c)}
@@ -232,10 +240,10 @@ export default function PlayersClient({
                     {player.linkedUserId && player.linkedUserId !== vaultKeeperId && (
                       <button
                         onClick={() => handleLink(player.id, null)}
-                        className="px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
-                        style={{ background: '#fee2e2', color: '#dc2626' }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
+                        style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}
                       >
-                        <Unlink size={11} className="inline mr-1" />
+                        <Unlink2 size={11} />
                         {t('unlink')}
                       </button>
                     )}
