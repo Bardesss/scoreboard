@@ -1,17 +1,27 @@
-# Session Participants & Win Ratio
+# Session Participants, Win Ratio & Session Management
 
 **Date:** 2026-04-21  
 **Status:** Approved
 
 ## Overview
 
-Three related improvements to the game logging and stats experience:
+Five related improvements to the game logging and stats experience:
 
 1. When logging a session, explicitly select which league members actually played (instead of forcing all members into every game).
 2. Use the existing `minPlayers`/`maxPlayers` on `GameTemplate` to validate the participant count during logging.
 3. Show a win ratio (wins ÷ games played) per player on the league page and in the dashboard leaderboard.
+4. Sessions store date **and time** (HH:MM) since multiple sessions are often played in one evening.
+5. Sessions can be edited (all fields) and deleted from the league page.
 
 No database migrations are required. `ScoreEntry` already links players to games — going forward, only actual participants get a row.
+
+---
+
+## Date & Time
+
+The `playedAt` field changes from a date-only input (`type="date"`) to a datetime input (`type="datetime-local"`, displaying date + HH:MM). The stored value remains a UTC `DateTime` in the database — no schema change needed. The log form defaults to the current date and time rounded to the nearest 5 minutes.
+
+Existing sessions with no time component (midnight UTC) are unaffected — they display as-is.
 
 ---
 
@@ -74,13 +84,29 @@ The existing leaderboard (currently sorted by total wins) gains a win ratio colu
 
 ---
 
+## Edit & Delete Sessions
+
+### Edit
+
+Each session on the league page has an **Edit** button (pencil icon, owner only). It opens the same two-phase log form pre-populated with the session's existing participants, scores/winner, datetime, and notes. On submit the `PlayedGame` and its `ScoreEntry` records are updated in a transaction (delete old entries, insert new ones).
+
+**Re-approval:** if the session was previously `approved` and the editor is not the league owner, the status resets to `pending_approval` and a notification is sent to the owner. League owners editing their own sessions stay `approved`.
+
+### Delete
+
+Each session has a **Delete** button (trash icon, owner only). Tapping it shows an inline confirmation ("Delete this session? This cannot be undone.") with Cancel and Confirm buttons — no modal. Confirming hard-deletes the `PlayedGame` and cascades to all `ScoreEntry` rows. The dashboard Redis cache is invalidated on delete (same as on log/approve).
+
+---
+
 ## Scope
 
 | Area | Change |
 |---|---|
 | `GET /api/app/leagues/[id]/members` | Return `minPlayers` + `maxPlayers` |
-| Log page (`/leagues/[id]/log/page.tsx`) | Two-phase form: participant picker → scores/winner |
-| League page (`/leagues/[id]/page.tsx`) | Win ratio per member |
+| Log page (`/leagues/[id]/log/page.tsx`) | Two-phase form: participant picker → scores/winner; datetime input |
+| League page (`/leagues/[id]/page.tsx`) | Win ratio per member; edit + delete buttons per session |
+| Edit session | Reuse log form pre-populated; re-approval logic |
+| Delete session | Inline confirmation, hard delete, cache invalidation |
 | Dashboard (`/dashboard/`) | Win ratio in leaderboard |
 | Game wizard | No change (min/max already works) |
 | Prisma schema | No change |
