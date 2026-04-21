@@ -14,6 +14,7 @@ model User {
   emailVerified    DateTime?
   locale           String    @default("en")
   role             String    @default("user")
+  username         String?   @unique
 
   totpSecret       String?
   totpEnabled      Boolean   @default(false)
@@ -24,12 +25,17 @@ model User {
   permanentCredits Int       @default(0)
   isLifetimeFree   Boolean   @default(false)
 
-  players            Player[]
-  linkedAsPlayer     Player[]            @relation("LinkedPlayer")
-  gameTemplates      GameTemplate[]
-  ownedLeagues       League[]            @relation("OwnedLeagues")
-  playedGames        PlayedGame[]        @relation("SubmittedPlayedGames")
-  creditTransactions CreditTransaction[]
+  players              Player[]
+  linkedAsPlayer        Player[]              @relation("LinkedPlayer")
+  gameTemplates         GameTemplate[]
+  ownedLeagues          League[]              @relation("OwnedLeagues")
+  playedGames           PlayedGame[]          @relation("SubmittedPlayedGames")
+  creditTransactions    CreditTransaction[]
+  connectionsSent       ConnectionRequest[]   @relation("SentRequests")
+  connectionsReceived   ConnectionRequest[]   @relation("ReceivedRequests")
+  vaultConnections      VaultConnection[]     @relation("MyConnections")
+  connectedToMe         VaultConnection[]     @relation("ConnectedToMe")
+  notifications         Notification[]
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -81,9 +87,10 @@ model League {
   gameTemplate   GameTemplate   @relation(fields: [gameTemplateId], references: [id])
   name           String
   description    String?
-  members        LeagueMember[]
-  playedGames    PlayedGame[]
-  createdAt      DateTime       @default(now())
+  members             LeagueMember[]
+  playedGames         PlayedGame[]
+  connectionRequests  ConnectionRequest[]
+  createdAt           DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
 
@@ -145,4 +152,41 @@ model FreePeriod {
   bannerTextNl String   @default("Gratis periode actief — gebruik zoveel je wilt")
   bannerTextEn String   @default("Free period active — use as much as you like")
   createdAt    DateTime @default(now())
+}
+
+model ConnectionRequest {
+  id          String   @id @default(cuid())
+  fromUserId  String
+  fromUser    User     @relation("SentRequests", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId    String?
+  toUser      User?    @relation("ReceivedRequests", fields: [toUserId], references: [id], onDelete: Cascade)
+  toEmail     String?
+  inviteToken String?  @unique
+  context     String
+  leagueId    String?
+  league      League?  @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+}
+
+model VaultConnection {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("MyConnections", fields: [userId], references: [id], onDelete: Cascade)
+  connectedUserId String
+  connectedUser   User     @relation("ConnectedToMe", fields: [connectedUserId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, connectedUserId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  meta      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
