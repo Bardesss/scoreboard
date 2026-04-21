@@ -1,4 +1,14 @@
 {
+  "dashboard": {
+    "title": "Dashboard",
+    "totalGames": "Games played",
+    "totalPlayers": "Players",
+    "topGame": "Top game",
+    "leaderboard": "Leaderboard",
+    "recentGames": "Recent games",
+    "wins": "{count} wins",
+    "empty": "No games logged yet. Create a league and log your first game!"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "players": "Players",

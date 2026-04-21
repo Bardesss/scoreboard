@@ -1,6 +1,7 @@
 'use server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { redis } from '@/lib/redis'
 import { deductCredits, checkRateLimit, InsufficientCreditsError } from '@/lib/credits'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -44,6 +45,7 @@ export async function logPlayedGame(
     }),
   ])
 
+  await redis.del(`cache:dashboard:${session.user.id}`)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true, id: playedGame.id }
 }
