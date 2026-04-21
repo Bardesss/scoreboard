@@ -16,6 +16,7 @@
     "leagues": "Competities",
     "credits": "Credits",
     "connections": "Verbindingen",
+    "profile": "Profiel",
     "settings": "Instellingen",
     "vaultKeeper": "Vault Keeper"
   },
@@ -168,6 +169,14 @@
     "required": "Dit veld is verplicht.",
     "notFound": "Niet gevonden.",
     "serverError": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "profile": {
+    "title": "Profiel",
+    "username": "Gebruikersnaam",
+    "save": "Opslaan",
+    "usernameSaved": "Gebruikersnaam opgeslagen!",
+    "connections": "Verbonden kluis-beheerders",
+    "qrHint": "Anderen kunnen dit scannen om met je te verbinden"
   },
   "connections": {
     "title": "Verbindingen",

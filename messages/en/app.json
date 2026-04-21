@@ -16,6 +16,7 @@
     "leagues": "Leagues",
     "credits": "Credits",
     "connections": "Connections",
+    "profile": "Profile",
     "settings": "Settings",
     "vaultKeeper": "Vault Keeper"
   },
@@ -168,6 +169,14 @@
     "required": "This field is required.",
     "notFound": "Not found.",
     "serverError": "Something went wrong. Please try again."
+  },
+  "profile": {
+    "title": "Profile",
+    "username": "Username",
+    "save": "Save",
+    "usernameSaved": "Username saved!",
+    "connections": "Connected vault keepers",
+    "qrHint": "Others can scan this to connect with you"
   },
   "connections": {
     "title": "Connections",
