@@ -120,3 +120,63 @@ export async function rejectPlayedGame(playedGameId: string) {
   revalidatePath(`/app/leagues/${pg.leagueId}`)
   return { success: true }
 }
+
+type EditPlayedGameInput = {
+  playedAt: Date
+  notes: string
+  winningMission?: string
+  scores: { playerId: string; score: number }[]
+}
+
+export async function editPlayedGame(
+  playedGameId: string,
+  leagueId: string,
+  input: EditPlayedGameInput,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session) redirect('/en/auth/login')
+
+  const pg = await prisma.playedGame.findUnique({
+    where: { id: playedGameId, leagueId },
+    include: { league: { select: { ownerId: true } } },
+  })
+  if (!pg || pg.league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
+
+  await prisma.$transaction([
+    prisma.scoreEntry.deleteMany({ where: { playedGameId } }),
+    prisma.playedGame.update({
+      where: { id: playedGameId },
+      data: {
+        playedAt: input.playedAt,
+        notes: input.notes.trim() || null,
+        winningMission: input.winningMission?.trim() || null,
+      },
+    }),
+    prisma.scoreEntry.createMany({
+      data: input.scores.map(s => ({ playedGameId, playerId: s.playerId, score: s.score })),
+    }),
+  ])
+
+  await redis.del(`cache:dashboard:${session.user.id}`)
+  revalidatePath(`/app/leagues/${leagueId}`)
+  return { success: true }
+}
+
+export async function deletePlayedGame(
+  playedGameId: string,
+  leagueId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session) redirect('/en/auth/login')
+
+  const pg = await prisma.playedGame.findUnique({
+    where: { id: playedGameId, leagueId },
+    include: { league: { select: { ownerId: true } } },
+  })
+  if (!pg || pg.league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
+
+  await prisma.playedGame.delete({ where: { id: playedGameId } })
+  await redis.del(`cache:dashboard:${session.user.id}`)
+  revalidatePath(`/app/leagues/${leagueId}`)
+  return { success: true }
+}
