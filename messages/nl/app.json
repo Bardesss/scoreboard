@@ -156,7 +156,13 @@
       "back": "Terug",
       "next": "Volgende",
       "creating": "Aanmaken..."
-    }
+    },
+    "edit": "Competitie bewerken",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "deleteConfirm": "Competitie verwijderen?",
+    "deleteWarning": "Dit verwijdert de competitie en alle gespeelde partijen. Dit kan niet ongedaan worden gemaakt."
   },
   "playedGames": {
     "log": "Partij loggen",
@@ -221,6 +227,8 @@
     "playerDeleted": "Speler verwijderd.",
     "templateCreated": "Spelsjabloon aangemaakt.",
     "leagueCreated": "Competitie aangemaakt.",
+    "leagueSaved": "Competitie opgeslagen.",
+    "leagueDeleted": "Competitie verwijderd.",
     "gameSaved": "Partij opgeslagen."
   }
 }

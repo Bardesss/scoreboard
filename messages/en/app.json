@@ -156,7 +156,13 @@
       "back": "Back",
       "next": "Next",
       "creating": "Creating..."
-    }
+    },
+    "edit": "Edit league",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteConfirm": "Delete league?",
+    "deleteWarning": "This deletes the league and all played games. This cannot be undone."
   },
   "playedGames": {
     "log": "Log game",
@@ -221,6 +227,8 @@
     "playerDeleted": "Player deleted.",
     "templateCreated": "Game template created.",
     "leagueCreated": "League created.",
+    "leagueSaved": "League saved.",
+    "leagueDeleted": "League deleted.",
     "gameSaved": "Game saved."
   }
 }

@@ -59,6 +59,28 @@ export async function createLeague(
   return { success: true, id: league.id }
 }
 
+export async function updateLeague(
+  id: string,
+  input: { name: string; description: string }
+): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session) redirect('/en/auth/login')
+
+  const name = input.name.trim()
+  if (!name) return { success: false, error: 'required' }
+
+  const league = await prisma.league.findUnique({ where: { id } })
+  if (!league || league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
+
+  await prisma.league.update({
+    where: { id },
+    data: { name, description: input.description.trim() || null },
+  })
+
+  revalidatePath('/app/leagues')
+  return { success: true }
+}
+
 export async function deleteLeague(id: string): Promise<{ success: boolean; error?: string }> {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
