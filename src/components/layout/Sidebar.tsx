@@ -3,15 +3,16 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, UserPlus } from 'lucide-react'
 
 const NAV = [
-  { key: 'dashboard', href: '/app/dashboard', icon: LayoutDashboard },
-  { key: 'players',   href: '/app/players',   icon: Users },
-  { key: 'games',     href: '/app/games',     icon: Dices },
-  { key: 'leagues',   href: '/app/leagues',   icon: ClipboardList },
-  { key: 'credits',   href: '/app/credits',   icon: CreditCard },
-  { key: 'settings',  href: '/app/settings',  icon: Settings },
+  { key: 'dashboard',    href: '/app/dashboard',    icon: LayoutDashboard },
+  { key: 'players',      href: '/app/players',      icon: Users },
+  { key: 'games',        href: '/app/games',        icon: Dices },
+  { key: 'leagues',      href: '/app/leagues',      icon: ClipboardList },
+  { key: 'connections',  href: '/app/connections',  icon: UserPlus },
+  { key: 'credits',      href: '/app/credits',      icon: CreditCard },
+  { key: 'settings',     href: '/app/settings',     icon: Settings },
 ] as const
 
 export default function Sidebar({ name, email, credits }: { name: string; email: string; credits: number }) {

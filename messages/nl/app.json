@@ -15,6 +15,7 @@
     "games": "Spellen",
     "leagues": "Competities",
     "credits": "Credits",
+    "connections": "Verbindingen",
     "settings": "Instellingen",
     "vaultKeeper": "Vault Keeper"
   },
@@ -167,6 +168,14 @@
     "required": "Dit veld is verplicht.",
     "notFound": "Niet gevonden.",
     "serverError": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "connections": {
+    "title": "Verbindingen",
+    "find": "Kluis-beheerders zoeken",
+    "incoming": "Inkomende verzoeken",
+    "pending": "Verzonden verzoeken",
+    "connected": "Verbonden kluis-beheerders",
+    "empty": "Nog geen verbindingen."
   },
   "toasts": {
     "playerSaved": "Speler opgeslagen.",

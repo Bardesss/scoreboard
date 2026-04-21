@@ -3,14 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, Trophy, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, Trophy, Settings, UserPlus } from 'lucide-react'
 
 const NAV = [
-  { key: 'dashboard', href: '/app/dashboard', icon: LayoutDashboard },
-  { key: 'players',   href: '/app/players',   icon: Users },
-  { key: 'games',     href: '/app/games',     icon: Dices },
-  { key: 'leagues',   href: '/app/leagues',   icon: Trophy },
-  { key: 'settings',  href: '/app/settings',  icon: Settings },
+  { key: 'dashboard',   href: '/app/dashboard',   icon: LayoutDashboard },
+  { key: 'players',     href: '/app/players',     icon: Users },
+  { key: 'games',       href: '/app/games',       icon: Dices },
+  { key: 'leagues',     href: '/app/leagues',     icon: Trophy },
+  { key: 'connections', href: '/app/connections', icon: UserPlus },
+  { key: 'settings',    href: '/app/settings',    icon: Settings },
 ] as const
 
 export default function BottomNav() {

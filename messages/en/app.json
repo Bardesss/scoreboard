@@ -15,6 +15,7 @@
     "games": "Games",
     "leagues": "Leagues",
     "credits": "Credits",
+    "connections": "Connections",
     "settings": "Settings",
     "vaultKeeper": "Vault Keeper"
   },
@@ -167,6 +168,14 @@
     "required": "This field is required.",
     "notFound": "Not found.",
     "serverError": "Something went wrong. Please try again."
+  },
+  "connections": {
+    "title": "Connections",
+    "find": "Find vault keepers",
+    "incoming": "Incoming requests",
+    "pending": "Pending sent",
+    "connected": "Connected vault keepers",
+    "empty": "No connections yet."
   },
   "toasts": {
     "playerSaved": "Player saved.",
