@@ -10,7 +10,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   if (!session) redirect('/en/auth/login')
 
   const locale = session.user.locale ?? 'en'
-  const t = await getTranslations({ locale, namespace: 'support' })
+  const t = await getTranslations({ locale, namespace: 'app.support' })
 
   const ticket = await prisma.ticket.findUnique({
     where: { id },

@@ -9,7 +9,7 @@ export default async function SupportPage() {
   if (!session) redirect('/en/auth/login')
 
   const locale = session.user.locale ?? 'en'
-  const t = await getTranslations({ locale, namespace: 'support' })
+  const t = await getTranslations({ locale, namespace: 'app.support' })
 
   const tickets = await prisma.ticket.findMany({
     where: { userId: session.user.id },

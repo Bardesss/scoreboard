@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { createTicket } from '../actions'
 
 export default function NewTicketPage() {
-  const t = useTranslations('support')
+  const t = useTranslations('app.support')
   const router = useRouter()
   const [state, formAction, pending] = useActionState(
     async (_: unknown, fd: FormData) => createTicket(fd),
