@@ -1,24 +1,25 @@
 import Mailgun from 'mailgun.js'
 import FormData from 'form-data'
+import { getIntegrationConfig } from './integrations'
 
-export function isMailConfigured(): boolean {
-  return !!(process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN && process.env.MAILGUN_FROM)
-}
-
-function createClient() {
-  const mg = new Mailgun(FormData)
-  return mg.client({
-    username: 'api',
-    key: process.env.MAILGUN_API_KEY!,
-    url: 'https://api.eu.mailgun.net',
-  })
+export async function isMailConfigured(): Promise<boolean> {
+  const config = await getIntegrationConfig('mailgun')
+  return !!(config?.apiKey && config?.domain && config?.from)
 }
 
 async function send(to: string, subject: string, html: string) {
-  if (!isMailConfigured()) return
-  const client = createClient()
-  await client.messages.create(process.env.MAILGUN_DOMAIN!, {
-    from: process.env.MAILGUN_FROM!,
+  const config = await getIntegrationConfig('mailgun')
+  if (!config?.apiKey || !config?.domain || !config?.from) return
+
+  const mg = new Mailgun(FormData)
+  const client = mg.client({
+    username: 'api',
+    key: config.apiKey,
+    url: config.region === 'eu' ? 'https://api.eu.mailgun.net' : 'https://api.mailgun.net',
+  })
+
+  await client.messages.create(config.domain, {
+    from: config.from,
     to,
     subject,
     html,

@@ -35,7 +35,7 @@ export async function register(formData: FormData): Promise<ActionResult> {
       email,
       passwordHash,
       locale,
-      emailVerified: isMailConfigured() ? null : new Date(),
+      emailVerified: await isMailConfigured() ? null : new Date(),
     },
   })
 
@@ -48,7 +48,7 @@ export async function register(formData: FormData): Promise<ActionResult> {
     },
   })
 
-  if (isMailConfigured()) {
+  if (await isMailConfigured()) {
     const token = crypto.randomUUID()
     await redis.setex(`email_verify:${token}`, 60 * 60 * 24, user.id)
     await sendVerificationEmail(email, token, locale)

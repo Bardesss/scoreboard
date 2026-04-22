@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@/lib/integrations', () => ({
+  getIntegrationConfig: vi.fn().mockResolvedValue({
+    apiKey: 'test-key',
+    domain: 'test.mailgun.org',
+    from: 'Dice Vault <noreply@dicevault.fun>',
+    region: 'eu',
+  }),
+}))
+
 vi.mock('mailgun.js', () => {
   const MockMailgun = vi.fn().mockImplementation(function () {
     return {
@@ -15,21 +24,30 @@ vi.mock('mailgun.js', () => {
 
 vi.mock('form-data', () => ({ default: vi.fn() }))
 
-describe('mail', () => {
-  beforeEach(() => {
-    process.env.MAILGUN_API_KEY = 'test-key'
-    process.env.MAILGUN_DOMAIN = 'test.mailgun.org'
-    process.env.MAILGUN_FROM = 'Dice Vault <noreply@dicevault.fun>'
-    process.env.NEXTAUTH_URL = 'https://dicevault.fun'
-  })
+beforeEach(() => {
+  process.env.NEXTAUTH_URL = 'https://dicevault.fun'
+})
 
-  it('sendVerificationEmail builds a link with the token', async () => {
+describe('mail', () => {
+  it('sendVerificationEmail resolves without throwing', async () => {
     const { sendVerificationEmail } = await import('@/lib/mail')
     await expect(sendVerificationEmail('user@example.com', 'abc123', 'nl')).resolves.not.toThrow()
   })
 
-  it('sendPasswordResetEmail builds a link with the token', async () => {
+  it('sendPasswordResetEmail resolves without throwing', async () => {
     const { sendPasswordResetEmail } = await import('@/lib/mail')
     await expect(sendPasswordResetEmail('user@example.com', 'xyz789', 'en')).resolves.not.toThrow()
+  })
+
+  it('isMailConfigured returns true when config exists', async () => {
+    const { isMailConfigured } = await import('@/lib/mail')
+    expect(await isMailConfigured()).toBe(true)
+  })
+
+  it('isMailConfigured returns false when config is null', async () => {
+    const { getIntegrationConfig } = await import('@/lib/integrations')
+    vi.mocked(getIntegrationConfig).mockResolvedValueOnce(null)
+    const { isMailConfigured } = await import('@/lib/mail')
+    expect(await isMailConfigured()).toBe(false)
   })
 })
