@@ -1,61 +1,65 @@
 # 🎲 Dice Vault
 
-> Board game score tracking SaaS — store your scores safely at [dicevault.fun](https://dicevault.fun)
+> Board game score tracking SaaS — track scores, leagues, and players across your game nights.
+> Live at [dicevault.fun](https://dicevault.fun)
+
+**Stack:** Next.js 15 · Prisma 5 · PostgreSQL · Redis · NextAuth v5 · next-intl (nl/en) · Recharts · Tailwind · Coolify
 
 ---
 
 ## 🧰 Prerequisites
 
 - Node.js 22+
-- Docker + Docker Compose
-- A [Coolify](https://coolify.io) instance (v4+) on a VPS
-- A GitHub account (for auto-deploy webhook)
+- Docker + Docker Compose (for local PostgreSQL + Redis)
+- A [Coolify](https://coolify.io) instance (v4+) for production deploys
 
 ---
 
 ## 🚀 Local Development
 
-**1. Copy env file and fill in values**
 ```bash
+# 1. Copy env file and fill in values
 cp .env.example .env.local
-```
 
-**2. Start PostgreSQL and Redis**
-```bash
+# 2. Start PostgreSQL and Redis
 docker compose up -d db redis
-```
 
-**3. Run migrations**
-```bash
+# 3. Run migrations + seed AdminSettings
 npx prisma migrate dev
-```
+npx prisma db seed
 
-**4. Start the dev server**
-```bash
+# 4. Start the dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — you should see the Phase 1a placeholder.
+Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
 ## 🌍 Environment Variables
 
-| Variable | Required | Description | Phase |
-|---|---|---|---|
-| `DATABASE_URL` | ✅ | PostgreSQL connection string | 1a |
-| `REDIS_URL` | ✅ | Redis connection string | 1a |
-| `NEXTAUTH_SECRET` | ✅ | Random secret — generate with `openssl rand -base64 32` | 1a |
-| `NEXTAUTH_URL` | ✅ | Full public URL, e.g. `https://dicevault.fun` | 1a |
-| `NEXT_PUBLIC_APP_URL` | ✅ | Same as `NEXTAUTH_URL`, used client-side | 1a |
-| `MAILGUN_API_KEY` | ✅ | Mailgun API key | 1b |
-| `MAILGUN_DOMAIN` | ✅ | Mailgun sending domain | 1b |
-| `MAILGUN_FROM` | ✅ | From address, e.g. `Dice Vault <noreply@dicevault.fun>` | 1b |
-| `MOLLIE_API_KEY` | Phase 5 | Mollie live API key | 5 |
-| `STRIPE_SECRET_KEY` | Phase 5 | Stripe secret key | 5 |
-| `STRIPE_WEBHOOK_SECRET` | Phase 5 | Stripe webhook signing secret | 5 |
-| `STRIKE_API_KEY` | Phase 7 | Strike API key (Bitcoin Lightning) | 7 |
-| `CRON_SECRET` | Required | Any random string — used to authenticate the `/api/cron/credit-reset` endpoint | Phase 6A |
+### Always required
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis connection string |
+| `NEXTAUTH_SECRET` | Random secret — `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | Full public URL, e.g. `https://dicevault.fun` |
+| `NEXT_PUBLIC_APP_URL` | Same as `NEXTAUTH_URL`, used client-side |
+| `MAILGUN_API_KEY` | Mailgun API key (email verification + notifications) |
+| `MAILGUN_DOMAIN` | Mailgun sending domain |
+| `MAILGUN_FROM` | From address, e.g. `Dice Vault <noreply@dicevault.fun>` |
+| `CRON_SECRET` | Random string to authenticate `/api/cron/credit-reset` — `openssl rand -base64 32` |
+
+### Future / not yet active
+
+| Variable | When | Description |
+|---|---|---|
+| `MOLLIE_API_KEY` | Phase 7 | Mollie live API key |
+| `STRIPE_SECRET_KEY` | Phase 7 | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Phase 7 | Stripe webhook signing secret |
+| `STRIKE_API_KEY` | Phase 8 | Strike API key (Bitcoin Lightning) |
 
 ---
 
@@ -77,24 +81,26 @@ Open [http://localhost:3000](http://localhost:3000) — you should see the Phase
 
 1. Coolify → **New Resource** → **Application** → **GitHub**
 2. Select the `scoreboard` repository, branch `main`
-3. Build Pack → **Dockerfile**
-4. Dockerfile path: `Dockerfile`
-5. Exposed port: `3000`
-6. After saving, open the **Health Checks** tab → set Path to `/api/health`
+3. Build Pack → **Dockerfile** · Dockerfile path: `Dockerfile` · Exposed port: `3000`
+4. **Health Checks** tab → set Path to `/api/health`
 
 ### 4️⃣ Set environment variables
 
-Add all variables from the table above. Minimum for Phase 1a:
+Add all required variables from the table above. Example minimum:
 
-```
-DATABASE_URL=...
-REDIS_URL=...
-NEXTAUTH_SECRET=...       # openssl rand -base64 32
+```env
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+NEXTAUTH_SECRET=...
 NEXTAUTH_URL=https://dicevault.fun
 NEXT_PUBLIC_APP_URL=https://dicevault.fun
+MAILGUN_API_KEY=...
+MAILGUN_DOMAIN=...
+MAILGUN_FROM=Dice Vault <noreply@dicevault.fun>
+CRON_SECRET=...
 ```
 
-### 5️⃣ Set post-deploy command
+### 5️⃣ Post-deploy command
 
 In app settings → **Post-deploy command**:
 ```
@@ -103,9 +109,7 @@ npx prisma migrate deploy
 
 ### 6️⃣ Deploy 🚢
 
-Click **Deploy**. First build takes ~3–5 minutes.
-
-Verify it's live:
+Click **Deploy**. First build takes ~3–5 minutes. Verify:
 ```bash
 curl https://yourdomain.com/api/health
 # → {"db":"ok","redis":"ok"}
@@ -115,43 +119,27 @@ curl https://yourdomain.com/api/health
 
 ## 🏁 First-Time Setup After Deploy
 
-Once the app is live and the DB is running, do this once before using the app.
-
-### 1. Run migrations + seed
+Run these once after the first successful deploy:
 
 ```bash
-# Migrations (also runs automatically on every deploy via post-deploy command)
-npx prisma migrate deploy
-
-# Seed AdminSettings (action costs, free-mode defaults, thresholds)
+# Seed AdminSettings (action costs, free mode defaults, thresholds)
 npx prisma db seed
+
+# Promote yourself to admin
+npx tsx scripts/make-admin.ts your@email.com
 ```
 
-### 2. Register your account
+> **On Coolify:** use the app resource → **Terminal** tab, or SSH + `docker exec` into the container.
 
-Go to `https://yourdomain.com/en/auth/register` and create an account.
+Then log out and back in — the admin panel is available at `/admin`.
 
-### 3. Verify your email
+### Email verification without Mailgun
 
-**If Mailgun is configured:** click the link in the email.
-
-**If Mailgun is NOT set up yet** (local dev or early deploy), verify manually from the terminal:
+If Mailgun isn't configured yet (local dev or early deploy), verify an account manually:
 
 ```bash
 npx tsx scripts/verify-email.ts your@email.com
 ```
-
-You can now log in.
-
-### 4. Promote yourself to admin *(optional — needed for Phase 4 admin panel)*
-
-```bash
-npx tsx scripts/make-admin.ts your@email.com
-```
-
-Then log out and back in — the admin panel will be available at `/admin`.
-
-> **Note:** For Coolify deploys, run the scripts above via Coolify's terminal (open the app resource → **Terminal** tab) or SSH into the VPS and `docker exec` into the container.
 
 ---
 
@@ -163,13 +151,24 @@ Then log out and back in — the admin panel will be available at `/admin`.
    - Content type: `application/json`
    - Events: `Just the push event`
 
-Every push to `main` now triggers an automatic deploy. ✅
+Every push to `main` triggers an automatic deploy. ✅
 
 ---
 
-## 🗄️ Running Migrations
+## ⏰ Monthly Credit Reset Cron
 
-Migrations run automatically via the post-deploy command on Coolify. To run manually:
+The `/api/cron/credit-reset` endpoint resets monthly credits for all users. Call it monthly via any cron provider (Coolify Cron, GitHub Actions, cron-job.org, etc.):
+
+```bash
+curl -X POST https://yourdomain.com/api/cron/credit-reset \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+---
+
+## 🗄️ Migrations
+
+Migrations run automatically on every deploy via the post-deploy command. To run manually:
 
 ```bash
 # Local
@@ -181,14 +180,16 @@ npx prisma migrate deploy
 
 ---
 
-## 📋 Phase Changelog
+## 📋 Changelog
 
 | Phase | What was added |
 |---|---|
-| 1a | Next.js 15 · Prisma 5 · Redis · `/api/health` · Dockerfile · Coolify deploy |
-| 1b | next-intl (nl/en) · NextAuth v5 Credentials · TOTP MFA · Mailgun email verification · landing page · auth pages · app shell (sidebar + bottom nav) |
-| 2 | Players CRUD · Game Template wizard (25 cr) · League creation (10 cr) · PlayedGame logging (5 cr) · credit deduction engine (dual-pool) · low-credit banner. No new env vars. Run `npx prisma db seed` after migrate to populate AdminSettings. |
-| Phase 3 | Social connections, notification bell, dashboard stats, shareable game links, PlayedGame approval flow — no new env vars |
-| Phase 4 | Admin panel (Dutch-only) · user management · credit adjustment · discount codes · landing CMS + reviews · Pages CMS (terms/privacy/why-bitcoin) · cookie consent banner · email notifications (connections + played game approval) · admin approvals view — no new env vars. **Promote first admin:** `UPDATE "User" SET role = 'admin' WHERE email = 'your@email.com';` |
-| Phase 6A | Support ticket system, monthly credit reset cron (`CRON_SECRET` required), `requiresMfa` enforcement, low-credit warning emails |
-| Phase 6B | Credit analytics dashboard (`/admin/credits`), tax export scaffold (`/admin/billing/tax-export`) |
+| **1a** | Next.js 15 · Prisma 5 · Redis · `/api/health` · Dockerfile · Coolify deploy |
+| **1b** | next-intl (nl/en) · NextAuth v5 · TOTP MFA · Mailgun email verification · landing page · auth pages · app shell |
+| **2** | Players CRUD · Game Template wizard · League creation · PlayedGame logging · dual-pool credit engine · low-credit banner |
+| **2b** | Improved game wizard — 5-step adaptive flow with win types, scoring config, buy-in, colour + icon |
+| **3** | Social connections · notification bell · dashboard stats · shareable game links · PlayedGame approval flow |
+| **4** | Admin panel · user management · credit adjustment · discount codes · landing CMS · cookie consent · email notifications |
+| **5** | Session participant selection · win ratio on league page and dashboard |
+| **6A** | Support ticket system · monthly credit reset cron · `requiresMfa` enforcement · low-credit warning emails |
+| **6B** | Credit analytics dashboard (`/admin/credits`) · tax export scaffold (`/admin/billing/tax-export`) |
