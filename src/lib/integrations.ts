@@ -2,9 +2,11 @@ import { prisma } from './prisma'
 import { redis } from './redis'
 import { encrypt, decrypt } from './encryption'
 
+export type IntegrationProvider = 'mailgun' | 'mollie' | 'stripe' | 'strike'
+
 const CACHE_TTL = 300 // 5 minutes
 
-export async function getIntegrationConfig(provider: string): Promise<Record<string, string> | null> {
+export async function getIntegrationConfig(provider: IntegrationProvider): Promise<Record<string, string> | null> {
   const cacheKey = `integration:${provider}`
   const cached = await redis.get(cacheKey)
   if (cached) return JSON.parse(cached) as Record<string, string>
@@ -18,7 +20,7 @@ export async function getIntegrationConfig(provider: string): Promise<Record<str
 }
 
 export async function saveIntegrationConfig(
-  provider: string,
+  provider: IntegrationProvider,
   config: Record<string, string>
 ): Promise<void> {
   const encryptedConfig = encrypt(JSON.stringify(config))
@@ -31,7 +33,7 @@ export async function saveIntegrationConfig(
 }
 
 export async function setIntegrationStatus(
-  provider: string,
+  provider: IntegrationProvider,
   status: 'ok' | 'error',
   error?: string
 ): Promise<void> {

@@ -68,5 +68,37 @@ describe('saveIntegrationConfig', () => {
       })
     )
     expect(redis.del).toHaveBeenCalledWith('integration:mailgun')
+    const callArg = vi.mocked(prisma.integration.upsert).mock.calls[0][0]
+    const storedConfig = callArg.create.encryptedConfig
+    expect(storedConfig).not.toBe(JSON.stringify({ apiKey: 'k', domain: 'd', from: 'f', region: 'eu' }))
+    expect(typeof storedConfig).toBe('string')
+    expect(storedConfig.length).toBeGreaterThan(0)
+  })
+})
+
+describe('setIntegrationStatus', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('updates status and clears lastError on success', async () => {
+    vi.mocked(prisma.integration.update).mockResolvedValue({} as any)
+    const { setIntegrationStatus } = await import('./integrations')
+    await setIntegrationStatus('mailgun', 'ok')
+    expect(prisma.integration.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { provider: 'mailgun' },
+        data: expect.objectContaining({ status: 'ok', lastError: null }),
+      })
+    )
+  })
+
+  it('passes error string when provided', async () => {
+    vi.mocked(prisma.integration.update).mockResolvedValue({} as any)
+    const { setIntegrationStatus } = await import('./integrations')
+    await setIntegrationStatus('mailgun', 'error', 'Domain not found')
+    expect(prisma.integration.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'error', lastError: 'Domain not found' }),
+      })
+    )
   })
 })
