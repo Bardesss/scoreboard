@@ -306,3 +306,14 @@ model CreditPurchase {
   @@index([userId, status])
   @@index([status, createdAt])
 }
+
+model Integration {
+  id              String    @id @default(cuid())
+  provider        String    @unique
+  encryptedConfig String
+  status          String    @default("unconfigured")
+  lastTestedAt    DateTime?
+  lastError       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
