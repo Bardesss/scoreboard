@@ -311,9 +311,11 @@ model Integration {
   id              String    @id @default(cuid())
   provider        String    @unique
   encryptedConfig String
-  status          String    @default("unconfigured")
+  status          String    @default("unconfigured") // "unconfigured" | "ok" | "error"
   lastTestedAt    DateTime?
   lastError       String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@index([status])
 }
