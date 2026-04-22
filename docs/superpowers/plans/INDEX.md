@@ -15,7 +15,8 @@ Single source of truth for phase order, plan files, and status.
 | **5** | phase-5-participants-winratio.md | done | Session participant selection, win ratio on league page + dashboard |
 | **6A** | [phase-6a-tickets-cron.md](2026-04-22-phase-6a-tickets-cron.md) | done | Support tickets, cron, requiresMfa, low-credit warnings |
 | **6B** | [phase-6b-analytics-taxexport.md](2026-04-22-phase-6b-analytics-taxexport.md) | done | Credit analytics, tax export scaffold, README final review |
-| **7** | phase-7-payments-mollie.md | not written | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks |
+| **7A** | [phase-7a-integrations-mailgun.md](2026-04-22-phase-7a-integrations-mailgun.md) | ready to execute | Integration model, AES-256-GCM encryption, Mailgun DB migration, integrations admin UI |
+| **7B** | phase-7b-payments-mollie-stripe.md | not written | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **8** | phase-8-payments-bitcoin.md | not written | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 
 ## Specs
@@ -27,6 +28,7 @@ Single source of truth for phase order, plan files, and status.
 | Credits & free mode | [specs/2026-04-17-credits-free-mode-design.md](../specs/2026-04-17-credits-free-mode-design.md) | Credit pools, free mode toggle, free periods, analytics |
 | Support tickets | [specs/2026-04-17-support-tickets-design.md](../specs/2026-04-17-support-tickets-design.md) | Ticket system, admin management, auto-close |
 | Session participants & win ratio | [specs/2026-04-21-session-participants-winratio-design.md](../specs/2026-04-21-session-participants-winratio-design.md) | Phase 5 — participant selection, win ratio |
+| Integrations | [specs/2026-04-22-integrations-design.md](../specs/2026-04-22-integrations-design.md) | Phase 7A — Integration model, encryption, Mailgun UI |
 
 ## Archived plans
 
