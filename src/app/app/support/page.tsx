@@ -24,46 +24,51 @@ export default async function SupportPage() {
   }
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto', padding: '32px 16px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, color: 'rgba(255,255,255,0.87)', margin: 0 }}>{t('title')}</h1>
+    <div className="max-w-2xl mx-auto py-8 px-2">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('title')}</h1>
         <Link
           href="/app/support/new"
-          style={{ background: '#f5a623', color: '#1c1408', fontWeight: 700, fontSize: 14, padding: '8px 18px', borderRadius: 10, textDecoration: 'none' }}
+          className="font-headline font-bold text-sm px-4 py-2 rounded-xl"
+          style={{ background: '#f5a623', color: '#1c1408', textDecoration: 'none' }}
         >
           {t('newTicket')}
         </Link>
       </div>
 
       {tickets.length === 0 ? (
-        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14 }}>{t('noTickets')}</p>
+        <p className="font-body text-sm py-12 text-center" style={{ color: '#9a8878' }}>{t('noTickets')}</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <ul className="space-y-2">
           {tickets.map(ticket => (
-            <Link
-              key={ticket.id}
-              href={`/app/support/${ticket.id}`}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px',
-                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 12, textDecoration: 'none',
-              }}
-            >
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'rgba(245,166,35,0.15)', color: '#f5a623', padding: '2px 8px', borderRadius: 6, flexShrink: 0 }}>
-                {categoryLabel(ticket.category)}
-              </span>
-              <span style={{ flex: 1, fontSize: 14, color: 'rgba(255,255,255,0.87)', fontWeight: 500 }}>
-                {ticket.subject}
-              </span>
-              <span style={{ fontSize: 12, color: ticket.status === 'open' ? '#4ade80' : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-                {ticket.status === 'open' ? t('open') : t('closed')}
-              </span>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
-                {ticket.updatedAt.toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB')}
-              </span>
-            </Link>
+            <li key={ticket.id}>
+              <Link
+                href={`/app/support/${ticket.id}`}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+                style={{ background: '#fffdf9', border: '1px solid #e8e1d8', textDecoration: 'none', display: 'flex' }}
+              >
+                <span
+                  className="font-headline font-bold text-xs uppercase tracking-wide px-2 py-0.5 rounded-md flex-shrink-0"
+                  style={{ background: '#fef3e2', color: '#c17d10' }}
+                >
+                  {categoryLabel(ticket.category)}
+                </span>
+                <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>
+                  {ticket.subject}
+                </span>
+                <span
+                  className="font-headline font-bold text-xs flex-shrink-0"
+                  style={{ color: ticket.status === 'open' ? '#16a34a' : '#9a8878' }}
+                >
+                  {ticket.status === 'open' ? t('open') : t('closed')}
+                </span>
+                <span className="font-body text-xs flex-shrink-0" style={{ color: '#c4b79a' }}>
+                  {ticket.updatedAt.toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB')}
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   )

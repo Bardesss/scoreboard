@@ -5,6 +5,18 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createTicket } from '../actions'
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '10px 14px',
+  background: '#fffdf9',
+  border: '1px solid #e8e1d8',
+  borderRadius: 12,
+  color: '#1c1810',
+  fontSize: 14,
+  boxSizing: 'border-box',
+  outline: 'none',
+}
+
 export default function NewTicketPage() {
   const t = useTranslations('app.support')
   const router = useRouter()
@@ -20,29 +32,34 @@ export default function NewTicketPage() {
   }, [state, router])
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: '32px 16px' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 800, color: 'rgba(255,255,255,0.87)', marginBottom: 24 }}>{t('newTicket')}</h1>
-      <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div className="max-w-xl mx-auto py-8 px-2">
+      <h1 className="font-headline font-black text-2xl mb-6" style={{ color: '#1c1810' }}>{t('newTicket')}</h1>
+      <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
-          <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: 6 }}>{t('category')}</label>
-          <select name="category" required style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, color: 'rgba(255,255,255,0.87)', fontSize: 14 }}>
+          <label className="font-headline font-semibold text-sm block mb-2" style={{ color: '#9a8878' }}>{t('category')}</label>
+          <select name="category" required style={{ ...inputStyle, appearance: 'auto' }}>
             <option value="bug">{t('categoryBug')}</option>
             <option value="feedback">{t('categoryFeedback')}</option>
             <option value="question">{t('categoryQuestion')}</option>
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: 6 }}>{t('subject')}</label>
-          <input name="subject" required maxLength={200} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, color: 'rgba(255,255,255,0.87)', fontSize: 14, boxSizing: 'border-box' }} />
+          <label className="font-headline font-semibold text-sm block mb-2" style={{ color: '#9a8878' }}>{t('subject')}</label>
+          <input name="subject" required maxLength={200} style={inputStyle} />
         </div>
         <div>
-          <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: 6 }}>{t('message')}</label>
-          <textarea name="body" required maxLength={5000} rows={6} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, color: 'rgba(255,255,255,0.87)', fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
+          <label className="font-headline font-semibold text-sm block mb-2" style={{ color: '#9a8878' }}>{t('message')}</label>
+          <textarea name="body" required maxLength={5000} rows={6} style={{ ...inputStyle, resize: 'vertical' }} />
         </div>
         {state && !state.success && (
-          <p style={{ color: '#f87171', fontSize: 13 }}>{state.error}</p>
+          <p className="font-body text-sm" style={{ color: '#dc2626' }}>{state.error}</p>
         )}
-        <button type="submit" disabled={pending} style={{ background: '#f5a623', color: '#1c1408', fontWeight: 700, fontSize: 14, padding: '11px 0', borderRadius: 10, border: 'none', cursor: 'pointer' }}>
+        <button
+          type="submit"
+          disabled={pending}
+          className="font-headline font-bold text-sm rounded-2xl py-3"
+          style={{ background: '#f5a623', color: '#1c1408', border: 'none', cursor: pending ? 'not-allowed' : 'pointer', opacity: pending ? 0.7 : 1 }}
+        >
           {pending ? '…' : t('submit')}
         </button>
       </form>
