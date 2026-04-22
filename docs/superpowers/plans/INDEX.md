@@ -18,6 +18,7 @@ Single source of truth for phase order, plan files, and status.
 | **7A** | [phase-7a-integrations-mailgun.md](2026-04-22-phase-7a-integrations-mailgun.md) | done | Integration model, AES-256-GCM encryption, Mailgun DB migration, integrations admin UI |
 | **7B** | phase-7b-payments-mollie-stripe.md | not written | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **8** | phase-8-payments-bitcoin.md | not written | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
+| **Dashboard** | [dashboard-redesign.md](2026-04-22-dashboard-redesign.md) | ready to execute | 2×2 ranked-list panels + paginated games table |
 
 ## Specs
 
@@ -29,6 +30,7 @@ Single source of truth for phase order, plan files, and status.
 | Support tickets | [specs/2026-04-17-support-tickets-design.md](../specs/2026-04-17-support-tickets-design.md) | Ticket system, admin management, auto-close |
 | Session participants & win ratio | [specs/2026-04-21-session-participants-winratio-design.md](../specs/2026-04-21-session-participants-winratio-design.md) | Phase 5 — participant selection, win ratio |
 | Integrations | [specs/2026-04-22-integrations-design.md](../specs/2026-04-22-integrations-design.md) | Phase 7A — Integration model, encryption, Mailgun UI |
+| Dashboard redesign | [specs/2026-04-22-dashboard-redesign.md](../specs/2026-04-22-dashboard-redesign.md) | 2×2 ranked-list panels, paginated games table, Redis cache |
 
 ## Archived plans
 
