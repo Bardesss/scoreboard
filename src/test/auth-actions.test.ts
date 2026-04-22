@@ -7,6 +7,7 @@ const mockPrismaUser = {
   emailVerified: null as Date | null,
   locale: 'en',
   role: 'user',
+  username: null as string | null,
   totpEnabled: false,
   totpSecret: null as string | null,
   totpBackupCodes: [] as string[],
