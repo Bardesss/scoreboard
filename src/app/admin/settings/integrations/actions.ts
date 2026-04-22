@@ -23,7 +23,8 @@ export async function saveMailgunConfig(data: {
     await saveIntegrationConfig('mailgun', data)
     return { success: true }
   } catch (e: any) {
-    return { success: false, error: e.message }
+    const isAuthError = e.message === 'Unauthorized'
+    return { success: false, error: isAuthError ? 'Niet gemachtigd' : 'Er is een onbekende fout opgetreden' }
   }
 }
 
@@ -99,7 +100,8 @@ export async function testMailgunConnection(): Promise<{
 
     return { success: true, stats }
   } catch (e: any) {
+    const isAuthError = e.message === 'Unauthorized'
     await setIntegrationStatus('mailgun', 'error', e.message).catch(() => {})
-    return { success: false, error: e.message }
+    return { success: false, error: isAuthError ? 'Niet gemachtigd' : 'Er is een onbekende fout opgetreden' }
   }
 }

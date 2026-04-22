@@ -14,9 +14,13 @@ export async function getIntegrationConfig(provider: IntegrationProvider): Promi
   const row = await prisma.integration.findUnique({ where: { provider } })
   if (!row) return null
 
-  const config = JSON.parse(decrypt(row.encryptedConfig)) as Record<string, string>
-  await redis.set(cacheKey, JSON.stringify(config), 'EX', CACHE_TTL)
-  return config
+  try {
+    const config = JSON.parse(decrypt(row.encryptedConfig)) as Record<string, string>
+    await redis.set(cacheKey, JSON.stringify(config), 'EX', CACHE_TTL)
+    return config
+  } catch {
+    return null
+  }
 }
 
 export async function saveIntegrationConfig(
