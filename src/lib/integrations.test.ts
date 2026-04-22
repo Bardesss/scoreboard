@@ -59,7 +59,7 @@ describe('saveIntegrationConfig', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('upserts encrypted config and clears cache', async () => {
-    vi.mocked(prisma.integration.upsert).mockResolvedValue({} as any)
+    vi.mocked(prisma.integration.upsert).mockResolvedValue({} as never)
     const { saveIntegrationConfig } = await import('./integrations')
     await saveIntegrationConfig('mailgun', { apiKey: 'k', domain: 'd', from: 'f', region: 'eu' })
     expect(prisma.integration.upsert).toHaveBeenCalledWith(
@@ -80,7 +80,7 @@ describe('setIntegrationStatus', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('updates status and clears lastError on success', async () => {
-    vi.mocked(prisma.integration.update).mockResolvedValue({} as any)
+    vi.mocked(prisma.integration.update).mockResolvedValue({} as never)
     const { setIntegrationStatus } = await import('./integrations')
     await setIntegrationStatus('mailgun', 'ok')
     expect(prisma.integration.update).toHaveBeenCalledWith(
@@ -92,7 +92,7 @@ describe('setIntegrationStatus', () => {
   })
 
   it('passes error string when provided', async () => {
-    vi.mocked(prisma.integration.update).mockResolvedValue({} as any)
+    vi.mocked(prisma.integration.update).mockResolvedValue({} as never)
     const { setIntegrationStatus } = await import('./integrations')
     await setIntegrationStatus('mailgun', 'error', 'Domain not found')
     expect(prisma.integration.update).toHaveBeenCalledWith(

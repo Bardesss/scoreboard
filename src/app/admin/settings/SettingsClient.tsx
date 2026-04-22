@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { saveSettings } from './actions'
 
@@ -200,7 +201,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
       </div>
 
       {/* Integrations shortcut */}
-      <a
+      <Link
         href="/admin/settings/integrations"
         style={{
           display: 'flex',
@@ -218,7 +219,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
           </div>
         </div>
         <span style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}>›</span>
-      </a>
+      </Link>
 
       <button
         type="submit"

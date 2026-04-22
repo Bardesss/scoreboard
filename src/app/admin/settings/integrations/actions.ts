@@ -22,8 +22,8 @@ export async function saveMailgunConfig(data: {
     }
     await saveIntegrationConfig('mailgun', data)
     return { success: true }
-  } catch (e: any) {
-    const isAuthError = e.message === 'Unauthorized'
+  } catch (e: unknown) {
+    const isAuthError = e instanceof Error && e.message === 'Unauthorized'
     return { success: false, error: isAuthError ? 'Niet gemachtigd' : 'Er is een onbekende fout opgetreden' }
   }
 }
@@ -60,8 +60,8 @@ export async function testMailgunConnection(): Promise<{
     })
 
     if (!domainRes.ok) {
-      const body = await domainRes.json().catch(() => ({}))
-      const message = (body as any).message ?? `HTTP ${domainRes.status}`
+      const body = await domainRes.json().catch(() => ({})) as { message?: string }
+      const message = body.message ?? `HTTP ${domainRes.status}`
       await setIntegrationStatus('mailgun', 'error', message)
       return { success: false, error: message }
     }
@@ -99,9 +99,10 @@ export async function testMailgunConnection(): Promise<{
     await setIntegrationStatus('mailgun', 'ok')
 
     return { success: true, stats }
-  } catch (e: any) {
-    const isAuthError = e.message === 'Unauthorized'
-    await setIntegrationStatus('mailgun', 'error', e.message).catch(() => {})
+  } catch (e: unknown) {
+    const isAuthError = e instanceof Error && e.message === 'Unauthorized'
+    const msg = e instanceof Error ? e.message : 'Onbekende fout'
+    await setIntegrationStatus('mailgun', 'error', msg).catch(() => {})
     return { success: false, error: isAuthError ? 'Niet gemachtigd' : 'Er is een onbekende fout opgetreden' }
   }
 }
