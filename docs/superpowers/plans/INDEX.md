@@ -15,7 +15,7 @@ Single source of truth for phase order, plan files, and status.
 | **5** | phase-5-participants-winratio.md | done | Session participant selection, win ratio on league page + dashboard |
 | **6A** | [phase-6a-tickets-cron.md](2026-04-22-phase-6a-tickets-cron.md) | done | Support tickets, cron, requiresMfa, low-credit warnings |
 | **6B** | [phase-6b-analytics-taxexport.md](2026-04-22-phase-6b-analytics-taxexport.md) | done | Credit analytics, tax export scaffold, README final review |
-| **7A** | [phase-7a-integrations-mailgun.md](2026-04-22-phase-7a-integrations-mailgun.md) | ready to execute | Integration model, AES-256-GCM encryption, Mailgun DB migration, integrations admin UI |
+| **7A** | [phase-7a-integrations-mailgun.md](2026-04-22-phase-7a-integrations-mailgun.md) | done | Integration model, AES-256-GCM encryption, Mailgun DB migration, integrations admin UI |
 | **7B** | phase-7b-payments-mollie-stripe.md | not written | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **8** | phase-8-payments-bitcoin.md | not written | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 

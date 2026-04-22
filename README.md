@@ -47,10 +47,10 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXTAUTH_SECRET` | Random secret — `openssl rand -base64 32` |
 | `NEXTAUTH_URL` | Full public URL, e.g. `https://dicevault.fun` |
 | `NEXT_PUBLIC_APP_URL` | Same as `NEXTAUTH_URL`, used client-side |
-| `MAILGUN_API_KEY` | Mailgun API key (email verification + notifications) |
-| `MAILGUN_DOMAIN` | Mailgun sending domain |
-| `MAILGUN_FROM` | From address, e.g. `Dice Vault <noreply@dicevault.fun>` |
 | `CRON_SECRET` | Random string to authenticate `/api/cron/credit-reset` — `openssl rand -base64 32` |
+
+> **Email (Mailgun):** Configured via `/admin/settings/integrations` — no ENV vars needed.
+> `NEXTAUTH_SECRET` rotation invalidates stored integration credentials; re-enter them in the admin UI after rotating.
 
 ### Future / not yet active
 
@@ -94,9 +94,6 @@ REDIS_URL=redis://...
 NEXTAUTH_SECRET=...
 NEXTAUTH_URL=https://dicevault.fun
 NEXT_PUBLIC_APP_URL=https://dicevault.fun
-MAILGUN_API_KEY=...
-MAILGUN_DOMAIN=...
-MAILGUN_FROM=Dice Vault <noreply@dicevault.fun>
 CRON_SECRET=...
 ```
 
