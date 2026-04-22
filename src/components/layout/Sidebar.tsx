@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User, ShieldCheck, LifeBuoy } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 
 type NotificationItem = {
@@ -22,6 +22,7 @@ const NAV = [
   { key: 'profile',      href: '/app/profile',      icon: User },
   { key: 'credits',      href: '/app/credits',      icon: CreditCard },
   { key: 'settings',     href: '/app/settings',     icon: Settings },
+  { key: 'support',      href: '/app/support',      icon: LifeBuoy },
 ] as const
 
 export default function Sidebar({ name, credits, unreadCount, notifications, isAdmin }: { name: string; email?: string; credits: number; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {

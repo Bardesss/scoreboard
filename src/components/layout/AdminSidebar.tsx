@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Settings, Globe, FileText, CheckSquare, Dices } from 'lucide-react'
+import { LayoutDashboard, Users, Settings, Globe, FileText, CheckSquare, Dices, MessageSquare, BarChart3, Receipt } from 'lucide-react'
 
 const NAV = [
   { label: 'Dashboard',     href: '/admin',            icon: LayoutDashboard, exact: true },
@@ -11,6 +11,9 @@ const NAV = [
   { label: 'Landing',       href: '/admin/landing',    icon: Globe,           exact: false },
   { label: "Pagina's",      href: '/admin/pages',      icon: FileText,        exact: false },
   { label: 'Goedkeuringen', href: '/admin/approvals',  icon: CheckSquare,     exact: false },
+  { label: 'Tickets',       href: '/admin/tickets',    icon: MessageSquare,   exact: false },
+  { label: 'Credits',       href: '/admin/credits',    icon: BarChart3,       exact: false },
+  { label: 'Belasting',     href: '/admin/billing/tax-export', icon: Receipt, exact: false },
 ] as const
 
 export default function AdminSidebar() {

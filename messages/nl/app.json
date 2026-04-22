@@ -19,7 +19,27 @@
     "connections": "Verbindingen",
     "profile": "Profiel",
     "settings": "Instellingen",
+    "support": "Support",
     "vaultKeeper": "Vault Keeper"
+  },
+  "support": {
+    "title": "Support",
+    "newTicket": "Nieuw ticket",
+    "noTickets": "Nog geen tickets. Heb je een vraag of een bug gevonden? Laat het ons weten.",
+    "open": "Open",
+    "closed": "Gesloten",
+    "categoryBug": "Bug",
+    "categoryFeedback": "Feedback",
+    "categoryQuestion": "Vraag",
+    "subject": "Onderwerp",
+    "category": "Categorie",
+    "message": "Bericht",
+    "submit": "Versturen",
+    "reply": "Antwoord sturen",
+    "replyPlaceholder": "Jouw antwoord…",
+    "closedNotice": "Dit ticket is gesloten.",
+    "autoCloseNotice": "Dit ticket wordt automatisch gesloten op {date} als er geen reactie is.",
+    "admin": "Dice Vault Support"
   },
   "credits": {
     "balance": "{n} credits",

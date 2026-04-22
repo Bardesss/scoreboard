@@ -19,7 +19,27 @@
     "connections": "Connections",
     "profile": "Profile",
     "settings": "Settings",
+    "support": "Support",
     "vaultKeeper": "Vault Keeper"
+  },
+  "support": {
+    "title": "Support",
+    "newTicket": "New ticket",
+    "noTickets": "No tickets yet. Have a question or found a bug? Let us know.",
+    "open": "Open",
+    "closed": "Closed",
+    "categoryBug": "Bug",
+    "categoryFeedback": "Feedback",
+    "categoryQuestion": "Question",
+    "subject": "Subject",
+    "category": "Category",
+    "message": "Message",
+    "submit": "Submit",
+    "reply": "Send reply",
+    "replyPlaceholder": "Your reply…",
+    "closedNotice": "This ticket is closed.",
+    "autoCloseNotice": "This ticket will be automatically closed on {date} if no reply is received.",
+    "admin": "Dice Vault Support"
   },
   "credits": {
     "balance": "{n} credits",
