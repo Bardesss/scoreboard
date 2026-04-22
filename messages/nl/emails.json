@@ -1,0 +1,22 @@
+{
+  "ticket_replied": {
+    "subject": "Nieuw antwoord op je supportticket",
+    "body": "Het Dice Vault supportteam heeft gereageerd op je ticket: \"{subject}\". Log in om het antwoord te bekijken."
+  },
+  "ticket_closed": {
+    "subject": "Je supportticket is gesloten",
+    "body": "Je ticket \"{subject}\" is gesloten door ons supportteam."
+  },
+  "ticket_auto_closed": {
+    "subject": "Je supportticket is automatisch gesloten",
+    "body": "Je ticket \"{subject}\" is automatisch gesloten na 7 dagen zonder reactie. Als je nog hulp nodig hebt, open dan een nieuw ticket."
+  },
+  "monthly_reset": {
+    "subject": "Je maandelijkse credits zijn gereset",
+    "body": "Je Dice Vault maandelijkse credits zijn gereset naar {credits}. Geniet van nog een maand gamen!"
+  },
+  "low_credit_warning": {
+    "subject": "Je Dice Vault credits raken op",
+    "body": "Je hebt nog {balance} credits. Koop meer om zonder onderbreking games te blijven bijhouden."
+  }
+}
