@@ -15,7 +15,10 @@ const DEFAULTS = {
 }
 
 export default async function AdminSettingsPage() {
-  const rows = await prisma.adminSettings.findMany()
+  const [rows, configuredCount] = await Promise.all([
+    prisma.adminSettings.findMany(),
+    prisma.integration.count({ where: { status: 'ok' } }),
+  ])
 
   const raw: Record<string, unknown> = {}
   for (const row of rows) {
@@ -101,7 +104,7 @@ export default async function AdminSettingsPage() {
         </Link>
       </div>
 
-      <SettingsClient values={values} />
+      <SettingsClient values={values} configuredCount={configuredCount} />
     </div>
   )
 }

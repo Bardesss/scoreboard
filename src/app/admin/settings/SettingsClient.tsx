@@ -18,6 +18,7 @@ interface SettingsValues {
 
 interface Props {
   values: SettingsValues
+  configuredCount: number
 }
 
 const inputStyle: React.CSSProperties = {
@@ -70,7 +71,7 @@ const lastFieldRowStyle: React.CSSProperties = {
   justifyContent: 'space-between',
 }
 
-export default function SettingsClient({ values }: Props) {
+export default function SettingsClient({ values, configuredCount }: Props) {
   const [form, setForm] = useState<SettingsValues>(values)
   const [isPending, startTransition] = useTransition()
 
@@ -197,6 +198,27 @@ export default function SettingsClient({ values }: Props) {
           />
         </div>
       </div>
+
+      {/* Integrations shortcut */}
+      <a
+        href="/admin/settings/integrations"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          ...cardStyle,
+          textDecoration: 'none',
+          marginBottom: 20,
+        }}
+      >
+        <div>
+          <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Integraties</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+            {configuredCount} van 4 geconfigureerd
+          </div>
+        </div>
+        <span style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}>›</span>
+      </a>
 
       <button
         type="submit"
