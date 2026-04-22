@@ -88,6 +88,10 @@ export async function login(formData: FormData): Promise<ActionResult> {
   const valid = await bcrypt.compare(password, user.passwordHash)
   if (!valid) return { error: 'auth.errors.invalidCredentials' }
 
+  if (user.requiresMfa && !user.totpEnabled) {
+    return { error: 'auth.errors.mfaRequired' }
+  }
+
   if (user.totpEnabled) {
     const pendingToken = crypto.randomUUID()
     await redis.setex(`totp_pending:${pendingToken}`, 300, user.id)

@@ -64,8 +64,9 @@ describe('auth actions', () => {
       const { prisma } = await import('@/lib/prisma')
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockPrismaUser)
 
-      const { register } = await import('@/app/[locale]/auth/actions')
+      const { register } = await import('@/app/[locale]/(auth)/auth/actions')
       const formData = new FormData()
+      formData.set('name', 'Test User')
       formData.set('email', 'test@example.com')
       formData.set('password', 'password123')
       formData.set('passwordConfirm', 'password123')
@@ -79,8 +80,9 @@ describe('auth actions', () => {
       const { prisma } = await import('@/lib/prisma')
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
 
-      const { register } = await import('@/app/[locale]/auth/actions')
+      const { register } = await import('@/app/[locale]/(auth)/auth/actions')
       const formData = new FormData()
+      formData.set('name', 'New User')
       formData.set('email', 'new@example.com')
       formData.set('password', 'password123')
       formData.set('passwordConfirm', 'different')
@@ -96,7 +98,7 @@ describe('auth actions', () => {
       const { prisma } = await import('@/lib/prisma')
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
 
-      const { forgotPassword } = await import('@/app/[locale]/auth/actions')
+      const { forgotPassword } = await import('@/app/[locale]/(auth)/auth/actions')
       const formData = new FormData()
       formData.set('email', 'nobody@example.com')
       formData.set('locale', 'en')
@@ -111,7 +113,7 @@ describe('auth actions', () => {
       const { redis } = await import('@/lib/redis')
       vi.mocked(redis.get).mockResolvedValue(null)
 
-      const { resetPassword } = await import('@/app/[locale]/auth/actions')
+      const { resetPassword } = await import('@/app/[locale]/(auth)/auth/actions')
       const formData = new FormData()
       formData.set('token', 'invalid-token')
       formData.set('password', 'newpassword123')
@@ -119,6 +121,27 @@ describe('auth actions', () => {
 
       const result = await resetPassword(formData)
       expect(result).toEqual({ error: 'auth.reset.invalid' })
+    })
+  })
+
+  describe('login', () => {
+    it('returns mfaRequired error when requiresMfa is true but TOTP not set up', async () => {
+      const { prisma } = await import('@/lib/prisma')
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        ...mockPrismaUser,
+        emailVerified: new Date(),
+        requiresMfa: true,
+        totpEnabled: false,
+      })
+
+      const { login } = await import('@/app/[locale]/(auth)/auth/actions')
+      const formData = new FormData()
+      formData.set('email', 'test@example.com')
+      formData.set('password', 'password123')
+      formData.set('locale', 'en')
+
+      const result = await login(formData)
+      expect(result).toEqual({ error: 'auth.errors.mfaRequired' })
     })
   })
 })
