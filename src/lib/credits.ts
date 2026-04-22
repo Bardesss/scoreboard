@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 import { redis } from './redis'
+import { sendLowCreditWarningEmail } from '@/lib/mail'
 
 export class InsufficientCreditsError extends Error {
   constructor() {
@@ -112,4 +113,24 @@ export async function deductCredits(
   ])
 
   return { newMonthly, newPermanent }
+}
+
+export async function deductCreditsWithWarning(
+  userId: string,
+  action: string,
+  meta?: Prisma.InputJsonValue,
+  userInfo?: { email: string; locale: string }
+): Promise<{ newMonthly: number; newPermanent: number }> {
+  const result = await deductCredits(userId, action, meta)
+
+  if (userInfo) {
+    const total = result.newMonthly + result.newPermanent
+    const thresholdSetting = await prisma.adminSettings.findUnique({ where: { key: 'low_credit_threshold' } })
+    const threshold = typeof thresholdSetting?.value === 'number' ? thresholdSetting.value : 20
+    if (total < threshold) {
+      await sendLowCreditWarningEmail(userInfo.email, total, userInfo.locale).catch(() => {})
+    }
+  }
+
+  return result
 }
