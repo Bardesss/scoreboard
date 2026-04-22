@@ -9,17 +9,15 @@
 
 Move all external service credentials out of ENV vars and into the admin UI. Admins configure integrations through `/admin/settings/integrations`. Credentials are stored encrypted in the database. No new ENV vars are introduced.
 
-**In scope for Phase 7A (this spec):**
+**In scope (this phase):**
 - `Integration` Prisma model + AES-256-GCM encryption layer
 - Mailgun fully migrated from ENV → DB
 - `/admin/settings/integrations` page with Mailgun card + stub cards for future providers
 - Mailgun "Test connection" fetches domain stats from Mailgun API and persists status
 
-**Deferred to Phase 7B (payments):**
-- Mollie, Stripe, Strike configuration and webhooks
-- ECB exchange rate fetching (auto, no key)
-- VIES VAT number validation (auto, no key)
-- CSV/PDF tax export with real data
+**Deferred to Phase 7 (payments):**
+- Mollie, Stripe, Strike — config shapes and wiring are specified in `2026-04-16-dice-vault-design.md` §11 (Payments)
+- ECB + VIES — no API key needed, covered in the same payments spec
 
 ---
 
@@ -31,7 +29,7 @@ Move all external service credentials out of ENV vars and into the admin UI. Adm
 model Integration {
   id              String    @id @default(cuid())
   provider        String    @unique  // "mailgun" | "mollie" | "stripe" | "strike"
-  encryptedConfig String    // AES-256-GCM encrypted JSON, see config shapes below
+  encryptedConfig String    // AES-256-GCM encrypted JSON
   status          String    @default("unconfigured") // "unconfigured" | "ok" | "error"
   lastTestedAt    DateTime?
   lastError       String?
@@ -42,34 +40,18 @@ model Integration {
 
 One row per provider, created on first save.
 
-### Config shapes (stored encrypted)
+### Mailgun config shape (stored encrypted)
 
 ```ts
-// provider: "mailgun"
 type MailgunConfig = {
   apiKey: string    // Mailgun private API key
   domain: string    // Sending domain, e.g. mg.dicevault.fun
   from: string      // From address, e.g. "Dice Vault <noreply@dicevault.fun>"
   region: 'eu' | 'us'
 }
-
-// provider: "mollie" (Phase 7B)
-type MollieConfig = {
-  apiKey: string    // Live key (lk_...)
-  webhookSecret: string
-}
-
-// provider: "stripe" (Phase 7B)
-type StripeConfig = {
-  secretKey: string
-  webhookSecret: string
-}
-
-// provider: "strike" (Phase 7B)
-type StrikeConfig = {
-  apiKey: string
-}
 ```
+
+Payment provider config shapes (Mollie, Stripe, Strike) are defined in `2026-04-16-dice-vault-design.md` §11.
 
 ---
 
@@ -86,6 +68,7 @@ type StrikeConfig = {
 - Both are pure synchronous functions using Node.js `crypto`
 
 No new ENV vars. `NEXTAUTH_SECRET` is already required.
+`NEXTAUTH_SECRET` rotation invalidates all stored configs — admin must re-enter credentials after rotation. Document in README.
 
 ---
 
@@ -144,26 +127,19 @@ Pattern: identical to `/admin/settings/discount-codes` — server page + client 
 ### Mailgun card
 
 - Fields: API key (password input), Domain, From address, Region (EU / US toggle)
-- On load: if status is `ok` or `error`, fields show placeholder `••••••••` — user must re-enter to change (config never sent to client)
+- On load: if a row exists, fields show `••••••••` — user must re-enter to change (config never sent to client)
 - **Save** button: calls `saveMailgunConfig` Server Action → encrypts → upserts DB → invalidates Redis cache
 - **Test connection** button: calls `testMailgunConnection` Server Action → hits `GET /v4/domains/{domain}` on Mailgun API → stores result in `Integration.status` + `lastError` → returns result to client
 - Status badge on card header: grey "Niet geconfigureerd" / green "Verbonden" / red "Fout"
-- When status is `ok`: shows domain name, region, and monthly send quota (from Mailgun domain stats)
+- When status is `ok`: shows domain name, region, and sending stats (see below)
 
-### Stub cards (Phase 7B)
+### Stub cards (Phase 7)
 
-Cards for Mollie, Stripe, Strike rendered with:
-- Provider logo/name
-- Badge: "Beschikbaar in Fase 7"
-- Lock icon, no form fields
-- Same card chrome as Mailgun for visual consistency
+Cards for Mollie, Stripe, Strike rendered with provider name, "Beschikbaar in Fase 7" badge, lock icon, no form fields. Same card chrome as Mailgun for visual consistency.
 
 ### Shortcut on `/admin/settings`
 
-A card added below the existing free-mode card on the main settings page:
-
-> **Integraties** → Link to `/admin/settings/integrations`
-> Shows count of configured integrations, e.g. "1 van 4 geconfigureerd"
+A card added below the existing free-mode card linking to `/admin/settings/integrations`, showing the count of configured integrations (e.g. "1 van 4 geconfigureerd").
 
 ---
 
@@ -172,30 +148,17 @@ A card added below the existing free-mode card on the main settings page:
 Fetched during "Test connection" only — never on page load. Cached in Redis under `integration:mailgun:stats` with a **1-hour TTL**. If the cache has expired, the stats section shows "Klik Test om statistieken te vernieuwen."
 
 - Domain status (active / disabled / unverified)
-- Monthly message quota + used (if on paid plan — may be absent on free plans, handle gracefully)
+- Monthly message quota + used (if on paid plan — absent on free plans, handle gracefully)
 - Last 30 days: total sent, delivered, failed (from Mailgun `/v3/{domain}/stats/total`)
 
-Shown inline on the Mailgun card when cache is warm. Stats are not sensitive so they are stored unencrypted in Redis.
-
----
-
-## ECB + VIES (Phase 7B reference)
-
-These need no API key and no Integration row.
-
-**ECB:** `https://data-api.ecb.europa.eu/service/data/EXR/D.USD+BTC.EUR.SP00.A` — fetched in the payment webhook handler when recording a `CreditPurchase`. Rate stored on the purchase row (`exchangeRate`, `exchangeRateSource = 'ecb'`, `exchangeRateDate`). No admin config needed.
-
-**VIES:** `https://ec.europa.eu/taxation_customs/vies/services/checkVatService` — called during checkout when a B2B customer enters a VAT number. Result determines `vatTreatment` on the purchase. No admin config needed.
-
-Both will be covered in the Phase 7B payments spec.
+Stats are not sensitive — stored unencrypted in Redis.
 
 ---
 
 ## Security Notes
 
-- Encrypted config is never sent to the browser — the server page only passes `provider`, `status`, `lastTestedAt`, `lastError`
-- Re-entering credentials requires typing the full value again (no partial reveal)
-- `NEXTAUTH_SECRET` rotation would invalidate stored configs — admin must re-enter credentials. Document this in README.
+- Encrypted config is never sent to the browser
+- Re-entering credentials requires typing the full value (no partial reveal)
 - All integration Server Actions are guarded by `session.user.role === 'admin'` check
 
 ---

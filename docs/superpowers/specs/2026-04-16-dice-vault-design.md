@@ -536,6 +536,31 @@ Prisma transaction is the source of truth for balances. Redis is used only for r
 - The user can override their detected region at checkout via a dropdown — this is important for travellers and VPN users
 - Prices are shown as `{symbol}{amount}` e.g. `€4.99`, `$4.99`, `R$24.99`
 
+### Provider credentials
+
+All payment provider credentials are stored encrypted in the `Integration` table (see `2026-04-22-integrations-design.md`). No ENV vars — configured via `/admin/settings/integrations`.
+
+Config shapes stored per provider:
+
+```ts
+// provider: "mollie"
+type MollieConfig = {
+  apiKey: string          // Live key (lk_...)
+  webhookSecret: string
+}
+
+// provider: "stripe"
+type StripeConfig = {
+  secretKey: string
+  webhookSecret: string
+}
+
+// provider: "strike"
+type StrikeConfig = {
+  apiKey: string
+}
+```
+
 ### Payment providers
 
 - **Mollie** — used for regions with `provider: "mollie"` (EU) — supports iDEAL, Bancontact, credit card — charges in `PricingRegion.currency`
