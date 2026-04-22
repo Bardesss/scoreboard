@@ -13,8 +13,8 @@ Single source of truth for phase order, plan files, and status.
 | **3** | [phase-3-social-connections.md](2026-04-19-phase-3-social-connections.md) | done | group features §5-8, main spec §17 (dashboard, stats) |
 | **4** | [phase-4-admin-panel.md](2026-04-21-phase-4-admin-panel.md) | done | main spec §12, §14-17, group features §7 (email notifications) |
 | **5** | phase-5-participants-winratio.md | done | Session participant selection, win ratio on league page + dashboard |
-| **6A** | [phase-6a-tickets-cron.md](2026-04-22-phase-6a-tickets-cron.md) | ready to execute | Support tickets, cron, requiresMfa enforcement, low-credit warnings |
-| **6B** | [phase-6b-analytics-taxexport.md](2026-04-22-phase-6b-analytics-taxexport.md) | ready to execute | Credit analytics dashboard, tax export scaffold, README final review |
+| **6A** | [phase-6a-tickets-cron.md](2026-04-22-phase-6a-tickets-cron.md) | done | Support tickets, cron, requiresMfa, low-credit warnings |
+| **6B** | [phase-6b-analytics-taxexport.md](2026-04-22-phase-6b-analytics-taxexport.md) | done | Credit analytics, tax export scaffold, README final review |
 | **7** | phase-7-payments-mollie.md | not written | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks |
 | **8** | phase-8-payments-bitcoin.md | not written | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 

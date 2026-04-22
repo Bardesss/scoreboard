@@ -55,6 +55,7 @@ Open [http://localhost:3000](http://localhost:3000) — you should see the Phase
 | `STRIPE_SECRET_KEY` | Phase 5 | Stripe secret key | 5 |
 | `STRIPE_WEBHOOK_SECRET` | Phase 5 | Stripe webhook signing secret | 5 |
 | `STRIKE_API_KEY` | Phase 7 | Strike API key (Bitcoin Lightning) | 7 |
+| `CRON_SECRET` | Required | Any random string — used to authenticate the `/api/cron/credit-reset` endpoint | Phase 6A |
 
 ---
 
@@ -189,3 +190,5 @@ npx prisma migrate deploy
 | 2 | Players CRUD · Game Template wizard (25 cr) · League creation (10 cr) · PlayedGame logging (5 cr) · credit deduction engine (dual-pool) · low-credit banner. No new env vars. Run `npx prisma db seed` after migrate to populate AdminSettings. |
 | Phase 3 | Social connections, notification bell, dashboard stats, shareable game links, PlayedGame approval flow — no new env vars |
 | Phase 4 | Admin panel (Dutch-only) · user management · credit adjustment · discount codes · landing CMS + reviews · Pages CMS (terms/privacy/why-bitcoin) · cookie consent banner · email notifications (connections + played game approval) · admin approvals view — no new env vars. **Promote first admin:** `UPDATE "User" SET role = 'admin' WHERE email = 'your@email.com';` |
+| Phase 6A | Support ticket system, monthly credit reset cron (`CRON_SECRET` required), `requiresMfa` enforcement, low-credit warning emails |
+| Phase 6B | Credit analytics dashboard (`/admin/credits`), tax export scaffold (`/admin/billing/tax-export`) |
