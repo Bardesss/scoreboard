@@ -36,6 +36,8 @@ model User {
   vaultConnections      VaultConnection[]     @relation("MyConnections")
   connectedToMe         VaultConnection[]     @relation("ConnectedToMe")
   notifications         Notification[]
+  tickets               Ticket[]
+  creditPurchases       CreditPurchase[]
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -234,4 +236,73 @@ model Page {
   order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Ticket {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String          // "bug" | "feedback" | "question"
+  subject     String
+  status      String          @default("open")  // "open" | "closed"
+  autoCloseAt DateTime?
+  messages    TicketMessage[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId, status])
+  @@index([status, autoCloseAt])
+}
+
+model TicketMessage {
+  id         String   @id @default(cuid())
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderType String   // "user" | "admin"
+  body       String   @db.Text
+  createdAt  DateTime @default(now())
+}
+
+model PricingRegion {
+  id        String   @id @default(cuid())
+  name      String
+  currency  String
+  symbol    String
+  locales   String[]
+  provider  String   @default("stripe")
+  packs     Json
+  isDefault Boolean  @default(false)
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  purchases CreditPurchase[]
+}
+
+model CreditPurchase {
+  id                 String         @id @default(cuid())
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pricingRegionId    String?
+  pricingRegion      PricingRegion? @relation(fields: [pricingRegionId], references: [id])
+  provider           String
+  externalId         String         @unique
+  credits            Int
+  amountCents        Int
+  currency           String
+  customerCountry    String?
+  customerVatNumber  String?
+  eurAmountCents     Int?
+  exchangeRate       Decimal?
+  exchangeRateSource String?
+  exchangeRateDate   DateTime?
+  vatTreatment       String?
+  invoiceNumber      String?        @unique
+  status             String         @default("pending")
+  meta               Json?
+  createdAt          DateTime       @default(now())
+
+  @@index([userId, status])
+  @@index([status, createdAt])
 }
