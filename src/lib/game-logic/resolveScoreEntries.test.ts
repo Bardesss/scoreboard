@@ -23,6 +23,55 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('elimination', () => {
+  it('without order: requires winnerId, score 1/0', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'elimination', trackEliminationOrder: false }),
+      input({}),
+    )).toEqual({ ok: false, error: 'missingWinner' })
+
+    const r = resolveScoreEntries(
+      template({ winType: 'elimination', trackEliminationOrder: false }),
+      input({ winnerId: 'p1' }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.isWinner).toBe(true)
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.eliminationOrder).toBeNull()
+  })
+
+  it('with order: player with null order is winner', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'elimination', trackEliminationOrder: true }),
+      input({
+        participantIds: ['p1', 'p2', 'p3'],
+        perPlayerEliminationOrder: { p1: 1, p2: null, p3: 2 },
+      }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    const byId = Object.fromEntries(r.scoreEntries.map(e => [e.playerId, e]))
+    expect(byId.p2).toMatchObject({ isWinner: true, eliminationOrder: null, score: 1 })
+    expect(byId.p1).toMatchObject({ isWinner: false, eliminationOrder: 1, score: 0 })
+    expect(byId.p3).toMatchObject({ isWinner: false, eliminationOrder: 2, score: 0 })
+  })
+
+  it('with order: rejects more than one null, non-unique orders, out-of-range', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'elimination', trackEliminationOrder: true }),
+      input({ participantIds: ['p1', 'p2'], perPlayerEliminationOrder: { p1: null, p2: null } }),
+    )).toEqual({ ok: false, error: 'invalidEliminationOrder' })
+
+    expect(resolveScoreEntries(
+      template({ winType: 'elimination', trackEliminationOrder: true }),
+      input({ participantIds: ['p1', 'p2', 'p3'], perPlayerEliminationOrder: { p1: 1, p2: 1, p3: null } }),
+    )).toEqual({ ok: false, error: 'invalidEliminationOrder' })
+
+    expect(resolveScoreEntries(
+      template({ winType: 'elimination', trackEliminationOrder: true }),
+      input({ participantIds: ['p1', 'p2'], perPlayerEliminationOrder: { p1: 5, p2: null } }),
+    )).toEqual({ ok: false, error: 'invalidEliminationOrder' })
+  })
+})
+
 describe('ranking', () => {
   it('rank 1 is the winner, score is inverted for sort compat', () => {
     const r = resolveScoreEntries(

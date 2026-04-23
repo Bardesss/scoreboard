@@ -28,9 +28,51 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolveTime(template, input)
     case 'ranking':
       return resolveRanking(template, input)
+    case 'elimination':
+      return resolveElimination(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolveElimination(template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  if (!template.trackEliminationOrder) {
+    if (!input.winnerId || !input.participantIds.includes(input.winnerId)) {
+      return { ok: false, error: 'missingWinner' }
+    }
+    const entries = input.participantIds.map(pid => {
+      const isWinner = pid === input.winnerId
+      return blankEntry(pid, isWinner ? 1 : 0, isWinner)
+    })
+    return { ok: true, scoreEntries: entries, extras: emptyExtras() }
+  }
+
+  const order = input.perPlayerEliminationOrder ?? {}
+  const n = input.participantIds.length
+  const filled: { pid: string; order: number }[] = []
+  const nulls: string[] = []
+  for (const pid of input.participantIds) {
+    const v = order[pid]
+    if (v == null) nulls.push(pid)
+    else filled.push({ pid, order: v })
+  }
+  if (nulls.length !== 1) return { ok: false, error: 'invalidEliminationOrder' }
+  const seen = new Set<number>()
+  for (const { order: v } of filled) {
+    if (!Number.isInteger(v) || v < 1 || v > n - 1 || seen.has(v)) {
+      return { ok: false, error: 'invalidEliminationOrder' }
+    }
+    seen.add(v)
+  }
+
+  const winnerId = nulls[0]
+  const entries = input.participantIds.map(pid => {
+    const isWinner = pid === winnerId
+    const entry = blankEntry(pid, isWinner ? 1 : 0, isWinner)
+    entry.eliminationOrder = isWinner ? null : order[pid]!
+    return entry
+  })
+  return { ok: true, scoreEntries: entries, extras: emptyExtras() }
 }
 
 function resolveRanking(_template: ResolverTemplate, input: ResolverInput): ResolverResult {
