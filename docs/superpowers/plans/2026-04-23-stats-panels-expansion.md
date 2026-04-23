@@ -3757,13 +3757,13 @@ Verify in a browser:
 
 - [ ] **Step 8: Update INDEX.md**
 
-Use phase number **10** (since **9a** and **9b** are already assigned to parked payments plans). Add row:
+Phase is already listed as **9** with status "ready to execute". Change status to `done`:
 
 ```markdown
-| **10** | [2026-04-23-stats-panels-expansion.md](2026-04-23-stats-panels-expansion.md) | done | League stats + dashboard expansion + shared primitives + charts + i18n sweep |
+| **9** | [stats-panels-expansion.md](2026-04-23-stats-panels-expansion.md) | done | League stats + dashboard expansion + shared primitives + date filter + skeletons + charts + i18n sweep |
 ```
 
-Insert before the `9a` row (keep phases in ascending order; 9a/9b stay parked).
+(Parked payments phases are renumbered to **10a** / **10b**.)
 
 - [ ] **Step 9: Commit and push**
 
