@@ -83,7 +83,7 @@ export async function logPlayedGame(
     }),
   ])
 
-  await redis.del(`cache:dashboard:${session.user.id}`)
+  await redis.del(`cache:dashboard:stats:${session.user.id}`)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true, id: playedGame.id }
 }
@@ -100,8 +100,8 @@ export async function approvePlayedGame(playedGameId: string) {
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'approved' } })
-  await redis.del(`cache:dashboard:${session.user.id}`)
-  await redis.del(`cache:dashboard:${pg.submittedById}`)
+  await redis.del(`cache:dashboard:stats:${session.user.id}`)
+  await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
   await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId })
 
   // Fire-and-forget email to the submitter
@@ -132,8 +132,8 @@ export async function rejectPlayedGame(playedGameId: string) {
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'rejected' } })
-  await redis.del(`cache:dashboard:${session.user.id}`)
-  await redis.del(`cache:dashboard:${pg.submittedById}`)
+  await redis.del(`cache:dashboard:stats:${session.user.id}`)
+  await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
   await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId })
 
   // Fire-and-forget email to the submitter
@@ -217,8 +217,8 @@ export async function editPlayedGame(
     }),
   ])
 
-  await redis.del(`cache:dashboard:${session.user.id}`)
-  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:${pg.submittedById}`)
+  await redis.del(`cache:dashboard:stats:${session.user.id}`)
+  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true }
 }
@@ -237,8 +237,8 @@ export async function deletePlayedGame(
   if (!pg || pg.league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
 
   await prisma.playedGame.delete({ where: { id: playedGameId } })
-  await redis.del(`cache:dashboard:${session.user.id}`)
-  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:${pg.submittedById}`)
+  await redis.del(`cache:dashboard:stats:${session.user.id}`)
+  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true }
 }
