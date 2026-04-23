@@ -23,6 +23,43 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('time', () => {
+  it('fastest (lowest seconds) wins by default', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'time', timeUnit: 'mmss', winCondition: 'low' }),
+      input({ perPlayerTimeSeconds: { p1: 270, p2: 340 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.isWinner).toBe(true)
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.score).toBe(270)
+  })
+
+  it('slowest wins when winCondition=high', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'time', winCondition: 'high' }),
+      input({ perPlayerTimeSeconds: { p1: 270, p2: 340 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p2')!.isWinner).toBe(true)
+  })
+
+  it('ties share winner flag', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'time', winCondition: 'low' }),
+      input({ perPlayerTimeSeconds: { p1: 300, p2: 300 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.every(s => s.isWinner)).toBe(true)
+  })
+
+  it('missing time returns error', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'time' }),
+      input({ perPlayerTimeSeconds: { p1: 100 } }),
+    )).toEqual({ ok: false, error: 'missingTime' })
+  })
+})
+
 describe('points-winner', () => {
   it('requires winnerId', () => {
     expect(resolveScoreEntries(

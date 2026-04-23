@@ -24,9 +24,25 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolvePointsAll(template, input)
     case 'points-winner':
       return resolvePointsWinner(template, input)
+    case 'time':
+      return resolveTime(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolveTime(template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  const times = input.perPlayerTimeSeconds ?? {}
+  for (const pid of input.participantIds) {
+    if (!(pid in times)) return { ok: false, error: 'missingTime' }
+  }
+  const winnerTarget = template.winCondition === 'high'
+    ? Math.max(...input.participantIds.map(p => times[p]))
+    : Math.min(...input.participantIds.map(p => times[p]))
+  const entries = input.participantIds.map(pid =>
+    blankEntry(pid, times[pid], times[pid] === winnerTarget),
+  )
+  return { ok: true, scoreEntries: entries, extras: emptyExtras() }
 }
 
 function resolvePointsWinner(_template: ResolverTemplate, input: ResolverInput): ResolverResult {
