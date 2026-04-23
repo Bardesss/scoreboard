@@ -1,14 +1,7 @@
 {
   "dashboard": {
     "title": "Dashboard",
-    "totalGames": "Gespeelde potjes",
-    "totalPlayers": "Spelers",
-    "topGame": "Meest gespeeld",
-    "leaderboard": "Ranglijst",
-    "recentGames": "Recente potjes",
-    "wins": "{count} gewonnen",
-    "empty": "Nog geen potjes gelogd. Maak een competitie en log je eerste spel!",
-    "winRatio": "{ratio}%"
+    "empty": "Nog geen potjes gelogd. Maak een competitie en log je eerste spel!"
   },
   "nav": {
     "dashboard": "Dashboard",
