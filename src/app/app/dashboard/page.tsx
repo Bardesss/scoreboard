@@ -78,7 +78,12 @@ async function loadDashboardStats(userId: string): Promise<DashboardStats> {
     include: {
       league: { select: { id: true, gameTemplate: { select: { name: true } } } },
       scores: {
-        include: { player: { select: { id: true, name: true, avatarSeed: true, userId: true } } },
+        select: {
+          playerId: true,
+          score: true,
+          isWinner: true,
+          player: { select: { id: true, name: true, avatarSeed: true, userId: true } },
+        },
         orderBy: { score: 'desc' },
       },
     },
@@ -98,8 +103,9 @@ async function loadDashboardStats(userId: string): Promise<DashboardStats> {
       }
       playerMap[pid].gamesPlayed++
     }
-    const winner = pg.scores[0]
-    if (winner) playerMap[winner.player.id].wins++
+    for (const s of pg.scores) {
+      if (s.isWinner && playerMap[s.player.id]) playerMap[s.player.id].wins++
+    }
   }
 
   const ranking: RankingEntry[] = Object.entries(playerMap)
@@ -121,11 +127,10 @@ async function loadDashboardStats(userId: string): Promise<DashboardStats> {
     const name = pg.league.gameTemplate.name
     if (!gameMap[name]) gameMap[name] = { count: 0, userWins: 0, userGames: 0 }
     gameMap[name].count++
-    const winner = pg.scores[0]
     for (const s of pg.scores) {
       if (userPlayerIds.has(s.player.id)) {
         gameMap[name].userGames++
-        if (winner && s.player.id === winner.player.id) gameMap[name].userWins++
+        if (s.isWinner) gameMap[name].userWins++
       }
     }
   }
@@ -196,7 +201,12 @@ async function loadPlayedGames(userId: string, page: number, perPage: number): P
       include: {
         league: { select: { name: true, gameTemplate: { select: { name: true } } } },
         scores: {
-          include: { player: { select: { id: true, name: true } } },
+          select: {
+            playerId: true,
+            score: true,
+            isWinner: true,
+            player: { select: { id: true, name: true } },
+          },
           orderBy: { score: 'desc' },
         },
       },
@@ -204,17 +214,15 @@ async function loadPlayedGames(userId: string, page: number, perPage: number): P
   ])
 
   const games: GameRow[] = rows.map(pg => {
-    const winner = pg.scores[0]
     const userInGame = pg.scores.some(s => userPlayerIds.has(s.player.id))
+    const userWon = pg.scores.some(s => userPlayerIds.has(s.player.id) && s.isWinner)
     return {
       id: pg.id,
       gameName: pg.league.gameTemplate.name,
       leagueName: pg.league.name,
       playedAt: pg.playedAt.toISOString(),
       playerNames: pg.scores.map(s => s.player.name),
-      userWon: userInGame
-        ? (winner != null && userPlayerIds.has(winner.player.id))
-        : null,
+      userWon: userInGame ? userWon : null,
     }
   })
 

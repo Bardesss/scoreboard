@@ -8,6 +8,7 @@ import { Avatar } from '@/components/shared/Avatar'
 import { ShareButton } from './ShareButton'
 import { PendingApprovalSection } from './PendingApprovalSection'
 import { SessionActions } from './SessionActions'
+import { formatTime } from '@/lib/game-logic/formatTime'
 
 export default async function LeagueDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -19,7 +20,7 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
     prisma.league.findUnique({
       where: { id },
       include: {
-        gameTemplate: { select: { name: true, scoringNotes: true } },
+        gameTemplate: { select: { name: true, scoringNotes: true, winType: true, winCondition: true, timeUnit: true } },
         members: {
           include: { player: { select: { id: true, name: true, avatarSeed: true } } },
           orderBy: { createdAt: 'asc' },
@@ -31,8 +32,16 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
             playedAt: true,
             notes: true,
             shareToken: true,
+            difficulty: true,
+            teams: true,
+            teamScores: true,
+            winningMission: true,
             scores: {
-              select: { id: true, playerId: true, score: true, player: { select: { name: true } } },
+              select: {
+                id: true, playerId: true, score: true,
+                isWinner: true, role: true, team: true, rank: true, eliminationOrder: true,
+                player: { select: { name: true } },
+              },
               orderBy: { score: 'desc' },
             },
           },
@@ -61,7 +70,9 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
     const participated = league.playedGames.filter(pg =>
       pg.scores.some(s => s.playerId === m.player.id)
     )
-    const wins = participated.filter(pg => pg.scores[0]?.playerId === m.player.id).length
+    const wins = participated.filter(pg =>
+      pg.scores.some(s => s.playerId === m.player.id && s.isWinner)
+    ).length
     const gamesPlayed = participated.length
     const winRatio = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : null
     return { ...m, wins, gamesPlayed, winRatio }
@@ -123,29 +134,108 @@ export default async function LeagueDetailPage({ params }: { params: Promise<{ i
           <p className="text-sm font-body py-8 text-center" style={{ color: '#9a8878' }}>{t('noGames')}</p>
         ) : (
           <ul className="space-y-3">
-            {league.playedGames.map(pg => (
-              <li key={pg.id} className="p-4 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-headline font-semibold text-xs flex-1" style={{ color: '#9a8878' }}>
-                    {new Date(pg.playedAt).toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB', { dateStyle: 'medium' })}
-                    {(new Date(pg.playedAt).getHours() !== 0 || new Date(pg.playedAt).getMinutes() !== 0) &&
-                      ` ${String(new Date(pg.playedAt).getHours()).padStart(2, '0')}:${String(new Date(pg.playedAt).getMinutes()).padStart(2, '0')}`}
-                  </span>
-                  {pg.shareToken && <ShareButton token={pg.shareToken} />}
-                  <SessionActions playedGameId={pg.id} leagueId={id} />
-                </div>
-                <ul className="space-y-1">
-                  {pg.scores.map((s, i) => (
-                    <li key={s.id} className="flex items-center gap-2">
-                      <span className="font-headline font-black text-xs w-5" style={{ color: i === 0 ? '#f5a623' : '#c4b79a' }}>#{i + 1}</span>
-                      <span className="font-headline font-semibold text-sm flex-1" style={{ color: '#1c1810' }}>{s.player.name}</span>
-                      <span className="font-headline font-bold text-sm" style={{ color: '#4a3f2f' }}>{s.score}</span>
-                    </li>
-                  ))}
-                </ul>
-                {pg.notes && <p className="text-xs font-body mt-2 italic" style={{ color: '#9a8878' }}>{pg.notes}</p>}
-              </li>
-            ))}
+            {league.playedGames.map(pg => {
+              const winners = pg.scores.filter(s => s.isWinner)
+              return (
+                <li key={pg.id} className="p-4 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-headline font-semibold text-xs flex-1" style={{ color: '#9a8878' }}>
+                      {new Date(pg.playedAt).toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB', { dateStyle: 'medium' })}
+                      {(new Date(pg.playedAt).getHours() !== 0 || new Date(pg.playedAt).getMinutes() !== 0) &&
+                        ` ${String(new Date(pg.playedAt).getHours()).padStart(2, '0')}:${String(new Date(pg.playedAt).getMinutes()).padStart(2, '0')}`}
+                    </span>
+                    {pg.shareToken && <ShareButton token={pg.shareToken} />}
+                    <SessionActions playedGameId={pg.id} leagueId={id} />
+                  </div>
+
+                  {league.gameTemplate.winType === 'cooperative' ? (
+                    <p className="font-body text-sm" style={{ color: winners.length > 0 ? '#c27f0a' : '#9a8878' }}>
+                      {winners.length > 0 ? 'Gewonnen' : 'Verloren'}
+                      {pg.difficulty ? ` · ${pg.difficulty}` : ''}
+                    </p>
+                  ) : league.gameTemplate.winType === 'team' ? (
+                    <div>
+                      {winners.length > 0 && (
+                        <p className="font-headline font-semibold text-sm mb-1" style={{ color: '#1c1810' }}>
+                          Winnaar: {winners[0].team ?? '—'}
+                        </p>
+                      )}
+                      <ul className="space-y-0.5">
+                        {pg.teams.map(tn => {
+                          const playersInTeam = pg.scores.filter(s => s.team === tn)
+                          const teamScore = (pg.teamScores as { name: string; score: number }[] | null)?.find(ts => ts.name === tn)
+                          return (
+                            <li key={tn} className="flex justify-between text-xs font-body">
+                              <span style={{ color: winners[0]?.team === tn ? '#c27f0a' : '#4a3f2f' }}>
+                                {tn}: {playersInTeam.map(p => p.player.name).join(', ')}
+                              </span>
+                              {teamScore && <span style={{ color: '#9a8878' }}>{teamScore.score}</span>}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  ) : league.gameTemplate.winType === 'time' ? (
+                    <ul className="space-y-0.5">
+                      {pg.scores.slice().sort((a, b) => (
+                        league.gameTemplate.winCondition === 'high' ? b.score - a.score : a.score - b.score
+                      )).map((s, i) => (
+                        <li key={s.id} className="flex justify-between text-xs font-body">
+                          <span style={{ color: s.isWinner ? '#f5a623' : '#4a3f2f' }}>
+                            #{i + 1} {s.player.name}
+                          </span>
+                          <span style={{ color: '#9a8878' }}>{formatTime(s.score, league.gameTemplate.timeUnit as 'seconds' | 'minutes' | 'mmss' | null)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : league.gameTemplate.winType === 'ranking' ? (
+                    <ul className="space-y-0.5">
+                      {pg.scores.slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).map(s => (
+                        <li key={s.id} className="flex justify-between text-xs font-body">
+                          <span style={{ color: s.isWinner ? '#f5a623' : '#4a3f2f' }}>#{s.rank} {s.player.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : league.gameTemplate.winType === 'elimination' && pg.scores.some(s => s.eliminationOrder !== null) ? (
+                    <ul className="space-y-0.5">
+                      {pg.scores.slice().sort((a, b) => (b.eliminationOrder ?? Infinity) - (a.eliminationOrder ?? Infinity)).map(s => (
+                        <li key={s.id} className="flex justify-between text-xs font-body">
+                          <span style={{ color: s.isWinner ? '#f5a623' : '#4a3f2f' }}>
+                            {s.isWinner ? '🏆 ' : ''}{s.player.name}
+                          </span>
+                          {s.eliminationOrder !== null && <span style={{ color: '#9a8878' }}>uitgeschakeld #{s.eliminationOrder}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : league.gameTemplate.winType === 'winner' || league.gameTemplate.winType === 'secret-mission' ? (
+                    <div>
+                      {winners[0] && (
+                        <p className="font-headline font-semibold text-sm mb-1" style={{ color: '#c27f0a' }}>
+                          Winnaar: {winners[0].player.name}
+                          {pg.winningMission ? ` via ${pg.winningMission}` : ''}
+                        </p>
+                      )}
+                      {pg.scores.some(s => s.role) && (
+                        <p className="text-xs font-body" style={{ color: '#9a8878' }}>
+                          {pg.scores.map(s => `${s.player.name}${s.role ? ` (${s.role})` : ''}`).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <ul className="space-y-0.5">
+                      {pg.scores.map(s => (
+                        <li key={s.id} className="flex justify-between text-xs font-body">
+                          <span style={{ color: s.isWinner ? '#f5a623' : '#4a3f2f' }}>{s.player.name}</span>
+                          <span style={{ color: '#9a8878' }}>{s.score}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {pg.notes && <p className="text-xs font-body mt-2 italic" style={{ color: '#9a8878' }}>{pg.notes}</p>}
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>
