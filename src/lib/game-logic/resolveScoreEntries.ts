@@ -26,9 +26,34 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolvePointsWinner(template, input)
     case 'time':
       return resolveTime(template, input)
+    case 'ranking':
+      return resolveRanking(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolveRanking(_template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  const ranks = input.perPlayerRank ?? {}
+  const n = input.participantIds.length
+  const expectedSet = new Set(Array.from({ length: n }, (_, i) => i + 1))
+  const seen = new Set<number>()
+  for (const pid of input.participantIds) {
+    const r = ranks[pid]
+    if (!Number.isInteger(r) || r < 1 || r > n || seen.has(r)) {
+      return { ok: false, error: 'invalidRanks' }
+    }
+    seen.add(r)
+  }
+  for (const want of expectedSet) if (!seen.has(want)) return { ok: false, error: 'invalidRanks' }
+
+  const entries = input.participantIds.map(pid => {
+    const rank = ranks[pid]
+    const entry = blankEntry(pid, n + 1 - rank, rank === 1)
+    entry.rank = rank
+    return entry
+  })
+  return { ok: true, scoreEntries: entries, extras: emptyExtras() }
 }
 
 function resolveTime(template: ResolverTemplate, input: ResolverInput): ResolverResult {

@@ -23,6 +23,37 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('ranking', () => {
+  it('rank 1 is the winner, score is inverted for sort compat', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'ranking' }),
+      input({ participantIds: ['p1', 'p2', 'p3'], perPlayerRank: { p1: 2, p2: 1, p3: 3 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    const byId = Object.fromEntries(r.scoreEntries.map(e => [e.playerId, e]))
+    expect(byId.p2).toMatchObject({ rank: 1, isWinner: true, score: 3 })  // N+1-1 = 3
+    expect(byId.p1).toMatchObject({ rank: 2, isWinner: false, score: 2 })
+    expect(byId.p3).toMatchObject({ rank: 3, isWinner: false, score: 1 })
+  })
+
+  it('returns invalidRanks when ranks are not unique 1..N', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'ranking' }),
+      input({ participantIds: ['p1', 'p2'], perPlayerRank: { p1: 1, p2: 1 } }),
+    )).toEqual({ ok: false, error: 'invalidRanks' })
+
+    expect(resolveScoreEntries(
+      template({ winType: 'ranking' }),
+      input({ participantIds: ['p1', 'p2'], perPlayerRank: { p1: 1, p2: 3 } }),
+    )).toEqual({ ok: false, error: 'invalidRanks' })
+
+    expect(resolveScoreEntries(
+      template({ winType: 'ranking' }),
+      input({ participantIds: ['p1', 'p2'], perPlayerRank: { p1: 1 } }),
+    )).toEqual({ ok: false, error: 'invalidRanks' })
+  })
+})
+
 describe('time', () => {
   it('fastest (lowest seconds) wins by default', () => {
     const r = resolveScoreEntries(
