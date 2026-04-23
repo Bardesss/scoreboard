@@ -206,7 +206,20 @@
     "back": "← Terug",
     "edit": "Sessie bewerken",
     "saveChanges": "Wijzigingen opslaan",
-    "saving": "Opslaan..."
+    "saving": "Opslaan...",
+    "rankings": "Positie per speler",
+    "eliminationOrder": "Eliminatievolgorde (leeg = laatste overlevende)",
+    "roles": "Rol per speler",
+    "coopResult": "Resultaat",
+    "coopWon": "Gewonnen",
+    "coopLost": "Verloren",
+    "difficulty": "Moeilijkheidsgraad",
+    "difficultyPlaceholder": "bijv. medium, hard, nightmare",
+    "teamCount": "Aantal teams",
+    "teamNames": "Teamnamen",
+    "teamAssignment": "Speler → team",
+    "winningTeam": "Winnend team",
+    "teamScores": "Score per team"
   },
   "errors": {
     "insufficientCredits": "Niet genoeg credits. Koop meer om door te gaan.",

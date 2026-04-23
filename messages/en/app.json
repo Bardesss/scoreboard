@@ -206,7 +206,20 @@
     "back": "← Back",
     "edit": "Edit session",
     "saveChanges": "Save changes",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "rankings": "Player ranks",
+    "eliminationOrder": "Elimination order (empty = last standing)",
+    "roles": "Role per player",
+    "coopResult": "Result",
+    "coopWon": "Won",
+    "coopLost": "Lost",
+    "difficulty": "Difficulty",
+    "difficultyPlaceholder": "e.g. medium, hard, nightmare",
+    "teamCount": "Number of teams",
+    "teamNames": "Team names",
+    "teamAssignment": "Player → team",
+    "winningTeam": "Winning team",
+    "teamScores": "Score per team"
   },
   "errors": {
     "insufficientCredits": "Not enough credits. Buy more to continue.",
