@@ -190,6 +190,7 @@
     "notes": "Notes (optional)",
     "scores": "Scores",
     "winner": "Winner",
+    "winnerScore": "Winner's score",
     "winningMission": "Completed mission card",
     "scorePlaceholder": "Score",
     "submit": "Save (5 credits)",

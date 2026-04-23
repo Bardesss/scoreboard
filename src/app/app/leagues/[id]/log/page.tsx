@@ -8,7 +8,7 @@ import type { WinType } from '@/app/app/games/new/wizard-types'
 
 type Member = { id: string; player: { id: string; name: string } }
 
-const SCORE_BASED_TYPES: WinType[] = ['points-all', 'points-winner', 'time', 'ranking']
+const SCORE_BASED_TYPES: WinType[] = ['points-all', 'time', 'ranking']
 
 function defaultDatetime(): string {
   const ms = 5 * 60 * 1000
@@ -38,6 +38,7 @@ export default function LogGamePage() {
   const [notes, setNotes] = useState('')
   const [scores, setScores] = useState<Record<string, string[]>>({})
   const [winnerId, setWinnerId] = useState<string>('')
+  const [winnerScore, setWinnerScore] = useState<string>('')
   const [winningMission, setWinningMission] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
@@ -85,6 +86,8 @@ export default function LogGamePage() {
         setWinningMission(data.winningMission)
         setSelectedIds(new Set(data.participantIds))
         setWinnerId(data.winnerId)
+        const winnerEntry = data.scores.find(s => s.playerId === data.winnerId)
+        if (winnerEntry) setWinnerScore(String(winnerEntry.score))
         setScores(prev => {
           const merged: Record<string, string[]> = { ...prev }
           data.scores.forEach(s => {
@@ -101,6 +104,7 @@ export default function LogGamePage() {
   }, [editId, leagueId])
 
   const isScoreBased = SCORE_BASED_TYPES.includes(winType)
+  const isWinnerWithScore = winType === 'points-winner'
   const isMissionBased = winType === 'secret-mission'
   const selectedCount = selectedIds.size
   const participants = members.filter(m => selectedIds.has(m.player.id))
@@ -127,6 +131,13 @@ export default function LogGamePage() {
       scoreEntries = participants.map(m => ({
         playerId: m.player.id,
         score: (scores[m.player.id] ?? []).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0),
+      }))
+    } else if (isWinnerWithScore) {
+      if (!winnerId) { toast.error(tErrors('required')); return }
+      const parsed = parseInt(winnerScore, 10)
+      scoreEntries = participants.map(m => ({
+        playerId: m.player.id,
+        score: m.player.id === winnerId ? (Number.isFinite(parsed) ? parsed : 0) : 0,
       }))
     } else {
       if (!winnerId) { toast.error(tErrors('required')); return }
@@ -340,6 +351,21 @@ export default function LogGamePage() {
                 )
               })}
             </ul>
+            {isWinnerWithScore && winnerId && (
+              <div className="mt-4">
+                <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('winnerScore')}</label>
+                <input
+                  type="number"
+                  value={winnerScore}
+                  onChange={e => setWinnerScore(e.target.value)}
+                  placeholder={t('scorePlaceholder')}
+                  className="w-full px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
+                  style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                  onFocus={e => (e.target.style.borderColor = '#f5a623')}
+                  onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
+                />
+              </div>
+            )}
           </div>
         )}
 
