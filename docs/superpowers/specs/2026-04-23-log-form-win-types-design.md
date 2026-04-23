@@ -412,29 +412,11 @@ No E2E tests added (matches project convention).
 
 ---
 
-## Interaction with phase 9 (stats expansion)
+## Phase ordering
 
-Phase 9 is currently **ready to execute** in INDEX.md. Implementation order matters:
+This is phase **9**; the stats expansion becomes phase **10**. Reason: the stats-expansion aggregators need to query "did this player win" — if we wrote them first against the current `scores[0]` convention, every aggregator would be rewritten immediately after. Doing the winType work first means the aggregators get a consistent `isWinner` contract from day one.
 
-**Recommended:** ship THIS phase first (call it phase **9.5** or fold into phase **9** revised), BEFORE executing phase 9's stats-expansion plan. Reasons:
-- Phase 9 aggregators rely on "scores[0] is winner" via the existing (pre-phase-9) code. If we add winner resolution as a follow-up, phase 9 aggregators get written once, then immediately rewritten.
-- The `AggregatorGame` type expansion here overlaps exactly with what phase 9's aggregators use.
-
-**Alternative:** execute phase 9 first, then this as phase 9.5. Requires rewriting a handful of aggregators immediately after writing them. Wasted effort but works.
-
-Decision deferred to plan-writing step — user chooses order.
-
----
-
-## Phase numbering
-
-This work slots as phase **9.5** (between the stats expansion and the parked payments phases), or phase **10** if we push it after phase 9. INDEX.md row:
-
-```markdown
-| **9.5** | [log-form-win-types.md](2026-04-23-log-form-win-types.md) | ready to execute | Adaptive log form per winType + isWinner flag + display + stats updates |
-```
-
-(Exact number chosen when the plan is written and phase-9 sequencing is decided.)
+INDEX.md is already updated to reflect this ordering.
 
 ---
 
