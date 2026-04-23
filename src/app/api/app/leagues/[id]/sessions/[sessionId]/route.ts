@@ -19,20 +19,29 @@ export async function GET(
   })
   if (!pg) return NextResponse.json(null, { status: 404 })
 
-  // Derive winner for winner-type games (score = 1 means winner)
-  const winner = pg.scores.find(s => s.score === 1)
-
-  // Build local datetime string for datetime-local input (YYYY-MM-DDTHH:MM)
   const d = pg.playedAt
   const pad = (n: number) => String(n).padStart(2, '0')
   const playedAtLocal = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+
+  const winner = pg.scores.find(s => s.isWinner)
 
   return NextResponse.json({
     playedAt: playedAtLocal,
     notes: pg.notes ?? '',
     winningMission: pg.winningMission ?? '',
+    difficulty: pg.difficulty ?? '',
+    teams: pg.teams,
+    teamScores: pg.teamScores,
     participantIds: pg.scores.map(s => s.playerId),
-    scores: pg.scores.map(s => ({ playerId: s.playerId, score: s.score })),
     winnerId: winner?.playerId ?? '',
+    scores: pg.scores.map(s => ({
+      playerId: s.playerId,
+      score: s.score,
+      isWinner: s.isWinner,
+      role: s.role,
+      team: s.team,
+      rank: s.rank,
+      eliminationOrder: s.eliminationOrder,
+    })),
   })
 }
