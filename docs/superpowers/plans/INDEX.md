@@ -17,7 +17,7 @@ Single source of truth for phase order, plan files, and status.
 | **6B** | [phase-6b-analytics-taxexport.md](2026-04-22-phase-6b-analytics-taxexport.md) | done | Credit analytics, tax export scaffold, README final review |
 | **7** | [phase-7a-integrations-mailgun.md](2026-04-22-phase-7a-integrations-mailgun.md) | done | Integration model, AES-256-GCM encryption, Mailgun DB migration, integrations admin UI |
 | **8** | [dashboard-redesign.md](2026-04-22-dashboard-redesign.md) | done | 2×2 ranked-list panels + paginated games table |
-| **9** | [log-form-win-types.md](2026-04-23-log-form-win-types.md) | ready to execute | Adaptive log form per winType + isWinner flag + schema + display + stats |
+| **9** | [log-form-win-types.md](2026-04-23-log-form-win-types.md) | done | Adaptive log form per winType + isWinner flag + schema + display + stats |
 | **10** | [stats-panels-expansion.md](2026-04-23-stats-panels-expansion.md) | ready to execute | League stats + dashboard expansion + shared primitives + date filter + skeletons + charts + i18n sweep |
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **11b** | phase-11b-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
