@@ -23,6 +23,34 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('points-winner', () => {
+  it('requires winnerId', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'points-winner' }),
+      input({ winnerScore: 47 }),
+    )).toEqual({ ok: false, error: 'missingWinner' })
+  })
+
+  it('winner gets entered score, others 0', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'points-winner' }),
+      input({ winnerId: 'p1', winnerScore: 47 }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')).toMatchObject({ score: 47, isWinner: true })
+    expect(r.scoreEntries.find(s => s.playerId === 'p2')).toMatchObject({ score: 0, isWinner: false })
+  })
+
+  it('treats missing winnerScore as 0', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'points-winner' }),
+      input({ winnerId: 'p1' }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.score).toBe(0)
+  })
+})
+
 describe('points-all', () => {
   it('picks highest sum as winner (default winCondition high)', () => {
     const r = resolveScoreEntries(

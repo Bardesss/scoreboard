@@ -22,9 +22,23 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolveSecretMission(template, input)
     case 'points-all':
       return resolvePointsAll(template, input)
+    case 'points-winner':
+      return resolvePointsWinner(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolvePointsWinner(_template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  if (!input.winnerId || !input.participantIds.includes(input.winnerId)) {
+    return { ok: false, error: 'missingWinner' }
+  }
+  const winnerScore = input.winnerScore ?? 0
+  const entries = input.participantIds.map(pid => {
+    const isWinner = pid === input.winnerId
+    return blankEntry(pid, isWinner ? winnerScore : 0, isWinner)
+  })
+  return { ok: true, scoreEntries: entries, extras: emptyExtras() }
 }
 
 function resolvePointsAll(template: ResolverTemplate, input: ResolverInput): ResolverResult {
