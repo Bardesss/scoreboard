@@ -12,16 +12,19 @@ import { z } from 'zod'
 type ActionResult = { error: string } | { success: true } | void
 
 const emailSchema = z.string().email()
-const passwordSchema = z.string().min(8)
+const passwordSchema = z.string().min(11)
+const usernameSchema = z.string().regex(/^[a-z0-9_]{3,20}$/)
 
 export async function register(formData: FormData): Promise<ActionResult> {
   const name = (formData.get('name') as string)?.trim()
+  const username = (formData.get('username') as string)?.trim().toLowerCase()
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const password = formData.get('password') as string
   const passwordConfirm = formData.get('passwordConfirm') as string
   const locale = (formData.get('locale') as string) || 'en'
 
   if (!name) return { error: 'auth.errors.nameRequired' }
+  if (!usernameSchema.safeParse(username).success) return { error: 'auth.errors.usernameInvalid' }
   if (!emailSchema.safeParse(email).success) return { error: 'auth.errors.invalidEmail' }
   if (!passwordSchema.safeParse(password).success) return { error: 'auth.errors.passwordTooShort' }
   if (password !== passwordConfirm) return { error: 'auth.errors.passwordMismatch' }
@@ -29,10 +32,14 @@ export async function register(formData: FormData): Promise<ActionResult> {
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) return { error: 'auth.errors.emailInUse' }
 
+  const existingUsername = await prisma.user.findUnique({ where: { username } })
+  if (existingUsername) return { error: 'auth.errors.usernameTaken' }
+
   const passwordHash = await bcrypt.hash(password, 12)
   const user = await prisma.user.create({
     data: {
       email,
+      username,
       passwordHash,
       locale,
       emailVerified: await isMailConfigured() ? null : new Date(),
