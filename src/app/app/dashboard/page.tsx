@@ -67,9 +67,9 @@ async function loadDashboardStats(userId: string): Promise<DashboardStats> {
   const cached = await redis.get(cacheKey)
   if (cached) return JSON.parse(cached) as DashboardStats
 
-  // Current user's player IDs (for highlighting + win ratio per game)
+  // Current user's OWN player IDs (linkedUserId points to them). Not all vault players.
   const userPlayerIds = await prisma.player
-    .findMany({ where: { userId }, select: { id: true } })
+    .findMany({ where: { linkedUserId: userId }, select: { id: true } })
     .then(ps => new Set(ps.map(p => p.id)))
 
   // All approved played games in leagues this user owns
@@ -190,7 +190,7 @@ async function loadPlayedGames(userId: string, page: number, perPage: number): P
 
   const [userPlayerIds, total, rows] = await Promise.all([
     prisma.player
-      .findMany({ where: { userId }, select: { id: true } })
+      .findMany({ where: { linkedUserId: userId }, select: { id: true } })
       .then(ps => new Set(ps.map(p => p.id))),
     prisma.playedGame.count({ where }),
     prisma.playedGame.findMany({
