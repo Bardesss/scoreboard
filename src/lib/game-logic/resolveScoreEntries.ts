@@ -16,27 +16,18 @@ function blankEntry(playerId: string, score: number, isWinner: boolean): Resolve
 
 export function resolveScoreEntries(template: ResolverTemplate, input: ResolverInput): ResolverResult {
   switch (template.winType) {
-    case 'winner':
-      return resolveWinner(template, input)
-    case 'secret-mission':
-      return resolveSecretMission(template, input)
-    case 'points-all':
-      return resolvePointsAll(template, input)
-    case 'points-winner':
-      return resolvePointsWinner(template, input)
-    case 'time':
-      return resolveTime(template, input)
-    case 'ranking':
-      return resolveRanking(template, input)
-    case 'elimination':
-      return resolveElimination(template, input)
-    case 'cooperative':
-      return resolveCooperative(template, input)
-    case 'team':
-      return resolveTeam(template, input)
-    default:
-      return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
+    case 'winner':          return resolveWinner(template, input)
+    case 'secret-mission':  return resolveSecretMission(template, input)
+    case 'points-all':      return resolvePointsAll(template, input)
+    case 'points-winner':   return resolvePointsWinner(template, input)
+    case 'time':            return resolveTime(template, input)
+    case 'ranking':         return resolveRanking(template, input)
+    case 'elimination':     return resolveElimination(template, input)
+    case 'cooperative':     return resolveCooperative(template, input)
+    case 'team':            return resolveTeam(template, input)
   }
+  const _exhaustive: never = template.winType
+  throw new Error(`resolveScoreEntries: unhandled winType ${_exhaustive as string}`)
 }
 
 function resolveTeam(template: ResolverTemplate, input: ResolverInput): ResolverResult {
