@@ -18,9 +18,24 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
   switch (template.winType) {
     case 'winner':
       return resolveWinner(template, input)
+    case 'secret-mission':
+      return resolveSecretMission(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolveSecretMission(template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  if (!input.winnerId || !input.participantIds.includes(input.winnerId)) {
+    return { ok: false, error: 'missingWinner' }
+  }
+  if (!input.winningMission || !template.missions.includes(input.winningMission)) {
+    return { ok: false, error: 'missingMission' }
+  }
+  const entries = input.participantIds.map(pid =>
+    blankEntry(pid, pid === input.winnerId ? 1 : 0, pid === input.winnerId),
+  )
+  return { ok: true, scoreEntries: entries, extras: { ...emptyExtras(), winningMission: input.winningMission } }
 }
 
 function resolveWinner(template: ResolverTemplate, input: ResolverInput): ResolverResult {

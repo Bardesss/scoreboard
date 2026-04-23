@@ -23,6 +23,31 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('secret-mission', () => {
+  it('requires winnerId and winningMission', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'secret-mission', missions: ['Flag', 'Citadel'] }),
+      input({ winnerId: 'p1' }),
+    )).toEqual({ ok: false, error: 'missingMission' })
+
+    expect(resolveScoreEntries(
+      template({ winType: 'secret-mission', missions: ['Flag'] }),
+      input({ winningMission: 'Flag' }),
+    )).toEqual({ ok: false, error: 'missingWinner' })
+  })
+
+  it('returns entries + winningMission in extras', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'secret-mission', missions: ['Flag'] }),
+      input({ winnerId: 'p1', winningMission: 'Flag' }),
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.scoreEntries[0].isWinner).toBe(true)
+    expect(r.extras.winningMission).toBe('Flag')
+  })
+})
+
 describe('winner', () => {
   it('requires winnerId', () => {
     const r = resolveScoreEntries(template({ winType: 'winner' }), input({}))
