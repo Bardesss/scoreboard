@@ -125,6 +125,7 @@
       "missionPlaceholder": "Missienaam (bijv. Europa veroveren)",
       "difficultyToggle": "Moeilijkheidsgraad bijhouden?",
       "teamScoresToggle": "Teamscores bijhouden?",
+      "trackEliminationOrderToggle": "Eliminatievolgorde bijhouden",
       "timeUnitLabel": "Tijdseenheid",
       "timeSeconds": "Seconden",
       "timeMinutes": "Minuten",

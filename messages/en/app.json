@@ -125,6 +125,7 @@
       "missionPlaceholder": "Mission name (e.g. Conquer Europe)",
       "difficultyToggle": "Track difficulty / threat level?",
       "teamScoresToggle": "Track team scores?",
+      "trackEliminationOrderToggle": "Track elimination order",
       "timeUnitLabel": "Time unit",
       "timeSeconds": "Seconds",
       "timeMinutes": "Minutes",

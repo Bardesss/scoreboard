@@ -212,7 +212,16 @@ export function Step3Scoring({ state, onChange }: Props) {
   }
 
   if (wt === 'elimination') {
-    return <p className="font-body text-sm leading-relaxed" style={{ color: '#9a8878' }}>{t('eliminationInfo')}</p>
+    return (
+      <div className="space-y-4">
+        <p className="font-body text-sm leading-relaxed" style={{ color: '#9a8878' }}>{t('eliminationInfo')}</p>
+        <Toggle
+          value={state.trackEliminationOrder}
+          onToggle={() => onChange({ trackEliminationOrder: !state.trackEliminationOrder })}
+          label={t('trackEliminationOrderToggle')}
+        />
+      </div>
+    )
   }
 
   return null

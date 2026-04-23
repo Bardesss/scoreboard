@@ -28,6 +28,7 @@ export interface WizardState {
   missions: string[]
   trackDifficulty: boolean
   trackTeamScores: boolean
+  trackEliminationOrder: boolean
   timeUnit: 'seconds' | 'minutes' | 'mmss' | null
   description: string
   minPlayers: string
@@ -50,6 +51,7 @@ export const INITIAL_WIZARD_STATE: WizardState = {
   missions: [],
   trackDifficulty: false,
   trackTeamScores: false,
+  trackEliminationOrder: false,
   timeUnit: null,
   description: '',
   minPlayers: '',

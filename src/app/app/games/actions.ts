@@ -16,6 +16,7 @@ export type CreateGameTemplateInput = {
   missions: string[]
   trackDifficulty: boolean
   trackTeamScores: boolean
+  trackEliminationOrder: boolean
   timeUnit: string | null
   description: string
   minPlayers: number | null
@@ -54,6 +55,7 @@ export async function createGameTemplate(
       missions: input.missions,
       trackDifficulty: input.trackDifficulty,
       trackTeamScores: input.trackTeamScores,
+      trackEliminationOrder: input.trackEliminationOrder,
       timeUnit: input.timeUnit ?? null,
       description: input.description.trim() || null,
       minPlayers: input.minPlayers,

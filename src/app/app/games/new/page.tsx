@@ -60,6 +60,7 @@ export default function NewGamePage() {
       missions: state.missions.filter(Boolean),
       trackDifficulty: state.trackDifficulty,
       trackTeamScores: state.trackTeamScores,
+      trackEliminationOrder: state.trackEliminationOrder,
       timeUnit: state.timeUnit,
       description: state.description,
       minPlayers: state.minPlayers ? parseInt(state.minPlayers, 10) : null,
