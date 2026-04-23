@@ -87,14 +87,31 @@ describe('deleteLeague', () => {
 })
 
 describe('logPlayedGame', () => {
+  const templateMock = {
+    winType: 'points-all',
+    winCondition: 'high',
+    scoreFields: [],
+    roles: [],
+    missions: [],
+    trackDifficulty: false,
+    trackTeamScores: false,
+    trackEliminationOrder: false,
+    timeUnit: null,
+  }
+
   it('deducts credits and creates played game with scores', async () => {
-    vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'user-1' } as never)
+    vi.mocked(prisma.league.findUnique).mockResolvedValue({
+      id: 'lg1', ownerId: 'user-1', gameTemplate: templateMock,
+    } as never)
     vi.mocked(prisma.$transaction).mockResolvedValue([{ id: 'pg1' }] as never)
 
     const result = await logPlayedGame('lg1', {
       playedAt: new Date('2026-04-19'),
       notes: '',
-      scores: [{ playerId: 'p1', score: 42 }, { playerId: 'p2', score: 31 }],
+      resolverInput: {
+        participantIds: ['p1', 'p2'],
+        perPlayerScores: { p1: 42, p2: 31 },
+      },
     })
 
     expect(checkRateLimit).toHaveBeenCalledWith('user-1', 'played_game')
@@ -103,21 +120,29 @@ describe('logPlayedGame', () => {
   })
 
   it('rejects logging for a league the user does not own', async () => {
-    vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'other' } as never)
+    vi.mocked(prisma.league.findUnique).mockResolvedValue({
+      id: 'lg1', ownerId: 'other', gameTemplate: templateMock,
+    } as never)
     const result = await logPlayedGame('lg1', {
       playedAt: new Date(),
       notes: '',
-      scores: [],
+      resolverInput: { participantIds: [] },
     })
-    expect(result).toEqual({ success: false, error: 'errors.notFound' })
+    expect(result).toEqual({ success: false, error: 'notFound' })
     expect(deductCredits).not.toHaveBeenCalled()
   })
 
   it('returns insufficientCredits on InsufficientCreditsError', async () => {
-    vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'user-1' } as never)
+    vi.mocked(prisma.league.findUnique).mockResolvedValue({
+      id: 'lg1', ownerId: 'user-1', gameTemplate: templateMock,
+    } as never)
     const { InsufficientCreditsError } = await import('@/lib/credits')
     vi.mocked(deductCredits).mockRejectedValueOnce(new InsufficientCreditsError())
-    const result = await logPlayedGame('lg1', { playedAt: new Date(), notes: '', scores: [] })
-    expect(result).toEqual({ success: false, error: 'errors.insufficientCredits' })
+    const result = await logPlayedGame('lg1', {
+      playedAt: new Date(),
+      notes: '',
+      resolverInput: { participantIds: [], perPlayerScores: {} },
+    })
+    expect(result).toEqual({ success: false, error: 'insufficientCredits' })
   })
 })

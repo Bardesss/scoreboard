@@ -25,27 +25,42 @@ beforeEach(() => {
 })
 
 describe('editPlayedGame', () => {
+  const templateMock = {
+    winType: 'points-all',
+    winCondition: 'high',
+    scoreFields: [],
+    roles: [],
+    missions: [],
+    trackDifficulty: false,
+    trackTeamScores: false,
+    trackEliminationOrder: false,
+    timeUnit: null,
+  }
+
   it('updates the played game and its scores in a transaction', async () => {
     vi.mocked(prisma.playedGame.findUnique).mockResolvedValue({
       id: 'pg1',
       leagueId: 'lg1',
       submittedById: 'user-1',
       status: 'approved',
-      league: { ownerId: 'user-1' },
+      league: { ownerId: 'user-1', gameTemplate: templateMock },
     } as never)
 
     const result = await editPlayedGame('pg1', 'lg1', {
       playedAt: new Date('2026-04-21T20:00:00Z'),
       notes: 'edited',
-      scores: [{ playerId: 'p1', score: 10 }, { playerId: 'p2', score: 5 }],
+      resolverInput: {
+        participantIds: ['p1', 'p2'],
+        perPlayerScores: { p1: 10, p2: 5 },
+      },
     })
 
     expect(prisma.$transaction).toHaveBeenCalled()
     expect(prisma.scoreEntry.deleteMany).toHaveBeenCalledWith({ where: { playedGameId: 'pg1' } })
     expect(prisma.scoreEntry.createMany).toHaveBeenCalledWith({
       data: [
-        { playedGameId: 'pg1', playerId: 'p1', score: 10 },
-        { playedGameId: 'pg1', playerId: 'p2', score: 5 },
+        { playedGameId: 'pg1', playerId: 'p1', score: 10, isWinner: true, role: null, team: null, rank: null, eliminationOrder: null },
+        { playedGameId: 'pg1', playerId: 'p2', score: 5, isWinner: false, role: null, team: null, rank: null, eliminationOrder: null },
       ],
     })
     expect(result).toEqual({ success: true })
@@ -55,13 +70,13 @@ describe('editPlayedGame', () => {
     vi.mocked(prisma.playedGame.findUnique).mockResolvedValue({
       id: 'pg1',
       leagueId: 'lg1',
-      league: { ownerId: 'other-user' },
+      league: { ownerId: 'other-user', gameTemplate: templateMock },
     } as never)
 
     const result = await editPlayedGame('pg1', 'lg1', {
       playedAt: new Date(),
       notes: '',
-      scores: [],
+      resolverInput: { participantIds: [], perPlayerScores: {} },
     })
 
     expect(result).toEqual({ success: false, error: 'notFound' })
@@ -74,7 +89,7 @@ describe('editPlayedGame', () => {
     const result = await editPlayedGame('missing', 'lg1', {
       playedAt: new Date(),
       notes: '',
-      scores: [],
+      resolverInput: { participantIds: [], perPlayerScores: {} },
     })
 
     expect(result).toEqual({ success: false, error: 'notFound' })
