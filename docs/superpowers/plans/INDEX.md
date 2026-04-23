@@ -33,6 +33,7 @@ Single source of truth for phase order, plan files, and status.
 | Integrations | [specs/2026-04-22-integrations-design.md](../specs/2026-04-22-integrations-design.md) | Phase 7 — Integration model, encryption, Mailgun UI |
 | Dashboard redesign | [specs/2026-04-22-dashboard-redesign.md](../specs/2026-04-22-dashboard-redesign.md) | 2×2 ranked-list panels, paginated games table, Redis cache |
 | Stats panels expansion | [specs/2026-04-23-stats-panels-expansion-design.md](../specs/2026-04-23-stats-panels-expansion-design.md) | League stats + dashboard expansion + shared primitives + date filter + skeletons + animations + charts + i18n sweep |
+| Log form — win types | [specs/2026-04-23-log-form-win-types-design.md](../specs/2026-04-23-log-form-win-types-design.md) | Adaptive log form per winType + isWinner flag + schema + display + stats |
 
 ## Archived plans
 
