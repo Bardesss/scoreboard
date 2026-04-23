@@ -78,6 +78,7 @@ model GameTemplate {
   buyInCurrency   String?
   minPlayers      Int?
   maxPlayers      Int?
+  trackEliminationOrder Boolean @default(false)
   leagues         League[]
   createdAt       DateTime  @default(now())
 }
@@ -117,6 +118,9 @@ model PlayedGame {
   playedAt        DateTime
   notes           String?
   winningMission  String?
+  difficulty      String?
+  teams           String[]     @default([])
+  teamScores      Json?
   shareToken      String?      @unique
   status          String       @default("approved")
   scores        ScoreEntry[]
@@ -130,6 +134,11 @@ model ScoreEntry {
   playerId     String
   player       Player     @relation(fields: [playerId], references: [id])
   score        Int
+  isWinner     Boolean    @default(false)
+  role         String?
+  team         String?
+  rank         Int?
+  eliminationOrder Int?
 }
 
 model CreditTransaction {
