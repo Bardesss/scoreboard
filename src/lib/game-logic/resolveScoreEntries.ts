@@ -32,9 +32,37 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolveElimination(template, input)
     case 'cooperative':
       return resolveCooperative(template, input)
+    case 'team':
+      return resolveTeam(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolveTeam(template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  const teams = input.teams ?? []
+  const assignments = input.teamAssignments ?? {}
+  for (const pid of input.participantIds) {
+    if (!assignments[pid]) return { ok: false, error: 'missingTeamAssignment' }
+    if (!teams.includes(assignments[pid])) return { ok: false, error: 'missingTeamAssignment' }
+  }
+  if (!input.winningTeam || !teams.includes(input.winningTeam)) {
+    return { ok: false, error: 'missingWinningTeam' }
+  }
+
+  const entries = input.participantIds.map(pid => {
+    const team = assignments[pid]
+    const isWinner = team === input.winningTeam
+    const entry = blankEntry(pid, isWinner ? 1 : 0, isWinner)
+    entry.team = team
+    return entry
+  })
+
+  const teamScores = template.trackTeamScores && input.perTeamScores
+    ? teams.map(name => ({ name, score: input.perTeamScores![name] ?? 0 }))
+    : null
+
+  return { ok: true, scoreEntries: entries, extras: { ...emptyExtras(), teams, teamScores } }
 }
 
 function resolveCooperative(template: ResolverTemplate, input: ResolverInput): ResolverResult {

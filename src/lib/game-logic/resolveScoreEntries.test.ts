@@ -23,6 +23,58 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('team', () => {
+  const templ = () => template({ winType: 'team' })
+  const base = (overrides: Partial<ResolverInput>) =>
+    input({ participantIds: ['p1', 'p2', 'p3', 'p4'], ...overrides })
+
+  it('requires team assignment for every participant', () => {
+    expect(resolveScoreEntries(templ(), base({
+      teams: ['Red', 'Blue'],
+      teamAssignments: { p1: 'Red' },
+      winningTeam: 'Red',
+    }))).toEqual({ ok: false, error: 'missingTeamAssignment' })
+  })
+
+  it('requires winningTeam to be a listed team', () => {
+    expect(resolveScoreEntries(templ(), base({
+      teams: ['Red', 'Blue'],
+      teamAssignments: { p1: 'Red', p2: 'Red', p3: 'Blue', p4: 'Blue' },
+      winningTeam: 'Green',
+    }))).toEqual({ ok: false, error: 'missingWinningTeam' })
+  })
+
+  it('everyone on winning team gets isWinner', () => {
+    const r = resolveScoreEntries(templ(), base({
+      teams: ['Red', 'Blue'],
+      teamAssignments: { p1: 'Red', p2: 'Red', p3: 'Blue', p4: 'Blue' },
+      winningTeam: 'Red',
+    }))
+    expect(r.ok).toBe(true); if (!r.ok) return
+    const byId = Object.fromEntries(r.scoreEntries.map(e => [e.playerId, e]))
+    expect(byId.p1).toMatchObject({ team: 'Red', isWinner: true })
+    expect(byId.p2).toMatchObject({ team: 'Red', isWinner: true })
+    expect(byId.p3).toMatchObject({ team: 'Blue', isWinner: false })
+    expect(byId.p4).toMatchObject({ team: 'Blue', isWinner: false })
+    expect(r.extras.teams).toEqual(['Red', 'Blue'])
+    expect(r.extras.teamScores).toBeNull()
+  })
+
+  it('records teamScores when trackTeamScores', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'team', trackTeamScores: true }),
+      base({
+        teams: ['Red', 'Blue'],
+        teamAssignments: { p1: 'Red', p2: 'Red', p3: 'Blue', p4: 'Blue' },
+        winningTeam: 'Red',
+        perTeamScores: { Red: 12, Blue: 8 },
+      }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.extras.teamScores).toEqual([{ name: 'Red', score: 12 }, { name: 'Blue', score: 8 }])
+  })
+})
+
 describe('cooperative', () => {
   it('requires cooperativeWon boolean', () => {
     expect(resolveScoreEntries(
