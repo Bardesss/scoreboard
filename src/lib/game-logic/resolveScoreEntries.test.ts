@@ -23,6 +23,51 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('cooperative', () => {
+  it('requires cooperativeWon boolean', () => {
+    expect(resolveScoreEntries(
+      template({ winType: 'cooperative' }),
+      input({}),
+    )).toEqual({ ok: false, error: 'missingCooperativeResult' })
+  })
+
+  it('all participants win when team wins', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'cooperative' }),
+      input({ cooperativeWon: true }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.every(s => s.isWinner && s.score === 1)).toBe(true)
+  })
+
+  it('all participants lose when team loses', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'cooperative' }),
+      input({ cooperativeWon: false }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.every(s => !s.isWinner && s.score === 0)).toBe(true)
+  })
+
+  it('records difficulty when trackDifficulty', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'cooperative', trackDifficulty: true }),
+      input({ cooperativeWon: true, difficulty: 'hard' }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.extras.difficulty).toBe('hard')
+  })
+
+  it('ignores difficulty field when trackDifficulty=false', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'cooperative', trackDifficulty: false }),
+      input({ cooperativeWon: true, difficulty: 'hard' }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.extras.difficulty).toBeNull()
+  })
+})
+
 describe('elimination', () => {
   it('without order: requires winnerId, score 1/0', () => {
     expect(resolveScoreEntries(

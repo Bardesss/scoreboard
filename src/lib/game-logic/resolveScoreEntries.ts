@@ -30,9 +30,21 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolveRanking(template, input)
     case 'elimination':
       return resolveElimination(template, input)
+    case 'cooperative':
+      return resolveCooperative(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolveCooperative(template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  if (typeof input.cooperativeWon !== 'boolean') {
+    return { ok: false, error: 'missingCooperativeResult' }
+  }
+  const won = input.cooperativeWon
+  const entries = input.participantIds.map(pid => blankEntry(pid, won ? 1 : 0, won))
+  const difficulty = template.trackDifficulty ? (input.difficulty?.trim() || null) : null
+  return { ok: true, scoreEntries: entries, extras: { ...emptyExtras(), difficulty } }
 }
 
 function resolveElimination(template: ResolverTemplate, input: ResolverInput): ResolverResult {
