@@ -9,23 +9,43 @@ import { revalidatePath } from 'next/cache'
 import { createNotification } from '@/lib/notifications'
 import { sendEmail } from '@/lib/mail'
 import { playedGameApprovedEmail, playedGameRejectedEmail } from '@/lib/emailTemplates'
+import { resolveScoreEntries } from '@/lib/game-logic/resolveScoreEntries'
+import type { ResolverInput } from '@/lib/game-logic/types'
 
 type LogPlayedGameInput = {
   playedAt: Date
   notes: string
-  winningMission?: string
-  scores: { playerId: string; score: number }[]
+  resolverInput: ResolverInput
 }
 
 export async function logPlayedGame(
   leagueId: string,
-  input: LogPlayedGameInput
+  input: LogPlayedGameInput,
 ): Promise<{ success: boolean; error?: string; id?: string }> {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
 
-  const league = await prisma.league.findUnique({ where: { id: leagueId } })
+  const league = await prisma.league.findUnique({
+    where: { id: leagueId },
+    include: { gameTemplate: true },
+  })
   if (!league || league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
+
+  const resolved = resolveScoreEntries(
+    {
+      winType: league.gameTemplate.winType as never,
+      winCondition: league.gameTemplate.winCondition as 'high' | 'low' | null,
+      scoreFields: league.gameTemplate.scoreFields,
+      roles: league.gameTemplate.roles,
+      missions: league.gameTemplate.missions,
+      trackDifficulty: league.gameTemplate.trackDifficulty,
+      trackTeamScores: league.gameTemplate.trackTeamScores,
+      trackEliminationOrder: league.gameTemplate.trackEliminationOrder,
+      timeUnit: league.gameTemplate.timeUnit as never,
+    },
+    input.resolverInput,
+  )
+  if (!resolved.ok) return { success: false, error: resolved.error }
 
   try {
     await checkRateLimit(session.user.id, 'played_game')
@@ -42,11 +62,22 @@ export async function logPlayedGame(
         submittedById: session.user.id,
         playedAt: input.playedAt,
         notes: input.notes.trim() || null,
-        winningMission: input.winningMission?.trim() || null,
+        winningMission: resolved.extras.winningMission,
+        difficulty: resolved.extras.difficulty,
+        teams: resolved.extras.teams,
+        teamScores: resolved.extras.teamScores ?? undefined,
         status: 'approved',
         shareToken: crypto.randomUUID(),
         scores: {
-          create: input.scores.map(s => ({ playerId: s.playerId, score: s.score })),
+          create: resolved.scoreEntries.map(e => ({
+            playerId: e.playerId,
+            score: e.score,
+            isWinner: e.isWinner,
+            role: e.role,
+            team: e.team,
+            rank: e.rank,
+            eliminationOrder: e.eliminationOrder,
+          })),
         },
       },
     }),
@@ -124,8 +155,7 @@ export async function rejectPlayedGame(playedGameId: string) {
 type EditPlayedGameInput = {
   playedAt: Date
   notes: string
-  winningMission?: string
-  scores: { playerId: string; score: number }[]
+  resolverInput: ResolverInput
 }
 
 export async function editPlayedGame(
@@ -138,9 +168,27 @@ export async function editPlayedGame(
 
   const pg = await prisma.playedGame.findUnique({
     where: { id: playedGameId, leagueId },
-    include: { league: { select: { ownerId: true } } },
+    include: {
+      league: { include: { gameTemplate: true } },
+    },
   })
   if (!pg || pg.league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
+
+  const resolved = resolveScoreEntries(
+    {
+      winType: pg.league.gameTemplate.winType as never,
+      winCondition: pg.league.gameTemplate.winCondition as 'high' | 'low' | null,
+      scoreFields: pg.league.gameTemplate.scoreFields,
+      roles: pg.league.gameTemplate.roles,
+      missions: pg.league.gameTemplate.missions,
+      trackDifficulty: pg.league.gameTemplate.trackDifficulty,
+      trackTeamScores: pg.league.gameTemplate.trackTeamScores,
+      trackEliminationOrder: pg.league.gameTemplate.trackEliminationOrder,
+      timeUnit: pg.league.gameTemplate.timeUnit as never,
+    },
+    input.resolverInput,
+  )
+  if (!resolved.ok) return { success: false, error: resolved.error }
 
   await prisma.$transaction([
     prisma.scoreEntry.deleteMany({ where: { playedGameId } }),
@@ -149,11 +197,23 @@ export async function editPlayedGame(
       data: {
         playedAt: input.playedAt,
         notes: input.notes.trim() || null,
-        winningMission: input.winningMission?.trim() || null,
+        winningMission: resolved.extras.winningMission,
+        difficulty: resolved.extras.difficulty,
+        teams: resolved.extras.teams,
+        teamScores: resolved.extras.teamScores ?? undefined,
       },
     }),
     prisma.scoreEntry.createMany({
-      data: input.scores.map(s => ({ playedGameId, playerId: s.playerId, score: s.score })),
+      data: resolved.scoreEntries.map(e => ({
+        playedGameId,
+        playerId: e.playerId,
+        score: e.score,
+        isWinner: e.isWinner,
+        role: e.role,
+        team: e.team,
+        rank: e.rank,
+        eliminationOrder: e.eliminationOrder,
+      })),
     }),
   ])
 
