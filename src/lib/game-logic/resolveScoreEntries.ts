@@ -20,9 +20,25 @@ export function resolveScoreEntries(template: ResolverTemplate, input: ResolverI
       return resolveWinner(template, input)
     case 'secret-mission':
       return resolveSecretMission(template, input)
+    case 'points-all':
+      return resolvePointsAll(template, input)
     default:
       return { ok: false, error: 'missingWinner' }  // temporary — replaced in final step
   }
+}
+
+function resolvePointsAll(template: ResolverTemplate, input: ResolverInput): ResolverResult {
+  const scores = input.perPlayerScores ?? {}
+  for (const pid of input.participantIds) {
+    if (!(pid in scores)) return { ok: false, error: 'missingScore' }
+  }
+  const winnerScoreTarget = template.winCondition === 'low'
+    ? Math.min(...input.participantIds.map(p => scores[p]))
+    : Math.max(...input.participantIds.map(p => scores[p]))
+  const entries = input.participantIds.map(pid =>
+    blankEntry(pid, scores[pid], scores[pid] === winnerScoreTarget),
+  )
+  return { ok: true, scoreEntries: entries, extras: emptyExtras() }
 }
 
 function resolveSecretMission(template: ResolverTemplate, input: ResolverInput): ResolverResult {

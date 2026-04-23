@@ -23,6 +23,45 @@ function input(overrides: Partial<ResolverInput>): ResolverInput {
 
 // describe blocks appended per branch below
 
+describe('points-all', () => {
+  it('picks highest sum as winner (default winCondition high)', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'points-all', winCondition: 'high', scoreFields: ['resources', 'vp'] }),
+      input({ perPlayerScores: { p1: 15, p2: 22 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p2')!.isWinner).toBe(true)
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.isWinner).toBe(false)
+    expect(r.scoreEntries.find(s => s.playerId === 'p2')!.score).toBe(22)
+  })
+
+  it('picks lowest sum when winCondition=low', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'points-all', winCondition: 'low' }),
+      input({ perPlayerScores: { p1: 5, p2: 12 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.find(s => s.playerId === 'p1')!.isWinner).toBe(true)
+  })
+
+  it('ties share winner flag', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'points-all', winCondition: 'high' }),
+      input({ perPlayerScores: { p1: 10, p2: 10 } }),
+    )
+    expect(r.ok).toBe(true); if (!r.ok) return
+    expect(r.scoreEntries.every(s => s.isWinner)).toBe(true)
+  })
+
+  it('returns missingScore when any participant has no score', () => {
+    const r = resolveScoreEntries(
+      template({ winType: 'points-all' }),
+      input({ perPlayerScores: { p1: 10 } }),
+    )
+    expect(r).toEqual({ ok: false, error: 'missingScore' })
+  })
+})
+
 describe('secret-mission', () => {
   it('requires winnerId and winningMission', () => {
     expect(resolveScoreEntries(
