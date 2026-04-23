@@ -2,160 +2,255 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
-import { Users, Dices, ClipboardList } from 'lucide-react'
-import { Avatar } from '@/components/shared/Avatar'
+import DashboardClient from './DashboardClient'
 
-type DashboardStats = {
-  totalGames: number
-  totalPlayers: number
-  topGame: string | null
-  leaderboard: { name: string; avatarSeed: string; wins: number; gamesPlayed: number; winRatio: number }[]
-  recentGames: {
-    id: string
-    leagueName: string
-    gameName: string
-    playedAt: string
-    scores: { playerName: string; score: number }[]
-  }[]
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+export type RankingEntry = {
+  name: string
+  avatarSeed: string
+  wins: number
+  gamesPlayed: number
+  winRatio: number
+  isCurrentUser: boolean
 }
 
-async function loadStats(userId: string): Promise<DashboardStats> {
-  const cacheKey = `cache:dashboard:${userId}`
+export type TopGame = {
+  name: string
+  count: number
+  userWinRatio: number | null
+}
+
+export type PlayDay = {
+  day: number   // 0 = Sun, 1 = Mon, …, 6 = Sat
+  label: string // Dutch day name
+  count: number
+}
+
+export type LeagueStat = {
+  id: string
+  name: string
+  playerCount: number
+  sessionCount: number
+  lastPlayedAt: string | null
+}
+
+export type DashboardStats = {
+  ranking: RankingEntry[]
+  topGames: TopGame[]
+  playDays: PlayDay[]
+  leagues: LeagueStat[]
+}
+
+export type GameRow = {
+  id: string
+  gameName: string
+  leagueName: string
+  playedAt: string
+  playerNames: string[]
+  userWon: boolean | null  // null = user has no player in this game
+}
+
+export type GamesPage = {
+  games: GameRow[]
+  total: number
+  page: number
+  totalPages: number
+}
+
+// ─── Data loading ─────────────────────────────────────────────────────────────
+
+const DAY_LABELS_NL = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag']
+
+async function loadDashboardStats(userId: string): Promise<DashboardStats> {
+  const cacheKey = `cache:dashboard:stats:${userId}`
   const cached = await redis.get(cacheKey)
   if (cached) return JSON.parse(cached) as DashboardStats
 
-  const [playedGames, players] = await Promise.all([
-    prisma.playedGame.findMany({
-      where: { league: { ownerId: userId }, status: 'approved' },
-      include: {
-        league: { select: { name: true, gameTemplate: { select: { name: true } } } },
-        scores: { include: { player: { select: { name: true, avatarSeed: true } } }, orderBy: { score: 'desc' } },
+  // Current user's player IDs (for highlighting + win ratio per game)
+  const userPlayerIds = await prisma.player
+    .findMany({ where: { userId }, select: { id: true } })
+    .then(ps => new Set(ps.map(p => p.id)))
+
+  // All approved played games in leagues this user owns
+  const playedGames = await prisma.playedGame.findMany({
+    where: { league: { ownerId: userId }, status: 'approved' },
+    include: {
+      league: { select: { id: true, gameTemplate: { select: { name: true } } } },
+      scores: {
+        include: { player: { select: { id: true, name: true, avatarSeed: true, userId: true } } },
+        orderBy: { score: 'desc' },
       },
-      orderBy: { playedAt: 'desc' },
-    }),
-    prisma.player.findMany({ where: { userId } }),
-  ])
+    },
+  })
 
-  const totalGames = playedGames.length
-  const totalPlayers = players.length
+  // ── Ranking ──────────────────────────────────────────────────────────────
+  const playerMap: Record<string, {
+    name: string; avatarSeed: string; userId: string
+    wins: number; gamesPlayed: number
+  }> = {}
 
-  const gameCounts: Record<string, number> = {}
-  for (const pg of playedGames) {
-    const name = pg.league.gameTemplate.name
-    gameCounts[name] = (gameCounts[name] ?? 0) + 1
-  }
-  const topGame = Object.entries(gameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
-
-  const playerStats: Record<string, { name: string; avatarSeed: string; wins: number; gamesPlayed: number }> = {}
   for (const pg of playedGames) {
     for (const s of pg.scores) {
-      const key = s.player.name
-      if (!playerStats[key]) playerStats[key] = { name: s.player.name, avatarSeed: s.player.avatarSeed, wins: 0, gamesPlayed: 0 }
-      playerStats[key].gamesPlayed++
+      const pid = s.player.id
+      if (!playerMap[pid]) {
+        playerMap[pid] = { name: s.player.name, avatarSeed: s.player.avatarSeed, userId: s.player.userId, wins: 0, gamesPlayed: 0 }
+      }
+      playerMap[pid].gamesPlayed++
     }
     const winner = pg.scores[0]
-    if (winner) playerStats[winner.player.name].wins++
+    if (winner) playerMap[winner.player.id].wins++
   }
-  const leaderboard = Object.values(playerStats)
-    .map(p => ({ ...p, winRatio: p.gamesPlayed > 0 ? Math.round((p.wins / p.gamesPlayed) * 100) : 0 }))
+
+  const ranking: RankingEntry[] = Object.entries(playerMap)
+    .map(([id, p]) => ({
+      name: p.name,
+      avatarSeed: p.avatarSeed,
+      wins: p.wins,
+      gamesPlayed: p.gamesPlayed,
+      winRatio: p.gamesPlayed > 0 ? Math.round((p.wins / p.gamesPlayed) * 100) : 0,
+      isCurrentUser: userPlayerIds.has(id),
+    }))
     .sort((a, b) => b.wins - a.wins)
-    .slice(0, 5)
+    .slice(0, 10)
 
-  const recentGames = playedGames.slice(0, 5).map(pg => ({
-    id: pg.id,
-    leagueName: pg.league.name,
-    gameName: pg.league.gameTemplate.name,
-    playedAt: pg.playedAt.toISOString(),
-    scores: pg.scores.map(s => ({ playerName: s.player.name, score: s.score })),
-  }))
+  // ── Top games ─────────────────────────────────────────────────────────────
+  const gameMap: Record<string, { count: number; userWins: number; userGames: number }> = {}
 
-  const stats: DashboardStats = { totalGames, totalPlayers, topGame, leaderboard, recentGames }
+  for (const pg of playedGames) {
+    const name = pg.league.gameTemplate.name
+    if (!gameMap[name]) gameMap[name] = { count: 0, userWins: 0, userGames: 0 }
+    gameMap[name].count++
+    const winner = pg.scores[0]
+    for (const s of pg.scores) {
+      if (userPlayerIds.has(s.player.id)) {
+        gameMap[name].userGames++
+        if (winner && s.player.id === winner.player.id) gameMap[name].userWins++
+      }
+    }
+  }
+
+  const topGames: TopGame[] = Object.entries(gameMap)
+    .map(([name, g]) => ({
+      name,
+      count: g.count,
+      userWinRatio: g.userGames > 0 ? Math.round((g.userWins / g.userGames) * 100) : null,
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+
+  // ── Play days ─────────────────────────────────────────────────────────────
+  const dayCounts = new Array(7).fill(0) as number[]
+  for (const pg of playedGames) {
+    dayCounts[new Date(pg.playedAt).getDay()]++
+  }
+  const playDays: PlayDay[] = dayCounts
+    .map((count, day) => ({ day, label: DAY_LABELS_NL[day], count }))
+    .sort((a, b) => b.count - a.count)
+
+  // ── Leagues ───────────────────────────────────────────────────────────────
+  const leagueSessionCounts: Record<string, number> = {}
+  const leagueLastPlayed: Record<string, string> = {}
+  for (const pg of playedGames) {
+    leagueSessionCounts[pg.league.id] = (leagueSessionCounts[pg.league.id] ?? 0) + 1
+    const iso = pg.playedAt.toISOString()
+    if (!leagueLastPlayed[pg.league.id] || iso > leagueLastPlayed[pg.league.id]) {
+      leagueLastPlayed[pg.league.id] = iso
+    }
+  }
+
+  const allLeagues = await prisma.league.findMany({
+    where: { ownerId: userId },
+    include: { _count: { select: { members: true } } },
+    orderBy: { createdAt: 'asc' },
+  })
+
+  const leagues: LeagueStat[] = allLeagues
+    .map(l => ({
+      id: l.id,
+      name: l.name,
+      playerCount: l._count.members,
+      sessionCount: leagueSessionCounts[l.id] ?? 0,
+      lastPlayedAt: leagueLastPlayed[l.id] ?? null,
+    }))
+    .sort((a, b) => b.sessionCount - a.sessionCount)
+
+  const stats: DashboardStats = { ranking, topGames, playDays, leagues }
   await redis.setex(cacheKey, 300, JSON.stringify(stats))
   return stats
 }
 
-export default async function DashboardPage() {
+async function loadPlayedGames(userId: string, page: number, perPage: number): Promise<GamesPage> {
+  const where = { league: { ownerId: userId }, status: 'approved' as const }
+
+  const [userPlayerIds, total, rows] = await Promise.all([
+    prisma.player
+      .findMany({ where: { userId }, select: { id: true } })
+      .then(ps => new Set(ps.map(p => p.id))),
+    prisma.playedGame.count({ where }),
+    prisma.playedGame.findMany({
+      where,
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: { playedAt: 'desc' },
+      include: {
+        league: { select: { name: true, gameTemplate: { select: { name: true } } } },
+        scores: {
+          include: { player: { select: { id: true, name: true } } },
+          orderBy: { score: 'desc' },
+        },
+      },
+    }),
+  ])
+
+  const games: GameRow[] = rows.map(pg => {
+    const winner = pg.scores[0]
+    const userInGame = pg.scores.some(s => userPlayerIds.has(s.player.id))
+    return {
+      id: pg.id,
+      gameName: pg.league.gameTemplate.name,
+      leagueName: pg.league.name,
+      playedAt: pg.playedAt.toISOString(),
+      playerNames: pg.scores.map(s => s.player.name),
+      userWon: userInGame
+        ? (winner != null && userPlayerIds.has(winner.player.id))
+        : null,
+    }
+  })
+
+  return { games, total, page, totalPages: Math.max(1, Math.ceil(total / perPage)) }
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+type PageProps = { searchParams: Promise<{ page?: string }> }
+
+export default async function DashboardPage({ searchParams }: PageProps) {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
 
-  const [stats, t] = await Promise.all([
-    loadStats(session.user.id),
-    getTranslations({ locale: session.user.locale ?? 'en', namespace: 'app.dashboard' }),
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
+
+  const [stats, gamesPage] = await Promise.all([
+    loadDashboardStats(session.user.id),
+    loadPlayedGames(session.user.id, page, 25),
   ])
 
+  const firstName = session.user.name?.split(' ')[0] ?? ''
+
   return (
-    <div className="max-w-2xl mx-auto py-8 px-2">
-      <h1 className="font-headline font-black text-2xl mb-6" style={{ color: '#1c1810' }}>{t('title')}</h1>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        {[
-          { icon: ClipboardList, label: t('totalGames'), value: stats.totalGames },
-          { icon: Users,         label: t('totalPlayers'), value: stats.totalPlayers },
-        ].map(card => (
-          <div key={card.label} className="rounded-2xl p-4 flex flex-col gap-2" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-            <card.icon size={18} style={{ color: '#f5a623' }} />
-            <div className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{card.value}</div>
-            <div className="font-body text-xs" style={{ color: '#9a8878' }}>{card.label}</div>
-          </div>
-        ))}
-        {stats.topGame && (
-          <div className="rounded-2xl p-4 flex flex-col gap-2" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-            <Dices size={18} style={{ color: '#f5a623' }} />
-            <div className="font-headline font-bold text-sm leading-snug" style={{ color: '#1c1810' }}>{stats.topGame}</div>
-            <div className="font-body text-xs" style={{ color: '#9a8878' }}>{t('topGame')}</div>
-          </div>
-        )}
+    <div className="max-w-5xl mx-auto py-8 px-4">
+      <div style={{ marginBottom: 24 }}>
+        <h1
+          className="font-headline"
+          style={{ fontSize: 22, fontWeight: 700, color: '#1e1a14', letterSpacing: '-0.02em' }}
+        >
+          Goedemiddag, {firstName} 👋
+        </h1>
+        <p style={{ fontSize: 13, color: '#6b5e4a', marginTop: 2 }}>Hier is je overzicht</p>
       </div>
-
-      {stats.leaderboard.length > 0 && (
-        <section className="mb-8">
-          <h2 className="font-headline font-bold text-sm uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>{t('leaderboard')}</h2>
-          <ul className="space-y-2">
-            {stats.leaderboard.map((p, i) => (
-              <li key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <span className="font-headline font-black text-sm w-5" style={{ color: i === 0 ? '#f5a623' : '#c4b79a' }}>#{i + 1}</span>
-                <Avatar seed={p.avatarSeed} name={p.name} size={28} />
-                <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{p.name}</span>
-                <div className="flex flex-col items-end gap-0.5">
-                  <span className="font-headline font-bold text-xs" style={{ color: '#9a8878' }}>{t('wins', { count: p.wins })}</span>
-                  <span className="font-headline text-xs" style={{ color: '#c4b79a' }}>{t('winRatio', { ratio: p.winRatio })}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {stats.recentGames.length > 0 && (
-        <section>
-          <h2 className="font-headline font-bold text-sm uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>{t('recentGames')}</h2>
-          <ul className="space-y-3">
-            {stats.recentGames.map(pg => (
-              <li key={pg.id} className="p-4 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{pg.leagueName}</span>
-                  <span className="font-body text-xs" style={{ color: '#9a8878' }}>
-                    {new Date(pg.playedAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <ul className="space-y-0.5">
-                  {pg.scores.map((s, i) => (
-                    <li key={i} className="flex justify-between text-xs font-body">
-                      <span style={{ color: i === 0 ? '#f5a623' : '#4a3f2f' }}>{s.playerName}</span>
-                      <span style={{ color: '#9a8878' }}>{s.score}</span>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {stats.totalGames === 0 && (
-        <p className="text-center font-body text-sm py-12" style={{ color: '#9a8878' }}>{t('empty')}</p>
-      )}
+      <DashboardClient stats={stats} gamesPage={gamesPage} />
     </div>
   )
 }
