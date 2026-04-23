@@ -11,7 +11,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     where: { id },
     include: {
       gameTemplate: {
-        select: { winType: true, missions: true, scoreFields: true, minPlayers: true, maxPlayers: true },
+        select: {
+          winType: true,
+          winCondition: true,
+          scoreFields: true,
+          roles: true,
+          missions: true,
+          minPlayers: true,
+          maxPlayers: true,
+          trackDifficulty: true,
+          trackTeamScores: true,
+          trackEliminationOrder: true,
+          timeUnit: true,
+        },
       },
     },
   })
@@ -19,16 +31,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const members = await prisma.leagueMember.findMany({
     where: { leagueId: id },
-    include: { player: { select: { id: true, name: true } } },
+    include: { player: { select: { id: true, name: true, userId: true } } },
     orderBy: { createdAt: 'asc' },
   })
 
   return NextResponse.json({
     members,
-    winType: league.gameTemplate.winType,
-    missions: league.gameTemplate.missions,
-    scoreFields: league.gameTemplate.scoreFields,
-    minPlayers: league.gameTemplate.minPlayers,
-    maxPlayers: league.gameTemplate.maxPlayers,
+    template: league.gameTemplate,
   })
 }
