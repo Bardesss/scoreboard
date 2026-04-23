@@ -240,13 +240,14 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const { page: pageParam } = await searchParams
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
 
-  const [stats, gamesPage, user] = await Promise.all([
+  const [stats, gamesPage, user, mePlayer] = await Promise.all([
     loadDashboardStats(session.user.id),
     loadPlayedGames(session.user.id, page, 25),
     prisma.user.findUnique({ where: { id: session.user.id }, select: { username: true, email: true } }),
+    prisma.player.findFirst({ where: { linkedUserId: session.user.id }, select: { name: true } }),
   ])
 
-  const displayName = user?.username ?? user?.email?.split('@')[0] ?? ''
+  const displayName = mePlayer?.name ?? user?.username ?? user?.email?.split('@')[0] ?? ''
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
