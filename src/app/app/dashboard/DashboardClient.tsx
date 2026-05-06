@@ -6,6 +6,9 @@ import { RankedListRow } from '@/components/stats/RankedListRow'
 import { StatBar } from '@/components/stats/StatBar'
 import { TransitionProvider, DimmedWhilePending } from '@/components/stats/TransitionDimmer'
 import { DateFilter as DateFilterPanel } from '@/components/stats/DateFilter'
+import { MissionChart } from '@/components/stats/MissionChart'
+import { GamesFrequencyChart } from '@/components/stats/GamesFrequencyChart'
+import { AnimatedNumber } from '@/components/stats/AnimatedNumber'
 import type { StatsBundle, DateFilter } from '@/lib/stats/types'
 import type { CompactGameRow, GamesPage } from '@/components/stats/PaginatedGamesTable'
 
@@ -22,7 +25,9 @@ function RankingPanel({ ranking, index }: { ranking: StatsBundle['ranking']; ind
             <span style={{ flex: 1, fontSize: 13, fontWeight: p.isCurrentUser ? 700 : 400, color: '#1e1a14', marginLeft: 8 }}>
               {p.name}
             </span>
-            <span style={{ fontSize: 12, color: '#6b5e4a', marginRight: 10 }}>{p.wins} wins</span>
+            <span style={{ fontSize: 12, color: '#6b5e4a', marginRight: 10 }}>
+              {i === 0 ? <><AnimatedNumber value={p.wins} /> wins</> : `${p.wins} wins`}
+            </span>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#1e1a14' }}>{p.winRatio}%</span>
           </RankedListRow>
         ))}
@@ -123,6 +128,29 @@ function LeaguesPanel({ leagues, index }: { leagues: NonNullable<StatsBundle['le
   )
 }
 
+// ─── Missions panel ───────────────────────────────────────────────────────────
+
+function MissionsPanel({ missions, index }: { missions: NonNullable<StatsBundle['missions']>; index?: number }) {
+  return (
+    <Card index={index}>
+      <PanelHeader title="🎯 Meest gewonnen missies" subtitle={`top: ${missions[0].count}×`} />
+      <MissionChart missions={missions} />
+    </Card>
+  )
+}
+
+// ─── Games frequency panel ────────────────────────────────────────────────────
+
+function GamesFrequencyPanel({ buckets, index }: { buckets: StatsBundle['gamesFrequency']; index?: number }) {
+  const total = buckets.reduce((s, b) => s + b.count, 0)
+  return (
+    <Card index={index}>
+      <PanelHeader title="📈 Speelfrequentie" subtitle={total > 0 ? `${total} partijen` : undefined} />
+      <GamesFrequencyChart buckets={buckets} />
+    </Card>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function DashboardClient({
@@ -151,7 +179,7 @@ export default function DashboardClient({
     <TransitionProvider>
       <DateFilterPanel locale={locale} />
       <DimmedWhilePending>
-        {/* 2×2 panel grid */}
+        {/* Panel grid */}
         <div
           style={{
             display: 'grid',
@@ -165,6 +193,8 @@ export default function DashboardClient({
           {stats.topGames && <TopGamesPanel topGames={stats.topGames} index={1} />}
           <PlayDaysPanel playDays={stats.playDays} index={2} />
           {stats.leagues && <LeaguesPanel leagues={stats.leagues} index={3} />}
+          {stats.missions && <MissionsPanel missions={stats.missions} index={4} />}
+          <GamesFrequencyPanel buckets={stats.gamesFrequency} index={5} />
         </div>
 
         {/* Paginated games table */}
