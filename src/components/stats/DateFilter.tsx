@@ -4,19 +4,25 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useRouteTransition } from './TransitionDimmer'
 import type { Range } from '@/lib/stats/types'
+import type { StatsLabels } from '@/lib/stats/buildStatsLabels'
 
-const PRESETS: { key: Exclude<Range, 'custom'>; labelNL: string; labelEN: string }[] = [
-  { key: 'week',  labelNL: 'Deze week',  labelEN: 'This week' },
-  { key: 'month', labelNL: 'Deze maand', labelEN: 'This month' },
-  { key: 'year',  labelNL: 'Dit jaar',   labelEN: 'This year' },
-  { key: 'all',   labelNL: 'Alles',      labelEN: 'All time' },
-]
+type DateFilterLabels = Pick<
+  StatsLabels,
+  'rangeWeek' | 'rangeMonth' | 'rangeYear' | 'rangeAll' | 'rangeCustom' | 'rangeApply'
+>
 
-export function DateFilter({ locale }: { locale: 'nl' | 'en' }) {
+export function DateFilter({ labels }: { labels: DateFilterLabels }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { startTransition } = useRouteTransition()
+
+  const presets: { key: Exclude<Range, 'custom'>; label: string }[] = [
+    { key: 'week', label: labels.rangeWeek },
+    { key: 'month', label: labels.rangeMonth },
+    { key: 'year', label: labels.rangeYear },
+    { key: 'all', label: labels.rangeAll },
+  ]
 
   const currentRange = (searchParams.get('range') ?? 'all') as Range
   const [showCustom, setShowCustom] = useState(currentRange === 'custom')
@@ -56,7 +62,7 @@ export function DateFilter({ locale }: { locale: 'nl' | 'en' }) {
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 20 }}>
-      {PRESETS.map(p => {
+      {presets.map(p => {
         const active = currentRange === p.key
         return (
           <button
@@ -65,7 +71,7 @@ export function DateFilter({ locale }: { locale: 'nl' | 'en' }) {
             onClick={() => { setShowCustom(false); pushRange(p.key) }}
             style={{ ...pillBase, ...(active ? pillActive : {}) }}
           >
-            {locale === 'nl' ? p.labelNL : p.labelEN}
+            {p.label}
           </button>
         )
       })}
@@ -74,7 +80,7 @@ export function DateFilter({ locale }: { locale: 'nl' | 'en' }) {
         onClick={() => setShowCustom(v => !v)}
         style={{ ...pillBase, ...(currentRange === 'custom' ? pillActive : {}) }}
       >
-        {locale === 'nl' ? 'Aangepast' : 'Custom'}
+        {labels.rangeCustom}
       </button>
       {showCustom && (
         <form
@@ -87,7 +93,7 @@ export function DateFilter({ locale }: { locale: 'nl' | 'en' }) {
           <input type="date" value={to} onChange={e => setTo(e.target.value)} required
                  style={{ padding: '4px 8px', borderRadius: 8, border: '1px solid #c5b89f', fontSize: 12 }} />
           <button type="submit" style={{ ...pillBase, ...pillActive }}>
-            {locale === 'nl' ? 'Toepassen' : 'Apply'}
+            {labels.rangeApply}
           </button>
         </form>
       )}

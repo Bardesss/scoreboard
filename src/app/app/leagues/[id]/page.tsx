@@ -6,6 +6,7 @@ import { Trophy, Plus } from 'lucide-react'
 import { loadStats } from '@/lib/stats/loadStats'
 import { loadGames } from '@/lib/stats/loadGames'
 import { parseRange } from '@/lib/stats/dateRange'
+import { buildStatsLabels } from '@/lib/stats/buildStatsLabels'
 import { LeagueStatsClient } from './LeagueStatsClient'
 import { PendingApprovalSection } from './PendingApprovalSection'
 import { SessionActions } from './SessionActions'
@@ -29,7 +30,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
 
   const scope = { kind: 'league' as const, leagueId: id, viewerId: session.user.id }
 
-  const [league, stats, gamesPage, pendingGames] = await Promise.all([
+  const [league, stats, gamesPage, pendingGames, i18n] = await Promise.all([
     prisma.league.findUnique({
       where: { id },
       include: {
@@ -50,7 +51,9 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
       },
       orderBy: { createdAt: 'desc' },
     }),
+    buildStatsLabels(locale),
   ])
+  const { labels, formatters } = i18n
 
   if (!league || league.ownerId !== session.user.id) notFound()
 
@@ -96,6 +99,8 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
         locale={locale}
         memberCount={league._count.members}
         renderRowActions={renderRowActions}
+        labels={labels}
+        formatters={formatters}
       />
     </div>
   )
