@@ -2,7 +2,7 @@
 import crypto from 'crypto'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { redis } from '@/lib/redis'
+import { invalidateStatsCache } from '@/lib/stats/invalidateStatsCache'
 import { deductCredits, checkRateLimit, InsufficientCreditsError } from '@/lib/credits'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -83,7 +83,10 @@ export async function logPlayedGame(
     }),
   ])
 
-  await redis.del(`cache:dashboard:stats:${session.user.id}`)
+  await invalidateStatsCache({
+    userIds: [session.user.id],
+    leagueIds: [leagueId],
+  })
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true, id: playedGame.id }
 }
@@ -100,8 +103,10 @@ export async function approvePlayedGame(playedGameId: string) {
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'approved' } })
-  await redis.del(`cache:dashboard:stats:${session.user.id}`)
-  await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
+  await invalidateStatsCache({
+    userIds: [session.user.id, pg.submittedById].filter((v, i, a) => a.indexOf(v) === i),
+    leagueIds: [pg.leagueId],
+  })
   await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId })
 
   // Fire-and-forget email to the submitter
@@ -132,8 +137,10 @@ export async function rejectPlayedGame(playedGameId: string) {
   if (pg.status !== 'pending_approval') return { error: 'notFound' }
 
   await prisma.playedGame.update({ where: { id: playedGameId }, data: { status: 'rejected' } })
-  await redis.del(`cache:dashboard:stats:${session.user.id}`)
-  await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
+  await invalidateStatsCache({
+    userIds: [session.user.id, pg.submittedById].filter((v, i, a) => a.indexOf(v) === i),
+    leagueIds: [pg.leagueId],
+  })
   await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId })
 
   // Fire-and-forget email to the submitter
@@ -217,8 +224,10 @@ export async function editPlayedGame(
     }),
   ])
 
-  await redis.del(`cache:dashboard:stats:${session.user.id}`)
-  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
+  await invalidateStatsCache({
+    userIds: [session.user.id, pg.submittedById].filter((v, i, a) => a.indexOf(v) === i),
+    leagueIds: [leagueId],
+  })
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true }
 }
@@ -237,8 +246,10 @@ export async function deletePlayedGame(
   if (!pg || pg.league.ownerId !== session.user.id) return { success: false, error: 'notFound' }
 
   await prisma.playedGame.delete({ where: { id: playedGameId } })
-  await redis.del(`cache:dashboard:stats:${session.user.id}`)
-  if (pg.submittedById !== session.user.id) await redis.del(`cache:dashboard:stats:${pg.submittedById}`)
+  await invalidateStatsCache({
+    userIds: [session.user.id, pg.submittedById].filter((v, i, a) => a.indexOf(v) === i),
+    leagueIds: [leagueId],
+  })
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true }
 }
