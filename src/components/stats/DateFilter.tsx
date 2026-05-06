@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouteTransition } from './TransitionDimmer'
 import type { Range } from '@/lib/stats/types'
 
@@ -22,6 +22,12 @@ export function DateFilter({ locale }: { locale: 'nl' | 'en' }) {
   const [showCustom, setShowCustom] = useState(currentRange === 'custom')
   const [from, setFrom] = useState(searchParams.get('from') ?? '')
   const [to, setTo] = useState(searchParams.get('to') ?? '')
+
+  useEffect(() => {
+    setFrom(searchParams.get('from') ?? '')
+    setTo(searchParams.get('to') ?? '')
+    setShowCustom(currentRange === 'custom')
+  }, [searchParams, currentRange])
 
   function pushRange(next: Range, extra?: { from?: string; to?: string }) {
     const params = new URLSearchParams(searchParams.toString())
