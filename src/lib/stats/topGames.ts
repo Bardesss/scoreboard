@@ -7,11 +7,12 @@ export function computeTopGames(games: AggregatorGame[], viewerId: string | unde
     const name = g.league.gameTemplate.name
     if (!byTemplate[name]) byTemplate[name] = { count: 0, userWins: 0, userGames: 0 }
     byTemplate[name].count++
-    const winner = g.scores[0]
     for (const s of g.scores) {
-      if (viewerId != null && s.player.userId === viewerId) {
+      // Use linkedUserId — the "me" player linked to the viewer's account.
+      // Use isWinner — the per-winType winner resolution from log time.
+      if (viewerId != null && s.player.linkedUserId === viewerId) {
         byTemplate[name].userGames++
-        if (winner && s.playerId === winner.playerId) byTemplate[name].userWins++
+        if (s.isWinner) byTemplate[name].userWins++
       }
     }
   }

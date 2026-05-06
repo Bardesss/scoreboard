@@ -4,11 +4,12 @@ import { PaginatedGamesTable } from '@/components/stats/PaginatedGamesTable'
 import { PanelHeader } from '@/components/stats/PanelHeader'
 import { RankedListRow } from '@/components/stats/RankedListRow'
 import { StatBar } from '@/components/stats/StatBar'
-import type { DashboardStats, GamesPage } from './page'
+import type { StatsBundle, DateFilter } from '@/lib/stats/types'
+import type { CompactGameRow, GamesPage } from '@/components/stats/PaginatedGamesTable'
 
 // ─── Ranking panel ────────────────────────────────────────────────────────────
 
-function RankingPanel({ ranking }: { ranking: DashboardStats['ranking'] }) {
+function RankingPanel({ ranking }: { ranking: StatsBundle['ranking'] }) {
   return (
     <Card>
       <PanelHeader title="🏆 Ranking" subtitle="alle leagues" />
@@ -31,7 +32,7 @@ function RankingPanel({ ranking }: { ranking: DashboardStats['ranking'] }) {
 
 // ─── Top games panel ──────────────────────────────────────────────────────────
 
-function TopGamesPanel({ topGames }: { topGames: DashboardStats['topGames'] }) {
+function TopGamesPanel({ topGames }: { topGames: NonNullable<StatsBundle['topGames']> }) {
   return (
     <Card>
       <PanelHeader title="🎲 Top spellen" subtitle="meest gespeeld" />
@@ -53,7 +54,7 @@ function TopGamesPanel({ topGames }: { topGames: DashboardStats['topGames'] }) {
 
 // ─── Play days panel ──────────────────────────────────────────────────────────
 
-function PlayDaysPanel({ playDays }: { playDays: DashboardStats['playDays'] }) {
+function PlayDaysPanel({ playDays }: { playDays: StatsBundle['playDays'] }) {
   const max = Math.max(...playDays.map(d => d.count), 1)
   return (
     <Card>
@@ -77,7 +78,7 @@ function PlayDaysPanel({ playDays }: { playDays: DashboardStats['playDays'] }) {
 
 // ─── Leagues panel ────────────────────────────────────────────────────────────
 
-function LeaguesPanel({ leagues }: { leagues: DashboardStats['leagues'] }) {
+function LeaguesPanel({ leagues }: { leagues: NonNullable<StatsBundle['leagues']> }) {
   function recency(iso: string | null): string {
     if (!iso) return 'nooit gespeeld'
     const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
@@ -125,9 +126,11 @@ function LeaguesPanel({ leagues }: { leagues: DashboardStats['leagues'] }) {
 export default function DashboardClient({
   stats,
   gamesPage,
+  filter: _filter,
 }: {
-  stats: DashboardStats
-  gamesPage: GamesPage
+  stats: StatsBundle
+  gamesPage: GamesPage<CompactGameRow>
+  filter: DateFilter
 }) {
   return (
     <>
@@ -142,9 +145,9 @@ export default function DashboardClient({
         className="sm:grid-cols-2 grid-cols-1"
       >
         <RankingPanel ranking={stats.ranking} />
-        <TopGamesPanel topGames={stats.topGames} />
+        {stats.topGames && <TopGamesPanel topGames={stats.topGames} />}
         <PlayDaysPanel playDays={stats.playDays} />
-        <LeaguesPanel leagues={stats.leagues} />
+        {stats.leagues && <LeaguesPanel leagues={stats.leagues} />}
       </div>
 
       {/* Paginated games table */}

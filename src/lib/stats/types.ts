@@ -110,15 +110,25 @@ export type AggregatorGame = {
     gameTemplate: { name: string; missions: string[] }
   }
   /**
-   * Scores ordered by score descending — index 0 is the winner.
-   * Aggregators (`computeRanking`, `computeTopGames`, etc.) rely on this
-   * invariant. The Prisma query in `loadStats` is responsible for upholding it
-   * via `orderBy: { score: 'desc' }`.
+   * Scores ordered by score descending — index 0 is the highest scorer
+   * (NOT necessarily the winner — use `isWinner` for that).
+   * `isWinner` is the source of truth for win attribution; it's set per win-type
+   * by `resolveScoreEntries` when games are logged.
+   * The Prisma query in `loadStats` selects `isWinner` and uses
+   * `orderBy: { score: 'desc' }` to maintain the score-desc invariant.
    */
   scores: {
     playerId: string
     score: number
-    player: { id: string; name: string; avatarSeed: string; userId: string | null }
+    isWinner: boolean
+    player: {
+      id: string
+      name: string
+      avatarSeed: string
+      // linkedUserId — the User this Player is linked to (the "me" player).
+      // NOT vault-ownership `userId`. Used to flag isCurrentUser in stats.
+      linkedUserId: string | null
+    }
   }[]
 }
 
@@ -126,5 +136,6 @@ export type AggregatorMember = {
   playerId: string
   name: string
   avatarSeed: string
-  userId: string | null
+  // linkedUserId — the User this Player is linked to (the "me" player).
+  linkedUserId: string | null
 }

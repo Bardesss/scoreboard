@@ -2,14 +2,26 @@ import { describe, it, expect } from 'vitest'
 import { computeRanking } from './ranking'
 import type { AggregatorGame } from './types'
 
-function game(id: string, scores: { playerId: string; name: string; score: number; userId?: string | null }[]): AggregatorGame {
+function game(
+  id: string,
+  scores: { playerId: string; name: string; score: number; linkedUserId?: string | null }[],
+): AggregatorGame {
+  const sorted = scores.slice().sort((a, b) => b.score - a.score)
   return {
     id, playedAt: new Date(), winningMission: null, notes: null, shareToken: null,
     league: { id: 'L', name: 'League', gameTemplate: { name: 'G', missions: [] } },
-    scores: scores
-      .slice()
-      .sort((a, b) => b.score - a.score)
-      .map(s => ({ playerId: s.playerId, score: s.score, player: { id: s.playerId, name: s.name, avatarSeed: s.playerId, userId: s.userId ?? null } })),
+    scores: sorted.map((s, i) => ({
+      playerId: s.playerId,
+      score: s.score,
+      // In these test fixtures top scorer is the winner (points-winner semantics).
+      isWinner: i === 0,
+      player: {
+        id: s.playerId,
+        name: s.name,
+        avatarSeed: s.playerId,
+        linkedUserId: s.linkedUserId ?? null,
+      },
+    })),
   }
 }
 
@@ -29,8 +41,8 @@ describe('computeRanking', () => {
     expect(ranking[1]).toMatchObject({ name: 'Bob', wins: 1, gamesPlayed: 2, winRatio: 50 })
   })
 
-  it('marks isCurrentUser when viewerId matches player.userId', () => {
-    const games = [game('g1', [{ playerId: 'p1', name: 'Alice', score: 10, userId: 'u1' }])]
+  it('marks isCurrentUser when viewerId matches player.linkedUserId', () => {
+    const games = [game('g1', [{ playerId: 'p1', name: 'Alice', score: 10, linkedUserId: 'u1' }])]
     const r = computeRanking(games, 'u1')
     expect(r[0].isCurrentUser).toBe(true)
   })

@@ -2,7 +2,7 @@ import type { AggregatorGame, RankingEntry } from './types'
 
 export function computeRanking(games: AggregatorGame[], viewerId: string | undefined): RankingEntry[] {
   const byPlayer: Record<string, {
-    playerId: string; name: string; avatarSeed: string; userId: string | null
+    playerId: string; name: string; avatarSeed: string; linkedUserId: string | null
     wins: number; gamesPlayed: number
   }> = {}
 
@@ -10,14 +10,18 @@ export function computeRanking(games: AggregatorGame[], viewerId: string | undef
     for (const s of g.scores) {
       if (!byPlayer[s.playerId]) {
         byPlayer[s.playerId] = {
-          playerId: s.playerId, name: s.player.name, avatarSeed: s.player.avatarSeed, userId: s.player.userId,
+          playerId: s.playerId, name: s.player.name, avatarSeed: s.player.avatarSeed,
+          linkedUserId: s.player.linkedUserId,
           wins: 0, gamesPlayed: 0,
         }
       }
       byPlayer[s.playerId].gamesPlayed++
     }
-    const winner = g.scores[0]
-    if (winner && byPlayer[winner.playerId]) byPlayer[winner.playerId].wins++
+    // Use ScoreEntry.isWinner as the source of truth — supports all win types
+    // (points-winner, points-all, time, cooperative, team, ranking).
+    for (const s of g.scores) {
+      if (s.isWinner && byPlayer[s.playerId]) byPlayer[s.playerId].wins++
+    }
   }
 
   return Object.values(byPlayer)
@@ -28,7 +32,8 @@ export function computeRanking(games: AggregatorGame[], viewerId: string | undef
       wins: p.wins,
       gamesPlayed: p.gamesPlayed,
       winRatio: p.gamesPlayed > 0 ? Math.round((p.wins / p.gamesPlayed) * 100) : 0,
-      isCurrentUser: viewerId != null && p.userId === viewerId,
+      // The "me" player linked to viewer's user account — NOT vault ownership.
+      isCurrentUser: viewerId != null && p.linkedUserId === viewerId,
     }))
     .sort((a, b) => b.wins - a.wins || b.winRatio - a.winRatio)
     .slice(0, 10)

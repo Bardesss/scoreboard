@@ -2,13 +2,25 @@ import { describe, it, expect } from 'vitest'
 import { computeTopGames } from './topGames'
 import type { AggregatorGame } from './types'
 
-function game(templateName: string, scores: { playerId: string; name: string; score: number; userId?: string | null }[]): AggregatorGame {
+function game(
+  templateName: string,
+  scores: { playerId: string; name: string; score: number; linkedUserId?: string | null }[],
+): AggregatorGame {
+  const sorted = scores.slice().sort((a, b) => b.score - a.score)
   return {
     id: Math.random().toString(), playedAt: new Date(), winningMission: null, notes: null, shareToken: null,
     league: { id: 'L', name: 'L', gameTemplate: { name: templateName, missions: [] } },
-    scores: scores.slice().sort((a, b) => b.score - a.score).map(s => ({
-      playerId: s.playerId, score: s.score,
-      player: { id: s.playerId, name: s.name, avatarSeed: s.playerId, userId: s.userId ?? null },
+    scores: sorted.map((s, i) => ({
+      playerId: s.playerId,
+      score: s.score,
+      // Top scorer is winner in these test fixtures.
+      isWinner: i === 0,
+      player: {
+        id: s.playerId,
+        name: s.name,
+        avatarSeed: s.playerId,
+        linkedUserId: s.linkedUserId ?? null,
+      },
     })),
   }
 }
@@ -16,9 +28,9 @@ function game(templateName: string, scores: { playerId: string; name: string; sc
 describe('computeTopGames', () => {
   it('counts plays per template and user winRatio', () => {
     const games = [
-      game('Catan', [{ playerId: 'p1', name: 'A', score: 10, userId: 'u1' }, { playerId: 'p2', name: 'B', score: 5 }]),
-      game('Catan', [{ playerId: 'p1', name: 'A', score: 3, userId: 'u1' }, { playerId: 'p2', name: 'B', score: 9 }]),
-      game('Ticket', [{ playerId: 'p1', name: 'A', score: 40, userId: 'u1' }]),
+      game('Catan', [{ playerId: 'p1', name: 'A', score: 10, linkedUserId: 'u1' }, { playerId: 'p2', name: 'B', score: 5 }]),
+      game('Catan', [{ playerId: 'p1', name: 'A', score: 3, linkedUserId: 'u1' }, { playerId: 'p2', name: 'B', score: 9 }]),
+      game('Ticket', [{ playerId: 'p1', name: 'A', score: 40, linkedUserId: 'u1' }]),
     ]
     const top = computeTopGames(games, 'u1')
     expect(top[0]).toEqual({ name: 'Catan', count: 2, userWinRatio: 50 })
