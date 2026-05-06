@@ -19,7 +19,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const page = Math.max(1, parseInt(sp.page ?? '1', 10) || 1)
   // session.user.locale exists on the User model (set in auth.ts).
   // Fall back to 'nl' since the dashboard greeting copy is currently Dutch.
-  const locale = (session.user.locale === 'nl' ? 'nl' : 'en') as 'nl' | 'en'
+  const locale = (session.user.locale === 'en' ? 'en' : 'nl') as 'nl' | 'en'
 
   const scope = { kind: 'user' as const, userId: session.user.id }
 
