@@ -56,10 +56,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | When | Description |
 |---|---|---|
-| `MOLLIE_API_KEY` | Phase 7 | Mollie live API key |
-| `STRIPE_SECRET_KEY` | Phase 7 | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Phase 7 | Stripe webhook signing secret |
-| `STRIKE_API_KEY` | Phase 8 | Strike API key (Bitcoin Lightning) |
+| `MOLLIE_API_KEY` | Phase 11a | Mollie live API key |
+| `STRIPE_SECRET_KEY` | Phase 11a | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Phase 11a | Stripe webhook signing secret |
+| `STRIKE_API_KEY` | Phase 11b | Strike API key (Bitcoin Lightning) |
 
 ---
 
@@ -190,3 +190,7 @@ npx prisma migrate deploy
 | **5** | Session participant selection · win ratio on league page and dashboard |
 | **6A** | Support ticket system · monthly credit reset cron · `requiresMfa` enforcement · low-credit warning emails |
 | **6B** | Credit analytics dashboard (`/admin/credits`) · tax export scaffold (`/admin/billing/tax-export`) |
+| **7** | `Integration` model · AES-256-GCM credential encryption · Mailgun moved from ENV to DB · integrations admin UI |
+| **8** | Dashboard redesign — 2×2 ranked-list panels (ranking, top games, play days, leagues) · paginated games table · Redis-cached stats |
+| **9** | Adaptive log form per `winType` (points/time/cooperative/team/ranking/elimination/roles) · `ScoreEntry.isWinner` as single source of truth · per-winType winner resolver |
+| **10** | League stats expansion (9 panels) · shared stats library (`src/lib/stats/`) · date-range filter (week/month/year/all/custom) · skeleton loaders · bar/panel/count-up animations · Recharts charts (missions, frequency, win-trend) · i18n sweep (`app.stats` namespace) |
