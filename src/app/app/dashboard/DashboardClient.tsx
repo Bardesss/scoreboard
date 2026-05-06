@@ -4,6 +4,8 @@ import { PaginatedGamesTable } from '@/components/stats/PaginatedGamesTable'
 import { PanelHeader } from '@/components/stats/PanelHeader'
 import { RankedListRow } from '@/components/stats/RankedListRow'
 import { StatBar } from '@/components/stats/StatBar'
+import { TransitionProvider, DimmedWhilePending } from '@/components/stats/TransitionDimmer'
+import { DateFilter as DateFilterPanel } from '@/components/stats/DateFilter'
 import type { StatsBundle, DateFilter } from '@/lib/stats/types'
 import type { CompactGameRow, GamesPage } from '@/components/stats/PaginatedGamesTable'
 
@@ -126,36 +128,52 @@ function LeaguesPanel({ leagues }: { leagues: NonNullable<StatsBundle['leagues']
 export default function DashboardClient({
   stats,
   gamesPage,
-  filter: _filter,
+  filter,
+  locale = 'nl',
 }: {
   stats: StatsBundle
   gamesPage: GamesPage<CompactGameRow>
   filter: DateFilter
+  locale?: 'nl' | 'en'
 }) {
-  return (
-    <>
-      {/* 2×2 panel grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 14,
-          marginBottom: 20,
-        }}
-        className="sm:grid-cols-2 grid-cols-1"
-      >
-        <RankingPanel ranking={stats.ranking} />
-        {stats.topGames && <TopGamesPanel topGames={stats.topGames} />}
-        <PlayDaysPanel playDays={stats.playDays} />
-        {stats.leagues && <LeaguesPanel leagues={stats.leagues} />}
-      </div>
+  const buildHref = (p: number) => {
+    const params = new URLSearchParams()
+    params.set('range', filter.range)
+    if (filter.range === 'custom' && filter.from && filter.to) {
+      params.set('from', filter.from.toISOString().slice(0, 10))
+      params.set('to', filter.to.toISOString().slice(0, 10))
+    }
+    params.set('page', String(p))
+    return `?${params.toString()}`
+  }
 
-      {/* Paginated games table */}
-      <PaginatedGamesTable
-        variant="compact"
-        page={gamesPage}
-        buildHref={(p) => `?page=${p}`}
-      />
-    </>
+  return (
+    <TransitionProvider>
+      <DateFilterPanel locale={locale} />
+      <DimmedWhilePending>
+        {/* 2×2 panel grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 14,
+            marginBottom: 20,
+          }}
+          className="sm:grid-cols-2 grid-cols-1"
+        >
+          <RankingPanel ranking={stats.ranking} />
+          {stats.topGames && <TopGamesPanel topGames={stats.topGames} />}
+          <PlayDaysPanel playDays={stats.playDays} />
+          {stats.leagues && <LeaguesPanel leagues={stats.leagues} />}
+        </div>
+
+        {/* Paginated games table */}
+        <PaginatedGamesTable
+          variant="compact"
+          page={gamesPage}
+          buildHref={buildHref}
+        />
+      </DimmedWhilePending>
+    </TransitionProvider>
   )
 }

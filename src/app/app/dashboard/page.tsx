@@ -44,7 +44,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </h1>
         <p style={{ fontSize: 13, color: '#6b5e4a', marginTop: 2 }}>Hier is je overzicht</p>
       </div>
-      <DashboardClient stats={stats} gamesPage={gamesPage} filter={filter} />
+      <DashboardClient stats={stats} gamesPage={gamesPage} filter={filter} locale={locale} />
     </div>
   )
 }
