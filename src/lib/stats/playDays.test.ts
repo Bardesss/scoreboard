@@ -24,4 +24,13 @@ describe('computePlayDays', () => {
     expect(days.every(d => d.count === 0)).toBe(true)
     expect(days).toHaveLength(7)
   })
+
+  it('uses UTC day-of-week (independent of process TZ)', () => {
+    // 2026-04-19T22:00:00Z is Sunday UTC, but Monday in CET (+02:00).
+    // Bucketing must use UTC day to be deterministic.
+    const days = computePlayDays([g('2026-04-19T22:00:00Z')], 'nl')
+    // Sunday count should be 1 (UTC), not Monday.
+    const sunday = days.find(d => d.day === 0)!
+    expect(sunday.count).toBe(1)
+  })
 })

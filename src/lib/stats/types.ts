@@ -109,6 +109,12 @@ export type AggregatorGame = {
     name: string
     gameTemplate: { name: string; missions: string[] }
   }
+  /**
+   * Scores ordered by score descending — index 0 is the winner.
+   * Aggregators (`computeRanking`, `computeTopGames`, etc.) rely on this
+   * invariant. The Prisma query in `loadStats` is responsible for upholding it
+   * via `orderBy: { score: 'desc' }`.
+   */
   scores: {
     playerId: string
     score: number
