@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { Avatar } from '@/components/shared/Avatar'
 import { Card } from '@/components/stats/Card'
+import { PaginatedGamesTable } from '@/components/stats/PaginatedGamesTable'
 import { PanelHeader } from '@/components/stats/PanelHeader'
 import { RankedListRow } from '@/components/stats/RankedListRow'
 import { StatBar } from '@/components/stats/StatBar'
@@ -120,147 +120,6 @@ function LeaguesPanel({ leagues }: { leagues: DashboardStats['leagues'] }) {
   )
 }
 
-// ─── Games table ─────────────────────────────────────────────────────────────
-
-const card = {
-  background: '#fefcf8',
-  border: '1px solid #c5b89f',
-  borderRadius: 16,
-  overflow: 'hidden' as const,
-}
-
-const cardHeader = {
-  padding: '14px 18px',
-  borderBottom: '1px solid #ede5d8',
-  display: 'flex' as const,
-  alignItems: 'center' as const,
-  justifyContent: 'space-between' as const,
-}
-
-const cardTitle = {
-  fontSize: 14,
-  fontWeight: 700,
-  color: '#1e1a14',
-  fontFamily: 'var(--font-headline)',
-}
-
-const labelStyle = {
-  fontSize: 11,
-  color: '#6b5e4a',
-}
-
-function GamesTable({ gamesPage }: { gamesPage: GamesPage }) {
-  const { games, page, totalPages, total } = gamesPage
-
-  return (
-    <div style={card}>
-      <div style={{ ...cardHeader, padding: '14px 20px' }}>
-        <span style={cardTitle}>Gespeelde partijen</span>
-        <span style={labelStyle}>{total} totaal · pagina {page} van {totalPages}</span>
-      </div>
-
-      {/* Column headers */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 120px 140px 90px',
-          padding: '7px 20px',
-          background: '#f2ece3',
-        }}
-      >
-        {['Spel · League', 'Datum', 'Spelers', 'Uitslag'].map(h => (
-          <span key={h} style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6b5e4a' }}>
-            {h}
-          </span>
-        ))}
-      </div>
-
-      {/* Rows */}
-      {games.map((g, i) => (
-        <div
-          key={g.id}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 120px 140px 90px',
-            padding: '11px 20px',
-            borderBottom: i < games.length - 1 ? '1px solid #f2ece3' : undefined,
-            background: g.userWon === true ? 'rgba(245,166,35,0.04)' : undefined,
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1a14' }}>{g.gameName}</div>
-            <div style={{ fontSize: 11, color: '#6b5e4a' }}>{g.leagueName}</div>
-          </div>
-          <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>
-            {new Date(g.playedAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </div>
-          <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>
-            {g.playerNames.join(', ')}
-          </div>
-          <div style={{ paddingTop: 1 }}>
-            {g.userWon === true && (
-              <span style={{ background: '#fff3d4', color: '#c27f0a', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>
-                Gewonnen
-              </span>
-            )}
-            {g.userWon === false && (
-              <span style={{ background: '#f2ece3', color: '#6b5e4a', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>
-                Verloren
-              </span>
-            )}
-          </div>
-        </div>
-      ))}
-
-      {games.length === 0 && (
-        <p style={{ fontSize: 13, color: '#9a8c7a', padding: '20px', textAlign: 'center' }}>
-          Nog geen partijen gespeeld.
-        </p>
-      )}
-
-      {/* Pagination */}
-      <div
-        style={{
-          padding: '11px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderTop: '1px solid #ede5d8',
-          background: '#f2ece3',
-        }}
-      >
-        <span style={{ fontSize: 12, color: '#6b5e4a' }}>Pagina {page} van {totalPages} · 25 per pagina</span>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {page > 1 ? (
-            <Link
-              href={`?page=${page - 1}`}
-              style={{ padding: '5px 12px', borderRadius: 8, border: '1px solid #c5b89f', background: '#fefcf8', color: '#1e1a14', fontSize: 12, textDecoration: 'none' }}
-            >
-              ← Vorige
-            </Link>
-          ) : (
-            <span style={{ padding: '5px 12px', borderRadius: 8, border: '1px solid #c5b89f', background: '#fefcf8', color: '#9a8c7a', fontSize: 12, opacity: 0.4 }}>
-              ← Vorige
-            </span>
-          )}
-          {page < totalPages ? (
-            <Link
-              href={`?page=${page + 1}`}
-              style={{ padding: '5px 12px', borderRadius: 8, border: '1px solid #f5a623', background: '#fff3d4', color: '#c27f0a', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}
-            >
-              Volgende →
-            </Link>
-          ) : (
-            <span style={{ padding: '5px 12px', borderRadius: 8, border: '1px solid #c5b89f', background: '#fefcf8', color: '#9a8c7a', fontSize: 12, opacity: 0.4 }}>
-              Volgende →
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function DashboardClient({
@@ -289,7 +148,11 @@ export default function DashboardClient({
       </div>
 
       {/* Paginated games table */}
-      <GamesTable gamesPage={gamesPage} />
+      <PaginatedGamesTable
+        variant="compact"
+        page={gamesPage}
+        buildHref={(p) => `?page=${p}`}
+      />
     </>
   )
 }
