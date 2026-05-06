@@ -1,0 +1,42 @@
+@keyframes stats-pulse {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.35; }
+}
+
+@keyframes stats-grow {
+  from { width: 0; }
+  to   { width: var(--stats-bar-target); }
+}
+
+@keyframes stats-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes stats-spin {
+  to { transform: rotate(360deg); }
+}
+
+.stats-bar {
+  animation: stats-grow 400ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.stats-card {
+  animation: stats-fade-up 300ms ease-out backwards;
+  animation-delay: calc(var(--stats-card-index, 0) * 50ms);
+}
+
+.stats-skeleton-block {
+  animation: stats-pulse 1.2s ease-in-out infinite;
+  background: #ede5d8;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-bar,
+  .stats-card,
+  .stats-skeleton-block {
+    animation: none !important;
+  }
+}
