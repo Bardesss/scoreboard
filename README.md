@@ -154,12 +154,27 @@ Every push to `main` triggers an automatic deploy. ✅
 
 ## ⏰ Monthly Credit Reset Cron
 
-The `/api/cron/credit-reset` endpoint resets monthly credits for all users. Call it monthly via any cron provider (Coolify Cron, GitHub Actions, cron-job.org, etc.):
+The `/api/cron/credit-reset` endpoint resets monthly credits for all eligible users and auto-closes stale tickets. It is **GET**, secured by `CRON_SECRET`, and idempotent — the same month can only run once thanks to a Redis lock.
+
+Manual invocation:
 
 ```bash
-curl -X POST https://yourdomain.com/api/cron/credit-reset \
+curl https://yourdomain.com/api/cron/credit-reset \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 ```
+
+### Coolify Scheduled Task setup
+
+In Coolify, open this application → **Scheduled Tasks** → **+ Add**:
+
+| Field | Value |
+| --- | --- |
+| Name | `monthly-credit-reset` |
+| Command | `curl -fsS -H "Authorization: Bearer $CRON_SECRET" "$NEXTAUTH_URL/api/cron/credit-reset"` |
+| Frequency | `0 2 1 * *` (02:00 UTC on the 1st of every month) |
+| Container | the app container |
+
+Coolify injects the application's env vars into the task, so `$CRON_SECRET` and `$NEXTAUTH_URL` resolve automatically — no extra secrets to manage. Verify the task has run by checking its log in Coolify after the next 1st of the month.
 
 ---
 
