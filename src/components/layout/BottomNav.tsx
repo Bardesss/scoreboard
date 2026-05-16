@@ -19,17 +19,17 @@ export default function BottomNav() {
   const t = useTranslations('app.nav')
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-2" style={{ background: 'rgba(247,243,237,0.94)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(245,166,35,0.1)' }}>
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between px-1 py-2" style={{ background: 'rgba(247,243,237,0.94)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(245,166,35,0.1)' }}>
       {NAV.map(({ key, href, icon: Icon }) => {
         const active = pathname.startsWith(href)
         return (
           <Link
             key={key}
             href={href}
-            className={`flex flex-col items-center gap-[3px] px-3.5 py-1.5 rounded-[10px] font-headline font-extrabold text-[9px] uppercase tracking-[.08em] transition-colors ${active ? 'text-primary' : 'text-outline'}`}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-[3px] px-1 py-1.5 rounded-[10px] font-headline font-extrabold text-[9px] uppercase tracking-[.06em] transition-colors ${active ? 'text-primary' : 'text-outline'}`}
           >
             <Icon size={20} strokeWidth={active ? 2.5 : 2} className="flex-shrink-0" />
-            {t(key)}
+            <span className="truncate max-w-full">{t(key)}</span>
           </Link>
         )
       })}
