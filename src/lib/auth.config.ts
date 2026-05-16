@@ -1,5 +1,8 @@
 import type { NextAuthConfig } from 'next-auth'
 
+const SESSION_MAX_AGE = 30 * 24 * 60 * 60 // 30 days
+const useSecureCookies = process.env.NODE_ENV === 'production'
+
 export const authConfig: NextAuthConfig = {
   providers: [],
   pages: {
@@ -33,7 +36,25 @@ export const authConfig: NextAuthConfig = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60,   // 30 days
+    maxAge: SESSION_MAX_AGE,
     updateAge: 24 * 60 * 60,      // refresh the token once per day
+  },
+  // Auth.js's defaultCookies for sessionToken only set `Expires`, not `Max-Age`
+  // — modern mobile browsers (Safari iOS especially) treat cookies without
+  // Max-Age as session-scoped and discard them on tab close. Explicitly setting
+  // maxAge here serializes both attributes so the cookie reliably persists for
+  // the full 30 days on every platform. Name matches the Auth.js default so
+  // existing logged-in users aren't kicked.
+  cookies: {
+    sessionToken: {
+      name: `${useSecureCookies ? '__Secure-' : ''}authjs.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+        maxAge: SESSION_MAX_AGE,
+      },
+    },
   },
 }
