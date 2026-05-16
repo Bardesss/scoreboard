@@ -420,9 +420,12 @@
     "connectionRequest": "{from} wants to connect",
     "connectionAccepted": "{from} accepted your request",
     "connectionDeclined": "{from} declined your request",
-    "gamePending": "A game submission needs your approval",
+    "leagueInvite": "{from} added you to a league",
+    "leagueInviteNamed": "{from} added you to \"{leagueName}\"",
     "gameAccepted": "Your game submission was approved",
+    "gameAcceptedNamed": "Your game in \"{leagueName}\" was approved",
     "gameRejected": "Your game submission was rejected",
+    "gameRejectedNamed": "Your game in \"{leagueName}\" was rejected",
     "newNotification": "New notification"
   },
   "toasts": {

@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Bell } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -10,6 +11,23 @@ type Notification = {
   meta: Record<string, unknown> | null
   read: boolean
   createdAt: string
+}
+
+function hrefFor(n: Notification): string {
+  const meta = n.meta ?? {}
+  const leagueId = typeof meta.leagueId === 'string' ? meta.leagueId : null
+  switch (n.type) {
+    case 'connection_request':
+    case 'connection_accepted':
+    case 'connection_declined':
+      return '/app/players'
+    case 'league_invite':
+    case 'played_game_accepted':
+    case 'played_game_rejected':
+      return leagueId ? `/app/leagues/${leagueId}` : '/app/leagues'
+    default:
+      return '/app/dashboard'
+  }
 }
 
 export function NotificationBell({
@@ -28,13 +46,14 @@ export function NotificationBell({
 
   function notificationLabel(n: Notification): string {
     const from = String(n.meta?.fromEmail ?? t('someone'))
+    const leagueName = typeof n.meta?.leagueName === 'string' ? n.meta.leagueName : null
     switch (n.type) {
       case 'connection_request':  return t('connectionRequest', { from })
       case 'connection_accepted': return t('connectionAccepted', { from })
       case 'connection_declined': return t('connectionDeclined', { from })
-      case 'played_game_pending': return t('gamePending')
-      case 'played_game_accepted': return t('gameAccepted')
-      case 'played_game_rejected': return t('gameRejected')
+      case 'league_invite':       return leagueName ? t('leagueInviteNamed', { from, leagueName }) : t('leagueInvite', { from })
+      case 'played_game_accepted': return leagueName ? t('gameAcceptedNamed', { leagueName }) : t('gameAccepted')
+      case 'played_game_rejected': return leagueName ? t('gameRejectedNamed', { leagueName }) : t('gameRejected')
       default: return t('newNotification')
     }
   }
@@ -73,17 +92,25 @@ export function NotificationBell({
               {notifications.map(n => (
                 <li
                   key={n.id}
-                  className="px-4 py-3 border-b last:border-b-0 font-body text-sm"
+                  className="border-b last:border-b-0"
                   style={{
                     borderColor: '#f0ebe3',
-                    color: '#1c1810',
                     background: n.read ? 'transparent' : 'rgba(245,166,35,0.04)',
                   }}
                 >
-                  <p>{notificationLabel(n)}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#9a8878' }}>
-                    {new Date(n.createdAt).toLocaleDateString()}
-                  </p>
+                  <Link
+                    href={hrefFor(n)}
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-3 font-body text-sm transition-colors"
+                    style={{ color: '#1c1810' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.08)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                  >
+                    <p>{notificationLabel(n)}</p>
+                    <p className="text-xs mt-0.5" style={{ color: '#9a8878' }}>
+                      {new Date(n.createdAt).toLocaleDateString()}
+                    </p>
+                  </Link>
                 </li>
               ))}
             </ul>

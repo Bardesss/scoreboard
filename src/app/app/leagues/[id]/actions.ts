@@ -107,7 +107,7 @@ export async function approvePlayedGame(playedGameId: string) {
     userIds: [session.user.id, pg.submittedById].filter((v, i, a) => a.indexOf(v) === i),
     leagueIds: [pg.leagueId],
   })
-  await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId })
+  await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId, leagueId: pg.leagueId, leagueName: pg.league.name })
 
   // Fire-and-forget email to the submitter
   try {
@@ -141,7 +141,7 @@ export async function rejectPlayedGame(playedGameId: string) {
     userIds: [session.user.id, pg.submittedById].filter((v, i, a) => a.indexOf(v) === i),
     leagueIds: [pg.leagueId],
   })
-  await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId })
+  await createNotification(pg.submittedById, 'played_game_rejected', { playedGameId, leagueId: pg.leagueId, leagueName: pg.league.name })
 
   // Fire-and-forget email to the submitter
   try {

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { deductCredits, checkRateLimit, InsufficientCreditsError } from '@/lib/credits'
+import { createNotification } from '@/lib/notifications'
 
 function makeAvatarSeed(name: string): string {
   return name.toLowerCase().trim()
@@ -86,6 +87,26 @@ export async function linkPlayer(playerId: string, vaultKeeperId: string | null)
   }
 
   await prisma.player.update({ where: { id: playerId }, data: { linkedUserId: vaultKeeperId } })
+
+  // When linking a player who is already a member of one or more leagues, the
+  // linked user has effectively been added to those leagues — let them know.
+  if (vaultKeeperId !== null && vaultKeeperId !== session.user.id) {
+    const leagues = await prisma.league.findMany({
+      where: { members: { some: { playerId } } },
+      select: { id: true, name: true },
+      orderBy: { createdAt: 'desc' },
+    })
+    if (leagues.length > 0) {
+      await createNotification(vaultKeeperId, 'league_invite', {
+        fromEmail: session.user.email,
+        playerName: player.name,
+        leagueId: leagues[0].id,
+        leagueName: leagues[0].name,
+        leagueCount: leagues.length,
+      })
+    }
+  }
+
   revalidatePath('/app/players')
   return { success: true }
 }

@@ -6,8 +6,6 @@ export type NotificationType =
   | 'connection_accepted'
   | 'connection_declined'
   | 'league_invite'
-  | 'league_invite_accepted'
-  | 'played_game_pending'
   | 'played_game_accepted'
   | 'played_game_rejected'
 

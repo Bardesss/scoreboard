@@ -420,9 +420,12 @@
     "connectionRequest": "{from} wil verbinden",
     "connectionAccepted": "{from} heeft je verzoek geaccepteerd",
     "connectionDeclined": "{from} heeft je verzoek afgewezen",
-    "gamePending": "Een partij wacht op goedkeuring",
+    "leagueInvite": "{from} heeft je toegevoegd aan een league",
+    "leagueInviteNamed": "{from} heeft je toegevoegd aan \"{leagueName}\"",
     "gameAccepted": "Je partij is goedgekeurd",
+    "gameAcceptedNamed": "Je partij in \"{leagueName}\" is goedgekeurd",
     "gameRejected": "Je partij is afgewezen",
+    "gameRejectedNamed": "Je partij in \"{leagueName}\" is afgewezen",
     "newNotification": "Nieuwe melding"
   },
   "toasts": {

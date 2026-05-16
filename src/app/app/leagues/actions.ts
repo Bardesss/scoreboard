@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { deductCredits, checkRateLimit, InsufficientCreditsError } from '@/lib/credits'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { createNotification } from '@/lib/notifications'
 
 type CreateLeagueInput = {
   name: string
@@ -45,13 +46,28 @@ export async function createLeague(
   if (input.playerIds.length > 0) {
     const ownedPlayers = await prisma.player.findMany({
       where: { id: { in: input.playerIds }, userId: session.user.id },
-      select: { id: true },
+      select: { id: true, name: true, linkedUserId: true },
     })
     if (ownedPlayers.length > 0) {
       await prisma.leagueMember.createMany({
         data: ownedPlayers.map(p => ({ leagueId: league.id, playerId: p.id })),
         skipDuplicates: true,
       })
+
+      // Notify connected users whose linked players were just added to the
+      // new league. Skip the creator's own self-linked player.
+      const linkedTargets = ownedPlayers.filter(
+        p => p.linkedUserId && p.linkedUserId !== session.user.id,
+      )
+      for (const p of linkedTargets) {
+        await createNotification(p.linkedUserId!, 'league_invite', {
+          fromEmail: session.user.email,
+          playerName: p.name,
+          leagueId: league.id,
+          leagueName: name,
+          leagueCount: 1,
+        })
+      }
     }
   }
 

@@ -14,7 +14,7 @@ export async function adminApproveGame(playedGameId: string): Promise<{ success:
   try {
     const playedGame = await prisma.playedGame.findUnique({
       where: { id: playedGameId },
-      select: { status: true, submittedById: true },
+      select: { status: true, submittedById: true, leagueId: true, league: { select: { name: true } } },
     })
 
     if (!playedGame) return { success: false, error: 'notFound' }
@@ -25,7 +25,11 @@ export async function adminApproveGame(playedGameId: string): Promise<{ success:
       data: { status: 'approved' },
     })
 
-    await createNotification(playedGame.submittedById, 'played_game_accepted', { playedGameId })
+    await createNotification(playedGame.submittedById, 'played_game_accepted', {
+      playedGameId,
+      leagueId: playedGame.leagueId,
+      leagueName: playedGame.league.name,
+    })
 
     revalidatePath('/admin/approvals')
     return { success: true }
@@ -43,7 +47,7 @@ export async function adminRejectGame(playedGameId: string): Promise<{ success: 
   try {
     const playedGame = await prisma.playedGame.findUnique({
       where: { id: playedGameId },
-      select: { status: true, submittedById: true },
+      select: { status: true, submittedById: true, leagueId: true, league: { select: { name: true } } },
     })
 
     if (!playedGame) return { success: false, error: 'notFound' }
@@ -54,7 +58,11 @@ export async function adminRejectGame(playedGameId: string): Promise<{ success: 
       data: { status: 'rejected' },
     })
 
-    await createNotification(playedGame.submittedById, 'played_game_rejected', { playedGameId })
+    await createNotification(playedGame.submittedById, 'played_game_rejected', {
+      playedGameId,
+      leagueId: playedGame.leagueId,
+      leagueName: playedGame.league.name,
+    })
 
     revalidatePath('/admin/approvals')
     return { success: true }
