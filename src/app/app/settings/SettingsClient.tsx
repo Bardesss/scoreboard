@@ -4,6 +4,7 @@ import { SessionProvider } from 'next-auth/react'
 import { TwoFactorSection } from './sections/TwoFactorSection'
 import { LanguageSection } from './sections/LanguageSection'
 import { PasswordSection } from './sections/PasswordSection'
+import { LogoutSection } from './sections/LogoutSection'
 
 export function SettingsClient({
   locale,
@@ -26,6 +27,7 @@ export function SettingsClient({
         />
         <LanguageSection currentLocale={locale} />
         <PasswordSection />
+        <LogoutSection />
       </div>
     </SessionProvider>
   )

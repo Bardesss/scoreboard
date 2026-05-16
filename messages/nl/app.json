@@ -183,6 +183,14 @@
       "errorMismatch": "Nieuwe wachtwoorden komen niet overeen.",
       "errorUnchanged": "Nieuw wachtwoord moet anders zijn dan het huidige.",
       "errorUnknown": "Er ging iets mis. Probeer opnieuw."
+    },
+    "logout": {
+      "title": "Uitloggen",
+      "description": "Beëindig deze sessie op dit apparaat.",
+      "button": "Uitloggen",
+      "confirm": "Ja, log me uit",
+      "cancel": "Annuleren",
+      "signingOut": "Bezig met uitloggen…"
     }
   },
   "players": {

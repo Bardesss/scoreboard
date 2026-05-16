@@ -183,6 +183,14 @@
       "errorMismatch": "New passwords don't match.",
       "errorUnchanged": "New password must differ from the current one.",
       "errorUnknown": "Something went wrong. Try again."
+    },
+    "logout": {
+      "title": "Sign out",
+      "description": "End this session on this device.",
+      "button": "Log out",
+      "confirm": "Yes, log me out",
+      "cancel": "Cancel",
+      "signingOut": "Signing out…"
     }
   },
   "players": {

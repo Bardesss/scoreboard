@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@/lib/auth'
+import { auth, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { generateTOTPSecret, verifyTOTPCode, generateBackupCodes } from '@/lib/totp'
@@ -17,6 +17,12 @@ type Locale = (typeof VALID_LOCALES)[number]
 
 const TOTP_SETUP_TTL = 60 * 10
 const setupKey = (userId: string) => `totp_setup:${userId}`
+
+export async function logout(): Promise<void> {
+  const session = await auth()
+  const locale = (session?.user.locale ?? 'en') as Locale
+  await signOut({ redirectTo: `/${locale}/auth/login` })
+}
 
 export async function setLocale(locale: string): Promise<Result> {
   const session = await auth()

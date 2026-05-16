@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User, ShieldCheck, LifeBuoy } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
+import { LogoutIconButton } from './LogoutIconButton'
 
 type NotificationItem = {
   id: string
@@ -103,6 +104,7 @@ export default function Sidebar({ name, credits, unreadCount, notifications, isA
             <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>{t('vaultKeeper')}</div>
           </div>
           <NotificationBell initialCount={unreadCount} initialNotifications={notifications} position="up-right" />
+          <LogoutIconButton />
         </div>
       </div>
     </aside>
