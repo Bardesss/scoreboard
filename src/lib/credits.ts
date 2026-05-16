@@ -101,12 +101,14 @@ export async function deductCredits(
     }
   }
 
+  const nonZeroTxs = txs.filter(tx => tx.delta !== 0)
+
   await prisma.$transaction([
     prisma.user.update({
       where: { id: userId },
       data: { monthlyCredits: newMonthly, permanentCredits: newPermanent },
     }),
-    ...txs.map(tx =>
+    ...nonZeroTxs.map(tx =>
       prisma.creditTransaction.create({
         data: { userId, delta: tx.delta, pool: tx.pool, reason: action, ...(meta ? { meta } : {}) },
       })

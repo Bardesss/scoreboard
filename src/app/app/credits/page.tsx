@@ -24,9 +24,9 @@ export default async function CreditsPage({ searchParams }: PageProps) {
       where: { id: session.user.id },
       select: { monthlyCredits: true, permanentCredits: true, isLifetimeFree: true },
     }),
-    prisma.creditTransaction.count({ where: { userId: session.user.id } }),
+    prisma.creditTransaction.count({ where: { userId: session.user.id, delta: { not: 0 } } }),
     prisma.creditTransaction.findMany({
-      where: { userId: session.user.id },
+      where: { userId: session.user.id, delta: { not: 0 } },
       orderBy: { createdAt: 'desc' },
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
