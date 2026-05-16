@@ -68,7 +68,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
-      <div className="flex items-start gap-3 mb-6 flex-wrap sm:flex-nowrap">
+      <div className="flex items-start gap-3 mb-6">
         <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
           <Trophy size={22} style={{ color: '#f5a623' }} />
         </div>
@@ -78,10 +78,13 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
         </div>
         <Link
           href={`/app/leagues/${id}/log`}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-headline font-bold text-sm flex-shrink-0 w-full sm:w-auto"
+          aria-label={tPlayedGames('log')}
+          title={tPlayedGames('log')}
+          className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm flex-shrink-0 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
           style={{ background: '#f5a623', color: '#1c1408' }}
         >
-          <Plus size={16} /> {tPlayedGames('log')}
+          <Plus size={16} />
+          <span className="hidden sm:inline">{tPlayedGames('log')}</span>
         </Link>
       </div>
 
