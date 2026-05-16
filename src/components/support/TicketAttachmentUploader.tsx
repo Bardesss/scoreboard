@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-const MAX_BYTES = 3 * 1024 * 1024
+const MAX_BYTES = 8 * 1024 * 1024
 const MAX_FILES = 4
 const ACCEPT_EXTS = '.jpg,.jpeg,.png,.heic,.heif'
 const ACCEPT_MIMES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif']

@@ -7,11 +7,11 @@ import { TicketAttachmentUploader } from '@/components/support/TicketAttachmentU
 const ADMIN_LABELS = {
   label: 'Screenshots toevoegen (optioneel)',
   dropHere: 'Sleep afbeeldingen hierheen of klik om te kiezen',
-  hint: 'JPG, PNG, HEIC · max 3 MB · maximaal 4 bestanden',
+  hint: 'JPG, PNG, HEIC · max 8 MB · maximaal 4 bestanden',
   maxReached: 'Maximaal 4 bijlagen',
   remove: 'Verwijder',
   errorType: 'Alleen JPG-, PNG- en HEIC-afbeeldingen zijn toegestaan',
-  errorSize: 'Bestand is groter dan 3 MB',
+  errorSize: 'Bestand is groter dan 8 MB',
 }
 
 export default function AdminTicketActions({ ticketId, status }: { ticketId: string; status: string }) {

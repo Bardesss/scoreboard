@@ -2,7 +2,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 
 export const ATTACHMENT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'] as const
-export const ATTACHMENT_MAX_BYTES = 3 * 1024 * 1024
+export const ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024
 export const ATTACHMENT_MAX_PER_MESSAGE = 4
 
 export function getUploadsDir(): string {
