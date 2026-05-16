@@ -26,6 +26,11 @@ model User {
   permanentCredits Int       @default(0)
   isLifetimeFree   Boolean   @default(false)
 
+  // Per-trigger email opt-in/out. Shape: { connection_request: bool, ... }
+  // Missing keys default to true (opt-in). Transactional emails (verify
+  // email, password reset) ignore this and always send.
+  emailPreferences Json?
+
   players              Player[]
   linkedAsPlayer        Player[]              @relation("LinkedPlayer")
   gameTemplates         GameTemplate[]

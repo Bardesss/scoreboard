@@ -253,6 +253,34 @@
       "cancelButton": "Annuleren",
       "errorWrongPassword": "Dat wachtwoord klopt niet.",
       "errorUnknown": "Er ging iets mis. Probeer opnieuw."
+    },
+    "emailPrefs": {
+      "title": "E-mailvoorkeuren",
+      "description": "Kies welke e-mails je wilt ontvangen. In-app meldingen blijven in de bel verschijnen.",
+      "transactionalNote": "Verificatie- en wachtwoord-reset-e-mails worden altijd verstuurd, ongeacht deze instellingen.",
+      "errorSaving": "Kon niet opslaan. Probeer opnieuw.",
+      "labels": {
+        "connection_request": "Iemand stuurt je een connectieverzoek",
+        "connection_accepted": "Je connectieverzoek wordt geaccepteerd",
+        "connection_declined": "Je connectieverzoek wordt afgewezen",
+        "played_game_approved": "Een partij die je inzond wordt goedgekeurd",
+        "played_game_rejected": "Een partij die je inzond wordt afgewezen",
+        "low_credit_warning": "Je credits raken op",
+        "monthly_reset": "Je maandelijkse credits resetten",
+        "ticket_replied": "Support reageert op je ticket",
+        "ticket_closed": "Je supportticket wordt gesloten"
+      },
+      "hints": {
+        "connection_request": "Een seintje dat een andere vault keeper wil verbinden.",
+        "connection_accepted": "Bevestiging dat je verzoek aankwam.",
+        "connection_declined": "Bevestiging dat je verzoek werd afgewezen.",
+        "played_game_approved": "Seintje wanneer een leaguebeheerder je inzending goedkeurt.",
+        "played_game_rejected": "Seintje wanneer een leaguebeheerder je inzending afwijst.",
+        "low_credit_warning": "Wordt eenmaal verstuurd zodra je saldo onder de drempel zakt.",
+        "monthly_reset": "Wordt aan het begin van elke maand verstuurd bij credit-refill.",
+        "ticket_replied": "Wordt verstuurd zodra support op een van je tickets reageert.",
+        "ticket_closed": "Wordt verstuurd zodra een ticket wordt gesloten (door jou, support of auto-close)."
+      }
     }
   },
   "players": {

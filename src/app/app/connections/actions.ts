@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { createNotification } from '@/lib/notifications'
 import { redirect } from 'next/navigation'
 import { sendEmail } from '@/lib/mail'
+import { shouldSendEmailTo } from '@/lib/emailPreferences'
 import { connectionRequestEmail, connectionAcceptedEmail } from '@/lib/emailTemplates'
 
 export async function searchUsers(query: string) {
@@ -62,13 +63,13 @@ export async function sendConnectionRequest(toUserId: string) {
     fromEmail: session.user.email,
   })
 
-  // Fire-and-forget email to the recipient
+  // Fire-and-forget email to the recipient (respects their email preferences)
   try {
     const toUser = await prisma.user.findUnique({
       where: { id: toUserId },
       select: { email: true, locale: true },
     })
-    if (toUser?.email) {
+    if (toUser?.email && await shouldSendEmailTo(toUserId, 'connection_request')) {
       const fromName = session.user.email ?? session.user.id
       const tpl = connectionRequestEmail(toUser.locale ?? 'en', fromName)
       sendEmail(toUser.email, tpl.subject, tpl.html).catch(() => {})
@@ -100,13 +101,13 @@ export async function acceptConnectionRequest(requestId: string) {
 
   await createNotification(req.fromUserId, 'connection_accepted', { fromEmail: session.user.email })
 
-  // Fire-and-forget email to the original sender
+  // Fire-and-forget email to the original sender (respects their preferences)
   try {
     const fromUser = await prisma.user.findUnique({
       where: { id: req.fromUserId },
       select: { email: true, locale: true },
     })
-    if (fromUser?.email) {
+    if (fromUser?.email && await shouldSendEmailTo(req.fromUserId, 'connection_accepted')) {
       const acceptorName = session.user.email ?? session.user.id
       const tpl = connectionAcceptedEmail(fromUser.locale ?? 'en', acceptorName)
       sendEmail(fromUser.email, tpl.subject, tpl.html).catch(() => {})

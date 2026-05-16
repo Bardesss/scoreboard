@@ -4,6 +4,7 @@ import { auth, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { generateTOTPSecret, verifyTOTPCode, generateBackupCodes } from '@/lib/totp'
+import { EMAIL_PREFERENCE_KEYS, type EmailPreferences } from '@/lib/emailPreferences'
 import bcrypt from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import QRCode from 'qrcode'
@@ -149,6 +150,22 @@ export async function disableTotp(code: string): Promise<Result> {
     data: { totpSecret: null, totpEnabled: false, totpBackupCodes: [] },
   })
 
+  return { success: true }
+}
+
+export async function setEmailPreferences(prefs: EmailPreferences): Promise<Result> {
+  const session = await auth()
+  if (!session) return { success: false, error: 'unauthorized' }
+
+  const sanitized: EmailPreferences = {}
+  for (const key of EMAIL_PREFERENCE_KEYS) {
+    if (typeof prefs[key] === 'boolean') sanitized[key] = prefs[key]
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { emailPreferences: sanitized },
+  })
   return { success: true }
 }
 

@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { AuthCard, PrimaryButton } from '@/components/auth/AuthCard'
 import { createNotification } from '@/lib/notifications'
 import { sendEmail } from '@/lib/mail'
+import { shouldSendEmailTo } from '@/lib/emailPreferences'
 import { connectionAcceptedEmail } from '@/lib/emailTemplates'
 import { startConnectLogin, startConnectRegister } from './actions'
 
@@ -105,7 +106,7 @@ export default async function ConnectPage({ params }: PageProps) {
       where: { id: target.id },
       select: { email: true, locale: true },
     })
-    if (targetUser?.email) {
+    if (targetUser?.email && await shouldSendEmailTo(target.id, 'connection_accepted')) {
       const acceptorName = session.user.email ?? session.user.id
       const tpl = connectionAcceptedEmail(targetUser.locale ?? 'en', acceptorName)
       sendEmail(targetUser.email, tpl.subject, tpl.html).catch(() => {})

@@ -253,6 +253,34 @@
       "cancelButton": "Cancel",
       "errorWrongPassword": "That password is not correct.",
       "errorUnknown": "Something went wrong. Try again."
+    },
+    "emailPrefs": {
+      "title": "Email preferences",
+      "description": "Choose which emails you want to receive. In-app notifications still appear in the bell either way.",
+      "transactionalNote": "Account verification and password reset emails are always sent regardless of these settings.",
+      "errorSaving": "Couldn't save. Try again.",
+      "labels": {
+        "connection_request": "Someone sends you a connection request",
+        "connection_accepted": "Your connection request is accepted",
+        "connection_declined": "Your connection request is declined",
+        "played_game_approved": "A game you submitted is approved",
+        "played_game_rejected": "A game you submitted is rejected",
+        "low_credit_warning": "Your credits are running low",
+        "monthly_reset": "Your monthly credits reset",
+        "ticket_replied": "Support replies to your ticket",
+        "ticket_closed": "Your support ticket is closed"
+      },
+      "hints": {
+        "connection_request": "A heads-up that another vault keeper wants to connect.",
+        "connection_accepted": "Letting you know your invite went through.",
+        "connection_declined": "Letting you know your invite was turned down.",
+        "played_game_approved": "Heads-up when a league owner approves your submission.",
+        "played_game_rejected": "Heads-up when a league owner rejects your submission.",
+        "low_credit_warning": "Sent once when your balance dips under the threshold.",
+        "monthly_reset": "Sent at the start of every month when credits refill.",
+        "ticket_replied": "Sent when support responds to one of your tickets.",
+        "ticket_closed": "Sent when a ticket is closed (by you, support, or auto-close)."
+      }
     }
   },
   "players": {

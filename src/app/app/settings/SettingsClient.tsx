@@ -6,6 +6,8 @@ import { LanguageSection } from './sections/LanguageSection'
 import { PasswordSection } from './sections/PasswordSection'
 import { LogoutSection } from './sections/LogoutSection'
 import { AccountSection } from './sections/AccountSection'
+import { EmailPreferencesSection } from './sections/EmailPreferencesSection'
+import type { EmailPreferences } from '@/lib/emailPreferences'
 
 export function SettingsClient({
   email,
@@ -14,6 +16,7 @@ export function SettingsClient({
   totpEnabled,
   requiresMfa,
   backupCodesRemaining,
+  emailPreferences,
 }: {
   email: string
   createdAt: string
@@ -21,6 +24,7 @@ export function SettingsClient({
   totpEnabled: boolean
   requiresMfa: boolean
   backupCodesRemaining: number
+  emailPreferences: EmailPreferences
 }) {
   return (
     <SessionProvider>
@@ -32,6 +36,7 @@ export function SettingsClient({
         />
         <LanguageSection currentLocale={locale} />
         <PasswordSection />
+        <EmailPreferencesSection initial={emailPreferences} />
         <LogoutSection />
         <AccountSection email={email} createdAt={createdAt} locale={locale === 'nl' ? 'nl' : 'en'} />
       </div>

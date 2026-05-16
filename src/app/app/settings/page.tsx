@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { SettingsClient } from './SettingsClient'
+import { readPreferences } from '@/lib/emailPreferences'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -17,11 +18,13 @@ export default async function SettingsPage() {
       requiresMfa: true,
       totpBackupCodes: true,
       createdAt: true,
+      emailPreferences: true,
     },
   })
   if (!user) redirect('/en/auth/login')
 
   const t = await getTranslations({ locale: user.locale, namespace: 'app.settings' })
+  const initialPrefs = readPreferences(user.emailPreferences)
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
@@ -36,6 +39,7 @@ export default async function SettingsPage() {
         totpEnabled={user.totpEnabled}
         requiresMfa={user.requiresMfa}
         backupCodesRemaining={user.totpBackupCodes.length}
+        emailPreferences={initialPrefs}
       />
     </div>
   )

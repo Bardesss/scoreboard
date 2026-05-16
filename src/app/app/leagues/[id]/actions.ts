@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createNotification } from '@/lib/notifications'
 import { sendEmail } from '@/lib/mail'
+import { shouldSendEmailTo } from '@/lib/emailPreferences'
 import { playedGameApprovedEmail, playedGameRejectedEmail } from '@/lib/emailTemplates'
 import { resolveScoreEntries } from '@/lib/game-logic/resolveScoreEntries'
 import type { ResolverInput } from '@/lib/game-logic/types'
@@ -115,7 +116,7 @@ export async function approvePlayedGame(playedGameId: string) {
       where: { id: pg.submittedById },
       select: { email: true, locale: true },
     })
-    if (submitter?.email) {
+    if (submitter?.email && await shouldSendEmailTo(pg.submittedById, 'played_game_approved')) {
       const tpl = playedGameApprovedEmail(submitter.locale ?? 'en', pg.league.name)
       sendEmail(submitter.email, tpl.subject, tpl.html).catch(() => {})
     }
@@ -149,7 +150,7 @@ export async function rejectPlayedGame(playedGameId: string) {
       where: { id: pg.submittedById },
       select: { email: true, locale: true },
     })
-    if (submitter?.email) {
+    if (submitter?.email && await shouldSendEmailTo(pg.submittedById, 'played_game_rejected')) {
       const tpl = playedGameRejectedEmail(submitter.locale ?? 'en', pg.league.name)
       sendEmail(submitter.email, tpl.subject, tpl.html).catch(() => {})
     }
