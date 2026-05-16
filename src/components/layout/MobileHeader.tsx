@@ -20,6 +20,7 @@ export default function MobileHeader({
   isAdmin,
   unreadCount,
   notifications,
+  bannerOffset = false,
 }: {
   name: string
   email: string
@@ -27,9 +28,10 @@ export default function MobileHeader({
   isAdmin?: boolean
   unreadCount: number
   notifications: NotificationItem[]
+  bannerOffset?: boolean
 }) {
   return (
-    <header className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-4" style={{ background: 'rgba(247,243,237,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(245,166,35,0.1)' }}>
+    <header className="lg:hidden fixed inset-x-0 z-40 h-14 flex items-center justify-between px-4" style={{ top: bannerOffset ? 36 : 0, background: 'rgba(247,243,237,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(245,166,35,0.1)' }}>
       <Link href="/app/dashboard" className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-[8px] flex items-center justify-center" style={{ background: '#f5a623', boxShadow: '0 4px 12px rgba(245,166,35,0.28)' }}>
           <Dices size={16} strokeWidth={2.2} style={{ color: '#1c1408' }} />
