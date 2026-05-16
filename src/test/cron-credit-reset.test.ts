@@ -7,6 +7,7 @@ vi.mock('@/lib/prisma', () => ({
     adminSettings: { findUnique: vi.fn() },
     freePeriod: { findFirst: vi.fn() },
     ticket: { findMany: vi.fn(), updateMany: vi.fn() },
+    ticketAttachment: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn() },
     $transaction: vi.fn(),
   },
 }))

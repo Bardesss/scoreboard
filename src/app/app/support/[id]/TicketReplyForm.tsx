@@ -1,16 +1,19 @@
 'use client'
 
 import { useActionState } from 'react'
+import { useTranslations } from 'next-intl'
 import { replyToTicket } from '../actions'
+import { TicketAttachmentUploader } from '@/components/support/TicketAttachmentUploader'
 
 export default function TicketReplyForm({ ticketId, replyLabel, placeholder }: { ticketId: string; replyLabel: string; placeholder: string }) {
+  const t = useTranslations('app.support')
   const [state, formAction, pending] = useActionState(
-    async (_: unknown, fd: FormData) => replyToTicket(ticketId, fd.get('body') as string),
+    async (_: unknown, fd: FormData) => replyToTicket(ticketId, fd),
     null
   )
 
   return (
-    <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <textarea
         name="body"
         required
@@ -21,6 +24,18 @@ export default function TicketReplyForm({ ticketId, replyLabel, placeholder }: {
           width: '100%', padding: '10px 14px', boxSizing: 'border-box',
           background: '#fffdf9', border: '1px solid #e8e1d8', borderRadius: 12,
           color: '#1c1810', fontSize: 14, resize: 'vertical', outline: 'none',
+        }}
+      />
+      <TicketAttachmentUploader
+        variant="app"
+        labels={{
+          label: t('attachmentsLabel'),
+          dropHere: t('attachmentsDropHere'),
+          hint: t('attachmentsHint'),
+          maxReached: t('attachmentsMaxReached'),
+          remove: t('attachmentsRemove'),
+          errorType: t('attachmentsErrorType'),
+          errorSize: t('attachmentsErrorSize'),
         }}
       />
       {state && !state.success && (

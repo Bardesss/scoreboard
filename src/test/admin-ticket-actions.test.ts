@@ -4,6 +4,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     ticket: { findUnique: vi.fn(), update: vi.fn() },
     ticketMessage: { create: vi.fn() },
+    ticketAttachment: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn() },
   },
 }))
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }))
@@ -29,11 +30,18 @@ beforeEach(() => {
   vi.mocked(auth).mockResolvedValue(adminSession as never)
 })
 
+function replyFormData(body: string): FormData {
+  const fd = new FormData()
+  fd.set('body', body)
+  return fd
+}
+
 describe('adminReplyToTicket', () => {
   it('creates admin message, sets autoCloseAt, sends email', async () => {
     vi.mocked(prisma.ticket.findUnique).mockResolvedValue(openTicket as never)
+    vi.mocked(prisma.ticketMessage.create).mockResolvedValue({ id: 'msg-1' } as never)
 
-    const result = await adminReplyToTicket('ticket-1', 'Here is the answer')
+    const result = await adminReplyToTicket('ticket-1', replyFormData('Here is the answer'))
     expect(result).toEqual({ success: true })
     expect(prisma.ticketMessage.create).toHaveBeenCalledWith({
       data: { ticketId: 'ticket-1', senderType: 'admin', body: 'Here is the answer' },
@@ -46,7 +54,7 @@ describe('adminReplyToTicket', () => {
 
   it('rejects non-admin user', async () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1', role: 'user' } } as never)
-    const result = await adminReplyToTicket('ticket-1', 'body')
+    const result = await adminReplyToTicket('ticket-1', replyFormData('body'))
     expect(result).toEqual({ success: false, error: 'Unauthorized' })
   })
 })

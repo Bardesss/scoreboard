@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import AdminTicketActions from './AdminTicketActions'
+import { TicketAttachmentList } from '@/components/support/TicketAttachmentList'
 
 export default async function AdminTicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -9,7 +10,15 @@ export default async function AdminTicketDetailPage({ params }: { params: Promis
     where: { id },
     include: {
       user: { select: { email: true, locale: true } },
-      messages: { orderBy: { createdAt: 'asc' } },
+      messages: {
+        orderBy: { createdAt: 'asc' },
+        include: {
+          attachments: {
+            orderBy: { createdAt: 'asc' },
+            select: { id: true, filename: true, deletedAt: true },
+          },
+        },
+      },
     },
   })
   if (!ticket) notFound()
@@ -45,6 +54,14 @@ export default async function AdminTicketDetailPage({ params }: { params: Promis
                   {isUser ? ticket.user.email : 'Admin'}
                 </p>
                 <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.87)', whiteSpace: 'pre-wrap', margin: 0 }}>{msg.body}</p>
+                {msg.attachments.length > 0 && (
+                  <TicketAttachmentList
+                    ticketId={id}
+                    attachments={msg.attachments}
+                    variant="admin"
+                    labels={{ deleted: 'Afbeelding verwijderd bij sluiten ticket', close: 'Sluiten' }}
+                  />
+                )}
                 <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6, marginBottom: 0 }}>{msg.createdAt.toLocaleDateString('nl-NL')}</p>
               </div>
             </div>

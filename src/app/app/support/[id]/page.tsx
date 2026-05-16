@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import TicketReplyForm from './TicketReplyForm'
+import { TicketAttachmentList } from '@/components/support/TicketAttachmentList'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -14,7 +15,17 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
   const ticket = await prisma.ticket.findUnique({
     where: { id },
-    include: { messages: { orderBy: { createdAt: 'asc' } } },
+    include: {
+      messages: {
+        orderBy: { createdAt: 'asc' },
+        include: {
+          attachments: {
+            orderBy: { createdAt: 'asc' },
+            select: { id: true, filename: true, deletedAt: true },
+          },
+        },
+      },
+    },
   })
   if (!ticket || ticket.userId !== session.user.id) notFound()
 
@@ -52,6 +63,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                   {isUser ? session.user.email : t('admin')}
                 </p>
                 <p className="font-body text-sm whitespace-pre-wrap" style={{ color: '#1c1810', margin: 0 }}>{msg.body}</p>
+                {msg.attachments.length > 0 && (
+                  <TicketAttachmentList
+                    ticketId={id}
+                    attachments={msg.attachments}
+                    variant="app"
+                    labels={{ deleted: t('attachmentsDeleted'), close: t('attachmentsLightboxClose') }}
+                  />
+                )}
                 <p className="font-body text-xs mt-2" style={{ color: '#c4b79a', margin: 0 }}>
                   {msg.createdAt.toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB')}
                 </p>

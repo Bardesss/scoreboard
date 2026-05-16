@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { isFreeModeActive } from '@/lib/credits'
 import { sendMonthlyResetEmail, sendTicketAutoClosedEmail } from '@/lib/mail'
+import { purgeTicketAttachments } from '@/lib/ticketAttachments'
 
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET
@@ -58,6 +59,9 @@ export async function GET(req: Request) {
   })
 
   if (staleTickets.length > 0) {
+    for (const ticket of staleTickets) {
+      await purgeTicketAttachments(ticket.id)
+    }
     await prisma.ticket.updateMany({
       where: { id: { in: staleTickets.map(t => t.id) } },
       data: { status: 'closed', autoCloseAt: null },

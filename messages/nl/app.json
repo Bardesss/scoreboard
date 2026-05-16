@@ -102,7 +102,20 @@
     "replyPlaceholder": "Jouw antwoord…",
     "closedNotice": "Dit ticket is gesloten.",
     "autoCloseNotice": "Dit ticket wordt automatisch gesloten op {date} als er geen reactie is.",
-    "admin": "Dice Vault Support"
+    "admin": "Dice Vault Support",
+    "attachmentsLabel": "Screenshots toevoegen (optioneel)",
+    "attachmentsDropHere": "Sleep afbeeldingen hierheen of klik om te kiezen",
+    "attachmentsHint": "JPG, PNG, HEIC · max 3 MB · maximaal 4 bestanden",
+    "attachmentsAddMore": "Meer toevoegen",
+    "attachmentsMaxReached": "Maximaal 4 bijlagen",
+    "attachmentsRemove": "Verwijder",
+    "attachmentsErrorType": "Alleen JPG-, PNG- en HEIC-afbeeldingen zijn toegestaan",
+    "attachmentsErrorSize": "Bestand is groter dan 3 MB",
+    "attachmentsErrorTooMany": "Maximaal 4 bijlagen per bericht",
+    "attachmentsErrorUnreadable": "Kon dit bestand niet lezen",
+    "attachmentsErrorConversion": "Kon deze HEIC-afbeelding niet verwerken",
+    "attachmentsDeleted": "Afbeelding verwijderd bij sluiten ticket",
+    "attachmentsLightboxClose": "Sluiten"
   },
   "credits": {
     "balance": "{n} credits",

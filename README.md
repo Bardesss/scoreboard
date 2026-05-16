@@ -48,6 +48,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXTAUTH_URL` | Full public URL, e.g. `https://dicevault.fun` |
 | `NEXT_PUBLIC_APP_URL` | Same as `NEXTAUTH_URL`, used client-side |
 | `CRON_SECRET` | Random string to authenticate `/api/cron/credit-reset` — `openssl rand -base64 32` |
+| `UPLOADS_DIR` | Absolute path where support ticket attachments are stored. Must point inside a Coolify persistent volume (e.g. `/data/uploads`) — otherwise attachments vanish on every container restart. Defaults to `./uploads` for local dev. |
 
 > **Email (Mailgun):** Configured via `/admin/settings/integrations` — no ENV vars needed.
 > `NEXTAUTH_SECRET` rotation invalidates stored integration credentials; re-enter them in the admin UI after rotating.
@@ -95,16 +96,28 @@ NEXTAUTH_SECRET=...
 NEXTAUTH_URL=https://dicevault.fun
 NEXT_PUBLIC_APP_URL=https://dicevault.fun
 CRON_SECRET=...
+UPLOADS_DIR=/data/uploads
 ```
 
-### 5️⃣ Post-deploy command
+### 5️⃣ Mount a persistent volume for uploads
+
+Support tickets accept image attachments which are written to disk. Without a persistent volume, those files are wiped on every container restart.
+
+In the app resource → **Storage** tab → **+ Add**:
+
+| Field | Value |
+| --- | --- |
+| Source path (host) | `dicevault-uploads` (Coolify-managed volume) |
+| Destination path (container) | `/data/uploads` (must match `UPLOADS_DIR`) |
+
+### 6️⃣ Post-deploy command
 
 In app settings → **Post-deploy command**:
 ```
 npx prisma migrate deploy
 ```
 
-### 6️⃣ Deploy 🚢
+### 7️⃣ Deploy 🚢
 
 Click **Deploy**. First build takes ~3–5 minutes. Verify:
 ```bash
@@ -209,3 +222,4 @@ npx prisma migrate deploy
 | **8** | Dashboard redesign — 2×2 ranked-list panels (ranking, top games, play days, leagues) · paginated games table · Redis-cached stats |
 | **9** | Adaptive log form per `winType` (points/time/cooperative/team/ranking/elimination/roles) · `ScoreEntry.isWinner` as single source of truth · per-winType winner resolver |
 | **10** | League stats expansion (9 panels) · shared stats library (`src/lib/stats/`) · date-range filter (week/month/year/all/custom) · skeleton loaders · bar/panel/count-up animations · Recharts charts (missions, frequency, win-trend) · i18n sweep (`app.stats` namespace) |
+| **6C** | Support ticket image attachments (JPG/PNG/HEIC, 3 MB · 4 files max) · server-side HEIC→JPEG conversion · auth-gated serve route · drag-drop uploader + lightbox · auto-delete files on ticket close with placeholder · `UPLOADS_DIR` + persistent volume |

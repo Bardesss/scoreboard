@@ -4,6 +4,7 @@ import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createTicket } from '../actions'
+import { TicketAttachmentUploader } from '@/components/support/TicketAttachmentUploader'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -51,6 +52,18 @@ export default function NewTicketPage() {
           <label className="font-headline font-semibold text-sm block mb-2" style={{ color: '#9a8878' }}>{t('message')}</label>
           <textarea name="body" required maxLength={5000} rows={6} style={{ ...inputStyle, resize: 'vertical' }} />
         </div>
+        <TicketAttachmentUploader
+          variant="app"
+          labels={{
+            label: t('attachmentsLabel'),
+            dropHere: t('attachmentsDropHere'),
+            hint: t('attachmentsHint'),
+            maxReached: t('attachmentsMaxReached'),
+            remove: t('attachmentsRemove'),
+            errorType: t('attachmentsErrorType'),
+            errorSize: t('attachmentsErrorSize'),
+          }}
+        />
         {state && !state.success && (
           <p className="font-body text-sm" style={{ color: '#dc2626' }}>{state.error}</p>
         )}

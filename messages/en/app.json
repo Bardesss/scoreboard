@@ -102,7 +102,20 @@
     "replyPlaceholder": "Your reply…",
     "closedNotice": "This ticket is closed.",
     "autoCloseNotice": "This ticket will be automatically closed on {date} if no reply is received.",
-    "admin": "Dice Vault Support"
+    "admin": "Dice Vault Support",
+    "attachmentsLabel": "Attach screenshots (optional)",
+    "attachmentsDropHere": "Drop images here or click to choose",
+    "attachmentsHint": "JPG, PNG, HEIC · max 3 MB · up to 4 files",
+    "attachmentsAddMore": "Add more",
+    "attachmentsMaxReached": "Maximum 4 attachments",
+    "attachmentsRemove": "Remove",
+    "attachmentsErrorType": "Only JPG, PNG and HEIC images are allowed",
+    "attachmentsErrorSize": "File is larger than 3 MB",
+    "attachmentsErrorTooMany": "Maximum 4 attachments per message",
+    "attachmentsErrorUnreadable": "Couldn't read this file",
+    "attachmentsErrorConversion": "Couldn't process this HEIC image",
+    "attachmentsDeleted": "Image removed when ticket was closed",
+    "attachmentsLightboxClose": "Close"
   },
   "credits": {
     "balance": "{n} credits",

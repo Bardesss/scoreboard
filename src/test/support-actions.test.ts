@@ -62,13 +62,20 @@ describe('createTicket', () => {
   })
 })
 
+function replyFormData(body: string): FormData {
+  const fd = new FormData()
+  fd.set('body', body)
+  return fd
+}
+
 describe('replyToTicket', () => {
   it('creates a user message and resets autoCloseAt', async () => {
     vi.mocked(prisma.ticket.findUnique).mockResolvedValue({
       id: 'ticket-1', userId: 'user-1', status: 'open',
     } as never)
+    vi.mocked(prisma.ticketMessage.create).mockResolvedValue({ id: 'msg-1' } as never)
 
-    const result = await replyToTicket('ticket-1', 'My reply text')
+    const result = await replyToTicket('ticket-1', replyFormData('My reply text'))
     expect(result).toEqual({ success: true })
     expect(prisma.ticketMessage.create).toHaveBeenCalledWith({
       data: { ticketId: 'ticket-1', senderType: 'user', body: 'My reply text' },
@@ -83,7 +90,7 @@ describe('replyToTicket', () => {
       id: 'ticket-1', userId: 'user-1', status: 'closed',
     } as never)
 
-    const result = await replyToTicket('ticket-1', 'reply')
+    const result = await replyToTicket('ticket-1', replyFormData('reply'))
     expect(result).toEqual({ success: false, error: 'Ticket is closed' })
   })
 
@@ -92,7 +99,7 @@ describe('replyToTicket', () => {
       id: 'ticket-1', userId: 'other-user', status: 'open',
     } as never)
 
-    const result = await replyToTicket('ticket-1', 'reply')
+    const result = await replyToTicket('ticket-1', replyFormData('reply'))
     expect(result).toEqual({ success: false, error: 'Not found' })
   })
 })
