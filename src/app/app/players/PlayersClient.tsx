@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Avatar } from '@/components/shared/Avatar'
@@ -19,12 +19,16 @@ export default function PlayersClient({
   received: initialReceived,
   sent,
   connections: initialConnections,
+  linkWith = null,
+  alreadyConnected = false,
 }: {
   players: Player[]
   vaultKeeperId: string
   received: Request[]
   sent: SentRequest[]
   connections: VaultKeeper[]
+  linkWith?: string | null
+  alreadyConnected?: boolean
 }) {
   const t = useTranslations('app.players')
   const tc = useTranslations('app.connections')
@@ -47,6 +51,28 @@ export default function PlayersClient({
   const [searchResults, setSearchResults] = useState<VaultKeeper[]>([])
   const [receivedList, setReceivedList] = useState(initialReceived)
   const [connectionsList, setConnectionsList] = useState(initialConnections)
+
+  // post-connect link banner
+  const [linkBannerFor, setLinkBannerFor] = useState<string | null>(linkWith)
+  const cleanedUrl = useRef(false)
+  useEffect(() => {
+    if (linkWith && !cleanedUrl.current) {
+      cleanedUrl.current = true
+      window.history.replaceState({}, '', '/app/players')
+    }
+  }, [linkWith])
+
+  const bannerConnection = linkBannerFor ? connectionsList.find(c => c.id === linkBannerFor) ?? null : null
+  const linkablePlayers = players.filter(p => p.linkedUserId !== vaultKeeperId && p.linkedUserId !== linkBannerFor)
+
+  async function handleLinkFromBanner(playerId: string) {
+    if (!linkBannerFor) return
+    const res = await linkPlayer(playerId, linkBannerFor)
+    if (!res.success) { toast.error(tErrors('serverError')); return }
+    setPlayers(p => p.map(x => x.id === playerId ? { ...x, linkedUserId: linkBannerFor } : x))
+    toast.success(tToasts('playerSaved'))
+    setLinkBannerFor(null)
+  }
 
   // ── players handlers ──────────────────────────────────────────────────────
   async function handleAdd() {
@@ -130,6 +156,41 @@ export default function PlayersClient({
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
+
+      {/* Post-connect link banner */}
+      {bannerConnection && (
+        <div className="mb-6 rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, #fff7e6, #fffdf9)', border: '1px solid rgba(245,166,35,0.35)' }}>
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623', color: '#1c1408' }}>
+              <Link2 size={16} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>
+                {(alreadyConnected ? t('linkBanner.alreadyTitle') : t('linkBanner.title')).replace('{name}', displayName(bannerConnection))}
+              </p>
+              <p className="font-body text-xs mt-0.5" style={{ color: '#7a6b56' }}>{t('linkBanner.body')}</p>
+            </div>
+            <button onClick={() => setLinkBannerFor(null)} className="p-1 rounded-lg flex-shrink-0" style={{ color: '#9a8878' }}><X size={16} /></button>
+          </div>
+          {linkablePlayers.length === 0 ? (
+            <p className="font-body text-xs" style={{ color: '#9a8878' }}>{t('linkBanner.noPlayers')}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {linkablePlayers.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => handleLinkFromBanner(p.id)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
+                  style={{ background: '#fffdf9', color: '#1c1810', border: '1px solid #e8e1d8' }}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Players ── */}
       <div className="flex items-center justify-between mb-6">

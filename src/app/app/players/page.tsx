@@ -3,9 +3,15 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import PlayersClient from './PlayersClient'
 
-export default async function PlayersPage() {
+type PageProps = {
+  searchParams: Promise<{ linkWith?: string; already?: string }>
+}
+
+export default async function PlayersPage({ searchParams }: PageProps) {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
+
+  const { linkWith, already } = await searchParams
 
   const [players, received, sent, connections] = await Promise.all([
     prisma.player.findMany({
@@ -30,13 +36,19 @@ export default async function PlayersPage() {
     }),
   ])
 
+  // If a linkWith param points to a real connection of mine, surface it to the client
+  const conns = connections.map(c => ({ id: c.connectedUserId, email: c.connectedUser.email, username: c.connectedUser.username }))
+  const linkWithValid = linkWith && conns.some(c => c.id === linkWith) ? linkWith : null
+
   return (
     <PlayersClient
       players={players}
       vaultKeeperId={session.user.id}
       received={received.map(r => ({ id: r.id, fromEmail: r.fromUser.email, fromUsername: r.fromUser.username }))}
       sent={sent.map(s => ({ id: s.id, toEmail: s.toUser?.email ?? '', toUsername: s.toUser?.username ?? null }))}
-      connections={connections.map(c => ({ id: c.connectedUserId, email: c.connectedUser.email, username: c.connectedUser.username }))}
+      connections={conns}
+      linkWith={linkWithValid}
+      alreadyConnected={already === '1'}
     />
   )
 }

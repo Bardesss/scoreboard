@@ -6,8 +6,22 @@ import { signIn } from '@/lib/auth'
 import { sendVerificationEmail, sendPasswordResetEmail, isMailConfigured } from '@/lib/mail'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+
+const PENDING_CONNECT_COOKIE = 'pendingConnect'
+
+async function consumePendingConnectRedirect(locale: string): Promise<string> {
+  const store = await cookies()
+  const token = store.get(PENDING_CONNECT_COOKIE)?.value
+  if (!token) return '/app/dashboard'
+  store.delete(PENDING_CONNECT_COOKIE)
+  // Token is opaque (base64url); strip anything that isn't safe just in case
+  const safe = token.replace(/[^A-Za-z0-9_-]/g, '')
+  if (!safe) return '/app/dashboard'
+  return `/${locale}/connect/${safe}`
+}
 
 type ActionResult = { error: string } | { success: true } | void
 
@@ -105,7 +119,8 @@ export async function login(formData: FormData): Promise<ActionResult> {
     redirect(`/${locale}/auth/totp-challenge?token=${pendingToken}`)
   }
 
-  await signIn('credentials', { email, password, redirectTo: '/app/dashboard' })
+  const redirectTo = await consumePendingConnectRedirect(locale)
+  await signIn('credentials', { email, password, redirectTo })
 }
 
 export async function verifyTotp(formData: FormData): Promise<ActionResult> {
@@ -143,7 +158,8 @@ export async function verifyTotp(formData: FormData): Promise<ActionResult> {
   const verifiedToken = crypto.randomUUID()
   await redis.setex(`totp_verified:${verifiedToken}`, 30, user.id)
 
-  await signIn('credentials', { totpVerifiedToken: verifiedToken, redirectTo: '/app/dashboard' })
+  const redirectTo = await consumePendingConnectRedirect(locale)
+  await signIn('credentials', { totpVerifiedToken: verifiedToken, redirectTo })
 }
 
 export async function forgotPassword(formData: FormData): Promise<ActionResult> {

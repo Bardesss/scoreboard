@@ -199,7 +199,13 @@
     "deleteWarning": "Alle scores van deze speler blijven bewaard.",
     "linkVaultKeeper": "Koppel aan kluis-beheerder",
     "linked": "Gekoppeld",
-    "unlink": "Ontkoppelen"
+    "unlink": "Ontkoppelen",
+    "linkBanner": {
+      "title": "Verbonden met {name}!",
+      "alreadyTitle": "Al verbonden met {name}",
+      "body": "Koppel ze aan een van je bestaande spelers, of sla over.",
+      "noPlayers": "Je hebt nog geen ongekoppelde spelers."
+    }
   },
   "games": {
     "title": "Spellen",
@@ -373,8 +379,12 @@
     "save": "Opslaan",
     "usernameSaved": "Gebruikersnaam opgeslagen!",
     "connections": "Verbonden kluis-beheerders",
-    "qrHint": "Anderen kunnen dit scannen om met je te verbinden",
-    "usernameHint": "Kleine letters, cijfers en underscores. Min. 3 tekens."
+    "qrHint": "Anderen scannen dit — of gebruiken de deelknop — om direct te verbinden.",
+    "usernameHint": "Kleine letters, cijfers en underscores. Min. 3 tekens.",
+    "share": "Deel uitnodigingslink",
+    "shareTitle": "Verbind met mij op Dice Vault",
+    "shareText": "Voeg me toe als kluis-beheerder op Dice Vault:",
+    "linkCopied": "Link gekopieerd naar klembord"
   },
   "connections": {
     "title": "Verbindingen",

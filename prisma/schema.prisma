@@ -15,6 +15,7 @@ model User {
   locale           String    @default("en")
   role             String    @default("user")
   username         String?   @unique
+  connectToken     String?   @unique
 
   totpSecret       String?
   totpEnabled      Boolean   @default(false)

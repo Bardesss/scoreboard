@@ -1,16 +1,20 @@
 'use client'
 import { useActionState } from 'react'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
+import { Share2 } from 'lucide-react'
 import { QRCodeCanvas } from './QRCode'
 import { updateUsername } from './actions'
 
 export function ProfileClient({
   email,
   username,
+  connectUrl,
   connections,
 }: {
   email: string
   username: string | null
+  connectUrl: string
   connections: { email: string; username: string | null }[]
 }) {
   const t = useTranslations('app.profile')
@@ -20,14 +24,45 @@ export function ProfileClient({
   )
   const displayName = username ?? email
 
+  async function handleShare() {
+    const shareData = {
+      title: t('shareTitle'),
+      text: `${t('shareText')} ${connectUrl}`,
+      url: connectUrl,
+    }
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (err) {
+        // User cancelled the share sheet — silently fall through to clipboard
+        if ((err as Error).name === 'AbortError') return
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(connectUrl)
+      toast.success(t('linkCopied'))
+    } catch {
+      // Fallback for browsers without clipboard API — open WhatsApp share URL
+      window.open(`https://wa.me/?text=${encodeURIComponent(`${t('shareText')} ${connectUrl}`)}`, '_blank')
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto py-8 px-2 space-y-8">
       <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('title')}</h1>
 
       <section className="flex flex-col items-center gap-4 py-6 rounded-3xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-        <QRCodeCanvas value={displayName} />
+        <QRCodeCanvas value={connectUrl} />
         <p className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{displayName}</p>
-        <p className="font-body text-xs" style={{ color: '#9a8878' }}>{t('qrHint')}</p>
+        <p className="font-body text-xs text-center max-w-xs" style={{ color: '#9a8878' }}>{t('qrHint')}</p>
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-headline font-bold text-sm transition-transform active:scale-95"
+          style={{ background: '#f5a623', color: '#1c1408', boxShadow: '0 4px 14px rgba(245,166,35,0.28)' }}
+        >
+          <Share2 size={15} /> {t('share')}
+        </button>
       </section>
 
       <section>

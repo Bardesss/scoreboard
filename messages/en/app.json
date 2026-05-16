@@ -199,7 +199,13 @@
     "deleteWarning": "All scores for this player will be kept.",
     "linkVaultKeeper": "Link to vault keeper",
     "linked": "Linked",
-    "unlink": "Unlink"
+    "unlink": "Unlink",
+    "linkBanner": {
+      "title": "Connected with {name}!",
+      "alreadyTitle": "Already connected with {name}",
+      "body": "Link them to one of your existing players, or skip.",
+      "noPlayers": "You don't have any unlinked players yet."
+    }
   },
   "games": {
     "title": "Games",
@@ -373,8 +379,12 @@
     "save": "Save",
     "usernameSaved": "Username saved!",
     "connections": "Connected vault keepers",
-    "qrHint": "Others can scan this to connect with you",
-    "usernameHint": "Lowercase letters, numbers and underscores. Min 3 characters."
+    "qrHint": "Others scan this — or use the share button — to connect instantly.",
+    "usernameHint": "Lowercase letters, numbers and underscores. Min 3 characters.",
+    "share": "Share invite link",
+    "shareTitle": "Connect with me on Dice Vault",
+    "shareText": "Add me as a vault keeper on Dice Vault:",
+    "linkCopied": "Link copied to clipboard"
   },
   "connections": {
     "title": "Connections",
