@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, LifeBuoy } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 import { UserMenu } from './UserMenu'
 
@@ -20,7 +20,6 @@ const NAV = [
   { key: 'players',      href: '/app/players',      icon: Users },
   { key: 'games',        href: '/app/games',        icon: Dices },
   { key: 'leagues',      href: '/app/leagues',      icon: ClipboardList },
-  { key: 'support',      href: '/app/support',      icon: LifeBuoy },
 ] as const
 
 export default function Sidebar({ name, email, credits, unreadCount, notifications, isAdmin }: { name: string; email: string; credits: number; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {

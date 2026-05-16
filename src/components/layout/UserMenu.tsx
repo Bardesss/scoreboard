@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { ChevronUp, CreditCard, LogOut, Settings, ShieldCheck, User } from 'lucide-react'
+import { ChevronUp, CreditCard, LifeBuoy, LogOut, Settings, ShieldCheck, User } from 'lucide-react'
 import { logout } from '@/app/app/settings/actions'
 
 type Variant = 'sidebar' | 'mobile'
@@ -118,6 +118,7 @@ export function UserMenu({
             <MenuLink href="/app/credits" icon={CreditCard} label={t('credits')} suffix={tCredits('balance', { n: credits })} onNavigate={() => setOpen(false)} />
             <MenuLink href="/app/profile" icon={User} label={t('profile')} onNavigate={() => setOpen(false)} />
             <MenuLink href="/app/settings" icon={Settings} label={t('settings')} onNavigate={() => setOpen(false)} />
+            <MenuLink href="/app/support" icon={LifeBuoy} label={t('support')} onNavigate={() => setOpen(false)} />
             {isAdmin && (
               <MenuLink href="/admin" icon={ShieldCheck} label="Admin" onNavigate={() => setOpen(false)} accent="#4a8eff" />
             )}
