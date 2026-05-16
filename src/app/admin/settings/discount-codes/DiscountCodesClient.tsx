@@ -313,7 +313,8 @@ export default function DiscountCodesClient({ codes: initialCodes }: Props) {
           border: '1px solid rgba(255,255,255,0.07)',
         }}
       >
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 880 }}>
           <thead>
             <tr>
               {['Code', 'Type', 'Waarde', 'Gebruikt', 'Verloopdatum', 'Status', 'Acties'].map(
@@ -545,6 +546,7 @@ export default function DiscountCodesClient({ codes: initialCodes }: Props) {
             )}
           </tbody>
         </table>
+       </div>
       </div>
     </div>
   )

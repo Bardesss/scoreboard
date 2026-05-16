@@ -122,7 +122,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
           border: '1px solid rgba(255,255,255,0.07)',
         }}
       >
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
           <thead>
             <tr>
               {['Gebruiker', 'Credits', 'Badges', 'Aangemaakt', 'Acties'].map((col) => (
@@ -343,6 +344,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             )}
           </tbody>
         </table>
+       </div>
       </div>
     </div>
   )

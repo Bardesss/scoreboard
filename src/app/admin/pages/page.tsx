@@ -65,7 +65,8 @@ export default async function AdminPagesPage() {
           border: '1px solid rgba(255,255,255,0.07)',
         }}
       >
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760 }}>
           <thead>
             <tr>
               {['Titel', 'Slug', 'Status', 'Volgorde', 'Systeem', 'Acties'].map((col) => (
@@ -248,6 +249,7 @@ export default async function AdminPagesPage() {
             )}
           </tbody>
         </table>
+       </div>
       </div>
     </div>
   )

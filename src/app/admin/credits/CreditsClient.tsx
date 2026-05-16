@@ -164,13 +164,15 @@ export default function CreditsClient({
             onChange={e => setSearch(e.target.value)}
             placeholder="Zoek op e-mail…"
             style={{
+              width: '100%',
               maxWidth: 400, padding: '9px 14px', marginBottom: 16,
               background: '#161f28', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
               color: 'rgba(255,255,255,0.87)', fontSize: 13.5, outline: 'none', display: 'block',
             }}
           />
           <div style={{ background: '#161f28', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+           <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
               <thead>
                 <tr>
                   {['E-mail', 'Maandelijks', 'Permanent', 'Totaal', 'Flags'].map((h) => (
@@ -208,6 +210,7 @@ export default function CreditsClient({
                 )}
               </tbody>
             </table>
+           </div>
           </div>
         </div>
       )}

@@ -26,6 +26,7 @@ export default function AdminSidebar() {
 
   return (
     <aside
+      className="hidden lg:flex"
       style={{
         width: 240,
         minWidth: 240,
@@ -33,7 +34,6 @@ export default function AdminSidebar() {
         position: 'fixed',
         left: 0,
         top: 0,
-        display: 'flex',
         flexDirection: 'column',
         background: '#0d1117',
         borderRight: '1px solid rgba(255,255,255,0.07)',

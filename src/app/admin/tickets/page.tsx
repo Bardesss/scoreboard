@@ -59,16 +59,25 @@ export default async function AdminTicketsPage({
         {tickets.map(ticket => {
           const needsReply = ticket.messages[0]?.senderType === 'user'
           return (
-            <Link key={ticket.id} href={`/admin/tickets/${ticket.id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: needsReply ? 'rgba(245,166,35,0.07)' : 'rgba(255,255,255,0.03)', border: `1px solid ${needsReply ? 'rgba(245,166,35,0.2)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 10, textDecoration: 'none' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', padding: '2px 8px', borderRadius: 6, flexShrink: 0 }}>
-                {categoryLabel(ticket.category)}
-              </span>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', flexShrink: 0 }}>{ticket.user.email}</span>
-              <span style={{ flex: 1, fontSize: 14, color: 'rgba(255,255,255,0.87)', fontWeight: needsReply ? 600 : 400 }}>{ticket.subject}</span>
-              <span style={{ fontSize: 12, color: ticket.status === 'open' ? '#4ade80' : 'rgba(255,255,255,0.3)', fontWeight: 600, flexShrink: 0 }}>
-                {ticket.status === 'open' ? 'Open' : 'Gesloten'}
-              </span>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', flexShrink: 0 }}>{ticket.updatedAt.toLocaleDateString('nl-NL')}</span>
+            <Link
+              key={ticket.id}
+              href={`/admin/tickets/${ticket.id}`}
+              className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3"
+              style={{ padding: '12px 16px', background: needsReply ? 'rgba(245,166,35,0.07)' : 'rgba(255,255,255,0.03)', border: `1px solid ${needsReply ? 'rgba(245,166,35,0.2)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 10, textDecoration: 'none' }}
+            >
+              <div className="flex items-center gap-3 sm:flex-shrink-0">
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', padding: '2px 8px', borderRadius: 6 }}>
+                  {categoryLabel(ticket.category)}
+                </span>
+                <span className="truncate" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{ticket.user.email}</span>
+              </div>
+              <span className="flex-1 min-w-0 truncate" style={{ fontSize: 14, color: 'rgba(255,255,255,0.87)', fontWeight: needsReply ? 600 : 400 }}>{ticket.subject}</span>
+              <div className="flex items-center gap-3 sm:flex-shrink-0">
+                <span style={{ fontSize: 12, color: ticket.status === 'open' ? '#4ade80' : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+                  {ticket.status === 'open' ? 'Open' : 'Gesloten'}
+                </span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{ticket.updatedAt.toLocaleDateString('nl-NL')}</span>
+              </div>
             </Link>
           )
         })}

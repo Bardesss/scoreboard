@@ -1,7 +1,9 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
@@ -74,6 +76,8 @@ type Props = { params: Promise<{ locale: string }> }
 
 export default async function LandingPage({ params }: Props) {
   const { locale } = await params
+  const session = await auth()
+  if (session) redirect('/app/dashboard')
   const t = await getTranslations('landing')
 
   const features = [0, 1, 2].map(i => ({

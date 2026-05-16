@@ -224,7 +224,7 @@ export default function UserDetailClient({ user, transactions }: Props) {
       {/* Info card */}
       <div style={cardStyle}>
         <p className="font-headline" style={sectionTitle}>Accountinfo</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 32px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
           {[
             ['ID', user.id],
             ['Aangemaakt', new Date(user.createdAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })],
@@ -287,7 +287,7 @@ export default function UserDetailClient({ user, transactions }: Props) {
       <div style={cardStyle}>
         <p className="font-headline" style={sectionTitle}>Credits aanpassen</p>
         <form onSubmit={handleCreditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:[grid-template-columns:160px_1fr] gap-3">
             <div>
               <label style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>
                 Bedrag (negatief = aftrekken)

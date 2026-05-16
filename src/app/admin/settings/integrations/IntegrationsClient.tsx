@@ -160,7 +160,7 @@ export default function IntegrationsClient({
         )}
 
         {liveStatus === 'ok' && liveStats && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-5">
             {[
               { label: 'Verzonden (30d)', value: liveStats.sent },
               { label: 'Bezorgd', value: liveStats.delivered },
@@ -181,7 +181,7 @@ export default function IntegrationsClient({
         )}
 
         <form onSubmit={handleSave}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-3.5">
             <div>
               <label style={labelStyle}>API Key</label>
               <input

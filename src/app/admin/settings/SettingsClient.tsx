@@ -31,7 +31,6 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
   fontSize: 14,
   width: '100%',
-  maxWidth: 220,
 }
 
 const labelStyle: React.CSSProperties = {
@@ -58,19 +57,14 @@ const cardTitleStyle: React.CSSProperties = {
 }
 
 const fieldRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
   paddingBottom: 16,
   marginBottom: 16,
   borderBottom: '1px solid rgba(255,255,255,0.05)',
 }
 
-const lastFieldRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-}
+const lastFieldRowStyle: React.CSSProperties = {}
+
+const fieldRowClass = 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4'
 
 export default function SettingsClient({ values, configuredCount }: Props) {
   const [form, setForm] = useState<SettingsValues>(values)
@@ -114,7 +108,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
           { key: 'cost_played_game' as const, label: 'Kosten partij loggen' },
           { key: 'low_credit_threshold' as const, label: 'Drempelwaarde lage credits' },
         ].map(({ key, label }, i, arr) => (
-          <div key={key} style={i < arr.length - 1 ? fieldRowStyle : lastFieldRowStyle}>
+          <div key={key} className={fieldRowClass} style={i < arr.length - 1 ? fieldRowStyle : lastFieldRowStyle}>
             <label htmlFor={key} style={labelStyle}>
               {label}
             </label>
@@ -135,7 +129,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
         <div style={cardTitleStyle}>Gratis modus</div>
 
         {/* Toggle */}
-        <div style={fieldRowStyle}>
+        <div className={fieldRowClass} style={fieldRowStyle}>
           <label style={labelStyle}>Gratis modus actief</label>
           <button
             type="button"
@@ -170,7 +164,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
         </div>
 
         {/* Banner NL */}
-        <div style={fieldRowStyle}>
+        <div className={fieldRowClass} style={fieldRowStyle}>
           <label htmlFor="free_mode_banner_nl" style={labelStyle}>
             Banner tekst (NL)
           </label>
@@ -185,7 +179,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
         </div>
 
         {/* Banner EN */}
-        <div style={lastFieldRowStyle}>
+        <div className={fieldRowClass} style={lastFieldRowStyle}>
           <label htmlFor="free_mode_banner_en" style={labelStyle}>
             Banner tekst (EN)
           </label>
