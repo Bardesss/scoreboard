@@ -28,7 +28,11 @@ export default function CookieBanner() {
         <p className="font-body text-[13px] text-on-surface-variant">
           {t('message')}{' '}
           <Link href={`/${locale}/p/privacy`} className="text-primary underline underline-offset-2">
-            {t('readMore')}
+            {t('privacyLink')}
+          </Link>
+          {t('separator')}
+          <Link href={`/${locale}/p/terms`} className="text-primary underline underline-offset-2">
+            {t('termsLink')}
           </Link>
         </p>
         <button

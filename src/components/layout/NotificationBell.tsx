@@ -115,6 +115,15 @@ export function NotificationBell({
               ))}
             </ul>
           )}
+
+          <Link
+            href="/app/notifications"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-center font-headline font-bold text-xs transition-colors"
+            style={{ borderTop: '1px solid #f0ebe3', color: '#f5a623', background: '#fbf6ec' }}
+          >
+            {t('viewAll')}
+          </Link>
         </div>
       )}
     </div>

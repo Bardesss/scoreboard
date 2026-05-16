@@ -8,7 +8,9 @@
   "cookieBanner": {
     "message": "We gebruiken alleen essentiële cookies voor de sessie.",
     "accept": "Akkoord",
-    "readMore": "Lees ons privacybeleid"
+    "privacyLink": "Privacy",
+    "termsLink": "Voorwaarden",
+    "separator": " · "
   },
   "errors": {
     "serverError": "Er is iets misgegaan. Probeer het opnieuw."
