@@ -27,10 +27,9 @@ export default auth(function middleware(req) {
     return
   }
 
-  // Next.js auto-generated metadata routes from app/icon.tsx and
-  // app/apple-icon.tsx. Without this, next-intl rewrites them to /en/icon and
-  // the favicon never resolves.
-  if (pathname === '/icon' || pathname === '/apple-icon') {
+  // Next.js auto-generated apple-icon metadata route. Static icon.svg is
+  // excluded by the matcher's extension list, but apple-icon has no extension.
+  if (pathname === '/apple-icon') {
     return
   }
 
