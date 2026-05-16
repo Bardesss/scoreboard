@@ -150,6 +150,7 @@
     "discountErrorInactive": "Deze code is niet langer actief.",
     "discountErrorExpired": "Deze code is verlopen.",
     "discountErrorExhausted": "Deze code heeft het maximumaantal keer gebruikt.",
+    "discountErrorAlreadyRedeemed": "Je hebt deze code al ingewisseld.",
     "discountErrorPercentNotSupported": "Percentages worden toegepast bij het afrekenen. Gebruik deze code bij aanschaf van credits.",
     "discountErrorUnknown": "Er ging iets mis. Probeer het opnieuw.",
     "historyHeading": "Transacties",

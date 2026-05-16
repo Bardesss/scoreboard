@@ -66,6 +66,7 @@ export function CreditsClient({
         inactive: t('discountErrorInactive'),
         expired: t('discountErrorExpired'),
         exhausted: t('discountErrorExhausted'),
+        alreadyRedeemed: t('discountErrorAlreadyRedeemed'),
         percentNotSupported: t('discountErrorPercentNotSupported'),
         unknown: t('discountErrorUnknown'),
       }

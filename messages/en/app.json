@@ -150,6 +150,7 @@
     "discountErrorInactive": "This code is no longer active.",
     "discountErrorExpired": "This code has expired.",
     "discountErrorExhausted": "This code has reached its usage limit.",
+    "discountErrorAlreadyRedeemed": "You've already redeemed this code.",
     "discountErrorPercentNotSupported": "Percentage codes apply at checkout. Use this code when buying credits.",
     "discountErrorUnknown": "Something went wrong. Try again.",
     "historyHeading": "Transactions",

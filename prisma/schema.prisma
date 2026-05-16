@@ -44,6 +44,7 @@ model User {
   notifications         Notification[]
   tickets               Ticket[]
   creditPurchases       CreditPurchase[]
+  discountRedemptions   DiscountRedemption[]
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -164,15 +165,29 @@ model AdminSettings {
 }
 
 model DiscountCode {
-  id         String    @id @default(cuid())
-  code       String    @unique
-  type       String    // "FIXED" | "PERCENT"
-  value      Int       // credits if FIXED, percentage 0-100 if PERCENT
-  usageLimit Int?      // null = unlimited
-  usedCount  Int       @default(0)
+  id         String               @id @default(cuid())
+  code       String               @unique
+  type       String               // "FIXED" | "PERCENT"
+  value      Int                  // credits if FIXED, percentage 0-100 if PERCENT
+  usageLimit Int?                 // null = unlimited
+  usedCount  Int                  @default(0)
   expiresAt  DateTime?
-  active     Boolean   @default(true)
-  createdAt  DateTime  @default(now())
+  active     Boolean              @default(true)
+  redemptions DiscountRedemption[]
+  createdAt  DateTime             @default(now())
+}
+
+model DiscountRedemption {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  discountCodeId String
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, discountCodeId])
+  @@index([userId])
+  @@index([discountCodeId])
 }
 
 model FreePeriod {
