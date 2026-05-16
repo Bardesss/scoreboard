@@ -4,11 +4,12 @@ import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { FlagGB, FlagNL } from '@/components/shared/Flag'
 import { setLocale } from '../actions'
 
 const OPTIONS = [
-  { value: 'en', flag: '🇬🇧', name: 'English' },
-  { value: 'nl', flag: '🇳🇱', name: 'Nederlands' },
+  { value: 'en', Flag: FlagGB, name: 'English' },
+  { value: 'nl', Flag: FlagNL, name: 'Nederlands' },
 ] as const
 
 export function LanguageSection({ currentLocale }: { currentLocale: string }) {
@@ -64,7 +65,7 @@ export function LanguageSection({ currentLocale }: { currentLocale: string }) {
                 transition: 'background 120ms, border-color 120ms, color 120ms',
               }}
             >
-              <span style={{ fontSize: 18 }} aria-hidden="true">{opt.flag}</span>
+              <opt.Flag width={22} height={16} />
               {opt.name}
             </button>
           )
