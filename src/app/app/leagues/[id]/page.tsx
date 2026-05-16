@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { loadStats } from '@/lib/stats/loadStats'
 import { loadGames } from '@/lib/stats/loadGames'
@@ -35,7 +35,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
     prisma.league.findUnique({
       where: { id },
       include: {
-        gameTemplate: { select: { name: true } },
+        gameTemplate: { select: { name: true, color: true, icon: true } },
         _count: { select: { members: true } },
       },
     }),
@@ -69,8 +69,8 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
       <div className="flex items-start gap-3 mb-6">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
-          <Trophy size={22} style={{ color: '#f5a623' }} />
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: `${league.gameTemplate.color}22` }}>
+          {league.gameTemplate.icon}
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="font-headline font-black text-2xl break-words" style={{ color: '#1c1810' }}>{league.name}</h1>

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Plus, Trophy, Pencil, Trash2, X, Check } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Check } from 'lucide-react'
 import { VaultRibbon } from '@/components/shared/VaultRibbon'
 import { updateLeague, deleteLeague } from './actions'
 
@@ -94,8 +94,8 @@ export default function LeaguesClient({
             <li key={league.id} className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
               <div className="flex items-center gap-3 p-4">
                 <Link href={`/app/leagues/${league.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
-                    <Trophy size={18} style={{ color: '#f5a623' }} />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${league.gameTemplate.color}22` }}>
+                    {league.gameTemplate.icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{league.name}</div>
@@ -104,6 +104,7 @@ export default function LeaguesClient({
                     </div>
                   </div>
                 </Link>
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: league.gameTemplate.color }} />
                 <button onClick={() => openEdit(league)} className="p-1.5 rounded-lg hover:bg-amber-50 flex-shrink-0" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
                 <button onClick={() => setDeleteId(league.id)} className="p-1.5 rounded-lg hover:bg-red-50 flex-shrink-0" style={{ color: '#9a8878' }}><Trash2 size={14} /></button>
               </div>
@@ -114,8 +115,8 @@ export default function LeaguesClient({
               <VaultRibbon ownerName={league.owner.username ?? league.owner.email ?? '?'} />
               <Link href={`/app/leagues/${league.id}`} className="block p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
-                    <Trophy size={18} style={{ color: '#f5a623' }} />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${league.gameTemplate.color}22` }}>
+                    {league.gameTemplate.icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{league.name}</div>
@@ -123,6 +124,7 @@ export default function LeaguesClient({
                       {league.gameTemplate.name} · {league._count.members} {t('members')} · {league._count.playedGames} {t('playedGames')}
                     </div>
                   </div>
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: league.gameTemplate.color }} />
                 </div>
               </Link>
             </li>
