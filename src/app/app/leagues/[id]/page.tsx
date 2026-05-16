@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Trophy, Plus } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { loadStats } from '@/lib/stats/loadStats'
 import { loadGames } from '@/lib/stats/loadGames'
 import { parseRange } from '@/lib/stats/dateRange'
@@ -30,7 +31,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
 
   const scope = { kind: 'league' as const, leagueId: id, viewerId: session.user.id }
 
-  const [league, stats, gamesPage, pendingGames, i18n] = await Promise.all([
+  const [league, stats, gamesPage, pendingGames, i18n, tPlayedGames] = await Promise.all([
     prisma.league.findUnique({
       where: { id },
       include: {
@@ -52,6 +53,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
       orderBy: { createdAt: 'desc' },
     }),
     buildStatsLabels(locale),
+    getTranslations({ locale, namespace: 'app.playedGames' }),
   ])
   const { labels, formatters } = i18n
 
@@ -66,20 +68,20 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
-      <div className="flex items-start gap-3 mb-6">
+      <div className="flex items-start gap-3 mb-6 flex-wrap sm:flex-nowrap">
         <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
           <Trophy size={22} style={{ color: '#f5a623' }} />
         </div>
-        <div className="flex-1">
-          <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{league.name}</h1>
+        <div className="flex-1 min-w-0">
+          <h1 className="font-headline font-black text-2xl break-words" style={{ color: '#1c1810' }}>{league.name}</h1>
           <p className="text-sm font-body" style={{ color: '#9a8878' }}>{league.gameTemplate.name}</p>
         </div>
         <Link
           href={`/app/leagues/${id}/log`}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl font-headline font-bold text-sm flex-shrink-0"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-headline font-bold text-sm flex-shrink-0 w-full sm:w-auto"
           style={{ background: '#f5a623', color: '#1c1408' }}
         >
-          <Plus size={16} /> Log partij
+          <Plus size={16} /> {tPlayedGames('log')}
         </Link>
       </div>
 

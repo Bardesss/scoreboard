@@ -255,16 +255,8 @@ export default function DashboardClient({
     <TransitionProvider>
       <DateFilterPanel labels={labels} />
       <DimmedWhilePending>
-        {/* Panel grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 14,
-            marginBottom: 20,
-          }}
-          className="sm:grid-cols-2 grid-cols-1"
-        >
+        {/* Panel grid: stack on phones, 2 cols from sm upwards. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5">
           <RankingPanel ranking={stats.ranking} index={0} labels={labels} formatters={formatters} />
           {stats.topGames && <TopGamesPanel topGames={stats.topGames} index={1} labels={labels} formatters={formatters} />}
           <PlayDaysPanel playDays={stats.playDays} index={2} labels={labels} formatters={formatters} />

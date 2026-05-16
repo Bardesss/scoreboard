@@ -71,7 +71,10 @@ function CompactHeader({ labels }: { labels: StatsLabels }) {
     labels.gamesTableHeaderResult,
   ]
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 140px 90px', padding: '7px 20px', background: '#f2ece3' }}>
+    <div
+      className="hidden md:grid"
+      style={{ gridTemplateColumns: '1fr 120px 140px 90px', padding: '7px 20px', background: '#f2ece3' }}
+    >
       {headers.map(h => (
         <span key={h} style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6b5e4a' }}>{h}</span>
       ))}
@@ -90,27 +93,44 @@ function CompactRow({
   labels: StatsLabels
   dateLocale: string
 }) {
+  const dateText = new Date(row.playedAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })
+  const playersText = row.playerNames.join(', ')
+  const resultBadge = row.userWon === true
+    ? <Badge text={labels.resultWon} tone="win" />
+    : row.userWon === false
+      ? <Badge text={labels.resultLost} tone="lose" />
+      : null
+  const wrapStyle = {
+    padding: '11px 16px',
+    borderBottom: !isLast ? '1px solid #f2ece3' : undefined,
+    background: row.userWon === true ? 'rgba(245,166,35,0.04)' : undefined,
+  } as const
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 120px 140px 90px',
-        padding: '11px 20px',
-        borderBottom: !isLast ? '1px solid #f2ece3' : undefined,
-        background: row.userWon === true ? 'rgba(245,166,35,0.04)' : undefined,
-      }}
-    >
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1a14' }}>{row.gameName}</div>
-        <div style={{ fontSize: 11, color: '#6b5e4a' }}>{row.leagueName}</div>
+    <div style={wrapStyle}>
+      {/* Mobile: stacked. Game + result on top, meta line below. */}
+      <div className="flex flex-col gap-1 md:hidden">
+        <div className="flex items-start gap-2">
+          <div className="flex-1 min-w-0">
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1a14' }}>{row.gameName}</div>
+            <div style={{ fontSize: 11, color: '#6b5e4a' }}>{row.leagueName}</div>
+          </div>
+          {resultBadge && <div className="flex-shrink-0">{resultBadge}</div>}
+        </div>
+        <div style={{ fontSize: 12, color: '#6b5e4a' }}>
+          {dateText}
+          {playersText && <> · {playersText}</>}
+        </div>
       </div>
-      <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>
-        {new Date(row.playedAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
-      </div>
-      <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>{row.playerNames.join(', ')}</div>
-      <div style={{ paddingTop: 1 }}>
-        {row.userWon === true && <Badge text={labels.resultWon} tone="win" />}
-        {row.userWon === false && <Badge text={labels.resultLost} tone="lose" />}
+
+      {/* Desktop: original 4-column grid. */}
+      <div className="hidden md:grid" style={{ gridTemplateColumns: '1fr 120px 140px 90px' }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1a14' }}>{row.gameName}</div>
+          <div style={{ fontSize: 11, color: '#6b5e4a' }}>{row.leagueName}</div>
+        </div>
+        <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>{dateText}</div>
+        <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>{playersText}</div>
+        <div style={{ paddingTop: 1 }}>{resultBadge}</div>
       </div>
     </div>
   )

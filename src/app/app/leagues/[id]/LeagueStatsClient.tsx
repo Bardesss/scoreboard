@@ -53,10 +53,7 @@ export function LeagueStatsClient({
     <TransitionProvider>
       <DateFilterPanel labels={labels} />
       <DimmedWhilePending>
-        <div
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 20 }}
-          className="sm:grid-cols-2 grid-cols-1"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5">
           <RankingCard ranking={stats.ranking} index={nextIdx()} labels={labels} formatters={formatters} />
 
           {memberCount > 8 ? (
