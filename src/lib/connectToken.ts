@@ -40,5 +40,6 @@ export async function rotateConnectToken(userId: string): Promise<string> {
 
 export function buildConnectUrl(token: string): string {
   const base = process.env.NEXTAUTH_URL ?? ''
-  return `${base}/app/connect/${token}`
+  // No locale prefix — i18n middleware will redirect to the visitor's locale.
+  return `${base}/connect/${token}`
 }
