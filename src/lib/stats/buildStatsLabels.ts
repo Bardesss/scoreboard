@@ -26,6 +26,8 @@ export type StatsLabels = {
   scoreRecordsHighest: string
   scoreRecordsHighestLoss: string
   scoreRecordsAvgWinner: string
+  totalPoints: string
+  totalPointsSubtitle: string
   winTrend: string
   winTrendSubtitle: string
   gamesTable: string
@@ -65,6 +67,8 @@ export type StatsFormatters = {
   playCountSessies: (count: number) => string
   playerCount: (count: number) => string
   totalPrefix: (count: number) => string
+  totalPointsValue: (count: number) => string
+  totalPointsGames: (count: number) => string
   recencyDays: (count: number) => string
   recencyWeeks: (count: number) => string
   recencyMonths: (count: number) => string
@@ -103,6 +107,8 @@ export async function buildStatsLabels(
     scoreRecordsHighest: t('scoreRecordsHighest'),
     scoreRecordsHighestLoss: t('scoreRecordsHighestLoss'),
     scoreRecordsAvgWinner: t('scoreRecordsAvgWinner'),
+    totalPoints: t('totalPoints'),
+    totalPointsSubtitle: t('totalPointsSubtitle'),
     winTrend: t('winTrend'),
     winTrendSubtitle: t('winTrendSubtitle'),
     gamesTable: t('gamesTable'),
@@ -142,6 +148,8 @@ export async function buildStatsLabels(
     playerCount: (count) =>
       count === 1 ? t('playerCount', { count }) : t('playerCountPlural', { count }),
     totalPrefix: (count) => t('totalPrefix', { count }),
+    totalPointsValue: (count) => t('totalPointsValue', { count }),
+    totalPointsGames: (count) => t('totalPointsGames', { count }),
     recencyDays: (count) => t('recencyDays', { count }),
     recencyWeeks: (count) => t('recencyWeeks', { count }),
     recencyMonths: (count) => t('recencyMonths', { count }),

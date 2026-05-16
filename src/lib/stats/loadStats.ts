@@ -12,6 +12,7 @@ import { computeHeadToHead } from './headToHead'
 import { computeStreaks } from './streaks'
 import { computeRecentForm } from './recentForm'
 import { computeScoreRecords } from './scoreRecords'
+import { computeTotalPoints } from './totalPoints'
 import { computeWinTrend } from './winTrend'
 
 function cacheKey(scope: StatsScope, filter: DateFilter): string | null {
@@ -107,10 +108,16 @@ export async function loadStats(
       gamesFrequency: computeGamesFrequency(games, filter),
     }
   } else {
-    const members = await prisma.leagueMember.findMany({
-      where: { leagueId: scope.leagueId },
-      include: { player: { select: { id: true, name: true, avatarSeed: true, linkedUserId: true } } },
-    })
+    const [members, leagueMeta] = await Promise.all([
+      prisma.leagueMember.findMany({
+        where: { leagueId: scope.leagueId },
+        include: { player: { select: { id: true, name: true, avatarSeed: true, linkedUserId: true } } },
+      }),
+      prisma.league.findUnique({
+        where: { id: scope.leagueId },
+        select: { gameTemplate: { select: { winType: true } } },
+      }),
+    ])
     const memberSummaries = members.map(m => ({
       playerId: m.player.id,
       name: m.player.name,
@@ -118,6 +125,10 @@ export async function loadStats(
       linkedUserId: m.player.linkedUserId,
     }))
     const hideHeadToHead = members.length > 8
+    // Summing scores is only meaningful when every participant records a
+    // comparable numeric score (points-all). Ranking/elimination/time/etc.
+    // store positions, durations or sentinel values that don't add up.
+    const supportsTotalPoints = leagueMeta?.gameTemplate.winType === 'points-all'
     bundle = {
       ranking: computeRanking(games, viewerId),
       playDays: computePlayDays(games, locale),
@@ -127,6 +138,7 @@ export async function loadStats(
       streaks: games.length >= 3 ? computeStreaks(games, memberSummaries) : null,
       recentForm: games.length >= 3 ? computeRecentForm(games, memberSummaries, viewerId) : null,
       scoreRecords: computeScoreRecords(games),
+      totalPoints: supportsTotalPoints ? computeTotalPoints(games, viewerId) : null,
       winTrend: games.length >= 3 ? computeWinTrend(games, memberSummaries) : null,
     }
   }

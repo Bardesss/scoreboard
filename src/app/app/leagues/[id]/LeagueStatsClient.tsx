@@ -168,6 +168,38 @@ export function LeagueStatsClient({
             </Card>
           )}
 
+          {stats.totalPoints && stats.totalPoints.length > 0 && (
+            <Card index={nextIdx()}>
+              <PanelHeader title={`🎯 ${labels.totalPoints}`} subtitle={labels.totalPointsSubtitle} />
+              <div style={{ padding: '0 18px' }}>
+                {stats.totalPoints.map((p, i) => (
+                  <div
+                    key={p.playerId}
+                    style={{
+                      display: 'flex', alignItems: 'center', padding: '8px 0',
+                      borderBottom: i < stats.totalPoints!.length - 1 ? '1px solid #f2ece3' : undefined,
+                      ...(p.isCurrentUser ? { background: 'rgba(245,166,35,0.07)', margin: '0 -18px', padding: '8px 18px' } : {}),
+                    }}
+                  >
+                    <Avatar seed={p.avatarSeed} name={p.name} size={22} />
+                    <span style={{ flex: 1, fontSize: 13, marginLeft: 8, fontWeight: p.isCurrentUser ? 700 : 400, color: '#1e1a14' }}>{p.name}</span>
+                    <span style={{ fontSize: 12, color: '#6b5e4a', marginRight: 10 }}>{formatters.totalPointsGames(p.gamesPlayed)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: i === 0 ? '#c27f0a' : '#1e1a14' }}>
+                      {i === 0 ? (
+                        (() => {
+                          const full = formatters.totalPointsValue(p.totalPoints)
+                          const idx = full.indexOf(String(p.totalPoints))
+                          if (idx < 0) return full
+                          return <>{full.slice(0, idx)}<AnimatedNumber value={p.totalPoints} />{full.slice(idx + String(p.totalPoints).length)}</>
+                        })()
+                      ) : formatters.totalPointsValue(p.totalPoints)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           {stats.winTrend && (
             <Card index={nextIdx()}>
               <PanelHeader title={`📉 ${labels.winTrend}`} subtitle={labels.winTrendSubtitle} />

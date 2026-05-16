@@ -78,6 +78,15 @@ export type ScoreRecords = {
   averageWinner: number | null
 }
 
+export type TotalPointsEntry = {
+  playerId: string
+  name: string
+  avatarSeed: string
+  totalPoints: number
+  gamesPlayed: number
+  isCurrentUser: boolean
+}
+
 export type WinTrendSeries = {
   players: { id: string; name: string; color: string }[]
   points: { gameIndex: number; [playerId: string]: number }[]  // cumulative wins per player
@@ -94,6 +103,7 @@ export type StatsBundle = {
   streaks?: StreakEntry[] | null
   recentForm?: RecentFormRow[] | null
   scoreRecords?: ScoreRecords
+  totalPoints?: TotalPointsEntry[] | null
   winTrend?: WinTrendSeries | null
 }
 
