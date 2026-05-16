@@ -5,13 +5,18 @@ import { TwoFactorSection } from './sections/TwoFactorSection'
 import { LanguageSection } from './sections/LanguageSection'
 import { PasswordSection } from './sections/PasswordSection'
 import { LogoutSection } from './sections/LogoutSection'
+import { AccountSection } from './sections/AccountSection'
 
 export function SettingsClient({
+  email,
+  createdAt,
   locale,
   totpEnabled,
   requiresMfa,
   backupCodesRemaining,
 }: {
+  email: string
+  createdAt: string
   locale: string
   totpEnabled: boolean
   requiresMfa: boolean
@@ -28,6 +33,7 @@ export function SettingsClient({
         <LanguageSection currentLocale={locale} />
         <PasswordSection />
         <LogoutSection />
+        <AccountSection email={email} createdAt={createdAt} locale={locale === 'nl' ? 'nl' : 'en'} />
       </div>
     </SessionProvider>
   )

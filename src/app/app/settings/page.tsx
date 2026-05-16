@@ -11,10 +11,12 @@ export default async function SettingsPage() {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
+      email: true,
       locale: true,
       totpEnabled: true,
       requiresMfa: true,
       totpBackupCodes: true,
+      createdAt: true,
     },
   })
   if (!user) redirect('/en/auth/login')
@@ -28,6 +30,8 @@ export default async function SettingsPage() {
         <p className="font-body text-sm mt-1" style={{ color: '#9a8878' }}>{t('subtitle')}</p>
       </header>
       <SettingsClient
+        email={user.email}
+        createdAt={user.createdAt.toISOString()}
         locale={user.locale}
         totpEnabled={user.totpEnabled}
         requiresMfa={user.requiresMfa}

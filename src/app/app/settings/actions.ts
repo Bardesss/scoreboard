@@ -152,6 +152,30 @@ export async function disableTotp(code: string): Promise<Result> {
   return { success: true }
 }
 
+export async function deleteAccount(password: string): Promise<Result> {
+  const session = await auth()
+  if (!session) return { success: false, error: 'unauthorized' }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { passwordHash: true },
+  })
+  if (!user) return { success: false, error: 'unauthorized' }
+
+  const valid = await bcrypt.compare(password ?? '', user.passwordHash)
+  if (!valid) return { success: false, error: 'current_password_wrong' }
+
+  // Cascades delete all related records (Players, Leagues, GameTemplates,
+  // Notifications, Tickets, ConnectionRequests, VaultConnections, etc.) via
+  // onDelete: Cascade in the Prisma schema.
+  await prisma.user.delete({ where: { id: session.user.id } })
+
+  const locale = (session.user.locale ?? 'en') as Locale
+  await signOut({ redirectTo: `/${locale}` })
+
+  return { success: true }
+}
+
 export async function regenerateBackupCodes(
   code: string
 ): Promise<Result<{ backupCodes: string[] }>> {

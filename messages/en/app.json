@@ -238,6 +238,21 @@
       "confirm": "Yes, log me out",
       "cancel": "Cancel",
       "signingOut": "Signing out…"
+    },
+    "account": {
+      "title": "Account",
+      "description": "Your account info and danger zone.",
+      "emailLabel": "Email",
+      "createdAtLabel": "Account created",
+      "deleteHeading": "Delete account",
+      "deleteWarning": "This permanently deletes your account, all your players, games, leagues and notifications. This can't be undone.",
+      "deleteButton": "Delete my account",
+      "deletePasswordPlaceholder": "Confirm your password to continue",
+      "deleteConfirmButton": "Yes, delete forever",
+      "deletingButton": "Deleting…",
+      "cancelButton": "Cancel",
+      "errorWrongPassword": "That password is not correct.",
+      "errorUnknown": "Something went wrong. Try again."
     }
   },
   "players": {

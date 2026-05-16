@@ -238,6 +238,21 @@
       "confirm": "Ja, log me uit",
       "cancel": "Annuleren",
       "signingOut": "Bezig met uitloggen…"
+    },
+    "account": {
+      "title": "Account",
+      "description": "Je accountgegevens en gevarenzone.",
+      "emailLabel": "E-mail",
+      "createdAtLabel": "Account aangemaakt",
+      "deleteHeading": "Account verwijderen",
+      "deleteWarning": "Hiermee verwijder je je account, alle spelers, partijen, competities en meldingen definitief. Dit kan niet ongedaan worden gemaakt.",
+      "deleteButton": "Mijn account verwijderen",
+      "deletePasswordPlaceholder": "Bevestig je wachtwoord om door te gaan",
+      "deleteConfirmButton": "Ja, voorgoed verwijderen",
+      "deletingButton": "Verwijderen…",
+      "cancelButton": "Annuleren",
+      "errorWrongPassword": "Dat wachtwoord klopt niet.",
+      "errorUnknown": "Er ging iets mis. Probeer opnieuw."
     }
   },
   "players": {
