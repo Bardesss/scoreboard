@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, CreditCard, Settings, User, ShieldCheck, LifeBuoy } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, LifeBuoy } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
-import { LogoutIconButton } from './LogoutIconButton'
+import { UserMenu } from './UserMenu'
 
 type NotificationItem = {
   id: string
@@ -20,13 +20,10 @@ const NAV = [
   { key: 'players',      href: '/app/players',      icon: Users },
   { key: 'games',        href: '/app/games',        icon: Dices },
   { key: 'leagues',      href: '/app/leagues',      icon: ClipboardList },
-  { key: 'profile',      href: '/app/profile',      icon: User },
-  { key: 'credits',      href: '/app/credits',      icon: CreditCard },
-  { key: 'settings',     href: '/app/settings',     icon: Settings },
   { key: 'support',      href: '/app/support',      icon: LifeBuoy },
 ] as const
 
-export default function Sidebar({ name, credits, unreadCount, notifications, isAdmin }: { name: string; email?: string; credits: number; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {
+export default function Sidebar({ name, email, credits, unreadCount, notifications, isAdmin }: { name: string; email: string; credits: number; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
@@ -77,35 +74,12 @@ export default function Sidebar({ name, credits, unreadCount, notifications, isA
         })}
       </nav>
 
-      {/* Admin link */}
-      {isAdmin && (
-        <div className="px-3 mb-2">
-          <Link
-            href="/admin"
-            className="flex items-center gap-[11px] px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all w-full"
-            style={{ color: '#4a8eff', background: 'rgba(74,142,255,0.08)', border: '1px solid rgba(74,142,255,0.15)' }}
-          >
-            <ShieldCheck size={17} className="flex-shrink-0" />
-            Admin
-          </Link>
+      {/* User footer: avatar/name dropdown + notification bell */}
+      <div className="p-4 flex items-center gap-2">
+        <div className="flex-1 min-w-0">
+          <UserMenu name={name} email={email} credits={credits} isAdmin={isAdmin} variant="sidebar" />
         </div>
-      )}
-
-      {/* User footer */}
-      <div className="p-4">
-        <div className="flex items-center gap-2.5 p-3 rounded-[14px]" style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.08)' }}>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623' }}>
-            <span className="font-headline font-black text-[11px] tracking-[.02em]" style={{ color: '#1c1408' }}>
-              {name.slice(0, 2).toUpperCase()}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{name}</div>
-            <div className="font-headline font-bold text-[8.5px] uppercase tracking-[.1em]" style={{ color: '#4a3f2f' }}>{t('vaultKeeper')}</div>
-          </div>
-          <NotificationBell initialCount={unreadCount} initialNotifications={notifications} position="up-right" />
-          <LogoutIconButton />
-        </div>
+        <NotificationBell initialCount={unreadCount} initialNotifications={notifications} position="up-right" />
       </div>
     </aside>
   )

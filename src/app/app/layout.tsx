@@ -63,7 +63,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <NextIntlClientProvider locale={locale} messages={messages}>
       {isLow && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
       <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
-      <MobileHeader unreadCount={unreadCount} notifications={serializedNotifications} />
+      <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} />
       <main
         className="lg:ml-64 min-h-screen relative z-10 pt-14 pb-20 lg:pt-0 lg:pb-0 px-6 lg:px-7"
         style={isLow ? { paddingTop: 'calc(3.5rem + 36px)' } : undefined}

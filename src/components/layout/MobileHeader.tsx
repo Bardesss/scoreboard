@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Dices } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
+import { UserMenu } from './UserMenu'
 
 type NotificationItem = {
   id: string
@@ -13,9 +14,17 @@ type NotificationItem = {
 }
 
 export default function MobileHeader({
+  name,
+  email,
+  credits,
+  isAdmin,
   unreadCount,
   notifications,
 }: {
+  name: string
+  email: string
+  credits: number
+  isAdmin?: boolean
   unreadCount: number
   notifications: NotificationItem[]
 }) {
@@ -27,7 +36,10 @@ export default function MobileHeader({
         </div>
         <span className="font-headline font-black text-[14px] text-on-surface tracking-[-0.02em]">Dice Vault</span>
       </Link>
-      <NotificationBell initialCount={unreadCount} initialNotifications={notifications} />
+      <div className="flex items-center gap-2">
+        <NotificationBell initialCount={unreadCount} initialNotifications={notifications} />
+        <UserMenu name={name} email={email} credits={credits} isAdmin={isAdmin} variant="mobile" />
+      </div>
     </header>
   )
 }
