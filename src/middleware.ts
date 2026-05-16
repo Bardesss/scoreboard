@@ -27,6 +27,13 @@ export default auth(function middleware(req) {
     return
   }
 
+  // Next.js auto-generated metadata routes from app/icon.tsx and
+  // app/apple-icon.tsx. Without this, next-intl rewrites them to /en/icon and
+  // the favicon never resolves.
+  if (pathname === '/icon' || pathname === '/apple-icon') {
+    return
+  }
+
   if (pathname.startsWith('/share')) {
     return
   }
