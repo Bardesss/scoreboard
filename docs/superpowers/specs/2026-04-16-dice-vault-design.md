@@ -607,6 +607,30 @@ Full CRUD at `/admin/settings/pricing-regions`:
 - Exactly one region must be marked `isDefault`
 - Changes take effect immediately — no redeploy needed
 
+### User-facing billing history *(deferred until first payment provider ships)*
+
+Once Mollie or Stripe is live, the `/app/credits` page gains a "Billing history" section listing the user's `CreditPurchase` rows. The section is hidden when the user has zero purchases (current default for everybody).
+
+Per-row data:
+- Date (`createdAt`)
+- Pack — derived from `credits` (e.g. "300 credits")
+- Amount paid — `{symbol}{amountCents/100}` from the row's `currency` + the matching `PricingRegion`
+- Status — `pending` / `paid` / `failed` / `refunded` (badge)
+- Invoice number — `invoiceNumber` (only present once `status === 'paid'` and the tax-export pass has filled it in)
+- Download invoice — link to `/api/billing/invoices/{externalId}.pdf`, gated to the signed-in user
+
+Invoice endpoint:
+- `GET /api/billing/invoices/[externalId]` returns a server-rendered PDF (via `@react-pdf/renderer` or similar — TBD at implementation time)
+- Auth-gated: 404 if `CreditPurchase.userId !== session.user.id` (admins can still pull via `/admin/billing/tax-export`)
+- PDF content: invoice number, issue date, business details (from `AdminSettings`), customer line (email + optional `customerVatNumber`), VAT treatment (`vatTreatment` from §14), currency and EUR equivalent
+- Caches for ~10 minutes via `Cache-Control: private, max-age=600`
+
+Webhook side: when `status` transitions to `paid`, both the receipt email (§12) and the invoice generator run. The user can re-download the PDF later from this page.
+
+Future polish: filter by year, total-spent summary at the top, "needs invoice?" prompt for `pending` rows that haven't reconciled within 24 hours.
+
+> Email preferences (per-trigger opt-out for non-transactional emails) are **not** in this spec — they shipped as a real feature on `/app/settings` with a `User.emailPreferences` JSON column. See `src/lib/emailPreferences.ts` for the gating helper.
+
 ---
 
 ## 12. Emails (Mailgun)
