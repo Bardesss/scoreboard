@@ -19,7 +19,7 @@ export default function NotFound() {
           <p className="font-headline font-black text-[64px] leading-none mb-2" style={{ color: '#f5a623' }}>404</p>
           <h1 className="font-headline font-black text-[22px] tracking-[-0.02em] mb-2" style={{ color: '#1c1810' }}>This page rolled off the table</h1>
           <p className="font-body text-[14px] mb-8" style={{ color: '#7a6b56' }}>
-            We can't find the page you're looking for. The link may be broken, expired, or never existed.
+            {"We can't find the page you're looking for. The link may be broken, expired, or never existed."}
           </p>
           <Link
             href="/"
