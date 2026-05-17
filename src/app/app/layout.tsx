@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [user, linkedPlayer, threshold, unreadCount, recentNotifications, accessibleLeagues] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { email: true, monthlyCredits: true, permanentCredits: true, role: true },
+      select: { email: true, monthlyCredits: true, permanentCredits: true, isLifetimeFree: true, role: true },
     }),
     prisma.player.findFirst({
       where: { linkedUserId: session.user.id },
@@ -89,7 +89,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <NextIntlClientProvider locale={locale} messages={messages}>
       {isLow && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
       <LogGameProvider leagues={leagueOptions}>
-        <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
+        <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} monthlyCredits={user.monthlyCredits} permanentCredits={user.permanentCredits} isLifetimeFree={user.isLifetimeFree} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
         <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} />
         <main
           className={`lg:ml-64 min-h-screen relative z-10 pb-20 lg:pb-0 px-6 lg:px-7 ${isLow ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}

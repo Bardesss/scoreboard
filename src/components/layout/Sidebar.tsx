@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList, Plus } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, Plus, ChevronRight, CalendarDays, Infinity as InfinityIcon } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 import { UserMenu } from './UserMenu'
 import { useLogGame } from './LogGameLauncher'
@@ -23,12 +23,15 @@ const NAV = [
   { key: 'leagues',      href: '/app/leagues',      icon: ClipboardList },
 ] as const
 
-export default function Sidebar({ name, email, credits, unreadCount, notifications, isAdmin }: { name: string; email: string; credits: number; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {
+export default function Sidebar({ name, email, credits, monthlyCredits, permanentCredits, isLifetimeFree, unreadCount, notifications, isAdmin }: { name: string; email: string; credits: number; monthlyCredits: number; permanentCredits: number; isLifetimeFree: boolean; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
   const tLog = useTranslations('app.logGame')
   const logGame = useLogGame()
+
+  const monthlyPct = !isLifetimeFree && credits > 0 ? (monthlyCredits / credits) * 100 : 0
+  const permanentPct = !isLifetimeFree && credits > 0 ? (permanentCredits / credits) * 100 : 0
 
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col z-40" style={{ background: '#1c1810', borderRight: '1px solid rgba(245,166,35,0.08)' }}>
@@ -45,12 +48,68 @@ export default function Sidebar({ name, email, credits, unreadCount, notificatio
         </Link>
       </div>
 
-      {/* Credit chip */}
+      {/* Credits vault — recessed, links to /app/credits */}
       <div className="px-4 mb-4">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.18)' }}>
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f5a623' }} />
-          <span className="font-headline font-bold text-[12px]" style={{ color: '#f5a623' }}>{tCredits('balance', { n: credits })}</span>
-        </div>
+        <Link href="/app/credits" className="block group">
+          <div
+            className="px-3 py-2.5 rounded-xl transition-colors"
+            style={{
+              background: '#100c06',
+              boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(245,166,35,0.04)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#15110a' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#100c06' }}
+          >
+            <div className="flex items-center justify-between gap-2" style={{ marginBottom: isLifetimeFree ? 0 : 8 }}>
+              <div className="flex items-baseline gap-1.5 min-w-0">
+                <span className="font-headline font-black text-[15px] leading-none" style={{ color: '#f5a623' }}>
+                  {isLifetimeFree ? '∞' : credits}
+                </span>
+                <span className="font-headline font-bold text-[9px] uppercase leading-none" style={{ color: '#7a6a52', letterSpacing: '0.12em' }}>
+                  {isLifetimeFree ? tCredits('lifetimeFree') : tCredits('balanceCredits')}
+                </span>
+              </div>
+              <ChevronRight
+                size={13}
+                className="group-hover:translate-x-0.5"
+                style={{ color: '#7a6a52', flexShrink: 0, transition: 'transform 160ms ease' }}
+              />
+            </div>
+
+            {!isLifetimeFree && (
+              <>
+                <div
+                  style={{
+                    height: 2,
+                    borderRadius: 999,
+                    background: 'rgba(0,0,0,0.5)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    marginBottom: 7,
+                  }}
+                >
+                  {credits > 0 && (
+                    <>
+                      <div style={{ width: `${monthlyPct}%`, background: '#f5a623', transition: 'width 240ms ease' }} />
+                      <div style={{ width: `${permanentPct}%`, background: '#c27f0a', transition: 'width 240ms ease' }} />
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between" style={{ fontSize: 10 }}>
+                  <div className="flex items-center gap-1 font-headline font-bold" style={{ color: '#f5a623' }}>
+                    <CalendarDays size={10} strokeWidth={2.5} />
+                    {monthlyCredits}
+                  </div>
+                  <div className="flex items-center gap-1 font-headline font-bold" style={{ color: '#c27f0a' }}>
+                    <InfinityIcon size={11} strokeWidth={2.2} />
+                    {permanentCredits}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </Link>
       </div>
 
       {/* Nav */}

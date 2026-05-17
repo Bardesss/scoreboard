@@ -103,9 +103,9 @@ export function CreditsClient({
                 <div className="font-headline font-bold text-lg" style={{ color: '#f5a623' }}>{monthlyCredits}</div>
                 <div className="font-body text-[11px]" style={{ color: '#9a8878' }}>{t('monthlyHint')}</div>
               </div>
-              <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(74,142,255,0.06)', border: '1px solid rgba(74,142,255,0.16)' }}>
+              <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(194,127,10,0.06)', border: '1px solid rgba(194,127,10,0.18)' }}>
                 <div className="font-headline font-bold text-[11px] uppercase tracking-wide" style={{ color: '#9a8878' }}>{t('permanentPool')}</div>
-                <div className="font-headline font-bold text-lg" style={{ color: '#4a8eff' }}>{permanentCredits}</div>
+                <div className="font-headline font-bold text-lg" style={{ color: '#c27f0a' }}>{permanentCredits}</div>
                 <div className="font-body text-[11px]" style={{ color: '#9a8878' }}>{t('permanentHint')}</div>
               </div>
             </div>
