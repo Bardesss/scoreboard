@@ -97,13 +97,13 @@ export function DateFilter({ labels }: { labels: DateFilterLabels }) {
   const optionActive = { background: '#fff3d4', color: '#c27f0a', fontWeight: 700 }
 
   return (
-    <div ref={wrapperRef} className="relative inline-block w-full sm:w-auto" style={{ marginBottom: 20 }}>
+    <div ref={wrapperRef} className="relative inline-block w-full sm:w-[200px]" style={{ marginBottom: 20 }}>
       <button
         type="button"
         onClick={() => { setOpen(o => !o); setShowCustomForm(false) }}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="w-full sm:w-auto"
+        className="w-full"
         style={{
           display: 'flex',
           alignItems: 'center',
