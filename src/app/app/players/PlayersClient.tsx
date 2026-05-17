@@ -5,8 +5,10 @@ import { toast } from 'sonner'
 import { Avatar } from '@/components/shared/Avatar'
 import { createPlayer, updatePlayer, deletePlayer, linkPlayer } from './actions'
 import { searchUsers, sendConnectionRequest, acceptConnectionRequest, declineConnectionRequest, disconnect } from '../connections/actions'
-import { Pencil, Trash2, Plus, X, Check, UserPlus, Search, Link2, Unlink2 } from 'lucide-react'
+import { Pencil, Trash2, Plus, X, Check, UserPlus, Search, Link2, Unlink2, Users as UsersIcon } from 'lucide-react'
 import { COLORS } from '../games/new/wizard-types'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null; color: string }
 type VaultKeeper = { id: string; email: string | null; username: string | null }
@@ -193,19 +195,21 @@ export default function PlayersClient({
       )}
 
       {/* ── Players ── */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
-        <button
-          onClick={() => { setAdding(true); setNewName('') }}
-          aria-label={t('add')}
-          title={t('add')}
-          className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
-          style={{ background: '#f5a623', color: '#1c1408' }}
-        >
-          <Plus size={16} />
-          <span className="hidden sm:inline">{t('add')}</span>
-        </button>
-      </div>
+      <PageHeader
+        title={t('title')}
+        trailing={
+          <button
+            onClick={() => { setAdding(true); setNewName('') }}
+            aria-label={t('add')}
+            title={t('add')}
+            className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
+            style={{ background: '#f5a623', color: '#1c1408' }}
+          >
+            <Plus size={16} />
+            <span className="hidden sm:inline">{t('add')}</span>
+          </button>
+        }
+      />
 
       {adding && (
         <div className="rounded-2xl p-4 mb-4 space-y-3" style={{ background: '#fefcf8', border: '1px solid #f5a623' }}>
@@ -241,7 +245,20 @@ export default function PlayersClient({
       )}
 
       {players.length === 0 && !adding && (
-        <p className="text-center py-12 font-body" style={{ color: '#9a8878' }}>{t('empty')}</p>
+        <EmptyState
+          icon={<UsersIcon size={26} strokeWidth={2.2} />}
+          title={t('empty')}
+          action={
+            <button
+              onClick={() => { setAdding(true); setNewName('') }}
+              className="flex items-center gap-2 rounded-xl font-headline font-bold text-sm px-4 py-2"
+              style={{ background: '#f5a623', color: '#1c1408' }}
+            >
+              <Plus size={15} strokeWidth={2.4} />
+              {t('add')}
+            </button>
+          }
+        />
       )}
 
       <ul className="space-y-2 mb-10">

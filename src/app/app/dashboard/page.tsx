@@ -7,6 +7,7 @@ import { loadStats } from '@/lib/stats/loadStats'
 import { loadGames } from '@/lib/stats/loadGames'
 import { parseRange } from '@/lib/stats/dateRange'
 import { buildStatsLabels } from '@/lib/stats/buildStatsLabels'
+import { PageHeader } from '@/components/shared/PageHeader'
 
 type PageProps = {
   searchParams: Promise<{ range?: string; from?: string; to?: string; page?: string }>
@@ -40,15 +41,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
-      <div style={{ marginBottom: 24 }}>
-        <h1
-          className="font-headline"
-          style={{ fontSize: 22, fontWeight: 700, color: '#1e1a14', letterSpacing: '-0.02em' }}
-        >
-          {tDashboard('greeting', { name: displayName })}
-        </h1>
-        <p style={{ fontSize: 13, color: '#6b5e4a', marginTop: 2 }}>{tDashboard('subtitle')}</p>
-      </div>
+      <PageHeader title={tDashboard('greeting', { name: displayName })} subtitle={tDashboard('subtitle')} />
       <DashboardClient stats={stats} gamesPage={gamesPage} filter={filter} locale={locale} labels={labels} formatters={formatters} />
     </div>
   )

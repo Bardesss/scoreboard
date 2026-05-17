@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import GamesClient from './GamesClient'
+import { PageHeader } from '@/components/shared/PageHeader'
 
 export default async function GamesPage() {
   const session = await auth()
@@ -50,19 +51,21 @@ export default async function GamesPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
-        <Link
-          href="/app/games/new"
-          aria-label={t('add')}
-          title={t('add')}
-          className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
-          style={{ background: '#f5a623', color: '#1c1408' }}
-        >
-          <Plus size={16} />
-          <span className="hidden sm:inline">{t('add')}</span>
-        </Link>
-      </div>
+      <PageHeader
+        title={t('title')}
+        trailing={
+          <Link
+            href="/app/games/new"
+            aria-label={t('add')}
+            title={t('add')}
+            className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
+            style={{ background: '#f5a623', color: '#1c1408' }}
+          >
+            <Plus size={16} />
+            <span className="hidden sm:inline">{t('add')}</span>
+          </Link>
+        }
+      />
 
       <GamesClient
         templates={templates.map(tmpl => ({

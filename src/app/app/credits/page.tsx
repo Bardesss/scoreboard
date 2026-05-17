@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { CreditsClient } from './CreditsClient'
+import { PageHeader } from '@/components/shared/PageHeader'
 
 const PAGE_SIZE = 20
 
@@ -49,14 +50,7 @@ export default async function CreditsPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
-      <header className="mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>
-          {t('pageTitle')}
-        </h1>
-        <p className="font-body text-sm mt-1" style={{ color: '#9a8878' }}>
-          {t('subtitle')}
-        </p>
-      </header>
+      <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} />
 
       <CreditsClient
         monthlyCredits={user.monthlyCredits}

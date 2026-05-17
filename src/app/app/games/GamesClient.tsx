@@ -1,9 +1,11 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Dices, Plus } from 'lucide-react'
 import { VaultRibbon } from '@/components/shared/VaultRibbon'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { updateGameTemplate, deleteGameTemplate } from './actions'
 import { COLORS, ICONS } from './new/wizard-types'
 
@@ -99,7 +101,20 @@ export default function GamesClient({
   return (
     <>
       {allEmpty ? (
-        <p className="text-center py-16 font-body" style={{ color: '#9a8878' }}>{t('empty')}</p>
+        <EmptyState
+          icon={<Dices size={26} strokeWidth={2.2} />}
+          title={t('empty')}
+          action={
+            <Link
+              href="/app/games/new"
+              className="flex items-center gap-2 rounded-xl font-headline font-bold text-sm px-4 py-2"
+              style={{ background: '#f5a623', color: '#1c1408' }}
+            >
+              <Plus size={15} strokeWidth={2.4} />
+              {t('add')}
+            </Link>
+          }
+        />
       ) : (
         <ul className="space-y-3">
           {templates.map(tmpl => (

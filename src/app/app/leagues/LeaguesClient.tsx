@@ -5,6 +5,9 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { Plus, Pencil, Trash2, X, Check } from 'lucide-react'
 import { VaultRibbon } from '@/components/shared/VaultRibbon'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { Trophy } from 'lucide-react'
 import { updateLeague, deleteLeague } from './actions'
 
 type OwnLeague = {
@@ -72,22 +75,37 @@ export default function LeaguesClient({
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
-        <Link
-          href="/app/leagues/new"
-          aria-label={t('add')}
-          title={t('add')}
-          className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
-          style={{ background: '#f5a623', color: '#1c1408' }}
-        >
-          <Plus size={16} />
-          <span className="hidden sm:inline">{t('add')}</span>
-        </Link>
-      </div>
+      <PageHeader
+        title={t('title')}
+        trailing={
+          <Link
+            href="/app/leagues/new"
+            aria-label={t('add')}
+            title={t('add')}
+            className="flex items-center justify-center gap-2 rounded-xl font-headline font-bold text-sm w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2"
+            style={{ background: '#f5a623', color: '#1c1408' }}
+          >
+            <Plus size={16} />
+            <span className="hidden sm:inline">{t('add')}</span>
+          </Link>
+        }
+      />
 
       {allEmpty ? (
-        <p className="text-center py-16 font-body" style={{ color: '#9a8878' }}>{t('empty')}</p>
+        <EmptyState
+          icon={<Trophy size={26} strokeWidth={2.2} />}
+          title={t('empty')}
+          action={
+            <Link
+              href="/app/leagues/new"
+              className="flex items-center gap-2 rounded-xl font-headline font-bold text-sm px-4 py-2"
+              style={{ background: '#f5a623', color: '#1c1408' }}
+            >
+              <Plus size={15} strokeWidth={2.4} />
+              {t('add')}
+            </Link>
+          }
+        />
       ) : (
         <ul className="space-y-3">
           {ownLeagues.map(league => (
