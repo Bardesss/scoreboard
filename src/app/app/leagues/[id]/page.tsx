@@ -67,7 +67,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
   )
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
+    <div className="max-w-7xl mx-auto py-8 px-4">
       <div className="flex items-start gap-3 mb-6">
         <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: `${league.gameTemplate.color}22` }}>
           {league.gameTemplate.icon}
