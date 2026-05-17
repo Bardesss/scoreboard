@@ -121,7 +121,7 @@ export function NotificationsClient({
       {/* Filter pills */}
       <div className="flex gap-2">
         <Link
-          href={filter === 'all' ? '?' : '?'}
+          href="?"
           className="px-3 py-1.5 rounded-full font-headline font-bold text-xs"
           style={filter === 'all'
             ? { background: '#f5a623', color: '#1c1408' }

@@ -1,6 +1,8 @@
 {
   "dashboard": {
     "title": "Dashboard",
+    "greeting": "Hallo, {name} 👋",
+    "subtitle": "Hier is je overzicht",
     "empty": "Nog geen potjes gelogd. Maak een competitie en log je eerste spel!"
   },
   "stats": {
@@ -446,6 +448,13 @@
   },
   "playedGames": {
     "log": "Partij loggen",
+    "shareCopied": "Link gekopieerd!",
+    "shareLink": "Kopieer deelbare link",
+    "pendingHeading": "Wachten op goedkeuring ({count})",
+    "pendingSubmittedBy": "Ingediend door {email}",
+    "approved": "Partij goedgekeurd",
+    "rejected": "Partij afgewezen",
+    "actionFailed": "Mislukt",
     "playedAt": "Gespeeld op",
     "notes": "Notities (optioneel)",
     "scores": "Scores",

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Check, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { approvePlayedGame, rejectPlayedGame } from './actions'
 
 type PendingGame = {
@@ -12,19 +13,20 @@ type PendingGame = {
 }
 
 export function PendingApprovalSection({ games }: { games: PendingGame[] }) {
+  const t = useTranslations('app.playedGames')
   const [list, setList] = useState(games)
 
   async function handleApprove(id: string) {
     const res = await approvePlayedGame(id)
-    if ('error' in res) { toast.error('Failed'); return }
-    toast.success('Game approved')
+    if ('error' in res) { toast.error(t('actionFailed')); return }
+    toast.success(t('approved'))
     setList(l => l.filter(g => g.id !== id))
   }
 
   async function handleReject(id: string) {
     const res = await rejectPlayedGame(id)
-    if ('error' in res) { toast.error('Failed'); return }
-    toast.success('Game rejected')
+    if ('error' in res) { toast.error(t('actionFailed')); return }
+    toast.success(t('rejected'))
     setList(l => l.filter(g => g.id !== id))
   }
 
@@ -33,7 +35,7 @@ export function PendingApprovalSection({ games }: { games: PendingGame[] }) {
   return (
     <section className="mb-8">
       <h2 className="font-headline font-bold text-sm uppercase tracking-wide mb-3" style={{ color: '#e85c0d' }}>
-        Pending approval ({list.length})
+        {t('pendingHeading', { count: list.length })}
       </h2>
       <ul className="space-y-3">
         {list.map(pg => (
@@ -41,7 +43,7 @@ export function PendingApprovalSection({ games }: { games: PendingGame[] }) {
             <div className="flex items-center justify-between mb-2">
               <div>
                 <p className="font-body text-xs" style={{ color: '#9a8878' }}>
-                  Submitted by {pg.submittedByEmail} · {new Date(pg.playedAt).toLocaleDateString()}
+                  {t('pendingSubmittedBy', { email: pg.submittedByEmail })} · {new Date(pg.playedAt).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex gap-2">

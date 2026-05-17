@@ -1,6 +1,8 @@
 {
   "dashboard": {
     "title": "Dashboard",
+    "greeting": "Hi, {name} 👋",
+    "subtitle": "Here's your overview",
     "empty": "No games logged yet. Create a league and log your first game!"
   },
   "stats": {
@@ -446,6 +448,13 @@
   },
   "playedGames": {
     "log": "Log game",
+    "shareCopied": "Link copied!",
+    "shareLink": "Copy shareable link",
+    "pendingHeading": "Pending approval ({count})",
+    "pendingSubmittedBy": "Submitted by {email}",
+    "approved": "Game approved",
+    "rejected": "Game rejected",
+    "actionFailed": "Failed",
     "playedAt": "Played on",
     "notes": "Notes (optional)",
     "scores": "Scores",

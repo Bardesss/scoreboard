@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import DashboardClient from './DashboardClient'
 import { loadStats } from '@/lib/stats/loadStats'
 import { loadGames } from '@/lib/stats/loadGames'
@@ -24,12 +25,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const scope = { kind: 'user' as const, userId: session.user.id }
 
-  const [stats, gamesPage, user, mePlayer, i18n] = await Promise.all([
+  const [stats, gamesPage, user, mePlayer, i18n, tDashboard] = await Promise.all([
     loadStats(scope, filter, locale),
     loadGames(scope, filter, page, 25, 'compact'),
     prisma.user.findUnique({ where: { id: session.user.id }, select: { username: true, email: true } }),
     prisma.player.findFirst({ where: { linkedUserId: session.user.id }, select: { name: true } }),
     buildStatsLabels(locale),
+    getTranslations({ locale, namespace: 'app.dashboard' }),
   ])
   const { labels, formatters } = i18n
 
@@ -43,9 +45,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           className="font-headline"
           style={{ fontSize: 22, fontWeight: 700, color: '#1e1a14', letterSpacing: '-0.02em' }}
         >
-          Goedemiddag, {displayName} 👋
+          {tDashboard('greeting', { name: displayName })}
         </h1>
-        <p style={{ fontSize: 13, color: '#6b5e4a', marginTop: 2 }}>Hier is je overzicht</p>
+        <p style={{ fontSize: 13, color: '#6b5e4a', marginTop: 2 }}>{tDashboard('subtitle')}</p>
       </div>
       <DashboardClient stats={stats} gamesPage={gamesPage} filter={filter} locale={locale} labels={labels} formatters={formatters} />
     </div>
