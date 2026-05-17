@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
 import { Avatar } from '@/components/shared/Avatar'
 import { Card } from '@/components/stats/Card'
 import { PaginatedGamesTable } from '@/components/stats/PaginatedGamesTable'
@@ -151,29 +153,35 @@ function LeaguesPanel({
   return (
     <Card index={index}>
       <PanelHeader title={`🏅 ${labels.leaguesPanel}`} subtitle={labels.leaguesSubtitle} />
-      <div style={{ padding: '0 18px' }}>
+      <div>
         {leagues.map((l, i) => (
-          <div
+          <Link
             key={l.id}
+            href={`/app/leagues/${l.id}`}
+            className="stats-row-link"
             style={{
-              padding: '11px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '11px 18px',
               borderBottom: i < leagues.length - 1 ? '1px solid #f2ece3' : undefined,
+              textDecoration: 'none',
+              color: 'inherit',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: i === 0 ? 700 : 400, color: '#1e1a14' }}>{l.name}</div>
-                <div style={{ fontSize: 12, color: '#6b5e4a', marginTop: 1 }}>
-                  {formatters.playerCount(l.playerCount)} · {recency(l.lastPlayedAt, labels, formatters)}
-                </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: i === 0 ? 700 : 400, color: '#1e1a14', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
+              <div style={{ fontSize: 12, color: '#6b5e4a', marginTop: 1 }}>
+                {formatters.playerCount(l.playerCount)} · {recency(l.lastPlayedAt, labels, formatters)}
               </div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: l.sessionCount === 0 ? '#9a8c7a' : '#1e1a14' }}>
-                {formatters.playCount(l.sessionCount)}
-              </span>
             </div>
-          </div>
+            <span style={{ fontSize: 13, fontWeight: 700, color: l.sessionCount === 0 ? '#9a8c7a' : '#1e1a14', flexShrink: 0 }}>
+              {formatters.playCount(l.sessionCount)}
+            </span>
+            <ChevronRight size={14} style={{ color: '#c5b89f', flexShrink: 0 }} />
+          </Link>
         ))}
-        {leagues.length === 0 && <p style={{ fontSize: 13, color: '#9a8c7a', padding: '16px 0' }}>{labels.emptyLeagues}</p>}
+        {leagues.length === 0 && <p style={{ fontSize: 13, color: '#9a8c7a', padding: '16px 18px' }}>{labels.emptyLeagues}</p>}
       </div>
     </Card>
   )

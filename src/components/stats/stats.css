@@ -76,11 +76,14 @@
   }
 }
 
-.log-game-row {
+.log-game-row,
+.stats-row-link {
   transition: background 140ms ease;
 }
 .log-game-row:hover,
-.log-game-row:focus-visible {
+.log-game-row:focus-visible,
+.stats-row-link:hover,
+.stats-row-link:focus-visible {
   background: rgba(245, 166, 35, 0.06);
   outline: none;
 }
