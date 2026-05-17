@@ -1,7 +1,18 @@
 # Dice Vault — Design Guidelines
-*Last updated: 2026-04-18*
+*Last updated: 2026-05-17*
 
-The single source of truth for visual decisions across Dice Vault. Every component built in this project must match these guidelines. When in doubt, refer here first.
+The single source of truth for visual decisions across Dice Vault. When in doubt, refer here first.
+
+## Scope
+
+This document defines the **user-facing app's** visual system — warm-amber, "game night" personality. It applies to:
+
+- Marketing / landing (`/src/app/[locale]/**`)
+- Authenticated app (`/src/app/app/**`)
+- Shared client surfaces (`/share/**`, `/connect/**`)
+- Shared components in `/src/components/**` that ship to the above
+
+The **admin area** (`/src/app/admin/**`) is intentionally *not* part of this system. It uses a cooler blue-on-dark visual language optimised for power-user tasks. See [Section 12 — Admin theme](#12-admin-theme). The rules in this document — particularly the "no cold blue" rule — do **not** apply to admin.
 
 ---
 
@@ -307,13 +318,13 @@ The amber glow makes large numbers feel like a scoreboard, not a spreadsheet.
 - Use the dark sidebar as the one "game table" element in the authenticated app
 
 ### Don't
-- **No cold blue** — `rgba(0,91,192,...)`, `#005bc0`, `#3b82f6` are banned
+- **No cold blue** — `rgba(0,91,192,...)`, `#005bc0`, `#3b82f6`, `#4a8eff` are banned **in the user-facing app**. The admin area uses blue as its primary accent — see Section 12.
 - **No `#ffffff` body backgrounds** — use `surface` (`#f7f3ed`) or `surface-container-lowest` (`#fefcf8`)
-- **No purple gradients** — Dice Vault uses zero purple
-- **No neutral grey shadows** — all shadows carry warm or amber tint
-- **No Inter, Roboto, or system-ui fonts** — Manrope for headlines, DM Sans for body, nothing else
+- **No purple gradients** — Dice Vault uses zero purple anywhere (including admin)
+- **No neutral grey shadows** in the app — all shadows carry warm or amber tint
+- **No Inter, Roboto, or system-ui fonts** — Manrope for headlines, DM Sans for body, nothing else (this applies to admin too)
 - **No flat cards without shadow or border** — always one of the two
-- **No hardcoded blue hex values** in components — use Tailwind tokens or amber values
+- **No hardcoded blue hex values** in user-facing components — use Tailwind tokens or amber values
 
 ---
 
@@ -329,5 +340,106 @@ The amber glow makes large numbers feel like a scoreboard, not a spreadsheet.
 | `src/components/layout/Sidebar.tsx` | Dark warm chrome sidebar |
 | `src/components/layout/MobileHeader.tsx` | Warm amber mobile header |
 | `src/components/layout/BottomNav.tsx` | Warm amber bottom navigation |
+| `src/components/layout/LogGameLauncher.tsx` | Cross-screen "log game" trigger + league-picker sheet |
 | `src/components/auth/AuthCard.tsx` | Auth card + `UnderlineInput` + `PrimaryButton` |
 | `src/components/layout/CookieBanner.tsx` | Cookie consent — warm surface |
+| `src/components/shared/PageHeader.tsx` | Reusable page H1 + subtitle + trailing-action slot |
+| `src/components/shared/EmptyState.tsx` | Reusable icon-tile + title + description + action empty state |
+
+---
+
+## 12. Admin theme
+
+The admin area (`/src/app/admin/**`) intentionally uses a different visual language from the user-facing app. It's a denser, more clinical UI optimised for power-user tasks (managing users, credits, content). Cooler colours, blue accents — signals "internal tool" rather than "the player-facing product."
+
+This is a deliberate divergence, not a bug. Code in admin should not be migrated to the warm-amber system.
+
+### Colour palette
+
+| Token | Value | Usage |
+|---|---|---|
+| Page background | `#0c0f10` | The admin layout body |
+| Card background | `#161f28` | Standard admin card / section |
+| Card border | `rgba(255,255,255,0.07)` | Card border + dividers |
+| Hover surface | `rgba(255,255,255,0.04)` | Row hover, subtle highlights |
+| Primary accent | `#005bc0` | Primary CTAs (submit, save) |
+| Primary accent light | `#4a8eff` | Links, icon tints, "Bekijk →" affordances |
+| Primary accent fill | `rgba(74,142,255,0.12)` | Subtle badge fills |
+| Primary accent border | `rgba(74,142,255,0.25)` | Action borders |
+| Text primary | `#ffffff` | Headings, primary body text |
+| Text secondary | `rgba(255,255,255,0.45)` | Subtitles, captions, meta |
+| Text dim | `rgba(255,255,255,0.3)` | Disabled / placeholder |
+
+### Card
+
+```tsx
+<section
+  className="rounded-2xl p-6"
+  style={{ background: '#161f28', border: '1px solid rgba(255,255,255,0.07)' }}
+/>
+```
+
+### Input
+
+```tsx
+<input
+  className="px-3 py-2 rounded-[10px] font-body text-sm outline-none"
+  style={{
+    background: 'rgba(255,255,255,0.06)',
+    color: '#ffffff',
+    border: '1px solid rgba(255,255,255,0.1)',
+  }}
+/>
+```
+
+### Submit button
+
+```tsx
+<button
+  className="px-4 py-2 rounded-[10px] font-headline font-bold text-sm"
+  style={{ background: '#005bc0', color: '#ffffff' }}
+/>
+```
+
+### What admin shares with the app
+
+- Fonts (Manrope for headlines, DM Sans for body)
+- Border radius scale (24px / 16px / 10px / 0 / 999px)
+- Semantic colours: green for success (`#22c55e` / `#16a34a`), red for destructive (`#ef4444`)
+- Lucide icons
+- The "no purple", "no Inter/Roboto/system-ui" rules
+
+### What admin deliberately diverges on
+
+- Cold blue is the primary accent (banned in the app, fine here)
+- Cool dark surfaces (`#0c0f10`, `#161f28`) instead of the app's warm cream
+- No amber-tinted shadows
+- Higher information density, more table-heavy layouts
+
+### Known internal inconsistencies (not yet resolved)
+
+Admin grew organically. The audit on 2026-05-17 found:
+- Two blues (`#005bc0` and `#4a8eff`) used interchangeably for the same role.
+- Three different input recipes (transparent-white fill `rgba(255,255,255,0.06)`, solid `#0c0f10`, solid `#161f28`).
+- Six different border radii in active use (16/12/10/8/6/20) where the spec defines three.
+- Multiple date-format styles.
+- Reload strategy split between `router.refresh()` and `window.location.reload()`.
+
+These should converge but the cleanup is out of scope for the user-facing design system pass.
+
+---
+
+## 13. Shared app components
+
+When building user-facing pages, prefer these shared components over rolling your own.
+
+| Component | Path | Use |
+|---|---|---|
+| `PageHeader` | `@/components/shared/PageHeader` | Page H1 + optional subtitle + optional trailing slot for action buttons |
+| `EmptyState` | `@/components/shared/EmptyState` | Empty-list state — amber icon tile + title + optional description + optional action |
+| `Card` (stats) | `@/components/stats/Card` | Animated stat panel cards (dashboard, league stats) |
+| `DateFilter` | `@/components/stats/DateFilter` | Date-range dropdown used by stats pages |
+| `LogGameLauncher` | `@/components/layout/LogGameLauncher` | Cross-app launcher + sheet for logging a game |
+| `PaginatedGamesTable` | `@/components/stats/PaginatedGamesTable` | Paginated games table with mobile-aware footer |
+
+Adding a new "modal" or "primary button" recipe here is the right next step when the same pattern is duplicated three or more times in app pages.
