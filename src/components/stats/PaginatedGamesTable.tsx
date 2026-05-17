@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { StatsLabels, StatsFormatters } from '@/lib/stats/buildStatsLabels'
 
 export type CompactGameRow = {
@@ -201,20 +202,50 @@ function Pagination({
   labels: StatsLabels
   formatters: StatsFormatters
 }) {
-  const base = { padding: '5px 12px', borderRadius: 8, border: '1px solid #c5b89f', background: '#fefcf8', fontSize: 12, textDecoration: 'none' } as const
+  const base = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '6px 12px',
+    borderRadius: 8,
+    border: '1px solid #c5b89f',
+    background: '#fefcf8',
+    fontSize: 12,
+    fontWeight: 600,
+    textDecoration: 'none',
+    lineHeight: 1,
+  } as const
   return (
-    <div style={{ padding: '11px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #ede5d8', background: '#f2ece3' }}>
-      <span style={{ fontSize: 12, color: '#6b5e4a' }}>{formatters.pagination(page, totalPages)} · {formatters.paginationPerPage(25)}</span>
-      <div style={{ display: 'flex', gap: 6 }}>
+    <div
+      className="flex items-center justify-between gap-3"
+      style={{ padding: '11px 16px', borderTop: '1px solid #ede5d8', background: '#f2ece3' }}
+    >
+      <span style={{ fontSize: 12, color: '#6b5e4a', minWidth: 0 }}>
+        {formatters.pagination(page, totalPages)}
+        <span className="hidden sm:inline"> · {formatters.paginationPerPage(25)}</span>
+      </span>
+      <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
         {page > 1 ? (
-          <Link href={buildHref(page - 1)} style={{ ...base, color: '#1e1a14' }}>{labels.prev}</Link>
+          <Link href={buildHref(page - 1)} aria-label={labels.prev} style={{ ...base, color: '#1e1a14' }}>
+            <ChevronLeft size={14} strokeWidth={2.2} />
+            <span className="hidden sm:inline">{labels.prev}</span>
+          </Link>
         ) : (
-          <span style={{ ...base, color: '#9a8c7a', opacity: 0.4 }}>{labels.prev}</span>
+          <span aria-hidden style={{ ...base, color: '#9a8c7a', opacity: 0.4 }}>
+            <ChevronLeft size={14} strokeWidth={2.2} />
+            <span className="hidden sm:inline">{labels.prev}</span>
+          </span>
         )}
         {page < totalPages ? (
-          <Link href={buildHref(page + 1)} style={{ ...base, color: '#c27f0a', borderColor: '#f5a623', background: '#fff3d4', fontWeight: 600 }}>{labels.next}</Link>
+          <Link href={buildHref(page + 1)} aria-label={labels.next} style={{ ...base, color: '#c27f0a', borderColor: '#f5a623', background: '#fff3d4' }}>
+            <span className="hidden sm:inline">{labels.next}</span>
+            <ChevronRight size={14} strokeWidth={2.2} />
+          </Link>
         ) : (
-          <span style={{ ...base, color: '#9a8c7a', opacity: 0.4 }}>{labels.next}</span>
+          <span aria-hidden style={{ ...base, color: '#9a8c7a', opacity: 0.4 }}>
+            <span className="hidden sm:inline">{labels.next}</span>
+            <ChevronRight size={14} strokeWidth={2.2} />
+          </span>
         )}
       </div>
     </div>
