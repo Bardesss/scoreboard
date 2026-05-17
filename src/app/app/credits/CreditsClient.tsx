@@ -118,16 +118,18 @@ export function CreditsClient({
         <h2 className="font-headline font-bold text-xs uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>
           {t('buyHeading')}
         </h2>
-        <div className="flex items-center gap-3">
-          <ShoppingCart size={20} style={{ color: '#9a8878' }} />
-          <div className="flex-1">
-            <div className="font-body text-sm" style={{ color: '#1c1810' }}>{t('buyComingSoon')}</div>
-            <div className="font-body text-xs mt-0.5" style={{ color: '#9a8878' }}>{t('buyComingSoonHint')}</div>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-start gap-3 flex-1">
+            <ShoppingCart size={20} style={{ color: '#9a8878', flexShrink: 0, marginTop: 2 }} />
+            <div className="flex-1 min-w-0">
+              <div className="font-body text-sm" style={{ color: '#1c1810' }}>{t('buyComingSoon')}</div>
+              <div className="font-body text-xs mt-0.5" style={{ color: '#9a8878' }}>{t('buyComingSoonHint')}</div>
+            </div>
           </div>
           <button
             type="button"
             disabled
-            className="px-4 py-2 rounded-xl font-headline font-bold text-sm cursor-not-allowed"
+            className="w-full sm:w-auto px-4 py-2 rounded-xl font-headline font-bold text-sm cursor-not-allowed"
             style={{ background: '#f0ebe3', color: '#9a8878' }}
           >
             {t('buyCta')}
@@ -140,7 +142,7 @@ export function CreditsClient({
         <h2 className="font-headline font-bold text-xs uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>
           {t('discountHeading')}
         </h2>
-        <form onSubmit={handleRedeem} className="flex gap-2">
+        <form onSubmit={handleRedeem} className="flex flex-col sm:flex-row gap-2">
           <input
             value={code}
             onChange={e => setCode(e.target.value.toUpperCase())}
@@ -152,7 +154,7 @@ export function CreditsClient({
           <button
             type="submit"
             disabled={pending || !code.trim()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-headline font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-headline font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: '#f5a623', color: '#1c1408' }}
           >
             <Gift size={15} /> {pending ? t('discountRedeeming') : t('discountRedeem')}
@@ -195,7 +197,7 @@ export function CreditsClient({
                       {suffix && <span className="ml-1" style={{ color: '#9a8878' }}>· {suffix}</span>}
                     </div>
                     <div className="font-body text-xs mt-0.5" style={{ color: '#9a8878' }}>
-                      {new Date(tx.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {new Date(tx.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                       <span className="ml-2">· {tPools(tx.pool)}</span>
                     </div>
                   </div>
