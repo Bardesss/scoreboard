@@ -1,31 +1,35 @@
-# Dice Vault — Social Feed, Reactions, Referral, Public Profile Design
+# Dice Vault — Social Feed, Reactions, Referral, Public Profile, Family Credits Design
 *Date: 2026-05-17*
 
 ---
 
 ## Overview
 
-Dice Vault has the social *pipes* (vault connections, player linking, borrowed leagues, played-game approvals, share links, notifications) but no social *layer* on top. Nothing pulls users back between game nights, and nothing converts a satisfied user into an inviter of new users.
+Dice Vault has the social *pipes* (vault connections, player linking, borrowed leagues, played-game approvals, share links, notifications) but no social *layer* on top. Nothing pulls users back between game nights, nothing converts a satisfied user into an inviter of new users, and there's no construct for a parent who wants their kids to play without buying separate credit balances.
 
-This spec adds four interlocking features that target both engagement (more games logged → more credits consumed) and acquisition (referred users → new credit-paying customers):
+This spec adds five interlocking features that target both engagement (more games logged → more credits consumed) and acquisition (referred users → new credit-paying customers):
 
 1. **Activity feed** — personal stream of recent games from leagues you're in, rendered as rich "scorecards."
 2. **Reactions** — five fixed emoji you can toggle on any approved played game in a league you share.
 3. **Referral attribution** — opportunistic; rides on the existing QR connect-token and game share-token URLs, not a separate invite-code system. Both inviter and invitee receive +10 permanent credits when invitee logs their first approved game.
-4. **Public profile** at `/u/[username]` — opt-in, three-state privacy (`private` / `stats` / `full`). Phase 2 surface.
+4. **Public profile** at `/u/[username]` — opt-in, three-state privacy (`private` / `stats` / `full`).
+5. **Family shared credits** — a household construct where 1–2 parents and N children share a single credit pool, with parents controlling purchases and a +25%-per-member monthly bonus.
 
-The credit-driving thesis: feed FOMO + reaction dopamine drive existing users to log more sessions (each at 5 credits); referral attribution funnels new users in, each starting with a 10-credit nudge to log their first game.
+The credit-driving thesis: feed FOMO + reaction dopamine drive existing users to log more sessions (each at 5 credits); referral attribution funnels new users in, each starting with a 10-credit nudge to log their first game; family pools concentrate household credit spend onto one paying account.
 
 ---
 
-## 1. Phasing
+## 1. Implementation plans
 
-| Phase | Scope | Why this split |
-|---|---|---|
-| **Phase 1 (MVP)** | Feed on `/app/profile`, scorecards, reactions, two new notification types, referral attribution + credit-bonus payout, privacy fields in DB | Self-contained credit-driving slice. Privacy fields ship in the same migration to avoid a second schema change in Phase 2. |
-| **Phase 2** | `/u/[username]` public profile renderer, privacy settings UI in `/app/settings`, "X friends invited" identity-card chip | Builds on Phase 1's schema. Splits the public-rendering work from the engagement-loop work so MVP can ship sooner. |
+Everything in this spec ships in a single design pass, but the implementation is split into **three plans** grouped by feature coherence so each plan can be reviewed and shipped independently.
 
-The design that follows covers both phases; the implementation plan will phase the work.
+| Plan | Scope |
+|---|---|
+| **Plan 1 — Engagement** | Reaction schema, `Scorecard` component, personal feed on `/app/profile`, reactions backend + UI, two new notification types (`connection_game_logged`, `reaction_received`) with batching, compact-row reaction count badge on existing `PaginatedGamesTable`. |
+| **Plan 2 — Acquisition** | Referral schema + anti-abuse fields, signal capture at signup, email normalization, risk scoring at payout, credit-bonus payout hook on first approved game, welcome banner + toast + referrer notification, `/u/[username]` public profile renderer, privacy settings UI in `/app/settings`, anonymization of opponents per `allowAppearInOthers`. |
+| **Plan 3 — Family shared credits** | `Family` + `FamilyMember` schema, parent invite flow (existing-user invite via QR/shareable-link, like the existing connect-token pattern), child-account creation flow, shared pool semantics, +25%/member monthly cron adjustment, parent purchase routing, child purchase block, `/app/family` parent dashboard, family pool surfaced in `/app/credits`. |
+
+The three plans are mostly independent: Plan 1 and Plan 2 share the schema migration but not much else. Plan 3 is self-contained except where it touches game-logging credit deduction (which Plan 2 also touches lightly for referral payout).
 
 ---
 
@@ -39,22 +43,25 @@ All schema changes are **additive**. No destructive migrations.
 model User {
   // existing fields preserved...
 
-  // Referral attribution (Phase 1)
+  // Referral attribution (Plan 2)
   referredByUserId    String?
   referredBy          User?    @relation("Referrer", fields: [referredByUserId], references: [id], onDelete: SetNull)
   referrals           User[]   @relation("Referrer")
   referralBonusPaid   Boolean  @default(false)
 
-  // Anti-abuse signals (Phase 1)
+  // Anti-abuse signals (Plan 2)
   signupIp            String?   // captured at user creation, hashed
   emailNormalized     String?   // lowercased local-part with `+suffix` and Gmail `.` stripped, then domain. Unique-indexed.
   lastSeenIp          String?   // updated on each authenticated request (hashed), used for collusion signals at payout time
   lastSeenAt          DateTime?
   referralFlags       Json?     // structured admin signals, see section 7.1
 
-  // Privacy (fields land in Phase 1, surfaced in Phase 2)
+  // Privacy (Plan 2)
   publicProfileMode   String   @default("private")  // 'private' | 'stats' | 'full'
   allowAppearInOthers Boolean  @default(false)
+
+  // Family membership (Plan 3) — back-relation; see Family / FamilyMember models in §6.5
+  familyMember        FamilyMember?
 }
 ```
 
@@ -170,7 +177,7 @@ Recent activity                          [🗓 All time ▾]
 - Vertical stack of scorecards, paginated 10 per page using the same `PaginatedGamesTable` footer pattern.
 - Empty state: existing `EmptyState` component with a dice icon and a "Log your first game" CTA pointing to the `LogGameLauncher`.
 
-### 3.3 Public profile `/u/[username]` (Phase 2)
+### 3.3 Public profile `/u/[username]` (Plan 2)
 
 Distinct two-band layout, deliberately more "destination" than the rest of the authenticated app:
 
@@ -204,7 +211,7 @@ Same scorecard component as 3.1, with the anonymization rules from 3.1 applied p
 
 **404 path** (when `publicProfileMode === 'private'` or username not found): generic "Profile not found" page. Do **not** distinguish "private" from "doesn't exist" — privacy by obscurity.
 
-### 3.4 Privacy settings (Phase 2, in `/app/settings`)
+### 3.4 Privacy settings (Plan 2, in `/app/settings`)
 
 A new section card "Profile & privacy" using the existing settings-section pattern. Three controls:
 
@@ -346,7 +353,7 @@ Modify `startConnectRegister` to attach `referredByUserId: target.id` on user cr
 
 **(b) Share-token registration** (`src/app/share/[token]/...`):
 
-The share-token currently doesn't have a register flow — it's a read-only public game page. Phase 1 adds:
+The share-token currently doesn't have a register flow — it's a read-only public game page. Plan 2 adds:
 - A `Sign up to log your own games` CTA on the share page (visible when unauthenticated).
 - On click → `/en/auth/register?ref=<game.league.ownerId>` (or similar — exact param shape TBD in implementation).
 - Register flow honors `ref` query param the same way `connect-token` honors the token: stores `referredByUserId` on user creation.
@@ -395,8 +402,8 @@ export function anonymizeName(viewer: 'public', subject: { allowAppearInOthers: 
 ```
 
 Applied in:
-- `src/app/[locale]/u/[username]/page.tsx` (Phase 2): early 404 if `publicProfileMode === 'private'`.
-- `loadPublicFeed` (Phase 2): maps over score entries and replaces names per `allowAppearInOthers` of each player's linked user.
+- `src/app/[locale]/u/[username]/page.tsx` (Plan 2): early 404 if `publicProfileMode === 'private'`.
+- `loadPublicFeed` (Plan 2): maps over score entries and replaces names per `allowAppearInOthers` of each player's linked user.
 
 ---
 
@@ -451,6 +458,220 @@ English equivalents mirror the structure. The `referralPayoutNotificationBody` f
 | Referrer deletes account before bonus payout. | `referredByUserId` becomes NULL. Invitee still gets their +10. Referrer leg skipped. |
 | Reaction created, then league member is removed from the league. | Existing reactions remain (historical). New reactions blocked because authorization re-checks league membership at action time. |
 | Game is rejected (approved → rejected via admin path). | Existing reactions stay (referenced game still exists). Card no longer surfaces in feeds because the query filters `status = 'approved'`. |
+
+---
+
+## 6.5 Family shared credits (Plan 3)
+
+A household construct that lets one or two parents and N children share a single credit pool. The credit-economy thesis: parents who would otherwise see their kids drift away from logging (because each kid needs their own purchased credits) instead concentrate all household spend onto one paying account, with a small monthly bonus that thanks them for the consolidation.
+
+### Family structure
+
+| Role | Count | Capability |
+|---|---|---|
+| Parent | 1 (creator) to 2 max | Can buy credits, invite/remove members, see full family activity, manage family settings |
+| Child | 0 to N (soft cap 5; see §7.1 caps) | Can log games (debits family pool), see own activity, **cannot** purchase credits |
+
+The creator of the family becomes parent #1 automatically. A second parent can be promoted from a child member or invited as a parent directly.
+
+### Schema
+
+```prisma
+model Family {
+  id                String         @id @default(cuid())
+  name              String?
+  monthlyCredits    Int            @default(0)   // family-pool monthly credits (resets per cron)
+  permanentCredits  Int            @default(0)   // family-pool permanent credits (from purchases, referrals if applicable, never reset)
+  createdAt         DateTime       @default(now())
+  members           FamilyMember[]
+  creditTransactions CreditTransaction[]         // see below: tx rows can reference Family OR User
+}
+
+model FamilyMember {
+  id        String   @id @default(cuid())
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  userId    String   @unique  // a user can only be in one family at a time
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   // 'parent' | 'child'
+  joinedAt  DateTime @default(now())
+
+  @@index([familyId])
+}
+```
+
+The `User.familyMember` back-relation provides convenient access from a session-user lookup. `User.credits` fields are not removed — they stay frozen for members and resume on leaving.
+
+The existing `CreditTransaction` model gains an optional `familyId` FK so credit transactions can be attributed to the family pool rather than a user. When non-null, `userId` continues to identify which member triggered the spend (for visibility in `/app/family`).
+
+```prisma
+model CreditTransaction {
+  // existing fields...
+  familyId  String?
+  family    Family? @relation(fields: [familyId], references: [id], onDelete: SetNull)
+}
+```
+
+### Family creation
+
+`/app/family/new` (or a "Create family" CTA on `/app/credits` and `/app/profile`):
+
+1. User clicks "Start a family"
+2. Inline form: optional family name (default: "{User's name}'s family")
+3. Server action `createFamily()`:
+   - Creates `Family` row with the user as parent
+   - Migrates the user's current `permanentCredits` into the family wallet (one-way — user's permanent is now 0, family's permanent has those credits)
+   - User's `monthlyCredits` stays where it is until next monthly cron; from next cron onward, allocations go to family wallet
+4. Redirects to `/app/family`
+
+This migration of permanent credits at creation makes the transition clean: the parent doesn't "lose" credits, they just move them into the shared wallet they control. Reversible (see "Disbanding a family").
+
+### Member invite flows
+
+Two paths, both reusing existing share-token / QR infrastructure:
+
+**(a) Invite existing user (adult parent or existing child user)**
+
+Reuses the same pattern as `ConnectionRequest` but with type `family_invite`:
+
+- Parent searches `/app/family → "Add member"` for an existing username/email.
+- Server creates a `ConnectionRequest` row with `context: 'family_parent'` or `context: 'family_child'` (extending the existing `context` field — currently 'player_list' etc.).
+- Recipient sees notification (`family_invite`), accepts via `/app/notifications`.
+- On accept: `FamilyMember` row created with `role` matching the requested context.
+
+For the **QR/share-link** variant: parent can generate a family-invite QR (separate from the existing connect-token QR — uses its own short-lived token type). Scanning it routes to `/family/invite/[token]` which behaves identically to the connect-token flow but creates a family-membership instead of (or in addition to) a vault connection.
+
+**(b) Create child account from scratch**
+
+For young kids who don't have their own email/account:
+
+- Parent on `/app/family → "Add a child"` fills:
+  - Display name (required)
+  - Birthdate (optional, used only for age-appropriate UI hints — see "Anti-abuse for families")
+  - Username for the child (required; must be unique)
+  - Password (parent sets initial password; child can change later)
+  - Email: optional — if provided, child can recover their own password; if empty, only parent can reset (admin tool or "parent can issue a new password" flow on `/app/family`)
+- Server creates a new `User` row with:
+  - `emailVerified` = creation time (no verification needed — parent vouches)
+  - `referredByUserId` = null (child creation does not pay out the referral bonus; that would be a self-referral)
+  - `familyMember` linked immediately with `role: 'child'`
+  - Password hashed normally
+- Child can now log in at the standard `/auth/login` with their username + password
+
+Both flows respect the family-size cap (max 2 parents + N children, with N soft-capped at 5 — adjustable later).
+
+### Pool semantics
+
+While a user is in a family:
+
+| Action | Effect |
+|---|---|
+| Log a game (5 credit cost) | Deducts from `Family.monthlyCredits` first, then `Family.permanentCredits`. Same logic as the existing User-level deduction, just on the family wallet. |
+| Monthly cron fires | For each `FamilyMember`, contribute `(baseMonthlyAmount * 1.25)` to `Family.monthlyCredits`. Member's own `User.monthlyCredits` is **not** touched. |
+| Purchase credits | Only parents (`role: 'parent'`) can initiate. Purchased credits land in `Family.permanentCredits`. Children attempting to access the purchase flow see a friendly "Ask {parent name} to top up the family pool" message. |
+| Receive a referral bonus (via `referredByUserId`) | Paid into the receiver's `User.permanentCredits`. This is by design — referral attribution is per-user, not per-family, so children who got referred before joining a family keep their own bonus and bring it in if/when they leave. |
+| Receive admin credit adjustment | Admin can target either `User.permanentCredits` (the individual) or `Family.permanentCredits` (the pool). Default UI on `/admin/credits` will gain a "Apply to family pool" toggle when the target user is in a family. |
+
+When pool is empty: hard stop. Any family member attempting to log a game sees "Family pool is empty — {parent name} needs to top up." No fallback to personal credits (kept simple, as discussed).
+
+### Leaving a family
+
+Two paths: voluntary leave (member-initiated) or parent removal (admin-initiated within the family).
+
+| Path | Behavior |
+|---|---|
+| Member leaves voluntarily | `FamilyMember` row deleted. Member's `User.monthlyCredits` resumes accruing on next cron. Their `User.permanentCredits` resumes being relevant. The family wallet is untouched — credits stay with the family. |
+| Parent removes a child | Same as above; family wallet keeps its credits. |
+| Last parent leaves | If only one parent remains, they must designate a new parent or disband first. If the lone parent leaves with children still present, the family is auto-disbanded (see below). |
+| Family disbanded | All members released. `Family.permanentCredits` is transferred to whoever was the disbander (acknowledged in UI: "Your family's 47 remaining credits have been moved to your personal balance"). `Family.monthlyCredits` is forfeit (it was a perk of being in a family). Family row is soft-deleted (kept for credit-transaction history). |
+
+### `/app/family` parent dashboard
+
+Visible only to parents:
+
+```
+Family ─────────────────────────────────────── ⚙ Manage
+
+Pool: 173 credits  (47 monthly · 126 permanent)        [+ Top up]
+
+Members (3) ──────────────────────────────────  + Add member
+  [avatar] Bartus (you) · parent           ───
+  [avatar] Anna · parent · since 3 days ago ───
+  [avatar] Tim · child · since 12 days ago ───
+  [avatar] Eva · child · since 12 days ago ───
+
+Recent family activity ──────────────────────  
+  [scorecard] Risk in Sundays · Tim won · 2h ago    5 cr
+  [scorecard] Catan in Vrijdag · Eva 4th · 1d ago   5 cr
+  ...
+```
+
+- Members list shows role, join date, recent-activity count, and (for children) per-month credit usage.
+- Tapping a member opens a detail sheet with usage breakdown and "Remove from family" (parents only).
+- Recent activity is the union of all members' approved games, descending by `playedAt`.
+
+### `/app/credits` for family members
+
+- Parents: balance shows the family pool prominently; existing "buy credits" CTA continues to work (purchases route into the family wallet).
+- Children: balance shows the family pool with a "Managed by {parent name}" label; buy CTA is replaced with a passive "Family credits are managed by {parent name}" note.
+
+### Recap on the family monthly bonus
+
+Each `FamilyMember` contributes `baseMonthlyAmount × 1.25` to `Family.monthlyCredits` at each monthly cron tick. So:
+
+- Solo user: 50 credits/month (existing baseline; verify exact number)
+- Family of 2: 2 × (50 × 1.25) = 125 credits/month
+- Family of 4: 4 × 62.5 = 250 credits/month
+- Family of 6 (cap): 6 × 62.5 = 375 credits/month
+
+This is a 25% premium per member vs. solo accrual. The economic rationale: a family of 4 would otherwise accumulate 4 × 50 = 200 credits/month of personal allowance, only meaningful if each member separately logs and would otherwise let unused credits expire. The pool consolidates the unused-by-individuals slack into a usable bucket and adds 25% on top as a thank-you for consolidating spend onto one payer.
+
+### Anti-abuse for families
+
+Families are a new abuse vector (fake "families" of unrelated adults harvesting +25%/member). Apply the same signals as referral anti-abuse (§7.1):
+
+- **At family creation**: capture parent's `signupIp` / `lastSeenIp`. No action yet.
+- **At member-add time**: compute risk signals between the inviting parent and the invited member (or for child-account creation, between the parent and the new account's `signupIp` — which is the parent's own IP).
+  - For child accounts created from parent's IP: this is *expected*, no flag.
+  - For adult-invite where the invitee's `signupIp` differs from any existing parent's `signupIp` AND fuzzy-email doesn't match: CLEAN.
+  - For adult-invite where the invitee's `lastSeenIp` matches the parent's `lastSeenIp` but `signupIp` differs: LOW (probably playing together IRL).
+  - For adult-invite where the invitee's `signupIp` == parent's `signupIp` AND emails fuzzy-match: HIGH (likely same person).
+- **Policy**: HIGH-flagged family additions block, with a notice to the parent: "We couldn't add this member automatically — contact support."
+- **Family size hard cap**: 6 total members enforced server-side regardless of role.
+- **Per-IP family cap**: at most 1 family ever created from a given `signupIp` (admin can override for genuine cases — e.g., legitimate large households sharing one router).
+
+### Translation keys (additions)
+
+```json
+{
+  "family": {
+    "sectionHeading": "Familie",
+    "createCta": "Familie starten",
+    "membersHeading": "Familieleden",
+    "addMember": "Lid toevoegen",
+    "inviteAdult": "Bestaande gebruiker uitnodigen",
+    "createChild": "Kind account aanmaken",
+    "poolBalance": "Pool: {n} credits",
+    "poolBreakdown": "{monthly} maandelijks · {permanent} permanent",
+    "managedBy": "Beheerd door {name}",
+    "topUp": "Aanvullen",
+    "buyBlockedChild": "Familiecredits worden beheerd door {name}",
+    "memberLeaveConfirm": "Weet je zeker dat je {name} uit de familie wilt halen?",
+    "disbandConfirm": "Familie ontbinden? Resterende credits gaan naar jou.",
+    "poolEmpty": "Familie-pool is leeg — vraag {name} om aan te vullen.",
+    "familyInviteTitle": "{name} nodigt je uit voor hun familie",
+    "familyInviteBody": "Accepteer om credits te delen.",
+    "familyInviteAccepted": "Welkom bij de familie van {name}!",
+    "addChildNameLabel": "Naam",
+    "addChildUsernameLabel": "Gebruikersnaam",
+    "addChildPasswordLabel": "Wachtwoord (kind kan dit later wijzigen)",
+    "addChildEmailLabel": "E-mail (optioneel)",
+    "familySizeCapReached": "Maximum aantal leden bereikt"
+  }
+}
+```
+
+English mirrors.
 
 ---
 
@@ -556,7 +777,7 @@ The invitee always gets their +10 unless the *invitee account itself* is flagged
 
 #### Admin surfacing
 
-A new admin section under `/admin/referrals` (Phase 2 of the admin work — out of scope for *this* spec's implementation but designed-for in the schema):
+A new admin section under `/admin/referrals` (out of scope for the three plans here — admin-side follow-up — but designed-for in the schema):
 - List of all payouts with their signal, reasons, and timestamps
 - Filter: HIGH-flagged within last 30 days
 - Action: reverse a payout (debits both users, sets `referralBonusPaid = false` so the invitee could in theory earn the bonus again with a different inviter; admin discretion)
@@ -571,33 +792,70 @@ This is the safety valve: design assumes most automated decisions are right but 
 
 ---
 
-## 8. Implementation phasing
+## 8. Implementation grouping (3 plans)
 
-| Step | Phase | Files touched |
-|---|---|---|
-| Prisma migration: User additions + `PlayedGameReaction` model | 1 | `prisma/schema.prisma`, new migration file |
-| `src/lib/reactions.ts` (allowed set constant) | 1 | new |
-| `src/app/app/social/actions.ts` (`toggleReaction`) | 1 | new |
-| `src/lib/social/loadFeed.ts` (`loadPersonalFeed`) | 1 | new |
-| `src/components/social/Scorecard.tsx` | 1 | new |
-| `/app/profile` restructure: identity card + feed | 1 | `src/app/app/profile/ProfileClient.tsx`, `page.tsx` |
-| Compact-row reaction badge in `PaginatedGamesTable` | 1 | `src/components/stats/PaginatedGamesTable.tsx` |
-| Referral attribution: connect-token + register-with-ref | 1 | `src/app/[locale]/connect/[token]/actions.ts`, `src/app/[locale]/auth/register/actions.ts` (or wherever signup lives) |
-| Anti-abuse signal capture at signup (`signupIp`, `emailNormalized`, UA) | 1 | `src/lib/email/normalize.ts` (new), signup action paths above |
-| Anti-abuse: `lastSeenIp` middleware hook | 1 | `src/middleware.ts` extension or per-request auth hook |
-| Anti-abuse: risk scoring + payout policy | 1 | `src/lib/social/referralRisk.ts` (new), wired into the payout hook |
-| Anti-abuse: per-referrer 30-day cap + per-IP lifetime cap | 1 | enforced in the payout hook |
-| Referral payout hook on game approval | 1 | hook into existing `approvePlayedGame` and direct-log paths |
-| Welcome banner | 1 | new client component, mounted in `/app/layout.tsx` |
-| Two new notification types + email templates | 1 | `NotificationsClient.tsx`, `emailTemplates.ts`, `emailPreferences.ts` |
-| Density: batching of `connection_game_logged` | 1 | `NotificationBell.tsx` rendering layer |
-| Identity-card referrals chip | 1 | `ProfileClient.tsx` |
-| `/app/settings` Privacy section | 2 | `src/app/app/settings/sections/PrivacySection.tsx` (new) |
-| Admin `/admin/referrals` review surface | 2 (or later) | `src/app/admin/referrals/*` (new). Out of scope for this spec's implementation plan but designed-for in the schema (`referralFlags`, signals stored). |
-| `/u/[username]` page + 404 handling | 2 | `src/app/[locale]/u/[username]/page.tsx` (new) |
-| `loadPublicFeed` with anonymization | 2 | `src/lib/social/loadFeed.ts` |
-| Hero band + trophy shelf | 2 | `src/components/social/PublicProfileHero.tsx`, `TrophyShelf.tsx` (new) |
-| Share-page CTA + register-with-ref param flow | 2 | `src/app/share/[token]/page.tsx`, auth register flow |
+The work below is grouped into three independently-shippable plans. Each plan ends with a copy update — Plan 3 (the last to ship) also handles a holistic landing-page + README sweep mentioning the full feature set.
+
+### Plan 1 — Engagement
+
+Schema, scorecard, feed, reactions, notifications.
+
+| Step | Files touched |
+|---|---|
+| Prisma migration: `PlayedGameReaction` model + reaction-related User indexes (no User additions yet — those land with Plan 2 to keep the migration scope honest) | `prisma/schema.prisma`, new migration |
+| `src/lib/reactions.ts` (allowed set constant) | new |
+| `src/app/app/social/actions.ts` (`toggleReaction`) | new |
+| `src/lib/social/loadFeed.ts` (`loadPersonalFeed`) | new |
+| `src/components/social/Scorecard.tsx` | new |
+| `/app/profile` restructure: identity card + feed | `src/app/app/profile/ProfileClient.tsx`, `page.tsx` |
+| Compact-row reaction badge in `PaginatedGamesTable` | `src/components/stats/PaginatedGamesTable.tsx` |
+| Two new notification types (`connection_game_logged`, `reaction_received`) + icon/color/route + email templates | `NotificationsClient.tsx`, `emailTemplates.ts`, `emailPreferences.ts` |
+| Density: batching of `connection_game_logged` | `NotificationBell.tsx` rendering layer |
+| Plan-1 landing/README copy update — feed + reactions section | `src/app/[locale]/(marketing)/page.tsx`, `README.md` |
+
+### Plan 2 — Acquisition
+
+Referral attribution, anti-abuse, public profile, privacy. Includes the User-table schema additions (`referredByUserId`, `referralBonusPaid`, anti-abuse fields, `publicProfileMode`, `allowAppearInOthers`) — one migration covers everything Plan 2 needs.
+
+| Step | Files touched |
+|---|---|
+| Prisma migration: User additions for referral + anti-abuse + privacy | `prisma/schema.prisma`, new migration |
+| `src/lib/email/normalize.ts` (email canonicalization) | new |
+| `src/lib/social/referralRisk.ts` (signal scoring + payout policy) | new |
+| Anti-abuse signal capture at signup (`signupIp`, `emailNormalized`, UA) | signup action paths |
+| Anti-abuse: `lastSeenIp` middleware hook | `src/middleware.ts` |
+| Referral attribution: connect-token registration | `src/app/[locale]/connect/[token]/actions.ts` |
+| Referral attribution: share-token signup CTA + register-with-ref param | `src/app/share/[token]/page.tsx`, signup action |
+| Referral payout hook on first approved game | hooked into every `status → 'approved'` transition path |
+| Per-referrer 30-day cap + per-IP lifetime cap | enforced in payout hook |
+| Welcome banner | new client component, mounted in `/app/layout.tsx` |
+| Identity-card referrals chip ("3 friends invited") | `ProfileClient.tsx` |
+| `/app/settings` Privacy section | `src/app/app/settings/sections/PrivacySection.tsx` (new) |
+| `/u/[username]` page + 404 handling | `src/app/[locale]/u/[username]/page.tsx` (new) |
+| `loadPublicFeed` with anonymization | `src/lib/social/loadFeed.ts` |
+| Hero band + trophy shelf | `src/components/social/PublicProfileHero.tsx`, `TrophyShelf.tsx` (new) |
+| Plan-2 landing/README copy update — referral + public profile section | `src/app/[locale]/(marketing)/page.tsx`, `README.md` |
+
+### Plan 3 — Family shared credits
+
+Self-contained except for credit-deduction-on-log integration.
+
+| Step | Files touched |
+|---|---|
+| Prisma migration: `Family` + `FamilyMember` models + `CreditTransaction.familyId` field | `prisma/schema.prisma`, new migration |
+| `src/lib/family/membership.ts` (member queries, role checks) | new |
+| `src/app/app/family/actions.ts` (createFamily, addParent, addChild, removeMember, disband, acceptFamilyInvite) | new |
+| Family-invite via existing `ConnectionRequest` (`context: 'family_*'`) | `src/app/app/connections/actions.ts` extension |
+| Family-invite QR/share-link token type | new in `src/app/[locale]/family/invite/[token]/page.tsx` |
+| Child-account creation flow (parent-managed credentials) | inside `family/actions.ts` |
+| Anti-abuse signals at family-add time (reuse `referralRisk.ts` patterns) | extension of `referralRisk.ts` or sibling file |
+| Modify game-logging credit deduction: route to `Family` wallet when user is a member | `src/app/app/leagues/[id]/log/actions.ts` (and wherever the existing deduction lives) |
+| Monthly cron: +25%/member contribution to `Family.monthlyCredits` instead of `User.monthlyCredits` for members | the existing monthly-reset cron job |
+| Block credit purchases for children; route parent purchases to family wallet | existing purchase action |
+| `/app/family` parent dashboard (members list + pool + recent activity) | new |
+| `/app/credits` family-aware rendering (pool view, child-locked buy CTA) | `CreditsClient.tsx` |
+| Family-invite notification type | extend Notification system |
+| Plan-3 landing/README copy update — family credits section; holistic sweep across landing & README mentioning all three plans' features (feed, reactions, referral, public profile, privacy, family) | `src/app/[locale]/(marketing)/page.tsx`, `README.md`, `docs/design-guidelines.md` (Shared components registry §13) |
 
 ---
 
@@ -612,6 +870,9 @@ This is the safety valve: design assumes most automated decisions are right but 
 - Per-IP lifetime cap (3 accounts) — too aggressive for shared-household legitimate use? Ship at 3, monitor `referralFlags.reason = 'ip_cap_exceeded'` telemetry, tune if it bites genuine users.
 - Where exactly the played-game approval transition is fired (`approvePlayedGame` is one path; owner-logged games may skip approval entirely and land as `approved` directly). Implementation plan needs to enumerate every code path that transitions `status → 'approved'` and wire the referral-payout hook into each.
 - IP-hashing salt rotation policy. Initial: static server secret; if leaked, prior signals become non-comparable but going forward stays meaningful. Acceptable for v1.
+- Family creation migrating `permanentCredits` into the family wallet — should this be opt-in (user explicitly clicks "Move my credits") or automatic (one-way at creation, as currently designed)? Automatic is simpler and the disband flow reverses it; might revisit if it surprises users.
+- Family monthly bonus stacking with referral bonus — does a referred user who joins a family lose access to their +10 referral bonus? Designed as: referral payout goes to the user's `User.permanentCredits`, which is frozen-but-not-deleted while in a family. When they leave, the +10 returns to use. Effectively the bonus is "banked" until family membership ends. Confirm this is the desired behavior.
+- Whether to allow a second parent to be invited from outside the family (i.e., adding a new adult straight as a parent), or whether second-parent promotion must come from an existing child member graduating. Current design allows both — confirm.
 
 ---
 
