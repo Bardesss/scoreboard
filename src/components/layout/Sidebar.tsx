@@ -46,38 +46,36 @@ export default function Sidebar({ name, email, credits, unreadCount, notificatio
       </div>
 
       {/* Credit chip */}
-      <div className="px-4 mb-3">
+      <div className="px-4 mb-4">
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.18)' }}>
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f5a623' }} />
           <span className="font-headline font-bold text-[12px]" style={{ color: '#f5a623' }}>{tCredits('balance', { n: credits })}</span>
         </div>
       </div>
 
-      {/* Log game CTA */}
-      <div className="px-4 mb-4">
+      {/* Nav */}
+      <nav className="flex-1 px-3 space-y-0.5">
         <button
           type="button"
           onClick={logGame.open}
-          className="flex items-center justify-center gap-2 w-full font-headline font-bold text-[13px] tracking-[-0.005em] transition-all"
+          className="flex items-center gap-[11px] w-full px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all"
           style={{
-            padding: '10px 14px',
-            borderRadius: 12,
-            background: '#f5a623',
-            color: '#1c1408',
-            border: '1px solid rgba(245,166,35,0.6)',
-            boxShadow: '0 4px 16px rgba(245,166,35,0.3)',
+            background: 'rgba(245,166,35,0.12)',
+            color: '#f5a623',
+            boxShadow: 'inset 0 0 0 1px rgba(245,166,35,0.22)',
             cursor: 'pointer',
+            textAlign: 'left',
+            fontFamily: 'inherit',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#ffb533' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#f5a623' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.18)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.12)' }}
         >
-          <Plus size={16} strokeWidth={2.5} />
+          <Plus size={17} strokeWidth={2.4} className="flex-shrink-0" />
           {tLog('trigger')}
         </button>
-      </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 space-y-0.5">
+        <div aria-hidden style={{ height: 1, margin: '8px 6px', background: 'rgba(245,166,35,0.08)' }} />
+
         {NAV.map(({ key, href, icon: Icon }) => {
           const active = pathname.startsWith(href)
           return (
