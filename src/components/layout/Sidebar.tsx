@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Users, Dices, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, Users, Dices, ClipboardList, Plus } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 import { UserMenu } from './UserMenu'
+import { useLogGame } from './LogGameLauncher'
 
 type NotificationItem = {
   id: string
@@ -26,6 +27,8 @@ export default function Sidebar({ name, email, credits, unreadCount, notificatio
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
+  const tLog = useTranslations('app.logGame')
+  const logGame = useLogGame()
 
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col z-40" style={{ background: '#1c1810', borderRight: '1px solid rgba(245,166,35,0.08)' }}>
@@ -43,11 +46,34 @@ export default function Sidebar({ name, email, credits, unreadCount, notificatio
       </div>
 
       {/* Credit chip */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-3">
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.18)' }}>
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f5a623' }} />
           <span className="font-headline font-bold text-[12px]" style={{ color: '#f5a623' }}>{tCredits('balance', { n: credits })}</span>
         </div>
+      </div>
+
+      {/* Log game CTA */}
+      <div className="px-4 mb-4">
+        <button
+          type="button"
+          onClick={logGame.open}
+          className="flex items-center justify-center gap-2 w-full font-headline font-bold text-[13px] tracking-[-0.005em] transition-all"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 12,
+            background: '#f5a623',
+            color: '#1c1408',
+            border: '1px solid rgba(245,166,35,0.6)',
+            boxShadow: '0 4px 16px rgba(245,166,35,0.3)',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#ffb533' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#f5a623' }}
+        >
+          <Plus size={16} strokeWidth={2.5} />
+          {tLog('trigger')}
+        </button>
       </div>
 
       {/* Nav */}

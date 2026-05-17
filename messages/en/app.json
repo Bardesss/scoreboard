@@ -89,6 +89,21 @@
     "support": "Support",
     "vaultKeeper": "Vault Keeper"
   },
+  "logGame": {
+    "trigger": "Log game",
+    "title": "Which competition?",
+    "subtitle": "Pick where to log this game",
+    "emptyTitle": "No competitions yet",
+    "emptyBody": "Create a competition first to start logging games.",
+    "emptyCta": "Create competition",
+    "neverPlayed": "Not played yet",
+    "playedToday": "Played today",
+    "playedYesterday": "Played yesterday",
+    "playedDaysAgo": "{count}d ago",
+    "playedWeeksAgo": "{count}w ago",
+    "playedMonthsAgo": "{count}mo ago",
+    "close": "Close"
+  },
   "support": {
     "title": "Support",
     "newTicket": "New ticket",

@@ -89,6 +89,21 @@
     "support": "Support",
     "vaultKeeper": "Vault Keeper"
   },
+  "logGame": {
+    "trigger": "Partij loggen",
+    "title": "Welke competitie?",
+    "subtitle": "Kies waar je deze partij wilt loggen",
+    "emptyTitle": "Nog geen competities",
+    "emptyBody": "Maak eerst een competitie aan om partijen te kunnen loggen.",
+    "emptyCta": "Competitie aanmaken",
+    "neverPlayed": "Nog niet gespeeld",
+    "playedToday": "Vandaag gespeeld",
+    "playedYesterday": "Gisteren gespeeld",
+    "playedDaysAgo": "{count}d geleden",
+    "playedWeeksAgo": "{count}w geleden",
+    "playedMonthsAgo": "{count}m geleden",
+    "close": "Sluiten"
+  },
   "support": {
     "title": "Support",
     "newTicket": "Nieuw ticket",
