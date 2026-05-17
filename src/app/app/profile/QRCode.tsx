@@ -10,7 +10,7 @@ export function QRCodeCanvas({ value }: { value: string }) {
     QRCode.toCanvas(canvasRef.current, value, {
       width: 200,
       margin: 2,
-      color: { dark: '#1c1810', light: '#fffdf9' },
+      color: { dark: '#1e1a14', light: '#fefcf8' },
     })
   }, [value])
 

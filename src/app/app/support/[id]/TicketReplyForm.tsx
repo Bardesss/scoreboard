@@ -22,8 +22,8 @@ export default function TicketReplyForm({ ticketId, replyLabel, placeholder }: {
         placeholder={placeholder}
         style={{
           width: '100%', padding: '10px 14px', boxSizing: 'border-box',
-          background: '#fffdf9', border: '1px solid #e8e1d8', borderRadius: 12,
-          color: '#1c1810', fontSize: 14, resize: 'vertical', outline: 'none',
+          background: '#fefcf8', border: '1px solid #e8e1d8', borderRadius: 12,
+          color: '#1e1a14', fontSize: 14, resize: 'vertical', outline: 'none',
         }}
       />
       <TicketAttachmentUploader

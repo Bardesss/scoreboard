@@ -19,7 +19,7 @@ export function Step1Basics({ state, onChange }: Props) {
           onChange={e => onChange({ name: e.target.value })}
           placeholder={t('namePlaceholder')}
           className="w-full px-4 py-3 rounded-xl border font-body text-sm"
-          style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+          style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
           onFocus={e => (e.target.style.borderColor = '#f5a623')}
           onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
         />

@@ -17,8 +17,8 @@ export function LogoutSection() {
   }
 
   return (
-    <section className="rounded-3xl p-6" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1c1810' }}>{t('title')}</h2>
+    <section className="rounded-3xl p-6" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1e1a14' }}>{t('title')}</h2>
       <p className="font-body text-sm mb-4" style={{ color: '#9a8878' }}>{t('description')}</p>
 
       {confirming ? (
@@ -48,7 +48,7 @@ export function LogoutSection() {
           type="button"
           onClick={() => setConfirming(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-headline font-bold text-sm"
-          style={{ background: '#fef3e2', color: '#1c1810', border: '1px solid #f5a623' }}
+          style={{ background: '#fef3e2', color: '#1e1a14', border: '1px solid #f5a623' }}
         >
           <LogOut size={15} />
           {t('button')}

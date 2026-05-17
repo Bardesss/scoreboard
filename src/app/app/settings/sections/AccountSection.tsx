@@ -46,8 +46,8 @@ export function AccountSection({
   }
 
   return (
-    <section className="rounded-3xl p-6" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1c1810' }}>{t('title')}</h2>
+    <section className="rounded-3xl p-6" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1e1a14' }}>{t('title')}</h2>
       <p className="font-body text-sm mb-4" style={{ color: '#9a8878' }}>{t('description')}</p>
 
       <div className="space-y-3 mb-5">
@@ -55,14 +55,14 @@ export function AccountSection({
           <Mail size={16} style={{ color: '#9a8878', flexShrink: 0 }} />
           <div className="flex-1 min-w-0">
             <div className="font-body text-xs" style={{ color: '#9a8878' }}>{t('emailLabel')}</div>
-            <div className="font-body text-sm truncate" style={{ color: '#1c1810' }}>{email}</div>
+            <div className="font-body text-sm truncate" style={{ color: '#1e1a14' }}>{email}</div>
           </div>
         </div>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: '#f5f0e8' }}>
           <CalendarDays size={16} style={{ color: '#9a8878', flexShrink: 0 }} />
           <div className="flex-1 min-w-0">
             <div className="font-body text-xs" style={{ color: '#9a8878' }}>{t('createdAtLabel')}</div>
-            <div className="font-body text-sm" style={{ color: '#1c1810' }}>{createdAtLabel}</div>
+            <div className="font-body text-sm" style={{ color: '#1e1a14' }}>{createdAtLabel}</div>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@ export function AccountSection({
               placeholder={t('deletePasswordPlaceholder')}
               autoFocus
               className="w-full px-4 py-2.5 rounded-xl font-body text-sm outline-none"
-              style={{ background: '#fff', border: '1px solid #dc2626', color: '#1c1810' }}
+              style={{ background: '#fff', border: '1px solid #dc2626', color: '#1e1a14' }}
             />
             <div className="flex gap-2">
               <button

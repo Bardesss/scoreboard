@@ -125,7 +125,7 @@ export function NotificationsClient({
           className="px-3 py-1.5 rounded-full font-headline font-bold text-xs"
           style={filter === 'all'
             ? { background: '#f5a623', color: '#1c1408' }
-            : { background: '#fffdf9', color: '#1c1810', border: '1px solid #e8e1d8' }
+            : { background: '#fefcf8', color: '#1e1a14', border: '1px solid #e8e1d8' }
           }
         >
           {t('filterAll')}
@@ -135,7 +135,7 @@ export function NotificationsClient({
           className="px-3 py-1.5 rounded-full font-headline font-bold text-xs"
           style={filter === 'unread'
             ? { background: '#f5a623', color: '#1c1408' }
-            : { background: '#fffdf9', color: '#1c1810', border: '1px solid #e8e1d8' }
+            : { background: '#fefcf8', color: '#1e1a14', border: '1px solid #e8e1d8' }
           }
         >
           {t('filterUnread')}
@@ -143,10 +143,10 @@ export function NotificationsClient({
       </div>
 
       {/* List */}
-      <section className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <section className="rounded-2xl overflow-hidden" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         {list.length === 0 ? (
           <div className="py-16 px-4 flex flex-col items-center gap-3 text-center">
-            <Inbox size={32} style={{ color: '#c4b79a' }} />
+            <Inbox size={32} style={{ color: '#c5b89f' }} />
             <p className="font-body text-sm" style={{ color: '#9a8878' }}>
               {filter === 'unread' ? t('emptyUnread') : t('noNotifications')}
             </p>
@@ -172,7 +172,7 @@ export function NotificationsClient({
                   >
                     <Icon size={20} style={{ color, flexShrink: 0, marginTop: 2 }} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-body text-sm" style={{ color: '#1c1810' }}>{label(n)}</p>
+                      <p className="font-body text-sm" style={{ color: '#1e1a14' }}>{label(n)}</p>
                       <p className="font-body text-xs mt-0.5" style={{ color: '#9a8878' }}>
                         {new Date(n.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </p>
@@ -203,13 +203,13 @@ export function NotificationsClient({
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #f0ebe3', background: '#fbf6ec' }}>
             {page > 1
-              ? <Link href={buildHref(page - 1)} className="font-body text-xs" style={{ color: '#1c1810' }}>{t('paginationPrev')}</Link>
-              : <span className="font-body text-xs" style={{ color: '#c4b79a' }}>{t('paginationPrev')}</span>
+              ? <Link href={buildHref(page - 1)} className="font-body text-xs" style={{ color: '#1e1a14' }}>{t('paginationPrev')}</Link>
+              : <span className="font-body text-xs" style={{ color: '#c5b89f' }}>{t('paginationPrev')}</span>
             }
             <span className="font-body text-xs" style={{ color: '#9a8878' }}>{t('pagination', { page, total: totalPages })}</span>
             {page < totalPages
-              ? <Link href={buildHref(page + 1)} className="font-body text-xs" style={{ color: '#1c1810' }}>{t('paginationNext')}</Link>
-              : <span className="font-body text-xs" style={{ color: '#c4b79a' }}>{t('paginationNext')}</span>
+              ? <Link href={buildHref(page + 1)} className="font-body text-xs" style={{ color: '#1e1a14' }}>{t('paginationNext')}</Link>
+              : <span className="font-body text-xs" style={{ color: '#c5b89f' }}>{t('paginationNext')}</span>
             }
           </div>
         )}

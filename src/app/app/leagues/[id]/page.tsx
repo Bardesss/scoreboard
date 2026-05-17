@@ -73,7 +73,7 @@ export default async function LeagueDetailPage({ params, searchParams }: PagePro
           {league.gameTemplate.icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="font-headline font-black text-2xl break-words" style={{ color: '#1c1810' }}>{league.name}</h1>
+          <h1 className="font-headline font-black text-2xl break-words" style={{ color: '#1e1a14' }}>{league.name}</h1>
           <p className="text-sm font-body" style={{ color: '#9a8878' }}>{league.gameTemplate.name}</p>
         </div>
         <Link

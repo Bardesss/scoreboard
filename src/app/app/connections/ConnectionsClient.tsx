@@ -57,7 +57,7 @@ export function ConnectionsClient({
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2 space-y-8">
-      <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>Connections</h1>
+      <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>Connections</h1>
 
       <section>
         <h2 className="font-headline font-bold text-sm uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>Find vault keepers</h2>
@@ -68,7 +68,7 @@ export function ConnectionsClient({
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
             placeholder="Search by username or email…"
             className="flex-1 px-4 py-2.5 rounded-xl font-body text-sm outline-none"
-            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1c1810' }}
+            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1e1a14' }}
           />
           <button
             onClick={handleSearch}
@@ -81,9 +81,9 @@ export function ConnectionsClient({
         {results.length > 0 && (
           <ul className="mt-3 space-y-2">
             {results.map(u => (
-              <li key={u.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+              <li key={u.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
                 <div>
-                  <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{u.username ?? u.email}</p>
+                  <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{u.username ?? u.email}</p>
                   {u.username && u.email && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{u.email}</p>}
                 </div>
                 <button
@@ -106,9 +106,9 @@ export function ConnectionsClient({
           </h2>
           <ul className="space-y-2">
             {receivedList.map(r => (
-              <li key={r.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+              <li key={r.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
                 <div>
-                  <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{r.fromUsername ?? r.fromEmail}</p>
+                  <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{r.fromUsername ?? r.fromEmail}</p>
                   {r.fromUsername && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{r.fromEmail}</p>}
                 </div>
                 <div className="flex gap-2">
@@ -130,9 +130,9 @@ export function ConnectionsClient({
           <h2 className="font-headline font-bold text-sm uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>Pending sent</h2>
           <ul className="space-y-2">
             {sent.map(s => (
-              <li key={s.id} className="px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{s.toUsername ?? s.toEmail}</p>
-                <p className="font-body text-xs" style={{ color: '#c4b79a' }}>Awaiting response…</p>
+              <li key={s.id} className="px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+                <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{s.toUsername ?? s.toEmail}</p>
+                <p className="font-body text-xs" style={{ color: '#c5b89f' }}>Awaiting response…</p>
               </li>
             ))}
           </ul>
@@ -148,9 +148,9 @@ export function ConnectionsClient({
         ) : (
           <ul className="space-y-2">
             {connectionsList.map(c => (
-              <li key={c.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+              <li key={c.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
                 <div>
-                  <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{c.username ?? c.email}</p>
+                  <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{c.username ?? c.email}</p>
                   {c.username && c.email && <p className="font-body text-xs" style={{ color: '#9a8878' }}>{c.email}</p>}
                 </div>
                 <button

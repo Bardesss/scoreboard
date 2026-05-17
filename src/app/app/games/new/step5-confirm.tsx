@@ -37,7 +37,7 @@ export function Step5Confirm({ state }: Props) {
   return (
     <div className="space-y-5">
       {/* Preview card */}
-      <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
           style={{ background: `${state.color}22` }}
@@ -45,7 +45,7 @@ export function Step5Confirm({ state }: Props) {
           {state.icon}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-headline font-black text-base" style={{ color: '#1c1810' }}>{state.name}</div>
+          <div className="font-headline font-black text-base" style={{ color: '#1e1a14' }}>{state.name}</div>
           {state.description && (
             <div className="text-xs font-body mt-0.5 truncate" style={{ color: '#9a8878' }}>{state.description}</div>
           )}

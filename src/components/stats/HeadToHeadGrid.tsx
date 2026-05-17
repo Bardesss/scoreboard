@@ -38,7 +38,7 @@ export function HeadToHeadGrid({ matrix }: { matrix: HeadToHeadMatrix }) {
                       padding: '4px 6px', textAlign: 'center', minWidth: 30,
                       border: '1px solid #ede5d8',
                       background: equal ? '#f2ece3' : leads ? 'rgba(245,166,35,0.15)' : '#fefcf8',
-                      color: equal ? '#c4b79a' : '#1e1a14',
+                      color: equal ? '#c5b89f' : '#1e1a14',
                     }}>
                       {equal ? '—' : v}
                     </td>

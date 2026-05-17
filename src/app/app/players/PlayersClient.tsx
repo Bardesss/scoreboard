@@ -159,13 +159,13 @@ export default function PlayersClient({
 
       {/* Post-connect link banner */}
       {bannerConnection && (
-        <div className="mb-6 rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, #fff7e6, #fffdf9)', border: '1px solid rgba(245,166,35,0.35)' }}>
+        <div className="mb-6 rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, #fff7e6, #fefcf8)', border: '1px solid rgba(245,166,35,0.35)' }}>
           <div className="flex items-start gap-3 mb-3">
             <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623', color: '#1c1408' }}>
               <Link2 size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>
+              <p className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>
                 {(alreadyConnected ? t('linkBanner.alreadyTitle') : t('linkBanner.title')).replace('{name}', displayName(bannerConnection))}
               </p>
               <p className="font-body text-xs mt-0.5" style={{ color: '#7a6b56' }}>{t('linkBanner.body')}</p>
@@ -181,7 +181,7 @@ export default function PlayersClient({
                   key={p.id}
                   onClick={() => handleLinkFromBanner(p.id)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
-                  style={{ background: '#fffdf9', color: '#1c1810', border: '1px solid #e8e1d8' }}
+                  style={{ background: '#fefcf8', color: '#1e1a14', border: '1px solid #e8e1d8' }}
                 >
                   <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                   {p.name}
@@ -194,7 +194,7 @@ export default function PlayersClient({
 
       {/* ── Players ── */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('title')}</h1>
+        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
         <button
           onClick={() => { setAdding(true); setNewName('') }}
           aria-label={t('add')}
@@ -208,7 +208,7 @@ export default function PlayersClient({
       </div>
 
       {adding && (
-        <div className="rounded-2xl p-4 mb-4 space-y-3" style={{ background: '#fffdf9', border: '1px solid #f5a623' }}>
+        <div className="rounded-2xl p-4 mb-4 space-y-3" style={{ background: '#fefcf8', border: '1px solid #f5a623' }}>
           <div className="flex gap-2">
             <input
               autoFocus
@@ -252,7 +252,7 @@ export default function PlayersClient({
             : null
 
           return (
-            <li key={player.id} className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: `1px solid ${isMe ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
+            <li key={player.id} className="rounded-2xl overflow-hidden" style={{ background: '#fefcf8', border: `1px solid ${isMe ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
               <div className="flex items-center gap-3 p-3">
                 <div className="relative flex-shrink-0">
                   <Avatar seed={player.avatarSeed} name={player.name} size={40} />
@@ -267,7 +267,7 @@ export default function PlayersClient({
                         onChange={e => setEditName(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') handleUpdate(player.id); if (e.key === 'Escape') setEditId(null) }}
                         className="flex-1 px-3 py-1.5 rounded-xl border text-sm font-body"
-                        style={{ borderColor: '#f5a623', outline: 'none', background: '#fffdf9' }}
+                        style={{ borderColor: '#f5a623', outline: 'none', background: '#fefcf8' }}
                       />
                       <button onClick={() => handleUpdate(player.id)} className="p-1.5 rounded-lg" style={{ background: '#f5a623', color: '#1c1408' }}><Check size={14} /></button>
                       <button onClick={() => setEditId(null)} className="p-1.5 rounded-lg" style={{ background: '#f0ebe3', color: '#4a3f2f' }}><X size={14} /></button>
@@ -292,7 +292,7 @@ export default function PlayersClient({
                   <>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-headline font-semibold text-sm truncate" style={{ color: '#1c1810' }}>{player.name}</span>
+                        <span className="font-headline font-semibold text-sm truncate" style={{ color: '#1e1a14' }}>{player.name}</span>
                         {isMe && (
                           <span className="flex-shrink-0 font-headline font-bold text-[9px] uppercase tracking-[.08em] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>{t('you')}</span>
                         )}
@@ -310,8 +310,8 @@ export default function PlayersClient({
                             </>
                           ) : (
                             <>
-                              <Link2 size={11} style={{ color: '#c4b79a' }} />
-                              <span className="font-body text-xs" style={{ color: '#c4b79a' }}>{t('linkVaultKeeper')}</span>
+                              <Link2 size={11} style={{ color: '#c5b89f' }} />
+                              <span className="font-body text-xs" style={{ color: '#c5b89f' }}>{t('linkVaultKeeper')}</span>
                             </>
                           )}
                         </button>
@@ -330,7 +330,7 @@ export default function PlayersClient({
                 <div className="px-3 pb-3 pt-2 border-t" style={{ borderColor: '#f0ebe3', background: '#faf7f2' }}>
                   <p className="font-body text-xs mb-2" style={{ color: '#9a8878' }}>{t('linkVaultKeeper')}</p>
                   {connectionsList.length === 0 ? (
-                    <p className="font-body text-xs" style={{ color: '#c4b79a' }}>{tc('noConnectionsHint')}</p>
+                    <p className="font-body text-xs" style={{ color: '#c5b89f' }}>{tc('noConnectionsHint')}</p>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {connectionsList.map(c => (
@@ -339,7 +339,7 @@ export default function PlayersClient({
                           onClick={() => handleLink(player.id, c.id)}
                           className="px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
                           style={{
-                            background: player.linkedUserId === c.id ? 'rgba(245,166,35,0.15)' : '#fffdf9',
+                            background: player.linkedUserId === c.id ? 'rgba(245,166,35,0.15)' : '#fefcf8',
                             color: player.linkedUserId === c.id ? '#f5a623' : '#4a3f2f',
                             border: `1px solid ${player.linkedUserId === c.id ? 'rgba(245,166,35,0.3)' : '#e8e1d8'}`,
                           }}
@@ -376,7 +376,7 @@ export default function PlayersClient({
           onKeyDown={e => e.key === 'Enter' && handleSearch()}
           placeholder={tc('searchPlaceholder')}
           className="flex-1 px-4 py-2.5 rounded-xl font-body text-sm outline-none"
-          style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1c1810' }}
+          style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1e1a14' }}
         />
         <button
           onClick={handleSearch}
@@ -390,8 +390,8 @@ export default function PlayersClient({
       {searchResults.length > 0 && (
         <ul className="mb-6 space-y-2">
           {searchResults.map(u => (
-            <li key={u.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-              <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{displayName(u)}</p>
+            <li key={u.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+              <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{displayName(u)}</p>
               <button
                 onClick={() => handleSend(u.id)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-headline font-bold text-xs"
@@ -411,8 +411,8 @@ export default function PlayersClient({
           </h3>
           <ul className="space-y-2">
             {receivedList.map(r => (
-              <li key={r.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{r.fromUsername ?? r.fromEmail}</p>
+              <li key={r.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+                <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{r.fromUsername ?? r.fromEmail}</p>
                 <div className="flex gap-2">
                   <button onClick={() => handleDecline(r.id)} className="p-1.5 rounded-lg" style={{ background: '#fee2e2', color: '#dc2626' }}><X size={14} /></button>
                   <button onClick={() => handleAccept(r.id)} className="p-1.5 rounded-lg" style={{ background: '#dcfce7', color: '#16a34a' }}><Check size={14} /></button>
@@ -428,9 +428,9 @@ export default function PlayersClient({
           <h3 className="font-headline font-bold text-xs uppercase tracking-wide mb-2" style={{ color: '#9a8878' }}>{tc('pending')}</h3>
           <ul className="space-y-2">
             {sent.map(s => (
-              <li key={s.id} className="px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{s.toUsername ?? s.toEmail}</p>
-                <p className="font-body text-xs" style={{ color: '#c4b79a' }}>{tc('awaitingResponse')}</p>
+              <li key={s.id} className="px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+                <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{s.toUsername ?? s.toEmail}</p>
+                <p className="font-body text-xs" style={{ color: '#c5b89f' }}>{tc('awaitingResponse')}</p>
               </li>
             ))}
           </ul>
@@ -444,8 +444,8 @@ export default function PlayersClient({
         ) : (
           <ul className="space-y-2">
             {connectionsList.map(c => (
-              <li key={c.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-                <p className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{displayName(c)}</p>
+              <li key={c.id} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+                <p className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{displayName(c)}</p>
                 <button
                   onClick={() => handleDisconnect(c.id)}
                   className="font-body text-xs px-3 py-1.5 rounded-xl"
@@ -462,7 +462,7 @@ export default function PlayersClient({
       {deleteId && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'rgba(28,24,16,0.6)' }}>
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl">
-            <p className="font-headline font-bold text-base mb-1" style={{ color: '#1c1810' }}>{t('deleteConfirm')}</p>
+            <p className="font-headline font-bold text-base mb-1" style={{ color: '#1e1a14' }}>{t('deleteConfirm')}</p>
             <p className="text-sm mb-6 font-body" style={{ color: '#9a8878' }}>{t('deleteWarning')}</p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteId)} className="flex-1 py-2 rounded-xl font-headline font-bold text-sm" style={{ background: '#ef4444', color: '#fff' }}>{t('delete')}</button>

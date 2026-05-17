@@ -107,10 +107,10 @@ export function UserMenu({
         <div
           role="menu"
           className={`absolute w-64 rounded-2xl shadow-xl z-50 overflow-hidden ${popoverPosition}`}
-          style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}
+          style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}
         >
           <div className="px-4 py-3" style={{ borderBottom: '1px solid #f0ebe3' }}>
-            <div className="font-body font-bold text-[13px] truncate" style={{ color: '#1c1810' }}>{name}</div>
+            <div className="font-body font-bold text-[13px] truncate" style={{ color: '#1e1a14' }}>{name}</div>
             <div className="font-body text-[11.5px] truncate" style={{ color: '#9a8878' }}>{email}</div>
           </div>
 
@@ -160,7 +160,7 @@ function MenuLink({
   onNavigate: () => void
   accent?: string
 }) {
-  const color = accent ?? '#1c1810'
+  const color = accent ?? '#1e1a14'
   return (
     <li>
       <Link

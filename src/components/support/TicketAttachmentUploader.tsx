@@ -44,17 +44,17 @@ type Theme = {
 
 const themes: Record<AttachmentVariant, Theme> = {
   app: {
-    zoneBg: '#fffdf9',
+    zoneBg: '#fefcf8',
     zoneBorder: '#e8e1d8',
     zoneBgHover: '#fef9ed',
     zoneText: '#9a8878',
-    hintText: '#c4b79a',
+    hintText: '#c5b89f',
     errorText: '#dc2626',
     thumbBg: '#fef3e2',
     thumbBorder: '#f5e7c8',
-    removeBg: '#1c1810',
+    removeBg: '#1e1a14',
     removeColor: '#ffffff',
-    filenameColor: '#1c1810',
+    filenameColor: '#1e1a14',
     sizeColor: '#9a8878',
   },
   admin: {

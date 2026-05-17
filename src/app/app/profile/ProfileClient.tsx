@@ -50,11 +50,11 @@ export function ProfileClient({
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-2 space-y-8">
-      <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('title')}</h1>
+      <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
 
-      <section className="flex flex-col items-center gap-4 py-6 rounded-3xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <section className="flex flex-col items-center gap-4 py-6 rounded-3xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <QRCodeCanvas value={connectUrl} />
-        <p className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{displayName}</p>
+        <p className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>{displayName}</p>
         <p className="font-body text-xs text-center max-w-xs" style={{ color: '#9a8878' }}>{t('qrHint')}</p>
         <button
           onClick={handleShare}
@@ -73,7 +73,7 @@ export function ProfileClient({
             defaultValue={username ?? ''}
             placeholder="e.g. jan_de_vries"
             className="flex-1 px-4 py-2.5 rounded-xl font-body text-sm outline-none"
-            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1c1810' }}
+            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1e1a14' }}
           />
           <button
             type="submit"
@@ -98,7 +98,7 @@ export function ProfileClient({
           <h2 className="font-headline font-bold text-sm uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>{t('connections')}</h2>
           <ul className="space-y-2">
             {connections.map(c => (
-              <li key={c.email} className="px-4 py-3 rounded-2xl font-headline font-semibold text-sm" style={{ background: '#fffdf9', border: '1px solid #e8e1d8', color: '#1c1810' }}>
+              <li key={c.email} className="px-4 py-3 rounded-2xl font-headline font-semibold text-sm" style={{ background: '#fefcf8', border: '1px solid #e8e1d8', color: '#1e1a14' }}>
                 {c.username ?? c.email}
               </li>
             ))}

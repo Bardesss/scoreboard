@@ -83,7 +83,7 @@ export function NotificationBell({
       {open && (
         <div
           className={`absolute w-72 rounded-2xl shadow-xl z-50 overflow-hidden ${position === 'up-right' ? 'left-0 bottom-full mb-2' : 'right-0 top-full mt-2'}`}
-          style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}
+          style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}
         >
           {notifications.length === 0 ? (
             <p className="px-4 py-6 text-center font-body text-sm" style={{ color: '#9a8878' }}>{t('noNotifications')}</p>
@@ -102,7 +102,7 @@ export function NotificationBell({
                     href={hrefFor(n)}
                     onClick={() => setOpen(false)}
                     className="block px-4 py-3 font-body text-sm transition-colors"
-                    style={{ color: '#1c1810' }}
+                    style={{ color: '#1e1a14' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.08)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   >

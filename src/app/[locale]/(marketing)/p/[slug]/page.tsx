@@ -16,7 +16,7 @@ export default async function PublicPage({ params }: PageProps) {
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
-      <h1 className="font-headline font-black text-3xl mb-8" style={{ color: '#1c1810' }}>
+      <h1 className="font-headline font-black text-3xl mb-8" style={{ color: '#1e1a14' }}>
         {title}
       </h1>
       <div className="font-body prose prose-amber max-w-none" style={{ color: '#4a3f2f' }}>

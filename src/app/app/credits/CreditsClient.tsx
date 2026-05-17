@@ -80,7 +80,7 @@ export function CreditsClient({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Balance card */}
-      <section className="rounded-2xl p-5" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <section className="rounded-2xl p-5" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <h2 className="font-headline font-bold text-xs uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>
           {t('balanceHeading')}
         </h2>
@@ -88,13 +88,13 @@ export function CreditsClient({
           <div className="flex items-center gap-3">
             <InfinityIcon size={32} style={{ color: '#f5a623' }} />
             <div>
-              <div className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('lifetimeFree')}</div>
+              <div className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('lifetimeFree')}</div>
               <div className="font-body text-xs" style={{ color: '#9a8878' }}>{t('lifetimeFreeHint')}</div>
             </div>
           </div>
         ) : (
           <>
-            <div className="font-headline font-black mb-3" style={{ color: '#1c1810', fontSize: 36, lineHeight: 1 }}>
+            <div className="font-headline font-black mb-3" style={{ color: '#1e1a14', fontSize: 36, lineHeight: 1 }}>
               {total} <span className="font-body font-normal text-sm" style={{ color: '#9a8878' }}>{t('balanceCredits')}</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -114,7 +114,7 @@ export function CreditsClient({
       </section>
 
       {/* Buy CTA — placeholder until payment providers ship */}
-      <section className="rounded-2xl p-5" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <section className="rounded-2xl p-5" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <h2 className="font-headline font-bold text-xs uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>
           {t('buyHeading')}
         </h2>
@@ -122,7 +122,7 @@ export function CreditsClient({
           <div className="flex items-start gap-3 flex-1">
             <ShoppingCart size={20} style={{ color: '#9a8878', flexShrink: 0, marginTop: 2 }} />
             <div className="flex-1 min-w-0">
-              <div className="font-body text-sm" style={{ color: '#1c1810' }}>{t('buyComingSoon')}</div>
+              <div className="font-body text-sm" style={{ color: '#1e1a14' }}>{t('buyComingSoon')}</div>
               <div className="font-body text-xs mt-0.5" style={{ color: '#9a8878' }}>{t('buyComingSoonHint')}</div>
             </div>
           </div>
@@ -138,7 +138,7 @@ export function CreditsClient({
       </section>
 
       {/* Discount code */}
-      <section className="rounded-2xl p-5" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <section className="rounded-2xl p-5" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <h2 className="font-headline font-bold text-xs uppercase tracking-wide mb-3" style={{ color: '#9a8878' }}>
           {t('discountHeading')}
         </h2>
@@ -149,7 +149,7 @@ export function CreditsClient({
             placeholder={t('discountPlaceholder')}
             disabled={pending}
             className="flex-1 px-4 py-2.5 rounded-xl font-body text-sm outline-none uppercase tracking-wide"
-            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1c1810' }}
+            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1e1a14' }}
           />
           <button
             type="submit"
@@ -164,7 +164,7 @@ export function CreditsClient({
       </section>
 
       {/* Transactions */}
-      <section className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <section className="rounded-2xl overflow-hidden" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #f0ebe3' }}>
           <h2 className="font-headline font-bold text-xs uppercase tracking-wide" style={{ color: '#9a8878' }}>
             {t('historyHeading')}
@@ -192,7 +192,7 @@ export function CreditsClient({
                     : <ArrowDownCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
                   }
                   <div className="flex-1 min-w-0">
-                    <div className="font-body text-sm" style={{ color: '#1c1810' }}>
+                    <div className="font-body text-sm" style={{ color: '#1e1a14' }}>
                       {reasonLabel(tx)}
                       {suffix && <span className="ml-1" style={{ color: '#9a8878' }}>· {suffix}</span>}
                     </div>
@@ -213,12 +213,12 @@ export function CreditsClient({
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #f0ebe3', background: '#fbf6ec' }}>
             {page > 1
-              ? <Link href={`/app/credits?page=${page - 1}`} className="font-body text-xs" style={{ color: '#1c1810' }}>{t('paginationPrev')}</Link>
-              : <span className="font-body text-xs" style={{ color: '#c4b79a' }}>{t('paginationPrev')}</span>
+              ? <Link href={`/app/credits?page=${page - 1}`} className="font-body text-xs" style={{ color: '#1e1a14' }}>{t('paginationPrev')}</Link>
+              : <span className="font-body text-xs" style={{ color: '#c5b89f' }}>{t('paginationPrev')}</span>
             }
             {page < totalPages
-              ? <Link href={`/app/credits?page=${page + 1}`} className="font-body text-xs" style={{ color: '#1c1810' }}>{t('paginationNext')}</Link>
-              : <span className="font-body text-xs" style={{ color: '#c4b79a' }}>{t('paginationNext')}</span>
+              ? <Link href={`/app/credits?page=${page + 1}`} className="font-body text-xs" style={{ color: '#1e1a14' }}>{t('paginationNext')}</Link>
+              : <span className="font-body text-xs" style={{ color: '#c5b89f' }}>{t('paginationNext')}</span>
             }
           </div>
         )}

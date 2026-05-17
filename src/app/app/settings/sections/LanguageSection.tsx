@@ -32,8 +32,8 @@ export function LanguageSection({ currentLocale }: { currentLocale: string }) {
   }
 
   return (
-    <section className="rounded-3xl p-6" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1c1810' }}>{t('title')}</h2>
+    <section className="rounded-3xl p-6" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1e1a14' }}>{t('title')}</h2>
       <p className="font-body text-sm mb-4" style={{ color: '#9a8878' }}>{t('description')}</p>
 
       <div role="radiogroup" style={{ display: 'flex', gap: 8 }}>
@@ -56,8 +56,8 @@ export function LanguageSection({ currentLocale }: { currentLocale: string }) {
                 padding: '12px 16px',
                 borderRadius: 14,
                 border: `1px solid ${active ? '#f5a623' : '#e8e1d8'}`,
-                background: active ? '#fef3e2' : '#fffdf9',
-                color: active ? '#1c1810' : '#9a8878',
+                background: active ? '#fef3e2' : '#fefcf8',
+                color: active ? '#1e1a14' : '#9a8878',
                 fontFamily: 'var(--font-headline)',
                 fontWeight: active ? 800 : 600,
                 fontSize: 14,

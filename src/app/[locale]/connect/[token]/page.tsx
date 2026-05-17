@@ -52,7 +52,7 @@ export default async function ConnectPage({ params }: PageProps) {
           <button
             type="submit"
             className="w-full h-11 rounded-xl font-headline font-bold text-[14px] border"
-            style={{ borderColor: '#e8e1d8', color: '#1c1810', background: '#fffdf9' }}
+            style={{ borderColor: '#e8e1d8', color: '#1e1a14', background: '#fefcf8' }}
           >
             {t('cta.login')}
           </button>

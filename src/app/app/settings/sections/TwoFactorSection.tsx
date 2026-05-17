@@ -17,7 +17,7 @@ type Mode = 'idle' | 'setup' | 'backupReveal' | 'disable' | 'regenerate'
 type SetupData = { secret: string; uri: string; qrDataUrl: string }
 
 const cardStyle: React.CSSProperties = {
-  background: '#fffdf9',
+  background: '#fefcf8',
   border: '1px solid #e8e1d8',
   borderRadius: 24,
   padding: 24,
@@ -29,7 +29,7 @@ const inputStyle: React.CSSProperties = {
   background: '#f5f0e8',
   border: '1px solid #e8e1d8',
   borderRadius: 12,
-  color: '#1c1810',
+  color: '#1e1a14',
   fontSize: 14,
   boxSizing: 'border-box',
   outline: 'none',
@@ -183,7 +183,7 @@ export function TwoFactorSection({
     <section style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 12 }}>
         <div style={{ flex: 1 }}>
-          <h2 className="font-headline font-black text-base" style={{ color: '#1c1810', marginBottom: 4 }}>{t('title')}</h2>
+          <h2 className="font-headline font-black text-base" style={{ color: '#1e1a14', marginBottom: 4 }}>{t('title')}</h2>
           <p className="font-body text-sm" style={{ color: '#9a8878' }}>{t('description')}</p>
         </div>
         <StatusPill enabled={totpEnabled} t={t} />
@@ -222,7 +222,7 @@ export function TwoFactorSection({
       {mode === 'setup' && setupData && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 8 }}>
           <div>
-            <h3 className="font-headline font-bold text-sm" style={{ color: '#1c1810', marginBottom: 4 }}>{t('setupTitle')}</h3>
+            <h3 className="font-headline font-bold text-sm" style={{ color: '#1e1a14', marginBottom: 4 }}>{t('setupTitle')}</h3>
             <p className="font-body text-sm" style={{ color: '#9a8878' }}>{t('setupSubtitle')}</p>
           </div>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start' }}>
@@ -232,7 +232,7 @@ export function TwoFactorSection({
             <div style={{ flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <label className="font-headline font-semibold text-xs" style={{ color: '#9a8878' }}>{t('setupSecretLabel')}</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                <code style={{ flex: 1, padding: '10px 14px', background: '#f5f0e8', border: '1px solid #e8e1d8', borderRadius: 12, fontSize: 13, color: '#1c1810', letterSpacing: 1, wordBreak: 'break-all', fontFamily: 'ui-monospace, monospace' }}>
+                <code style={{ flex: 1, padding: '10px 14px', background: '#f5f0e8', border: '1px solid #e8e1d8', borderRadius: 12, fontSize: 13, color: '#1e1a14', letterSpacing: 1, wordBreak: 'break-all', fontFamily: 'ui-monospace, monospace' }}>
                   {setupData.secret}
                 </code>
                 <button type="button" onClick={() => copyText(setupData.secret, 'secret')} style={secondaryButton}>
@@ -264,7 +264,7 @@ export function TwoFactorSection({
       {(mode === 'disable' || mode === 'regenerate') && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
           <div>
-            <h3 className="font-headline font-bold text-sm" style={{ color: '#1c1810', marginBottom: 4 }}>
+            <h3 className="font-headline font-bold text-sm" style={{ color: '#1e1a14', marginBottom: 4 }}>
               {mode === 'disable' ? t('disableTitle') : t('regenerateTitle')}
             </h3>
             <p className="font-body text-sm" style={{ color: '#9a8878' }}>
@@ -298,12 +298,12 @@ export function TwoFactorSection({
       {mode === 'backupReveal' && backupCodes && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
           <div>
-            <h3 className="font-headline font-bold text-sm" style={{ color: '#1c1810', marginBottom: 4 }}>{t('backupTitle')}</h3>
+            <h3 className="font-headline font-bold text-sm" style={{ color: '#1e1a14', marginBottom: 4 }}>{t('backupTitle')}</h3>
             <p className="font-body text-sm" style={{ color: '#9a8878' }}>{t('backupSubtitle')}</p>
           </div>
           <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8, listStyle: 'none', margin: 0, padding: 16, background: '#fdf6e9', border: '1px dashed #e6d2a3', borderRadius: 16 }}>
             {backupCodes.map(c => (
-              <li key={c} style={{ fontFamily: 'ui-monospace, monospace', fontSize: 14, color: '#1c1810', letterSpacing: 1 }}>{c}</li>
+              <li key={c} style={{ fontFamily: 'ui-monospace, monospace', fontSize: 14, color: '#1e1a14', letterSpacing: 1 }}>{c}</li>
             ))}
           </ul>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>

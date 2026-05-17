@@ -13,7 +13,7 @@ function optionBtn(active: boolean): React.CSSProperties {
     padding: '10px 16px',
     borderRadius: 12,
     border: active ? '1.5px solid #f5a623' : '1.5px solid #e8e1d8',
-    background: active ? 'rgba(245,166,35,0.08)' : '#fffdf9',
+    background: active ? 'rgba(245,166,35,0.08)' : '#fefcf8',
     color: active ? '#c47f00' : '#4a3f2f',
     fontWeight: 600,
     fontSize: 13,

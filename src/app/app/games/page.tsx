@@ -51,7 +51,7 @@ export default async function GamesPage() {
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('title')}</h1>
+        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
         <Link
           href="/app/games/new"
           aria-label={t('add')}

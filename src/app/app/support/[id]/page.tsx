@@ -32,7 +32,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
       <div className="mb-6">
-        <h1 className="font-headline font-black text-xl mb-2" style={{ color: '#1c1810' }}>{ticket.subject}</h1>
+        <h1 className="font-headline font-black text-xl mb-2" style={{ color: '#1e1a14' }}>{ticket.subject}</h1>
         <span
           className="font-headline font-bold text-xs"
           style={{ color: ticket.status === 'open' ? '#16a34a' : '#9a8878' }}
@@ -55,14 +55,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
               <div
                 className="max-w-[80%] rounded-2xl px-4 py-3"
                 style={{
-                  background: isUser ? '#fef3e2' : '#fffdf9',
+                  background: isUser ? '#fef3e2' : '#fefcf8',
                   border: isUser ? '1px solid #fde68a' : '1px solid #e8e1d8',
                 }}
               >
                 <p className="font-headline font-bold text-xs mb-1" style={{ color: '#9a8878' }}>
                   {isUser ? session.user.email : t('admin')}
                 </p>
-                <p className="font-body text-sm whitespace-pre-wrap" style={{ color: '#1c1810', margin: 0 }}>{msg.body}</p>
+                <p className="font-body text-sm whitespace-pre-wrap" style={{ color: '#1e1a14', margin: 0 }}>{msg.body}</p>
                 {msg.attachments.length > 0 && (
                   <TicketAttachmentList
                     ticketId={id}
@@ -71,7 +71,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                     labels={{ deleted: t('attachmentsDeleted'), close: t('attachmentsLightboxClose') }}
                   />
                 )}
-                <p className="font-body text-xs mt-2" style={{ color: '#c4b79a', margin: 0 }}>
+                <p className="font-body text-xs mt-2" style={{ color: '#c5b89f', margin: 0 }}>
                   {msg.createdAt.toLocaleDateString(locale === 'nl' ? 'nl-NL' : 'en-GB')}
                 </p>
               </div>

@@ -11,7 +11,7 @@ interface Props {
 const fieldStyle: React.CSSProperties = {
   borderColor: '#e8e1d8',
   outline: 'none',
-  background: '#fffdf9',
+  background: '#fefcf8',
 }
 
 export function Step4Details({ state, onChange }: Props) {

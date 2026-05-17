@@ -301,12 +301,12 @@ export default function LogGamePage() {
         >
           {t('back')}
         </button>
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>
+        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>
           {editId ? t('edit') : t('log')}
         </h1>
       </div>
 
-      <div className="space-y-4 p-6 rounded-2xl mb-6" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <div className="space-y-4 p-6 rounded-2xl mb-6" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <DateTimeField value={playedAt} onChange={setPlayedAt} label={t('playedAt')} />
 
         {winType === 'points-all' && (
@@ -447,10 +447,10 @@ function ParticipantStep({
 }) {
   return (
     <div className="max-w-lg mx-auto py-8 px-2">
-      <h1 className="font-headline font-black text-2xl mb-6" style={{ color: '#1c1810' }}>
+      <h1 className="font-headline font-black text-2xl mb-6" style={{ color: '#1e1a14' }}>
         {editId ? t('edit') : t('log')}
       </h1>
-      <div className="space-y-4 p-6 rounded-2xl mb-6" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <div className="space-y-4 p-6 rounded-2xl mb-6" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <div>
           <div className="flex items-center justify-between mb-3">
             <label className="font-headline font-semibold text-xs" style={{ color: '#4a3f2f' }}>
@@ -459,7 +459,7 @@ function ParticipantStep({
             <span className="font-headline font-bold text-xs" style={{ color: '#9a8878' }}>
               {t('playersSelected', { count: selectedCount })}
               {(minPlayers !== null || maxPlayers !== null) && (
-                <span className="ml-2" style={{ color: '#c4b79a' }}>
+                <span className="ml-2" style={{ color: '#c5b89f' }}>
                   ({t('playerHint', { min: minPlayers ?? '?', max: maxPlayers ?? '?' })})
                 </span>
               )}
@@ -476,13 +476,13 @@ function ParticipantStep({
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border font-headline font-semibold text-sm text-left transition-colors"
                     style={{
                       borderColor: selected ? '#f5a623' : '#e8e1d8',
-                      background: selected ? 'rgba(245,166,35,0.1)' : '#fffdf9',
-                      color: '#1c1810',
+                      background: selected ? 'rgba(245,166,35,0.1)' : '#fefcf8',
+                      color: '#1e1a14',
                     }}
                   >
                     <span
                       className="w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center"
-                      style={{ borderColor: selected ? '#f5a623' : '#c4b79a', background: selected ? '#f5a623' : 'transparent' }}
+                      style={{ borderColor: selected ? '#f5a623' : '#c5b89f', background: selected ? '#f5a623' : 'transparent' }}
                     >
                       {selected && (
                         <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
@@ -522,7 +522,7 @@ function DateTimeField({ value, onChange, label }: { value: string; onChange: (v
         value={value}
         onChange={e => onChange(e.target.value)}
         className="w-full px-4 py-3 rounded-xl border font-body text-sm"
-        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
       />
     </div>
   )
@@ -537,7 +537,7 @@ function TextArea({ value, onChange, label }: { value: string; onChange: (v: str
         onChange={e => onChange(e.target.value)}
         rows={3}
         className="w-full px-4 py-3 rounded-xl border font-body text-sm resize-none"
-        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
       />
     </div>
   )
@@ -552,7 +552,7 @@ function TextField({ label, value, onChange, placeholder }: { label: string; val
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full px-4 py-3 rounded-xl border font-body text-sm"
-        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
       />
     </div>
   )
@@ -568,7 +568,7 @@ function NumberField({ label, value, onChange, placeholder }: { label: string; v
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
-        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+        style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
       />
     </div>
   )
@@ -588,8 +588,8 @@ function ScoreGrid({ label, participants, scoreFields, scores, onChange, scorePl
       <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{label}</label>
       <ul className="space-y-3">
         {participants.map(m => (
-          <li key={m.id} className="rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-            <span className="block font-headline font-semibold text-sm mb-2" style={{ color: '#1c1810' }}>{m.player.name}</span>
+          <li key={m.id} className="rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+            <span className="block font-headline font-semibold text-sm mb-2" style={{ color: '#1e1a14' }}>{m.player.name}</span>
             {fields.length > 1 ? (
               <div className="space-y-1.5">
                 {fields.map((field, i) => (
@@ -605,7 +605,7 @@ function ScoreGrid({ label, participants, scoreFields, scores, onChange, scorePl
                       }}
                       placeholder="0"
                       className="w-24 px-3 py-1.5 rounded-xl border font-headline font-bold text-sm text-right"
-                      style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                      style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
                     />
                   </div>
                 ))}
@@ -617,7 +617,7 @@ function ScoreGrid({ label, participants, scoreFields, scores, onChange, scorePl
                 onChange={e => onChange({ ...scores, [m.player.id]: [e.target.value] })}
                 placeholder={scorePlaceholder}
                 className="w-full px-3 py-2 rounded-xl border font-headline font-bold text-sm text-right"
-                style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
               />
             )}
           </li>
@@ -644,11 +644,11 @@ function WinnerRadio({ label, participants, winnerId, onChange }: {
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border font-headline font-semibold text-sm text-left transition-colors"
                 style={{
                   borderColor: selected ? '#f5a623' : '#e8e1d8',
-                  background: selected ? 'rgba(245,166,35,0.1)' : '#fffdf9',
-                  color: '#1c1810',
+                  background: selected ? 'rgba(245,166,35,0.1)' : '#fefcf8',
+                  color: '#1e1a14',
                 }}
               >
-                <span className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center" style={{ borderColor: selected ? '#f5a623' : '#c4b79a' }}>
+                <span className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center" style={{ borderColor: selected ? '#f5a623' : '#c5b89f' }}>
                   {selected && <span className="w-2 h-2 rounded-full" style={{ background: '#f5a623' }} />}
                 </span>
                 {m.player.name}
@@ -673,19 +673,19 @@ function TimeInputs({ label, participants, unit, values, onChange }: {
         {participants.map(m => {
           const v = values[m.player.id]
           return (
-            <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-              <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
+            <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+              <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{m.player.name}</span>
               {unit === 'mmss' ? (
                 <>
                   <input type="number" placeholder="MM"
                     value={(typeof v === 'object' ? v.mm : '') as string}
                     onChange={e => onChange({ ...values, [m.player.id]: { mm: e.target.value, ss: typeof v === 'object' ? v.ss : '' } })}
-                    className="w-14 px-2 py-1.5 rounded-xl border text-right" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }} />
+                    className="w-14 px-2 py-1.5 rounded-xl border text-right" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }} />
                   <span style={{ color: '#9a8878' }}>:</span>
                   <input type="number" placeholder="SS"
                     value={(typeof v === 'object' ? v.ss : '') as string}
                     onChange={e => onChange({ ...values, [m.player.id]: { mm: typeof v === 'object' ? v.mm : '', ss: e.target.value } })}
-                    className="w-14 px-2 py-1.5 rounded-xl border text-right" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }} />
+                    className="w-14 px-2 py-1.5 rounded-xl border text-right" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }} />
                 </>
               ) : (
                 <input
@@ -694,7 +694,7 @@ function TimeInputs({ label, participants, unit, values, onChange }: {
                   placeholder={unit === 'minutes' ? 'min' : 'sec'}
                   value={typeof v === 'string' ? v : ''}
                   onChange={e => onChange({ ...values, [m.player.id]: e.target.value })}
-                  className="w-24 px-3 py-1.5 rounded-xl border text-right" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+                  className="w-24 px-3 py-1.5 rounded-xl border text-right" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
                 />
               )}
             </li>
@@ -713,14 +713,14 @@ function RankingInputs({ label, participants, values, onChange }: {
       <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{label}</label>
       <ul className="space-y-2">
         {participants.map(m => (
-          <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-            <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
+          <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+            <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{m.player.name}</span>
             <input
               type="number" min={1} max={participants.length} placeholder="#"
               value={values[m.player.id] ?? ''}
               onChange={e => onChange({ ...values, [m.player.id]: e.target.value })}
               className="w-16 px-3 py-1.5 rounded-xl border text-right font-headline font-bold text-sm"
-              style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+              style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
             />
           </li>
         ))}
@@ -737,14 +737,14 @@ function EliminationOrderInputs({ label, participants, values, onChange }: {
       <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{label}</label>
       <ul className="space-y-2">
         {participants.map(m => (
-          <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-            <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
+          <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+            <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{m.player.name}</span>
             <input
               type="number" min={1} placeholder="—"
               value={values[m.player.id] ?? ''}
               onChange={e => onChange({ ...values, [m.player.id]: e.target.value })}
               className="w-16 px-3 py-1.5 rounded-xl border text-right font-headline font-bold text-sm"
-              style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+              style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
             />
           </li>
         ))}
@@ -761,12 +761,12 @@ function RoleDropdowns({ label, participants, roles, values, onChange }: {
       <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{label}</label>
       <ul className="space-y-2">
         {participants.map(m => (
-          <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-            <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
+          <li key={m.id} className="rounded-xl border p-3 flex items-center gap-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+            <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{m.player.name}</span>
             <select
               value={values[m.player.id] ?? ''}
               onChange={e => onChange({ ...values, [m.player.id]: e.target.value })}
-              className="px-3 py-1.5 rounded-xl border font-body text-sm" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+              className="px-3 py-1.5 rounded-xl border font-body text-sm" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
             >
               <option value="">—</option>
               {roles.map(r => <option key={r} value={r}>{r}</option>)}
@@ -821,11 +821,11 @@ function MissionDropdown({ label, missions, value, onChange }: {
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border font-headline font-semibold text-sm text-left"
                 style={{
                   borderColor: selected ? '#f5a623' : '#e8e1d8',
-                  background: selected ? 'rgba(245,166,35,0.1)' : '#fffdf9',
-                  color: '#1c1810',
+                  background: selected ? 'rgba(245,166,35,0.1)' : '#fefcf8',
+                  color: '#1e1a14',
                 }}
               >
-                <span className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center" style={{ borderColor: selected ? '#f5a623' : '#c4b79a' }}>
+                <span className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center" style={{ borderColor: selected ? '#f5a623' : '#c5b89f' }}>
                   {selected && <span className="w-2 h-2 rounded-full" style={{ background: '#f5a623' }} />}
                 </span>
                 {m}
@@ -866,7 +866,7 @@ function TeamSetup(props: {
             props.onTeamCountChange(n)
           }}
           className="w-24 px-3 py-1.5 rounded-xl border text-right font-headline font-bold text-sm"
-          style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+          style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
         />
       </div>
       <div>
@@ -882,7 +882,7 @@ function TeamSetup(props: {
                 props.onTeamsChange(next)
               }}
               className="w-full px-3 py-2 rounded-xl border font-body text-sm"
-              style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+              style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
             />
           ))}
         </div>
@@ -891,12 +891,12 @@ function TeamSetup(props: {
         <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('teamAssignment')}</label>
         <ul className="space-y-2">
           {participants.map(m => (
-            <li key={m.id} className="flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-              <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{m.player.name}</span>
+            <li key={m.id} className="flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+              <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{m.player.name}</span>
               <select
                 value={teamByPlayer[m.player.id] ?? ''}
                 onChange={e => props.onTeamByPlayerChange({ ...teamByPlayer, [m.player.id]: e.target.value })}
-                className="px-3 py-1.5 rounded-xl border font-body text-sm" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+                className="px-3 py-1.5 rounded-xl border font-body text-sm" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
               >
                 <option value="">—</option>
                 {teams.map(tn => <option key={tn} value={tn}>{tn}</option>)}
@@ -917,8 +917,8 @@ function TeamSetup(props: {
                 className="px-4 py-2 rounded-xl border font-headline font-bold text-sm"
                 style={{
                   borderColor: selected ? '#f5a623' : '#e8e1d8',
-                  background: selected ? 'rgba(245,166,35,0.1)' : '#fffdf9',
-                  color: '#1c1810',
+                  background: selected ? 'rgba(245,166,35,0.1)' : '#fefcf8',
+                  color: '#1e1a14',
                 }}
               >{tn}</button>
             )
@@ -930,14 +930,14 @@ function TeamSetup(props: {
           <label className="block font-headline font-semibold text-xs mb-2" style={{ color: '#4a3f2f' }}>{t('teamScores')}</label>
           <ul className="space-y-2">
             {teams.map(tn => (
-              <li key={tn} className="flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}>
-                <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{tn}</span>
+              <li key={tn} className="flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}>
+                <span className="flex-1 font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{tn}</span>
                 <input
                   type="number"
                   value={perTeamScores[tn] ?? ''}
                   onChange={e => props.onPerTeamScoresChange({ ...perTeamScores, [tn]: e.target.value })}
                   className="w-24 px-3 py-1.5 rounded-xl border text-right font-headline font-bold text-sm"
-                  style={{ borderColor: '#e8e1d8', background: '#fffdf9' }}
+                  style={{ borderColor: '#e8e1d8', background: '#fefcf8' }}
                 />
               </li>
             ))}

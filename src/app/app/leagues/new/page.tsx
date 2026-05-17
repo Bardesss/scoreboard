@@ -65,7 +65,7 @@ export default function NewLeaguePage() {
         </span>
       </div>
 
-      <div className="p-6 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <div className="p-6 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         {step === 1 && (
           <div className="space-y-4">
             <input
@@ -74,7 +74,7 @@ export default function NewLeaguePage() {
               onChange={e => setName(e.target.value)}
               placeholder={t('namePlaceholder')}
               className="w-full px-4 py-3 rounded-xl border font-body text-sm"
-              style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+              style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
               onFocus={e => (e.target.style.borderColor = '#f5a623')}
               onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
             />
@@ -83,7 +83,7 @@ export default function NewLeaguePage() {
               onChange={e => setDescription(e.target.value)}
               placeholder={t('descriptionPlaceholder')}
               className="w-full px-4 py-3 rounded-xl border font-body text-sm"
-              style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+              style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
               onFocus={e => (e.target.style.borderColor = '#f5a623')}
               onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
             />
@@ -94,7 +94,7 @@ export default function NewLeaguePage() {
                 value={gameTemplateId}
                 onChange={e => setGameTemplateId(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border font-body text-sm"
-                style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+                style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
               >
                 <option value="">{t('pickTemplate')}</option>
                 {templates.map(tmpl => (
@@ -127,13 +127,13 @@ export default function NewLeaguePage() {
                       <div
                         className="w-5 h-5 rounded-md flex items-center justify-center border"
                         style={{
-                          borderColor: selected ? '#f5a623' : '#c4b79a',
+                          borderColor: selected ? '#f5a623' : '#c5b89f',
                           background: selected ? '#f5a623' : 'transparent',
                         }}
                       >
                         {selected && <span className="text-[10px] font-bold" style={{ color: '#1c1408' }}>✓</span>}
                       </div>
-                      <span className="font-headline font-semibold text-sm" style={{ color: '#1c1810' }}>{player.name}</span>
+                      <span className="font-headline font-semibold text-sm" style={{ color: '#1e1a14' }}>{player.name}</span>
                     </li>
                   )
                 })}
@@ -149,7 +149,7 @@ export default function NewLeaguePage() {
                 <Trophy size={18} style={{ color: '#f5a623' }} />
               </div>
               <div>
-                <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{name}</div>
+                <div className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>{name}</div>
                 {description && <div className="text-xs font-body mt-0.5" style={{ color: '#9a8878' }}>{description}</div>}
                 <div className="text-xs font-body mt-1" style={{ color: '#9a8878' }}>
                   {templates.find(tmpl => tmpl.id === gameTemplateId)?.name} · {selectedPlayerIds.length} players

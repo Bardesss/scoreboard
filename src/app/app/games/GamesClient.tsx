@@ -103,12 +103,12 @@ export default function GamesClient({
       ) : (
         <ul className="space-y-3">
           {templates.map(tmpl => (
-            <li key={tmpl.id} className="p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+            <li key={tmpl.id} className="p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${tmpl.color}22` }}>
                 {tmpl.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{tmpl.name}</div>
+                <div className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>{tmpl.name}</div>
                 {tmpl.description && <div className="text-xs font-body truncate mt-0.5" style={{ color: '#9a8878' }}>{tmpl.description}</div>}
               </div>
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: tmpl.color }} />
@@ -117,13 +117,13 @@ export default function GamesClient({
             </li>
           ))}
           {borrowedTemplates.map(tmpl => (
-            <li key={tmpl.id} className="relative p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+            <li key={tmpl.id} className="relative p-4 rounded-2xl flex items-center gap-3" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
               <VaultRibbon ownerName={tmpl.ownerName} />
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${tmpl.color}22` }}>
                 {tmpl.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{tmpl.name}</div>
+                <div className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>{tmpl.name}</div>
               </div>
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: tmpl.color }} />
             </li>
@@ -134,9 +134,9 @@ export default function GamesClient({
       {/* ── Edit modal ── */}
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(28,24,16,0.6)' }}>
-          <div className="w-full max-w-md rounded-3xl overflow-y-auto" style={{ background: '#fffdf9', border: '1px solid #e8e1d8', maxHeight: '90vh' }}>
+          <div className="w-full max-w-md rounded-3xl overflow-y-auto" style={{ background: '#fefcf8', border: '1px solid #e8e1d8', maxHeight: '90vh' }}>
             <div className="p-6 space-y-5">
-              <h2 className="font-headline font-black text-lg" style={{ color: '#1c1810' }}>{t('edit')}</h2>
+              <h2 className="font-headline font-black text-lg" style={{ color: '#1e1a14' }}>{t('edit')}</h2>
 
               <div>
                 <input
@@ -254,8 +254,8 @@ export default function GamesClient({
       {/* ── Delete confirm ── */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(28,24,16,0.6)' }}>
-          <div className="w-full max-w-sm rounded-2xl p-6 shadow-xl" style={{ background: '#fffdf9' }}>
-            <p className="font-headline font-bold text-base mb-1" style={{ color: '#1c1810' }}>{t('deleteConfirm')}</p>
+          <div className="w-full max-w-sm rounded-2xl p-6 shadow-xl" style={{ background: '#fefcf8' }}>
+            <p className="font-headline font-bold text-base mb-1" style={{ color: '#1e1a14' }}>{t('deleteConfirm')}</p>
             <p className="text-sm mb-6 font-body" style={{ color: '#9a8878' }}>{t('deleteWarning')}</p>
             <div className="flex gap-3">
               <button onClick={handleDelete}

@@ -25,8 +25,8 @@ export function EmailPreferencesSection({ initial }: { initial: EmailPreferences
   }
 
   return (
-    <section className="rounded-3xl p-6" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1c1810' }}>
+    <section className="rounded-3xl p-6" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+      <h2 className="font-headline font-black text-base mb-1" style={{ color: '#1e1a14' }}>
         <Mail size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: '-2px' }} />
         {t('title')}
       </h2>
@@ -42,7 +42,7 @@ export function EmailPreferencesSection({ initial }: { initial: EmailPreferences
               style={{ borderBottom: '1px solid #f0ebe3' }}
             >
               <div className="flex-1 min-w-0">
-                <div className="font-body text-sm" style={{ color: '#1c1810' }}>{t(`labels.${key}`)}</div>
+                <div className="font-body text-sm" style={{ color: '#1e1a14' }}>{t(`labels.${key}`)}</div>
                 <div className="font-body text-xs mt-0.5" style={{ color: '#9a8878' }}>{t(`hints.${key}`)}</div>
               </div>
               <button

@@ -109,7 +109,7 @@ export default function NewGamePage() {
         </span>
       </div>
 
-      <div className="p-6 rounded-2xl" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+      <div className="p-6 rounded-2xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         {step === 1 && <Step1Basics state={state} onChange={patch} />}
         {step === 2 && <Step2WinType state={state} onChange={patch} />}
         {step === 3 && <Step3Scoring state={state} onChange={patch} />}

@@ -52,7 +52,7 @@ function StringListEditor({
             }}
             placeholder={placeholder}
             className="flex-1 px-3 py-2 rounded-xl border font-body text-sm"
-            style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fffdf9' }}
+            style={{ borderColor: '#e8e1d8', outline: 'none', background: '#fefcf8' }}
             onFocus={e => (e.target.style.borderColor = '#f5a623')}
             onBlur={e => (e.target.style.borderColor = '#e8e1d8')}
           />

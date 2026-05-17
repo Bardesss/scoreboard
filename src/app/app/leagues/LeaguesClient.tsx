@@ -73,7 +73,7 @@ export default function LeaguesClient({
   return (
     <div className="max-w-2xl mx-auto py-8 px-2">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-headline font-black text-2xl" style={{ color: '#1c1810' }}>{t('title')}</h1>
+        <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
         <Link
           href="/app/leagues/new"
           aria-label={t('add')}
@@ -91,14 +91,14 @@ export default function LeaguesClient({
       ) : (
         <ul className="space-y-3">
           {ownLeagues.map(league => (
-            <li key={league.id} className="rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+            <li key={league.id} className="rounded-2xl overflow-hidden" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
               <div className="flex items-center gap-3 p-4">
                 <Link href={`/app/leagues/${league.id}`} className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${league.gameTemplate.color}22` }}>
                     {league.gameTemplate.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{league.name}</div>
+                    <div className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>{league.name}</div>
                     <div className="text-xs font-body mt-0.5" style={{ color: '#9a8878' }}>
                       {league.gameTemplate.name} · {league._count.members} {t('members')} · {league._count.playedGames} {t('playedGames')}
                     </div>
@@ -111,7 +111,7 @@ export default function LeaguesClient({
             </li>
           ))}
           {borrowedLeagues.map(league => (
-            <li key={league.id} className="relative rounded-2xl overflow-hidden" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
+            <li key={league.id} className="relative rounded-2xl overflow-hidden" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
               <VaultRibbon ownerName={league.owner.username ?? league.owner.email ?? '?'} />
               <Link href={`/app/leagues/${league.id}`} className="block p-4">
                 <div className="flex items-center gap-3">
@@ -119,7 +119,7 @@ export default function LeaguesClient({
                     {league.gameTemplate.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-headline font-bold text-sm" style={{ color: '#1c1810' }}>{league.name}</div>
+                    <div className="font-headline font-bold text-sm" style={{ color: '#1e1a14' }}>{league.name}</div>
                     <div className="text-xs font-body mt-0.5" style={{ color: '#9a8878' }}>
                       {league.gameTemplate.name} · {league._count.members} {t('members')} · {league._count.playedGames} {t('playedGames')}
                     </div>
@@ -135,8 +135,8 @@ export default function LeaguesClient({
       {/* ── Edit modal ── */}
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(28,24,16,0.6)' }}>
-          <div className="w-full max-w-md rounded-3xl p-6 space-y-4" style={{ background: '#fffdf9', border: '1px solid #e8e1d8' }}>
-            <h2 className="font-headline font-black text-lg" style={{ color: '#1c1810' }}>{t('edit')}</h2>
+          <div className="w-full max-w-md rounded-3xl p-6 space-y-4" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
+            <h2 className="font-headline font-black text-lg" style={{ color: '#1e1a14' }}>{t('edit')}</h2>
             <input
               value={editName}
               onChange={e => setEditName(e.target.value)}
@@ -172,8 +172,8 @@ export default function LeaguesClient({
       {/* ── Delete confirm ── */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(28,24,16,0.6)' }}>
-          <div className="w-full max-w-sm rounded-2xl p-6 shadow-xl" style={{ background: '#fffdf9' }}>
-            <p className="font-headline font-bold text-base mb-1" style={{ color: '#1c1810' }}>{t('deleteConfirm')}</p>
+          <div className="w-full max-w-sm rounded-2xl p-6 shadow-xl" style={{ background: '#fefcf8' }}>
+            <p className="font-headline font-bold text-base mb-1" style={{ color: '#1e1a14' }}>{t('deleteConfirm')}</p>
             <p className="text-sm mb-6 font-body" style={{ color: '#9a8878' }}>{t('deleteWarning')}</p>
             <div className="flex gap-3">
               <button onClick={handleDelete} className="flex-1 py-2 rounded-xl font-headline font-bold text-sm" style={{ background: '#ef4444', color: '#fff' }}>{t('delete')}</button>
