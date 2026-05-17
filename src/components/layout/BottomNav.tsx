@@ -25,7 +25,7 @@ export default function BottomNav() {
         left: 0,
         right: 0,
         zIndex: 40,
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)',
         background: 'rgba(247,243,237,0.94)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
