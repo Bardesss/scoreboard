@@ -56,7 +56,7 @@ export function ConnectionsClient({
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-2 space-y-8">
+    <div className="max-w-2xl mx-auto py-8 space-y-8">
       <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>Connections</h1>
 
       <section>

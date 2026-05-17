@@ -85,7 +85,7 @@ export default function NewGamePage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto py-8 px-2">
+    <div className="max-w-lg mx-auto py-8">
       {/* Step indicator */}
       <div className="flex items-center gap-1.5 mb-8">
         {([1, 2, 3, 4, 5] as Step[]).map(s => (

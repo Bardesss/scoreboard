@@ -27,7 +27,7 @@ export default async function SupportPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-2">
+    <div className="max-w-4xl mx-auto py-8">
       <PageHeader
         title={t('title')}
         trailing={

@@ -40,7 +40,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const displayName = mePlayer?.name ?? user?.username ?? user?.email?.split('@')[0] ?? ''
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
+    <div className="max-w-7xl mx-auto py-8">
       <PageHeader title={tDashboard('greeting', { name: displayName })} subtitle={tDashboard('subtitle')} />
       <DashboardClient stats={stats} gamesPage={gamesPage} filter={filter} locale={locale} labels={labels} formatters={formatters} />
     </div>

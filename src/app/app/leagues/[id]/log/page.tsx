@@ -150,7 +150,7 @@ export default function LogGamePage() {
   }, [editId, leagueId])
 
   if (!template) {
-    return <div className="max-w-lg mx-auto py-8 px-2"><p className="font-body text-sm">Loading…</p></div>
+    return <div className="max-w-lg mx-auto py-8"><p className="font-body text-sm">Loading…</p></div>
   }
 
   const winType = template.winType
@@ -291,7 +291,7 @@ export default function LogGamePage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto py-8 px-2">
+    <div className="max-w-lg mx-auto py-8">
       <div className="flex items-center gap-3 mb-6">
         <button
           type="button"
@@ -446,7 +446,7 @@ function ParticipantStep({
   onContinue: () => void
 }) {
   return (
-    <div className="max-w-lg mx-auto py-8 px-2">
+    <div className="max-w-lg mx-auto py-8">
       <h1 className="font-headline font-black text-2xl mb-6" style={{ color: '#1e1a14' }}>
         {editId ? t('edit') : t('log')}
       </h1>

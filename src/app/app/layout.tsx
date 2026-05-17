@@ -92,7 +92,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} monthlyCredits={user.monthlyCredits} permanentCredits={user.permanentCredits} isLifetimeFree={user.isLifetimeFree} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
         <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} />
         <main
-          className={`lg:ml-64 min-h-screen relative z-10 pb-20 lg:pb-0 px-6 lg:px-7 ${isLow ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
+          className={`lg:ml-64 min-h-screen relative z-10 pb-20 lg:pb-0 px-4 lg:px-7 ${isLow ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
         >
           {children}
         </main>

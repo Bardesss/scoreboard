@@ -30,7 +30,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   if (!ticket || ticket.userId !== session.user.id) notFound()
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-2">
+    <div className="max-w-4xl mx-auto py-8">
       <div className="mb-6">
         <h1 className="font-headline font-black text-xl mb-2" style={{ color: '#1e1a14' }}>{ticket.subject}</h1>
         <span

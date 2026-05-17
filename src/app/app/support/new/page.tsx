@@ -33,7 +33,7 @@ export default function NewTicketPage() {
   }, [state, router])
 
   return (
-    <div className="max-w-xl mx-auto py-8 px-2">
+    <div className="max-w-xl mx-auto py-8">
       <h1 className="font-headline font-black text-2xl mb-6" style={{ color: '#1e1a14' }}>{t('newTicket')}</h1>
       <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>

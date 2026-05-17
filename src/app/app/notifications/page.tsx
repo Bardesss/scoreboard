@@ -45,7 +45,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
   }))
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-2">
+    <div className="max-w-4xl mx-auto py-8">
       <PageHeader title={t('pageTitle')} subtitle={t('pageSubtitle')} />
       <NotificationsClient
         notifications={serialized}

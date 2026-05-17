@@ -49,7 +49,7 @@ export function ProfileClient({
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-2 space-y-8">
+    <div className="max-w-2xl mx-auto py-8 space-y-8">
       <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('title')}</h1>
 
       <section className="flex flex-col items-center gap-4 py-6 rounded-3xl" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>

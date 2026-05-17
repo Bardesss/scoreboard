@@ -27,7 +27,7 @@ export default async function SettingsPage() {
   const initialPrefs = readPreferences(user.emailPreferences)
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-2">
+    <div className="max-w-2xl mx-auto py-8">
       <header className="mb-6">
         <h1 className="font-headline font-black text-2xl" style={{ color: '#1e1a14' }}>{t('pageTitle')}</h1>
         <p className="font-body text-sm mt-1" style={{ color: '#9a8878' }}>{t('subtitle')}</p>

@@ -46,7 +46,7 @@ export default function NewLeaguePage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto py-8 px-2">
+    <div className="max-w-lg mx-auto py-8">
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-8">
         {([1, 2, 3] as Step[]).map(s => (
