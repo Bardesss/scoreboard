@@ -96,6 +96,20 @@ export async function loadStats(
       include: { _count: { select: { members: true } } },
       orderBy: { createdAt: 'asc' },
     })
+    const memberMap = new Map<string, { playerId: string; name: string; avatarSeed: string; linkedUserId: string | null }>()
+    for (const g of games) {
+      for (const s of g.scores) {
+        if (!memberMap.has(s.player.id)) {
+          memberMap.set(s.player.id, {
+            playerId: s.player.id,
+            name: s.player.name,
+            avatarSeed: s.player.avatarSeed,
+            linkedUserId: s.player.linkedUserId,
+          })
+        }
+      }
+    }
+    const userMembers = Array.from(memberMap.values())
     bundle = {
       ranking: computeRanking(games, viewerId),
       topGames: computeTopGames(games, viewerId),
@@ -104,7 +118,7 @@ export async function loadStats(
         games,
       ),
       playDays: computePlayDays(games, locale),
-      missions: computeMissionStats(games),
+      recentForm: games.length >= 3 ? computeRecentForm(games, userMembers, viewerId) : null,
       gamesFrequency: computeGamesFrequency(games, filter),
     }
   } else {

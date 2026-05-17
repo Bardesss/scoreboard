@@ -97,7 +97,7 @@ export type StatsBundle = {
   topGames?: TopGame[]
   leagues?: LeagueStat[]
   playDays: PlayDay[]
-  missions: MissionStat[] | null
+  missions?: MissionStat[] | null
   gamesFrequency: FrequencyBucket[]
   headToHead?: HeadToHeadMatrix
   streaks?: StreakEntry[] | null

@@ -6,7 +6,6 @@ import { RankedListRow } from '@/components/stats/RankedListRow'
 import { StatBar } from '@/components/stats/StatBar'
 import { TransitionProvider, DimmedWhilePending } from '@/components/stats/TransitionDimmer'
 import { DateFilter as DateFilterPanel } from '@/components/stats/DateFilter'
-import { MissionChart } from '@/components/stats/MissionChart'
 import { GamesFrequencyChart } from '@/components/stats/GamesFrequencyChart'
 import { AnimatedNumber } from '@/components/stats/AnimatedNumber'
 import type { StatsBundle, DateFilter } from '@/lib/stats/types'
@@ -180,23 +179,62 @@ function LeaguesPanel({
   )
 }
 
-// ─── Missions panel ───────────────────────────────────────────────────────────
+// ─── Recent form panel ────────────────────────────────────────────────────────
 
-function MissionsPanel({
-  missions,
+function RecentFormPanel({
+  recentForm,
   index,
   labels,
-  formatters,
 }: {
-  missions: NonNullable<StatsBundle['missions']>
+  recentForm: NonNullable<StatsBundle['recentForm']>
   index?: number
   labels: StatsLabels
-  formatters: StatsFormatters
 }) {
   return (
     <Card index={index}>
-      <PanelHeader title={`🎯 ${labels.missions}`} subtitle={formatters.missionsTop(missions[0].count)} />
-      <MissionChart missions={missions} />
+      <PanelHeader title={`📊 ${labels.recentForm}`} />
+      <div style={{ padding: '0 18px' }}>
+        {recentForm.map((r, i) => (
+          <div
+            key={r.playerId}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '8px 0',
+              borderBottom: i < recentForm.length - 1 ? '1px solid #f2ece3' : undefined,
+              ...(r.isCurrentUser ? { background: 'rgba(245,166,35,0.07)', margin: '0 -18px', padding: '8px 18px' } : {}),
+            }}
+          >
+            <Avatar seed={r.avatarSeed} name={r.name} size={22} />
+            <span style={{ flex: 1, fontSize: 13, marginLeft: 8, fontWeight: r.isCurrentUser ? 700 : 400, color: '#1e1a14' }}>{r.name}</span>
+            <div style={{ display: 'flex', gap: 3 }}>
+              {r.results.length === 0 ? (
+                <span style={{ fontSize: 11, color: '#9a8c7a' }}>{labels.recentFormNone}</span>
+              ) : (
+                r.results.map((res, j) => (
+                  <span
+                    key={j}
+                    style={{
+                      display: 'inline-block',
+                      minWidth: 18,
+                      textAlign: 'center',
+                      padding: '1px 4px',
+                      borderRadius: 4,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      background: res === 'W' ? '#fff3d4' : '#f2ece3',
+                      color: res === 'W' ? '#c27f0a' : '#6b5e4a',
+                    }}
+                  >
+                    {res === 'W' ? labels.recentFormWon : labels.recentFormLost}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        ))}
+        {recentForm.length === 0 && <p style={{ fontSize: 13, color: '#9a8c7a', padding: '16px 0' }}>{labels.empty}</p>}
+      </div>
     </Card>
   )
 }
@@ -261,7 +299,7 @@ export default function DashboardClient({
           {stats.topGames && <TopGamesPanel topGames={stats.topGames} index={1} labels={labels} formatters={formatters} />}
           <PlayDaysPanel playDays={stats.playDays} index={2} labels={labels} formatters={formatters} />
           {stats.leagues && <LeaguesPanel leagues={stats.leagues} index={3} labels={labels} formatters={formatters} />}
-          {stats.missions && <MissionsPanel missions={stats.missions} index={4} labels={labels} formatters={formatters} />}
+          {stats.recentForm && stats.recentForm.length > 0 && <RecentFormPanel recentForm={stats.recentForm} index={4} labels={labels} />}
           <GamesFrequencyPanel buckets={stats.gamesFrequency} index={5} labels={labels} formatters={formatters} />
         </div>
 
