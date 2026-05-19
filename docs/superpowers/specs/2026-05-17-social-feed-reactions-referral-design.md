@@ -7,7 +7,7 @@
 
 Dice Vault has the social *pipes* (vault connections, player linking, borrowed leagues, played-game approvals, share links, notifications) but no social *layer* on top. There's nothing that pulls users back between game nights, and no construct for a parent who wants their kids to play without buying separate credit balances.
 
-This spec adds three interlocking features:
+This spec adds four interlocking features:
 
 1. **Activity feed** — personal stream of recent games from leagues you're in, rendered as rich "scorecards."
 2. **Reactions** — five fixed emoji you can toggle on any approved played game in a league you share.
@@ -22,15 +22,14 @@ The thesis: feed FOMO + reaction dopamine drive existing users to log more sessi
 
 ## 1. Implementation plans
 
-Three plans, each independently shippable.
+Two plans, each independently shippable. Order is up to the user — neither depends on the other.
 
 | Plan | Scope |
 |---|---|
-| **Plan 1 — Engagement** | `PlayedGameReaction` schema, `Scorecard` component, personal feed on `/app/profile`, reactions backend + UI, two new notification types (`connection_game_logged`, `reaction_received`) with batching, compact-row reaction-count badge on existing `PaginatedGamesTable`. |
-| **Plan 2 — Public Profile** | `publicProfileMode` + `allowAppearInOthers` on `User`, `/u/[username]` page (hero + trophy shelf + recent games), opponent anonymization, Privacy section in `/app/settings`. |
-| **Plan 3 — Family shared credits** | `Family` + `FamilyMember` schema, parent invite flow (existing-user invite via `ConnectionRequest`, plus QR/share-link), child-account creation flow, shared pool semantics, monthly pool accrual of `2 × monthly_free_credits` when ≥2 members, parent purchase routing, child purchase block, `/app/family` parent dashboard, family pool surfaced in `/app/credits`, disband flow. |
+| **Plan A — Social layer** | `PlayedGameReaction` schema, `Scorecard` component, personal feed on `/app/profile`, reactions backend + UI, two new notification types (`connection_game_logged`, `reaction_received`) with batching, compact-row reaction-count badge on `PaginatedGamesTable`, public profile `/u/[username]` (hero + trophy shelf + recent-games block), opponent anonymization, `publicProfileMode` + `allowAppearInOthers` on `User`, Privacy section in `/app/settings`. |
+| **Plan B — Family shared credits** | `Family` + `FamilyMember` schema, parent invite flow (existing-user invite via `ConnectionRequest`, plus QR/share-link), child-account creation flow, shared pool semantics, monthly pool accrual of `2 × monthly_free_credits` when ≥2 members, parent purchase routing, child purchase block, `/app/family` parent dashboard, family pool surfaced in `/app/credits`, `/admin/credits` family-pool toggle, disband flow. |
 
-Plan 1 and Plan 2 share no schema. Plan 3 is self-contained except where it touches game-logging credit deduction.
+Plan A's public-profile work depends on the Scorecard component and `PlayedGameReaction` schema introduced in the same plan — that's why feed + reactions + public profile ship together. Plan B is fully orthogonal: no shared schema, no shared UI surface.
 
 ---
 
@@ -44,11 +43,11 @@ All schema changes are **additive**. No destructive migrations.
 model User {
   // existing fields preserved...
 
-  // Privacy (Plan 2)
+  // Privacy (Plan A)
   publicProfileMode   String   @default("private")  // 'private' | 'stats' | 'full'
   allowAppearInOthers Boolean  @default(false)
 
-  // Family membership (Plan 3) — back-relation; see Family / FamilyMember models in §6
+  // Family membership (Plan B) — back-relation; see Family / FamilyMember models in §6
   familyMember        FamilyMember?
 }
 ```
@@ -78,7 +77,9 @@ The unique constraint enforces toggleability: a user can react with each emoji a
 
 ### No new "feed" table
 
-The feed is a query, not a stored stream. The personal feed query:
+The feed is a query, not a stored stream. There are two distinct query shapes:
+
+**Personal feed** (`/app/profile`) — every approved game in any league you participate in, regardless of whether you played the specific game. This gives connections-level visibility (you see your friends' games in your shared leagues):
 
 ```sql
 SELECT pg.* FROM PlayedGame pg
@@ -96,7 +97,21 @@ ORDER BY pg.playedAt DESC
 LIMIT :n OFFSET :m
 ```
 
-Public profile feed query is the same scoped to the profile owner instead of the viewer. Both reuse the existing `loadGames` pattern.
+**Public-profile feed** (`/u/[username]`, only when `publicProfileMode === 'full'`) — only games the profile owner actually *played in*. Scoped tightly to participation, not league membership, so a viewer doesn't see games the profile owner had no role in:
+
+```sql
+SELECT pg.* FROM PlayedGame pg
+WHERE pg.status = 'approved'
+  AND EXISTS (
+    SELECT 1 FROM Score s
+    JOIN Player p ON s.playerId = p.id
+    WHERE s.playedGameId = pg.id AND p.userId = :profileOwnerId
+  )
+ORDER BY pg.playedAt DESC
+LIMIT :n OFFSET :m
+```
+
+Both reuse the existing `loadGames` pattern's include shape (scores, players, league, gameTemplate).
 
 ### Reaction set
 
@@ -164,7 +179,7 @@ Recent activity                          [🗓 All time ▾]
 - Vertical stack of scorecards, paginated 10 per page using the same `PaginatedGamesTable` footer pattern.
 - Empty state: existing `EmptyState` component with a dice icon and a "Log your first game" CTA pointing to the `LogGameLauncher`.
 
-### 3.3 Public profile `/u/[username]` (Plan 2)
+### 3.3 Public profile `/u/[username]`
 
 Distinct two-band layout, deliberately more "destination" than the rest of the authenticated app.
 
@@ -198,7 +213,7 @@ Same scorecard component as 3.1, with the anonymization rules from 3.1 applied p
 
 **404 path** (when `publicProfileMode === 'private'` or username not found): generic "Profile not found" page. Do **not** distinguish "private" from "doesn't exist" — privacy by obscurity.
 
-### 3.4 Privacy settings (Plan 2, in `/app/settings`)
+### 3.4 Privacy settings (in `/app/settings`)
 
 A new section card "Profile & privacy" using the existing settings-section pattern. Three controls:
 
@@ -252,8 +267,10 @@ Add to `iconFor` / `colorFor` / `hrefFor` switches in `NotificationsClient.tsx`.
 
 Density mitigation for `connection_game_logged`:
 - **Self-exclusion**: do not fire to game participants. Only to *other* league members.
-- **In-app batching**: when the notification bell renders, group `connection_game_logged` notifications by `(leagueId, day)` and collapse into one row when count ≥ 2. Display as `"4 new games in {leagueName}"` with the same href as a single notification.
+- **In-app batching**: when the notification bell renders, group `connection_game_logged` notifications by `(leagueId, day)` where `day` is the UTC calendar date of `notification.createdAt`. Collapse into one row when count ≥ 2. Display as `"4 new games in {leagueName}"` with the href of the most recent game in the group.
 - Email default OFF (database default), opt-in via settings.
+
+**Deep-link cross-pagination.** A notification href like `/app/profile#game-{id}` may target a game not on page 1 of the feed. Resolution: the page component reads `?game={id}` (a query-param variant of the anchor), looks up which page the target game lands on (cheap — count rows with `playedAt > target.playedAt`), pre-selects that page, then scrolls the target into view. Implementation detail captured in the Plan A plan.
 
 ---
 
@@ -314,8 +331,8 @@ export function anonymizeName(viewer: 'public', subject: { allowAppearInOthers: 
 ```
 
 Applied in:
-- `src/app/[locale]/u/[username]/page.tsx` (Plan 2): early 404 if `publicProfileMode === 'private'`.
-- `loadPublicFeed` (Plan 2): maps over score entries and replaces names per `allowAppearInOthers` of each player's linked user.
+- `src/app/[locale]/u/[username]/page.tsx`: early 404 if `publicProfileMode === 'private'`.
+- `loadPublicFeed`: maps over score entries and replaces names per `allowAppearInOthers` of each player's linked user.
 
 ---
 
@@ -353,9 +370,9 @@ English equivalents mirror the structure. Family-specific keys appear in §6 bel
 
 ---
 
-## 6. Family shared credits (Plan 3)
+## 6. Family shared credits (Plan B)
 
-A household construct that lets one or two parents and N children share a single credit pool. Parents control purchases; the family pool replaces the per-member personal pool while a user is a member.
+A household construct that lets one or two parents and N children share a single credit pool. Parents control purchases; while the family has ≥2 members, members' personal monthly accrual is paused in favor of the pool refill (see §6.5).
 
 ### 6.1 Family structure
 
@@ -466,7 +483,7 @@ While a user is in a family:
 | Purchase credits | Only parents (`role: 'parent'`) can initiate. Purchased credits land in `Family.permanentCredits`. Children attempting to access the purchase flow see "Family credits are managed by {parent name}". |
 | Receive admin credit adjustment | Admin can target either `User.permanentCredits` (the individual, frozen) or `Family.permanentCredits` (the pool). `/admin/credits` gains an "Apply to family pool" toggle when the target user is in a family. |
 
-When pool is empty: hard stop. Any family member attempting to log a game sees "Family pool is empty — {parent name} needs to top up." No fallback to personal credits.
+When the pool is fully drained — `Family.monthlyCredits === 0` AND `Family.permanentCredits === 0` — logging hard-stops. Any family member attempting to log a game sees "Family pool is empty — {parent name} needs to top up." No fallback to personal credits even if the member has frozen `User.permanentCredits` left over from pre-family days.
 
 **Note on the ≥2 rule:** the lone parent's *personal* `User.monthlyCredits` accrues to the standard `monthly_free_credits` value whenever the family has only 1 member — newly created, all kids released, or co-parent released. So the parent is never worse off than a solo user. The moment a second member accepts, the *next* cron tick switches modes: pool gets `2 × monthly_free_credits`, personal accrual pauses. The switch is not retroactive within a month — whichever side accrued first that month keeps what it got.
 
@@ -581,63 +598,57 @@ English mirrors.
 | Anonymous browser hits `/u/private-user`. | Generic 404. Do not reveal existence. |
 | Reaction created, then league member is removed from the league. | Existing reactions remain (historical). New reactions blocked because authorization re-checks league membership at action time. |
 | Game is rejected (approved → rejected via admin path). | Existing reactions stay (referenced game still exists). Card no longer surfaces in feeds because the query filters `status = 'approved'`. |
-| Family member account deleted while family has only that member. | Family row stays (soft-deleted via disband-on-last-parent path) until the parent disbands explicitly, or via a follow-up cleanup job. |
+| Family member account deleted while family has only that member. | The `User → FamilyMember` cascade deletes the membership row. As part of the same transaction, the account-deletion path checks for orphaned families (zero remaining members) and soft-deletes them. Any `Family.permanentCredits` left in the pool is forfeit — there's no one to receive it. Logged to `CreditTransaction` with reason `family_forfeit_orphan` for audit. |
 
 ---
 
-## 8. Implementation grouping (3 plans)
+## 8. Implementation grouping (2 plans)
 
-Each plan ships independently. Plan 3 also handles a holistic landing-page + README sweep mentioning the full feature set across the three plans.
+Each plan ships independently and in any order. **Whichever plan ships last** also performs a single holistic landing-page + README sweep covering everything both plans have introduced.
 
-### Plan 1 — Engagement
+### Plan A — Social layer (feed + reactions + public profile)
+
+Combined scope: engagement (feed + reactions + notifications + profile restructure) plus the public profile + privacy work that builds on the same Scorecard + `loadFeed.ts` foundations.
 
 | Step | Files touched |
 |---|---|
-| Prisma migration: `PlayedGameReaction` model | `prisma/schema.prisma`, new migration |
+| Prisma migration: `PlayedGameReaction` model + `User.publicProfileMode` + `User.allowAppearInOthers` (single migration) | `prisma/schema.prisma`, new migration |
 | `src/lib/reactions.ts` (allowed set constant) | new |
 | `src/app/app/social/actions.ts` (`toggleReaction`) | new |
-| `src/lib/social/loadFeed.ts` (`loadPersonalFeed`) | new |
-| `src/components/social/Scorecard.tsx` | new |
-| `/app/profile` restructure: identity card + feed | `src/app/app/profile/ProfileClient.tsx`, `page.tsx` |
-| Compact-row reaction badge in `PaginatedGamesTable` | `src/components/stats/PaginatedGamesTable.tsx` |
-| Two new notification types (`connection_game_logged`, `reaction_received`) + icon/color/route + email templates | `NotificationsClient.tsx`, `emailTemplates.ts`, `emailPreferences.ts` |
-| Density: batching of `connection_game_logged` | `NotificationBell.tsx` rendering layer |
-| Plan-1 landing/README copy update — feed + reactions section | `src/app/[locale]/(marketing)/page.tsx`, `README.md` |
-
-### Plan 2 — Public Profile
-
-One small migration (`publicProfileMode`, `allowAppearInOthers`) and a new public route.
-
-| Step | Files touched |
-|---|---|
-| Prisma migration: `User.publicProfileMode` + `User.allowAppearInOthers` | `prisma/schema.prisma`, new migration |
-| `src/lib/social/privacy.ts` | new |
-| `loadPublicFeed` with anonymization (extends `loadFeed.ts` from Plan 1) | `src/lib/social/loadFeed.ts` |
-| `src/app/[locale]/u/[username]/page.tsx` (+ generic 404) | new |
+| `src/lib/social/loadFeed.ts` — `loadPersonalFeed` + `loadPublicFeed` (anonymization applied in the latter) | new |
+| `src/lib/social/privacy.ts` — `canViewPublicProfile`, `shouldRenderGames`, `anonymizeName` | new |
+| `src/components/social/Scorecard.tsx` — reused by both personal feed and public-profile games block | new |
 | `src/components/social/PublicProfileHero.tsx`, `TrophyShelf.tsx` | new |
-| `/app/settings` Privacy section | `src/app/app/settings/sections/PrivacySection.tsx` (new) |
-| Plan-2 landing/README copy update — public profile section | `src/app/[locale]/(marketing)/page.tsx`, `README.md` |
+| `/app/profile` restructure: identity card (with privacy state chip + collapsed QR) + activity feed | `src/app/app/profile/ProfileClient.tsx`, `page.tsx` |
+| Compact-row reaction badge in `PaginatedGamesTable` | `src/components/stats/PaginatedGamesTable.tsx` |
+| `/app/settings` Privacy section (master toggle, sub-radio, `allowAppearInOthers`) | `src/app/app/settings/sections/PrivacySection.tsx` (new) |
+| `/u/[username]` public page (hero + trophy shelf + recent-games block; generic 404 for private/missing) | `src/app/[locale]/u/[username]/page.tsx` (new) |
+| Deep-link resolver: `?game={id}` resolves the target's page, scrolls into view | inside `ProfileClient.tsx` |
+| Two new notification types (`connection_game_logged`, `reaction_received`) + icon/color/route + email templates + `shouldSendEmailTo` | `NotificationsClient.tsx`, `emailTemplates.ts`, `emailPreferences.ts` |
+| Density: batching of `connection_game_logged` by `(leagueId, UTC-day)` | `NotificationBell.tsx` rendering layer |
+| Landing/README copy update — feed + reactions + public profile + privacy. (If Plan A ships last, expand to the holistic sweep also covering family.) | `src/app/[locale]/(marketing)/page.tsx`, `README.md` |
 
-### Plan 3 — Family shared credits
+### Plan B — Family shared credits
 
-Self-contained except for credit-deduction-on-log integration and the monthly cron.
+Self-contained except for credit-deduction-on-log integration, the monthly cron, the admin credit-adjust UI, and the account-deletion orphan-cleanup hook.
 
 | Step | Files touched |
 |---|---|
 | Prisma migration: `Family` + `FamilyMember` + `CreditTransaction.familyId` | `prisma/schema.prisma`, new migration |
 | `src/lib/family/membership.ts` (member queries, role checks) | new |
 | `src/app/app/family/actions.ts` — server actions: `createFamily`, `inviteMember(targetUserId, role)`, `createChildAccount(...)`, `acceptFamilyInvite(token)`, `releaseMember(memberId)`, `setMemberRole(memberId, role)`, `disband()` | new |
-| Auth rules: `createFamily` requires session, no existing FamilyMember. `inviteMember`/`createChildAccount`/`releaseMember`/`setMemberRole`/`disband` require caller is a parent of the same family. `acceptFamilyInvite` requires session matches the invite target (existing-user invite) or any session (token-based invite). All member-add paths enforce the 6-member cap; `inviteMember`/`setMemberRole` to `'parent'` also enforce the 2-parent cap. | — |
+| Auth rules: `createFamily` requires session and no existing `FamilyMember`. `inviteMember`/`createChildAccount`/`releaseMember`/`setMemberRole`/`disband` require caller is a parent of the same family. `acceptFamilyInvite` requires session matches the invite target (existing-user invite) or any session (token-based invite). All member-add paths enforce the 6-member cap; `inviteMember`/`setMemberRole` to `'parent'` also enforce the 2-parent cap. | — |
 | Family-invite via existing `ConnectionRequest` (`context: 'family_*'`) | `src/app/app/connections/actions.ts` extension |
 | Family-invite QR/share-link token type + handler (role baked into token) | new in `src/app/[locale]/family/invite/[token]/page.tsx` |
-| Modify game-logging credit deduction: route to `Family` wallet when user is a member | `src/app/app/leagues/[id]/log/actions.ts` (and wherever the existing deduction lives) |
+| Modify game-logging credit deduction: route to `Family` wallet when user is a member | `src/app/app/leagues/[id]/log/actions.ts` (and any other deduction sites) |
 | Monthly cron: for each `Family`, if `memberCount >= 2` then set `monthlyCredits = 2 × monthly_free_credits` and skip personal accrual for every member; if `memberCount === 1` then leave `Family.monthlyCredits = 0` and accrue the lone member's `User.monthlyCredits` normally. Users not in any family: existing behavior unchanged. | `src/app/api/cron/credit-reset/route.ts` |
 | Block credit purchases for children; route parent purchases to family wallet | existing purchase action |
 | `/admin/credits` — "Apply to family pool" toggle when target user is in a family; routes adjustment to `Family.permanentCredits` instead of `User.permanentCredits` | `src/app/admin/credits/...` (existing admin credit-adjust UI) |
+| Account-deletion hook: when a `User` is deleted, after the cascade fires check for orphaned families (memberCount=0) and soft-delete them; log a `family_forfeit_orphan` `CreditTransaction` for any remaining permanent credits | existing account-deletion action |
 | `/app/family` parent dashboard (members list + pool + recent activity; per-member detail sheet exposes "Release to own account", "Make parent" / "Make child") | new |
-| `/app/credits` family-aware rendering (pool view, child-locked buy CTA) | `CreditsClient.tsx` |
+| `/app/credits` family-aware rendering (pool view for parents, child-locked buy CTA) | `CreditsClient.tsx` |
 | Family-invite notification type | extend Notification system |
-| Plan-3 landing/README copy update — family credits section; holistic sweep across landing & README mentioning all three plans' features (feed, reactions, public profile, privacy, family) | `src/app/[locale]/(marketing)/page.tsx`, `README.md`, `docs/design-guidelines.md` (Shared components registry §13) |
+| Landing/README copy update — family credits section. (If Plan B ships last, expand to the holistic sweep also covering Plan A.) | `src/app/[locale]/(marketing)/page.tsx`, `README.md`, `docs/design-guidelines.md` (Shared components registry §13) |
 
 ---
 
