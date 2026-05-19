@@ -462,13 +462,13 @@ While a user is in a family:
 | Action | Effect |
 |---|---|
 | Log a game (5 credit cost) | Deducts from `Family.monthlyCredits` first, then `Family.permanentCredits`. Same logic as the existing User-level deduction, just on the family wallet. |
-| Monthly cron fires | If the family has **≥2 members**, set `Family.monthlyCredits = 2 × monthly_free_credits` (currently 150; tracks the `monthly_free_credits` admin setting). If the family has 1 member, set to 0. Member's own `User.monthlyCredits` is **not** touched. |
+| Monthly cron fires | If the family has **≥2 members**: set `Family.monthlyCredits = 2 × monthly_free_credits` (currently 150; tracks the `monthly_free_credits` admin setting) AND skip personal `User.monthlyCredits` accrual for every member. If the family has **1 member** (lone parent post-release/post-disband-pending): leave `Family.monthlyCredits` at 0 AND accrue the lone parent's `User.monthlyCredits` normally (75 today). The lone parent never ends up worse off than a solo user. |
 | Purchase credits | Only parents (`role: 'parent'`) can initiate. Purchased credits land in `Family.permanentCredits`. Children attempting to access the purchase flow see "Family credits are managed by {parent name}". |
 | Receive admin credit adjustment | Admin can target either `User.permanentCredits` (the individual, frozen) or `Family.permanentCredits` (the pool). `/admin/credits` gains an "Apply to family pool" toggle when the target user is in a family. |
 
 When pool is empty: hard stop. Any family member attempting to log a game sees "Family pool is empty — {parent name} needs to top up." No fallback to personal credits.
 
-**Note on the ≥2 rule:** a solo-parent family (newly created, no invites accepted yet) gets 0 cr/month from the cron. The moment a second member accepts, the *next* cron tick begins paying out 150/month. The bonus is not retroactive within a month.
+**Note on the ≥2 rule:** the lone parent's *personal* `User.monthlyCredits` accrues normally (75 today) whenever the family has only 1 member — newly created, all kids released, or co-parent released. So the parent is never worse off than a solo user. The moment a second member accepts, the *next* cron tick switches modes: pool gets 150, personal accrual pauses. The switch is not retroactive within a month — whichever side accrued first that month keeps what it got.
 
 ### 6.6 Releasing a member
 
@@ -631,7 +631,7 @@ Self-contained except for credit-deduction-on-log integration and the monthly cr
 | Family-invite via existing `ConnectionRequest` (`context: 'family_*'`) | `src/app/app/connections/actions.ts` extension |
 | Family-invite QR/share-link token type + handler (role baked into token) | new in `src/app/[locale]/family/invite/[token]/page.tsx` |
 | Modify game-logging credit deduction: route to `Family` wallet when user is a member | `src/app/app/leagues/[id]/log/actions.ts` (and wherever the existing deduction lives) |
-| Monthly cron: family pool refill (150 when ≥2 members, 0 otherwise), skip member's own `User.monthlyCredits` if in a family | `src/app/api/cron/credit-reset/route.ts` |
+| Monthly cron: for each `Family`, if `memberCount >= 2` then set `monthlyCredits = 2 × monthly_free_credits` and skip personal accrual for every member; if `memberCount === 1` then leave `Family.monthlyCredits = 0` and accrue the lone member's `User.monthlyCredits` normally. Users not in any family: existing behavior unchanged. | `src/app/api/cron/credit-reset/route.ts` |
 | Block credit purchases for children; route parent purchases to family wallet | existing purchase action |
 | `/admin/credits` — "Apply to family pool" toggle when target user is in a family; routes adjustment to `Family.permanentCredits` instead of `User.permanentCredits` | `src/app/admin/credits/...` (existing admin credit-adjust UI) |
 | `/app/family` parent dashboard (members list + pool + recent activity; per-member detail sheet exposes "Release to own account", "Make parent" / "Make child") | new |
