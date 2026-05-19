@@ -12,7 +12,7 @@ This spec adds three interlocking features:
 1. **Activity feed** — personal stream of recent games from leagues you're in, rendered as rich "scorecards."
 2. **Reactions** — five fixed emoji you can toggle on any approved played game in a league you share.
 3. **Public profile** at `/u/[username]` — opt-in, three-state privacy (`private` / `stats` / `full`).
-4. **Family shared credits** — a household construct where 1–2 parents and N children share a single credit pool, with parents controlling purchases and a fixed 150 cr/month accrual once the family has ≥2 members.
+4. **Family shared credits** — a household construct where 1–2 parents and N children share a single credit pool, with parents controlling purchases and a monthly pool accrual of `2 × monthly_free_credits` (admin-configurable) once the family has ≥2 members.
 
 The thesis: feed FOMO + reaction dopamine drive existing users to log more sessions; the public profile gives users a destination they can share; family pools concentrate household credit spend onto one paying account.
 
@@ -28,7 +28,7 @@ Three plans, each independently shippable.
 |---|---|
 | **Plan 1 — Engagement** | `PlayedGameReaction` schema, `Scorecard` component, personal feed on `/app/profile`, reactions backend + UI, two new notification types (`connection_game_logged`, `reaction_received`) with batching, compact-row reaction-count badge on existing `PaginatedGamesTable`. |
 | **Plan 2 — Public Profile** | `publicProfileMode` + `allowAppearInOthers` on `User`, `/u/[username]` page (hero + trophy shelf + recent games), opponent anonymization, Privacy section in `/app/settings`. |
-| **Plan 3 — Family shared credits** | `Family` + `FamilyMember` schema, parent invite flow (existing-user invite via `ConnectionRequest`, plus QR/share-link), child-account creation flow, shared pool semantics, flat 150 cr/month accrual when ≥2 members, parent purchase routing, child purchase block, `/app/family` parent dashboard, family pool surfaced in `/app/credits`, disband flow. |
+| **Plan 3 — Family shared credits** | `Family` + `FamilyMember` schema, parent invite flow (existing-user invite via `ConnectionRequest`, plus QR/share-link), child-account creation flow, shared pool semantics, monthly pool accrual of `2 × monthly_free_credits` when ≥2 members, parent purchase routing, child purchase block, `/app/family` parent dashboard, family pool surfaced in `/app/credits`, disband flow. |
 
 Plan 1 and Plan 2 share no schema. Plan 3 is self-contained except where it touches game-logging credit deduction.
 
@@ -462,13 +462,13 @@ While a user is in a family:
 | Action | Effect |
 |---|---|
 | Log a game (5 credit cost) | Deducts from `Family.monthlyCredits` first, then `Family.permanentCredits`. Same logic as the existing User-level deduction, just on the family wallet. |
-| Monthly cron fires | If the family has **≥2 members**: set `Family.monthlyCredits = 2 × monthly_free_credits` (currently 150; tracks the `monthly_free_credits` admin setting) AND skip personal `User.monthlyCredits` accrual for every member. If the family has **1 member** (lone parent post-release/post-disband-pending): leave `Family.monthlyCredits` at 0 AND accrue the lone parent's `User.monthlyCredits` normally (75 today). The lone parent never ends up worse off than a solo user. |
+| Monthly cron fires | Read the `monthly_free_credits` admin setting once at the start of the cron run (call it `M`). For each family: if `memberCount >= 2`, set `Family.monthlyCredits = 2 × M` AND skip personal `User.monthlyCredits` accrual for every member. If `memberCount === 1` (lone parent post-release/post-disband-pending): leave `Family.monthlyCredits = 0` AND accrue the lone parent's `User.monthlyCredits` to `M` like any solo user. The lone parent never ends up worse off than a solo user. |
 | Purchase credits | Only parents (`role: 'parent'`) can initiate. Purchased credits land in `Family.permanentCredits`. Children attempting to access the purchase flow see "Family credits are managed by {parent name}". |
 | Receive admin credit adjustment | Admin can target either `User.permanentCredits` (the individual, frozen) or `Family.permanentCredits` (the pool). `/admin/credits` gains an "Apply to family pool" toggle when the target user is in a family. |
 
 When pool is empty: hard stop. Any family member attempting to log a game sees "Family pool is empty — {parent name} needs to top up." No fallback to personal credits.
 
-**Note on the ≥2 rule:** the lone parent's *personal* `User.monthlyCredits` accrues normally (75 today) whenever the family has only 1 member — newly created, all kids released, or co-parent released. So the parent is never worse off than a solo user. The moment a second member accepts, the *next* cron tick switches modes: pool gets 150, personal accrual pauses. The switch is not retroactive within a month — whichever side accrued first that month keeps what it got.
+**Note on the ≥2 rule:** the lone parent's *personal* `User.monthlyCredits` accrues to the standard `monthly_free_credits` value whenever the family has only 1 member — newly created, all kids released, or co-parent released. So the parent is never worse off than a solo user. The moment a second member accepts, the *next* cron tick switches modes: pool gets `2 × monthly_free_credits`, personal accrual pauses. The switch is not retroactive within a month — whichever side accrued first that month keeps what it got.
 
 ### 6.6 Releasing a member
 
@@ -660,7 +660,7 @@ For future-Bartus reference (so we don't accidentally re-add what we cut):
 - **Anti-abuse signal capture** — no `signupIp`, no `lastSeenIp`, no `signupUserAgent`, no `emailNormalized`, no `referralFlags`, no middleware extension for `lastSeenIp`.
 - **Risk scoring & caps** — no `evaluateReferralRisk`, no per-referrer 30-day cap, no per-IP lifetime cap, no admin `/admin/referrals` page.
 - **Per-IP family cap** — cut along with the above.
-- **Per-member family monthly accrual** — replaced with flat 150/month (when ≥2 members).
+- **Per-member family monthly accrual** — replaced with `2 × monthly_free_credits` total when ≥2 members (no member-count scaling).
 - **Disposable-email blocklist** — not added.
 - **Member-initiated leave** — only parents can release a member. A lone parent's only exit is disband.
 - **Email-less child safeguard at release/disband** — parents who created child accounts with no email own that choice. The Player label (no login) remains the alternative for kids too young to manage their own credentials.
