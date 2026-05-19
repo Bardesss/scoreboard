@@ -19,6 +19,7 @@ Single source of truth for phase order, plan files, and status.
 | **8** | [dashboard-redesign.md](2026-04-22-dashboard-redesign.md) | done | 2×2 ranked-list panels + paginated games table |
 | **9** | [log-form-win-types.md](2026-04-23-log-form-win-types.md) | done | Adaptive log form per winType + isWinner flag + schema + display + stats |
 | **10** | [stats-panels-expansion.md](2026-04-23-stats-panels-expansion.md) | done | League stats + dashboard expansion + shared primitives + date filter + skeletons + charts + i18n sweep |
+| **Plan A** | [plan-a-social-layer.md](2026-05-19-plan-a-social-layer.md) | done | Activity feed, 5-emoji reactions, public profile `/u/[username]`, 3-state privacy, 2 new notification types with batching |
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **11b** | phase-11b-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 
