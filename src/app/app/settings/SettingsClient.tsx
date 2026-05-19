@@ -8,10 +8,12 @@ import { LogoutSection } from './sections/LogoutSection'
 import { AccountSection } from './sections/AccountSection'
 import { EmailPreferencesSection } from './sections/EmailPreferencesSection'
 import { PrivacySection } from './sections/PrivacySection'
+import { UsernameSection } from './sections/UsernameSection'
 import type { EmailPreferences } from '@/lib/emailPreferences'
 
 export function SettingsClient({
   email,
+  username,
   createdAt,
   locale,
   totpEnabled,
@@ -22,6 +24,7 @@ export function SettingsClient({
   allowAppearInOthers,
 }: {
   email: string
+  username: string | null
   createdAt: string
   locale: string
   totpEnabled: boolean
@@ -34,6 +37,8 @@ export function SettingsClient({
   return (
     <SessionProvider>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <UsernameSection initial={username} />
+        <PrivacySection initial={{ publicProfileMode, allowAppearInOthers }} />
         <TwoFactorSection
           totpEnabled={totpEnabled}
           requiresMfa={requiresMfa}
@@ -42,7 +47,6 @@ export function SettingsClient({
         <LanguageSection currentLocale={locale} />
         <PasswordSection />
         <EmailPreferencesSection initial={emailPreferences} />
-        <PrivacySection initial={{ publicProfileMode, allowAppearInOthers }} />
         <LogoutSection />
         <AccountSection email={email} createdAt={createdAt} locale={locale === 'nl' ? 'nl' : 'en'} />
       </div>

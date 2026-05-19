@@ -1,11 +1,10 @@
 'use client'
-import { useEffect, useRef, useState, useActionState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { toast } from 'sonner'
 import { Share2, QrCode, Settings, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { QRCodeCanvas } from './QRCode'
-import { updateUsername } from './actions'
 import { Scorecard } from '@/components/social/Scorecard'
 import type { FeedPage } from '@/lib/social/loadFeed'
 
@@ -25,10 +24,6 @@ export function ProfileClient(props: Props) {
   const tp = useTranslations('app.profile')
   const locale = useLocale() as 'nl' | 'en'
   const [qrOpen, setQrOpen] = useState(false)
-  const [, formAction, pending] = useActionState(
-    async (_: unknown, formData: FormData) => updateUsername(formData),
-    null,
-  )
   const focusRef = useRef<HTMLDivElement>(null)
   const displayName = props.username ?? props.email
 
@@ -101,24 +96,6 @@ export function ProfileClient(props: Props) {
             <Settings size={14} />
           </Link>
         </div>
-        {/* Username editor */}
-        <form action={formAction} className="flex gap-2 mt-4">
-          <input
-            name="username"
-            defaultValue={props.username ?? ''}
-            placeholder="e.g. jan_de_vries"
-            className="flex-1 px-4 py-2.5 rounded-xl font-body text-sm outline-none"
-            style={{ background: '#f5f0e8', border: '1px solid #e8e1d8', color: '#1e1a14' }}
-          />
-          <button
-            type="submit"
-            disabled={pending}
-            className="px-4 py-2.5 rounded-xl font-headline font-bold text-sm"
-            style={{ background: '#f5a623', color: '#1c1408' }}
-          >
-            {pending ? '…' : tp('save')}
-          </button>
-        </form>
       </section>
 
       {/* QR sheet */}

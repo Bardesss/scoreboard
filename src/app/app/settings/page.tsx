@@ -13,6 +13,7 @@ export default async function SettingsPage() {
     where: { id: session.user.id },
     select: {
       email: true,
+      username: true,
       locale: true,
       totpEnabled: true,
       requiresMfa: true,
@@ -36,6 +37,7 @@ export default async function SettingsPage() {
       </header>
       <SettingsClient
         email={user.email}
+        username={user.username}
         createdAt={user.createdAt.toISOString()}
         locale={user.locale}
         totpEnabled={user.totpEnabled}

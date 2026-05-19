@@ -214,6 +214,30 @@ export async function regenerateBackupCodes(
   return { success: true, backupCodes }
 }
 
+const usernameSchema = /^[a-z0-9_]{3,32}$/
+
+export async function updateUsername(formData: FormData): Promise<Result> {
+  const session = await auth()
+  if (!session) return { success: false, error: 'unauthorized' }
+
+  const raw = formData.get('username')
+  const username = typeof raw === 'string' ? raw.trim().toLowerCase() : ''
+  if (!usernameSchema.test(username)) {
+    return { success: false, error: 'username_invalid' }
+  }
+
+  const existing = await prisma.user.findFirst({
+    where: { username, id: { not: session.user.id } },
+    select: { id: true },
+  })
+  if (existing) return { success: false, error: 'username_taken' }
+
+  await prisma.user.update({ where: { id: session.user.id }, data: { username } })
+  revalidatePath('/app/settings')
+  revalidatePath('/app/profile')
+  return { success: true }
+}
+
 const VALID_PROFILE_MODES = new Set(['private', 'stats', 'full'])
 
 export async function updatePrivacySettings(input: {
