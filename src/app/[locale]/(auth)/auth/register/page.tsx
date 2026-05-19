@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
-import { AuthCard, UnderlineInput, PrimaryButton } from '@/components/auth/AuthCard'
+import { AuthCard, UnderlineInput, PasswordInput, PrimaryButton } from '@/components/auth/AuthCard'
 import { register } from '../actions'
 
 type UsernameStatus = 'idle' | 'checking' | 'invalid' | 'taken' | 'available'
@@ -88,30 +88,42 @@ export default function RegisterPage() {
 
         <UnderlineInput label={t('register.email')} name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
 
-        <UnderlineInput
+        <PasswordInput
           label={t('register.password')}
           name="password"
-          type="password"
           autoComplete="new-password"
           required
           placeholder="••••••••"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          showLabel={t('register.pwShow')}
+          hideLabel={t('register.pwHide')}
         />
-        <PwRule ok={pwLong} label={t('register.pwRuleLength', { count: MIN_PW_LENGTH })} />
+        <PwRule
+          state={pwLong ? 'ok' : password.length > 0 ? 'progress' : 'pending'}
+          label={
+            pwLong
+              ? t('register.pwRuleLength', { count: MIN_PW_LENGTH })
+              : t('register.pwRuleLengthProgress', { count: password.length, min: MIN_PW_LENGTH })
+          }
+        />
 
-        <UnderlineInput
+        <PasswordInput
           label={t('register.passwordConfirm')}
           name="passwordConfirm"
-          type="password"
           autoComplete="new-password"
           required
           placeholder="••••••••"
           value={passwordConfirm}
           onChange={e => setPasswordConfirm(e.target.value)}
+          showLabel={t('register.pwShow')}
+          hideLabel={t('register.pwHide')}
         />
         {passwordConfirm.length > 0 && (
-          <PwRule ok={pwMatches} label={t('register.pwRuleMatch')} />
+          <PwRule
+            state={pwMatches ? 'ok' : 'fail'}
+            label={pwMatches ? t('register.pwRuleMatch') : t('register.pwRuleMatchFail')}
+          />
         )}
 
         {state && 'error' in state ? (
@@ -140,10 +152,18 @@ function UsernameFeedback({ status, t }: { status: UsernameStatus; t: ReturnType
   return <p className="font-body text-[12px] mb-3 -mt-3" style={{ color }}>{label}</p>
 }
 
-function PwRule({ ok, label }: { ok: boolean; label: string }) {
+function PwRule({ state, label }: { state: 'pending' | 'progress' | 'ok' | 'fail'; label: string }) {
+  const color =
+    state === 'ok'   ? '#1a7a42' :
+    state === 'fail' ? '#c0392b' :
+                       '#9a8878'
+  const mark =
+    state === 'ok'   ? '✓' :
+    state === 'fail' ? '✗' :
+                       '○'
   return (
-    <p className="font-body text-[12px] mb-3 -mt-3" style={{ color: ok ? '#1a7a42' : '#9a8878' }}>
-      {ok ? '✓' : '○'} {label}
+    <p className="font-body text-[12px] mb-3 -mt-3" style={{ color }}>
+      {mark} {label}
     </p>
   )
 }

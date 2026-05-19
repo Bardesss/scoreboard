@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { Dices } from 'lucide-react'
+import { Dices, Eye, EyeOff } from 'lucide-react'
 
 export function AuthCard({ children }: { children: React.ReactNode }) {
   return (
@@ -40,6 +41,38 @@ export function UnderlineInput({ label, ...props }: InputProps) {
         className="w-full h-11 border-0 border-b border-b-[#c5b89f] focus:border-b-primary rounded-none px-0.5 pb-2.5 font-body text-sm text-on-surface bg-transparent outline-none transition-[border-color] duration-200 placeholder:text-[#c5b89f] placeholder:italic placeholder:text-[13px]"
         {...props}
       />
+    </div>
+  )
+}
+
+interface PasswordInputProps extends Omit<InputProps, 'type'> {
+  showLabel: string
+  hideLabel: string
+}
+
+export function PasswordInput({ label, showLabel, hideLabel, ...props }: PasswordInputProps) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className="mb-5">
+      <label className="block font-headline font-black text-[9px] uppercase tracking-[.15em] text-outline-variant mb-1">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type={visible ? 'text' : 'password'}
+          className="w-full h-11 border-0 border-b border-b-[#c5b89f] focus:border-b-primary rounded-none pl-0.5 pr-9 pb-2.5 font-body text-sm text-on-surface bg-transparent outline-none transition-[border-color] duration-200 placeholder:text-[#c5b89f] placeholder:italic placeholder:text-[13px]"
+          {...props}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible(v => !v)}
+          aria-label={visible ? hideLabel : showLabel}
+          className="absolute right-0 top-0 h-11 w-9 flex items-center justify-center text-outline-variant hover:text-on-surface-variant transition-colors"
+          tabIndex={-1}
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
     </div>
   )
 }
