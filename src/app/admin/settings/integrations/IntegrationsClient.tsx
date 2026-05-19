@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { saveMailgunConfig, testMailgunConnection } from './actions'
 import type { MailgunStats } from './actions'
@@ -85,6 +86,7 @@ export default function IntegrationsClient({
   mailgun: IntegrationRow | null
   mailgunStats: MailgunStats | null
 }) {
+  const router = useRouter()
   const [apiKey, setApiKey]   = useState(mailgun?.apiKey ?? '')
   const [domain, setDomain]   = useState(mailgun?.domain ?? '')
   const [from, setFrom]       = useState(mailgun?.from ?? '')
@@ -104,6 +106,7 @@ export default function IntegrationsClient({
       if (result.success) {
         toast.success('Mailgun configuratie opgeslagen')
         setLiveStatus('unconfigured')
+        router.refresh()
       } else {
         toast.error(result.error ?? 'Opslaan mislukt')
       }

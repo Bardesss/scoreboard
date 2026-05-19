@@ -103,6 +103,6 @@ export async function testMailgunConnection(): Promise<{
     const isAuthError = e instanceof Error && e.message === 'Unauthorized'
     const msg = e instanceof Error ? e.message : 'Onbekende fout'
     await setIntegrationStatus('mailgun', 'error', msg).catch(() => {})
-    return { success: false, error: isAuthError ? 'Niet gemachtigd' : 'Er is een onbekende fout opgetreden' }
+    return { success: false, error: isAuthError ? 'Niet gemachtigd' : msg }
   }
 }
