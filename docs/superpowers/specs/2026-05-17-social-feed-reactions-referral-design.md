@@ -364,7 +364,7 @@ A household construct that lets one or two parents and N children share a single
 | Parent | 1 (creator) to 2 max | Can buy credits, invite/remove members, see full family activity, manage family settings |
 | Child | 0 to N (hard cap of 6 total members) | Can log games (debits family pool), see own activity, **cannot** purchase credits |
 
-The creator of the family becomes parent #1 automatically. A second parent can be promoted from a child member or invited as a parent directly.
+The creator of the family becomes parent #1 automatically. A second parent can be promoted from an existing child member (via `setMemberRole`) or invited as a parent directly (via `inviteMember`).
 
 ### 6.2 Schema
 
@@ -422,16 +422,18 @@ Migrating permanent credits at creation makes the transition clean: the parent d
 
 Two paths, both reusing existing share-token / QR infrastructure:
 
-**(a) Invite existing user (adult parent or existing child user)**
+**(a) Invite existing user (as parent or child)**
 
-Reuses the same pattern as `ConnectionRequest` with new context values:
+Single server action `inviteMember(targetUserId, role)` (role = `'parent' | 'child'`). Auth: caller is a parent of the family; family is under the 6-member cap; the proposed second parent doesn't push parent count over 2.
+
+The action reuses the existing `ConnectionRequest` pattern with new context values:
 
 - Parent searches `/app/family → "Add member"` for an existing username/email.
 - Server creates a `ConnectionRequest` row with `context: 'family_parent'` or `context: 'family_child'` (extending the existing `context` field).
-- Recipient sees notification (`family_invite`), accepts via `/app/notifications`.
+- Recipient sees a `family_invite` notification, accepts via `/app/notifications`.
 - On accept: `FamilyMember` row created with `role` matching the requested context.
 
-For the **QR/share-link** variant: parent can generate a family-invite QR (separate from the existing connect-token QR — uses its own short-lived token type). Scanning it routes to `/family/invite/[token]` which behaves identically to the connect-token flow but creates a family membership.
+For the **QR/share-link** variant: parent can generate a family-invite QR (separate from the existing connect-token QR — uses its own short-lived token type, role baked into the token). Scanning it routes to `/family/invite/[token]` which behaves identically to the connect-token flow but creates a family membership.
 
 **(b) Create child account from scratch**
 
@@ -441,12 +443,15 @@ For young kids who don't have their own email/account:
   - Display name (required)
   - Username for the child (required; must be unique)
   - Password (parent sets initial password; child can change later)
-  - Email: optional — if provided, child can recover their own password; if empty, only parent can reset
+  - Email: optional — if provided, child can recover their own password; if empty, only parent (via `setMemberEmail` later — see open question in §9) or admin can reset
 - Server creates a new `User` row with:
-  - `emailVerified` = creation time (no verification needed — parent vouches)
+  - If email provided: `email = given`, `emailVerified = now` (parent vouches; no verification email sent)
+  - If email omitted: `email = null`, `emailVerified = null`
   - `familyMember` linked immediately with `role: 'child'`
   - Password hashed normally
-- Child can now log in at the standard `/auth/login` with their username + password
+- Child can log in at the standard `/auth/login` with their username + password regardless of whether an email is set.
+
+> **Note.** If a parent wants their kid to play without a separate login, the existing **Player** label is the simpler path: it has no account, no password, no email. Use child-account creation only when the kid will operate the app themselves. We don't try to talk parents out of either choice; both are valid.
 
 Both flows respect the family-size cap of 6 total members.
 
@@ -465,30 +470,22 @@ When pool is empty: hard stop. Any family member attempting to log a game sees "
 
 **Note on the ≥2 rule:** a solo-parent family (newly created, no invites accepted yet) gets 0 cr/month from the cron. The moment a second member accepts, the *next* cron tick begins paying out 150/month. The bonus is not retroactive within a month.
 
-### 6.6 Leaving / releasing a member
+### 6.6 Releasing a member
 
-The same underlying operation (delete `FamilyMember` row, leave `User` row + all play history intact) has three entry points in the UI:
+Releasing is the only way a member exits a family short of full disband. **Always parent-initiated** — a member can't unilaterally leave. A parent who wants out either gets released by the other parent, or (if they're the lone parent) disbands the family.
 
-| Path | Initiator | UI label | Behavior |
-|---|---|---|---|
-| **Member leaves voluntarily** | the member, from `/app/family` | "Leave family" | `FamilyMember` row deleted. Member keeps their User account, all `PlayedGame` history, scores, reactions. Their `User.monthlyCredits` resumes accruing on next cron. Their `User.permanentCredits` resumes being relevant. Family wallet untouched. |
-| **Parent removes a member** | a parent, from member detail sheet on `/app/family` | "Remove from family" | Same as above. Used for kids who left the household, members who shouldn't have been added, etc. |
-| **Parent releases a child to independence** *(graduation)* | a parent, from member detail sheet on `/app/family` | "Release to own account" | Same underlying operation as remove. Distinct UI affordance + copy because the intent is different: the child is becoming an independent vault keeper, not being expelled. The child keeps their `User`, all play history, and gains their own monthly credit allowance from the next cron. |
+UI: parent taps a member on `/app/family` → detail sheet → "Release to own account". Single action, single label. Works for any member (child or co-parent).
 
-The release/remove and voluntary-leave paths all preserve:
-- The `User` row itself (login still works with their existing credentials)
-- All `PlayedGame` rows the user participated in (foreign keys reference `Player` and `User`, neither is touched)
-- All `Score` rows attributed to them
-- All `PlayedGameReaction` rows they authored or received
-- League memberships, owned leagues, owned game templates — untouched
+What it does:
+- Deletes the `FamilyMember` row.
+- Member's `User` row, login credentials, all `PlayedGame` participation, `Score` rows, `PlayedGameReaction` rows (authored and received), league memberships, owned leagues, and owned game templates — all preserved untouched.
+- Member's `User.monthlyCredits` resumes accruing on next monthly cron.
+- Member's `User.permanentCredits` becomes relevant again (it was frozen, not zeroed).
+- Family wallet untouched — credits stay with the family.
 
-**Email-less child safeguard.** Children created via the §6.4(b) flow may have no email. Before release/remove, the dialog warns:
+**Last-parent edge case.** If only one parent remains and they want out, they have to disband (see §6.7). They cannot release themselves — no one is left with the auth to do it. If a lone parent tries to disband while children are present, every remaining member is auto-released as part of disband.
 
-> "{name} doesn't have an email on file. Without one, they can't recover their own password — only an admin could. Set an email for them now? \[Set email] \[Release anyway]"
-
-The parent can set an email inline (writes to `User.email` + `emailVerified` left null so the child can verify on next login). If they choose "Release anyway", the release proceeds; the child keeps their username + password and can add an email later from their own `/app/settings`.
-
-**Last-parent edge case.** If only one parent remains, they must designate a new parent or disband first. If the lone parent leaves with children still present, the family is auto-disbanded (see §6.7) — every remaining child is released to independence, and any pool `permanentCredits` are transferred to the leaving parent.
+**A member who feels stuck.** If a child or co-parent is in a family they don't want to be in and the parent won't release them, they file a support ticket. We don't design for hostile family dynamics.
 
 ### 6.7 Disbanding a family
 
@@ -499,7 +496,6 @@ Triggered by a parent on `/app/family → Settings → Disband`. Equivalent to "
 - `Family.permanentCredits` is transferred to the disbander's `User.permanentCredits` (UI: "Your family's 47 remaining credits have been moved to your personal balance").
 - `Family.monthlyCredits` is forfeit (it was a perk of being in a family).
 - Family row is soft-deleted (kept so historical `CreditTransaction` rows still resolve their `family` relation).
-- Email-less children among the released members trigger a list in the confirm dialog: "These children don't have an email and won't be able to recover their own password: {name1}, {name2}. Set emails for them first? \[Manage children] \[Disband anyway]"
 
 ### 6.8 `/app/family` parent dashboard
 
@@ -523,7 +519,7 @@ Recent family activity ───────────────────
 ```
 
 - Members list shows role, join date, and (for children) per-month credit usage.
-- Tapping a member opens a detail sheet with usage breakdown and "Remove from family" (parents only).
+- Tapping a member opens a detail sheet with usage breakdown, "Release to own account", and (if the member is a child) "Make parent" / (if the member is the other parent) "Make child". All actions parent-only.
 - Recent activity is the union of all members' approved games, descending by `playedAt`.
 
 ### 6.9 `/app/credits` for family members
@@ -533,7 +529,7 @@ Recent family activity ───────────────────
 
 ### 6.10 Caps
 
-- **Family size**: hard cap of 6 total members (parents + children), enforced server-side in `addParent` / `addChild` / `acceptFamilyInvite`. No other anti-abuse signals.
+- **Family size**: hard cap of 6 total members (parents + children), enforced server-side in `inviteMember`, `createChildAccount`, `acceptFamilyInvite`, and `setMemberRole` (when promoting a child to parent and the existing parent count is already 2). No other anti-abuse signals.
 
 ### 6.11 Translation keys (additions)
 
@@ -551,15 +547,11 @@ Recent family activity ───────────────────
     "managedBy": "Beheerd door {name}",
     "topUp": "Aanvullen",
     "buyBlockedChild": "Familiecredits worden beheerd door {name}",
-    "memberLeaveConfirm": "Weet je zeker dat je {name} uit de familie wilt halen?",
     "releaseMember": "Vrijgeven aan eigen account",
-    "releaseMemberBody": "{name} houdt hun account, spelhistorie en reacties. Vanaf de volgende maand krijgen ze hun eigen maandelijkse credits.",
-    "noEmailWarning": "{name} heeft geen e-mail. Zonder e-mail kunnen ze hun eigen wachtwoord niet herstellen — alleen een beheerder kan dat. E-mail nu instellen?",
-    "noEmailSetAction": "E-mail instellen",
-    "noEmailReleaseAnyway": "Toch vrijgeven",
-    "leaveFamilySelf": "Familie verlaten",
+    "releaseMemberConfirm": "{name} vrijgeven? Ze houden hun account, spelhistorie en reacties. Vanaf de volgende maand krijgen ze hun eigen maandelijkse credits.",
+    "promoteToParent": "Tot ouder maken",
+    "demoteToChild": "Naar kind-rol",
     "disbandConfirm": "Familie ontbinden? Resterende credits gaan naar jou. Alle leden houden hun account en spelhistorie.",
-    "disbandNoEmailWarning": "Deze kinderen hebben geen e-mail en kunnen hun wachtwoord niet zelf herstellen: {names}.",
     "poolEmpty": "Familie-pool is leeg — vraag {name} om aan te vullen.",
     "familyInviteTitle": "{name} nodigt je uit voor hun familie",
     "familyInviteBody": "Accepteer om credits te delen.",
@@ -634,15 +626,15 @@ Self-contained except for credit-deduction-on-log integration and the monthly cr
 |---|---|
 | Prisma migration: `Family` + `FamilyMember` + `CreditTransaction.familyId` | `prisma/schema.prisma`, new migration |
 | `src/lib/family/membership.ts` (member queries, role checks) | new |
-| `src/app/app/family/actions.ts` (`createFamily`, `addParent`, `addChild`, `removeMember`, `leaveFamily`, `disband`, `acceptFamilyInvite`, `setMemberEmail`) | new |
-| `removeMember` accepts an `intent: 'remove' \| 'release'` flag for analytics/audit; DB operation is identical for both. `/app/family` exposes "Remove from family" and "Release to own account" as two affordances mapping to this one action. `leaveFamily` is the member-initiated counterpart (auth: caller must be the member); `setMemberEmail` lets a parent add/update an email on a child's `User` before release (auth: caller must be a parent of the same family). | — |
+| `src/app/app/family/actions.ts` — server actions: `createFamily`, `inviteMember(targetUserId, role)`, `createChildAccount(...)`, `acceptFamilyInvite(token)`, `releaseMember(memberId)`, `setMemberRole(memberId, role)`, `disband()` | new |
+| Auth rules: `createFamily` requires session, no existing FamilyMember. `inviteMember`/`createChildAccount`/`releaseMember`/`setMemberRole`/`disband` require caller is a parent of the same family. `acceptFamilyInvite` requires session matches the invite target (existing-user invite) or any session (token-based invite). All member-add paths enforce the 6-member cap; `inviteMember`/`setMemberRole` to `'parent'` also enforce the 2-parent cap. | — |
 | Family-invite via existing `ConnectionRequest` (`context: 'family_*'`) | `src/app/app/connections/actions.ts` extension |
-| Family-invite QR/share-link token type + handler | new in `src/app/[locale]/family/invite/[token]/page.tsx` |
-| Child-account creation flow (parent-managed credentials) | inside `family/actions.ts` |
+| Family-invite QR/share-link token type + handler (role baked into token) | new in `src/app/[locale]/family/invite/[token]/page.tsx` |
 | Modify game-logging credit deduction: route to `Family` wallet when user is a member | `src/app/app/leagues/[id]/log/actions.ts` (and wherever the existing deduction lives) |
 | Monthly cron: family pool refill (150 when ≥2 members, 0 otherwise), skip member's own `User.monthlyCredits` if in a family | `src/app/api/cron/credit-reset/route.ts` |
 | Block credit purchases for children; route parent purchases to family wallet | existing purchase action |
-| `/app/family` parent dashboard (members list + pool + recent activity) | new |
+| `/admin/credits` — "Apply to family pool" toggle when target user is in a family; routes adjustment to `Family.permanentCredits` instead of `User.permanentCredits` | `src/app/admin/credits/...` (existing admin credit-adjust UI) |
+| `/app/family` parent dashboard (members list + pool + recent activity; per-member detail sheet exposes "Release to own account", "Make parent" / "Make child") | new |
 | `/app/credits` family-aware rendering (pool view, child-locked buy CTA) | `CreditsClient.tsx` |
 | Family-invite notification type | extend Notification system |
 | Plan-3 landing/README copy update — family credits section; holistic sweep across landing & README mentioning all three plans' features (feed, reactions, public profile, privacy, family) | `src/app/[locale]/(marketing)/page.tsx`, `README.md`, `docs/design-guidelines.md` (Shared components registry §13) |
@@ -655,8 +647,8 @@ Self-contained except for credit-deduction-on-log integration and the monthly cr
 - Whether the compact-row reaction badge should also surface on league-detail's game-history list. Probably yes; confirm during implementation.
 - Where exactly the played-game approval transition is fired — needed for the "fire `connection_game_logged` notification" hook. Enumerate every code path that transitions `status → 'approved'`.
 - Family creation migrating `permanentCredits` into the family wallet — automatic at creation (current design) is simpler; the disband flow reverses it. Revisit if it surprises users.
-- Whether a second parent can be invited from outside the family, or whether second-parent promotion must come from an existing child member graduating. Current design allows both — confirm.
 - Whether a family with 1 member should still allow logging (deducting only from `permanentCredits`), or hard-block until ≥2 members. Current design: allows logging (the wallet exists, just doesn't refill).
+- Whether to expose a `setMemberEmail(memberId, email)` action so a parent can backfill an email on an email-less child later (without going through admin). Low priority since the child can also add their own email from `/app/settings`. Defer until requested.
 
 ---
 
@@ -670,5 +662,7 @@ For future-Bartus reference (so we don't accidentally re-add what we cut):
 - **Per-IP family cap** — cut along with the above.
 - **Per-member family monthly accrual** — replaced with flat 150/month (when ≥2 members).
 - **Disposable-email blocklist** — not added.
+- **Member-initiated leave** — only parents can release a member. A lone parent's only exit is disband.
+- **Email-less child safeguard at release/disband** — parents who created child accounts with no email own that choice. The Player label (no login) remains the alternative for kids too young to manage their own credentials.
 
 If acquisition/abuse becomes a real concern later, these are re-addable as their own focused spec.
