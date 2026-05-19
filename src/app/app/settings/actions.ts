@@ -7,6 +7,7 @@ import { generateTOTPSecret, verifyTOTPCode, generateBackupCodes } from '@/lib/t
 import { EMAIL_PREFERENCE_KEYS, type EmailPreferences } from '@/lib/emailPreferences'
 import bcrypt from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import QRCode from 'qrcode'
 
 type Result<T = object> =
@@ -211,4 +212,26 @@ export async function regenerateBackupCodes(
   })
 
   return { success: true, backupCodes }
+}
+
+const VALID_PROFILE_MODES = new Set(['private', 'stats', 'full'])
+
+export async function updatePrivacySettings(input: {
+  publicProfileMode: 'private' | 'stats' | 'full'
+  allowAppearInOthers: boolean
+}) {
+  const session = await auth()
+  if (!session) redirect('/en/auth/login')
+  if (!VALID_PROFILE_MODES.has(input.publicProfileMode)) {
+    throw new Error('Invalid publicProfileMode')
+  }
+  await prisma.user.update({
+    where: { id: session!.user.id },
+    data: {
+      publicProfileMode: input.publicProfileMode,
+      allowAppearInOthers: input.allowAppearInOthers,
+    },
+  })
+  revalidatePath('/app/settings')
+  revalidatePath('/app/profile')
 }

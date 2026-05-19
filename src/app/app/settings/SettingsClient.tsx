@@ -7,6 +7,7 @@ import { PasswordSection } from './sections/PasswordSection'
 import { LogoutSection } from './sections/LogoutSection'
 import { AccountSection } from './sections/AccountSection'
 import { EmailPreferencesSection } from './sections/EmailPreferencesSection'
+import { PrivacySection } from './sections/PrivacySection'
 import type { EmailPreferences } from '@/lib/emailPreferences'
 
 export function SettingsClient({
@@ -17,6 +18,8 @@ export function SettingsClient({
   requiresMfa,
   backupCodesRemaining,
   emailPreferences,
+  publicProfileMode,
+  allowAppearInOthers,
 }: {
   email: string
   createdAt: string
@@ -25,6 +28,8 @@ export function SettingsClient({
   requiresMfa: boolean
   backupCodesRemaining: number
   emailPreferences: EmailPreferences
+  publicProfileMode: 'private' | 'stats' | 'full'
+  allowAppearInOthers: boolean
 }) {
   return (
     <SessionProvider>
@@ -37,6 +42,7 @@ export function SettingsClient({
         <LanguageSection currentLocale={locale} />
         <PasswordSection />
         <EmailPreferencesSection initial={emailPreferences} />
+        <PrivacySection initial={{ publicProfileMode, allowAppearInOthers }} />
         <LogoutSection />
         <AccountSection email={email} createdAt={createdAt} locale={locale === 'nl' ? 'nl' : 'en'} />
       </div>

@@ -19,6 +19,8 @@ export default async function SettingsPage() {
       totpBackupCodes: true,
       createdAt: true,
       emailPreferences: true,
+      publicProfileMode: true,
+      allowAppearInOthers: true,
     },
   })
   if (!user) redirect('/en/auth/login')
@@ -40,6 +42,8 @@ export default async function SettingsPage() {
         requiresMfa={user.requiresMfa}
         backupCodesRemaining={user.totpBackupCodes.length}
         emailPreferences={initialPrefs}
+        publicProfileMode={user.publicProfileMode as 'private' | 'stats' | 'full'}
+        allowAppearInOthers={user.allowAppearInOthers}
       />
     </div>
   )

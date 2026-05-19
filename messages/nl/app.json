@@ -563,5 +563,28 @@
     "gameSaved": "Partij opgeslagen.",
     "sessionUpdated": "Sessie bijgewerkt.",
     "sessionDeleted": "Sessie verwijderd."
+  },
+  "social": {
+    "publicProfileSectionHeading": "Profiel & privacy",
+    "publicProfileMasterToggle": "Openbaar profiel",
+    "publicProfileMasterBody": "Toon je profiel op dicevault.fun/u/{username} aan iedereen met de link.",
+    "publicProfileModeStats": "Alleen statistieken",
+    "publicProfileModeFull": "Statistieken + recente partijen",
+    "privacyChipPrivate": "Privé",
+    "appearInOthersToggle": "Mijn naam in andermans profielen",
+    "appearInOthersBody": "Als een tegenstander zijn profiel openbaar maakt, mag jouw naam dan getoond worden in zijn recente partijen?",
+    "publicProfileNotFoundTitle": "Profiel niet gevonden",
+    "publicProfileNotFoundBody": "Deze gebruiker bestaat niet of heeft een privéprofiel.",
+    "publicProfileAnonymousLabel": "Speler {letter}",
+    "trophyShelfHeading": "Trofeeën",
+    "publicGamesHeading": "Recente partijen",
+    "feedHeading": "Recente activiteit",
+    "feedEmpty": "Nog niets gelogd. Log je eerste partij om te beginnen.",
+    "reactionTooltipReact": "Reageer",
+    "reactionTooltipUnreact": "Verwijder reactie",
+    "reactionWhoReacted": "Wie reageerde",
+    "compactRowReactionsAria": "{count} reacties",
+    "settingsSaved": "Opgeslagen.",
+    "settingsSaveFailed": "Niet gelukt om op te slaan."
   }
 }

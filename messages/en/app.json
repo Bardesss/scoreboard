@@ -563,5 +563,28 @@
     "gameSaved": "Game saved.",
     "sessionUpdated": "Session updated.",
     "sessionDeleted": "Session deleted."
+  },
+  "social": {
+    "publicProfileSectionHeading": "Profile & privacy",
+    "publicProfileMasterToggle": "Public profile",
+    "publicProfileMasterBody": "Show your profile at dicevault.fun/u/{username} to anyone with the link.",
+    "publicProfileModeStats": "Stats only",
+    "publicProfileModeFull": "Stats + recent games",
+    "privacyChipPrivate": "Private",
+    "appearInOthersToggle": "Name in others' profiles",
+    "appearInOthersBody": "When an opponent makes their profile public, may your name appear in their recent games?",
+    "publicProfileNotFoundTitle": "Profile not found",
+    "publicProfileNotFoundBody": "This user doesn't exist or has a private profile.",
+    "publicProfileAnonymousLabel": "Player {letter}",
+    "trophyShelfHeading": "Trophies",
+    "publicGamesHeading": "Recent games",
+    "feedHeading": "Recent activity",
+    "feedEmpty": "Nothing logged yet. Log your first game to begin.",
+    "reactionTooltipReact": "React",
+    "reactionTooltipUnreact": "Remove reaction",
+    "reactionWhoReacted": "Who reacted",
+    "compactRowReactionsAria": "{count} reactions",
+    "settingsSaved": "Saved.",
+    "settingsSaveFailed": "Couldn't save — try again."
   }
 }
