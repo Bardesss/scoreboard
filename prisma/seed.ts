@@ -14,8 +14,8 @@ async function main() {
     { key: 'bitcoin_discount_percent',value: 10 },
     { key: 'oss_threshold_cents',     value: 1000000 },
     { key: 'free_mode_active',        value: false },
-    { key: 'free_mode_banner_nl',     value: 'Gratis periode actief — gebruik zoveel je wilt' },
-    { key: 'free_mode_banner_en',     value: 'Free period active — use as much as you like' },
+    { key: 'free_mode_banner_nl',     value: 'Gratis te gebruiken — kosten per actie en maandelijks tegoed worden later afgestemd.' },
+    { key: 'free_mode_banner_en',     value: 'Currently free to use — action costs and monthly allowance will be tuned before billing turns on.' },
   ]
 
   for (const s of settings) {

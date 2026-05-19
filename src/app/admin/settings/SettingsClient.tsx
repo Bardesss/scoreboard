@@ -124,6 +124,18 @@ export default function SettingsClient({ values, configuredCount }: Props) {
         ))}
       </div>
 
+      <p
+        style={{
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.55)',
+          marginBottom: 8,
+          marginTop: -4,
+          lineHeight: 1.4,
+        }}
+      >
+        Als actief: de waarschuwing voor lage credits is verborgen, en de gratis-modus banner verschijnt in de app en op de landingspagina.
+      </p>
+
       {/* Card 2: Gratis modus */}
       <div style={cardStyle}>
         <div style={cardTitleStyle}>Gratis modus</div>
