@@ -193,6 +193,28 @@
     "tagline": "Elke spelletjesavond, onthouden.",
     "rights": "Alle rechten voorbehouden."
   },
+  "social": {
+    "overline": "Sociaal",
+    "headline": "Blijf verbonden tussen spelletjesavonden.",
+    "subheadline": "Volg wat je vrienden spelen, vier grote overwinningen en deel je statistieken met de wereld.",
+    "items": [
+      {
+        "icon": "Users",
+        "title": "Activiteitenfeed",
+        "description": "Volg de spelavonden van je vrienden in je persoonlijke activiteitenfeed."
+      },
+      {
+        "icon": "Share2",
+        "title": "Emoji-reacties",
+        "description": "Reageer met 🔥 👏 🎲 😅 💪 om winsten te vieren (of verliezen te plagen)."
+      },
+      {
+        "icon": "UserCheck",
+        "title": "Publiek profiel",
+        "description": "Deel je gamer-statistieken en trofeeën op dicevault.fun/u/jouw-naam — opt-in."
+      }
+    ]
+  },
   "gameTypes": {
     "overline": "Elk speltype",
     "headline": "Gemaakt voor de spellen die jij écht speelt",

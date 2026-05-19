@@ -132,6 +132,12 @@ export default async function LandingPage({ params }: Props) {
         game: t(`reviews.placeholder.${i}.game`),
       }))
 
+  const socialItems = [0, 1, 2].map(i => ({
+    icon: t(`social.items.${i}.icon` as Parameters<typeof t>[0]),
+    title: t(`social.items.${i}.title` as Parameters<typeof t>[0]),
+    description: t(`social.items.${i}.description` as Parameters<typeof t>[0]),
+  }))
+
   const gameTypeItems = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => ({
     icon: t(`gameTypes.items.${i}.icon` as Parameters<typeof t>[0]),
     title: t(`gameTypes.items.${i}.title` as Parameters<typeof t>[0]),
@@ -252,6 +258,27 @@ export default async function LandingPage({ params }: Props) {
                     <h3 className="font-headline font-extrabold text-[15px] tracking-[-0.02em] mb-2" style={{ color: text }}>{step.title}</h3>
                     <p className="font-body text-[13px] leading-relaxed" style={{ color: muted }}>{step.description}</p>
                   </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Social Layer ── */}
+      <section className="py-20" style={{ background: '#0f1117' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <LPSectionHeader overline={t('social.overline')} headline={t('social.headline')} subheadline={t('social.subheadline')} />
+          <div className="grid md:grid-cols-3 gap-5">
+            {socialItems.map((item, i) => {
+              const Icon = ICONS[item.icon] ?? Share2
+              return (
+                <div key={i} className="rounded-2xl p-6 transition-all hover:-translate-y-1" style={{ ...card, transitionDuration: '200ms' }}>
+                  <div className="w-11 h-11 rounded-[10px] flex items-center justify-center mb-4" style={{ background: 'rgba(245,166,35,0.1)' }}>
+                    <Icon size={22} style={{ color: amber }} />
+                  </div>
+                  <h3 className="font-headline font-extrabold text-[17px] tracking-[-0.02em] mb-2" style={{ color: text }}>{item.title}</h3>
+                  <p className="font-body text-[14px] leading-relaxed" style={{ color: muted }}>{item.description}</p>
                 </div>
               )
             })}

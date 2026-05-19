@@ -193,6 +193,28 @@
     "tagline": "Every game night, remembered.",
     "rights": "All rights reserved."
   },
+  "social": {
+    "overline": "Social layer",
+    "headline": "Stay connected between game nights.",
+    "subheadline": "Watch what your friends are playing, celebrate great wins, and share your stats with the world.",
+    "items": [
+      {
+        "icon": "Users",
+        "title": "Activity feed",
+        "description": "Watch your friends' game nights unfold on your personal activity feed."
+      },
+      {
+        "icon": "Share2",
+        "title": "Emoji reactions",
+        "description": "React with 🔥 👏 🎲 😅 💪 to celebrate wins (or roast losses)."
+      },
+      {
+        "icon": "UserCheck",
+        "title": "Public profile",
+        "description": "Share your gamer stats and trophy shelf at dicevault.fun/u/your-username — opt-in."
+      }
+    ]
+  },
   "gameTypes": {
     "overline": "Every game type",
     "headline": "Built for the games you actually play",
