@@ -25,6 +25,11 @@ function hrefFor(n: Notification): string {
     case 'played_game_accepted':
     case 'played_game_rejected':
       return leagueId ? `/app/leagues/${leagueId}` : '/app/leagues'
+    case 'connection_game_logged':
+    case 'reaction_received': {
+      const playedGameId = typeof meta.playedGameId === 'string' ? meta.playedGameId : null
+      return playedGameId ? `/app/profile?game=${playedGameId}` : '/app/profile'
+    }
     default:
       return '/app/dashboard'
   }
@@ -54,6 +59,14 @@ export function NotificationBell({
       case 'league_invite':       return leagueName ? t('leagueInviteNamed', { from, leagueName }) : t('leagueInvite', { from })
       case 'played_game_accepted': return leagueName ? t('gameAcceptedNamed', { leagueName }) : t('gameAccepted')
       case 'played_game_rejected': return leagueName ? t('gameRejectedNamed', { leagueName }) : t('gameRejected')
+      case 'connection_game_logged': {
+        const gameName = typeof n.meta?.gameName === 'string' ? n.meta.gameName : ''
+        return leagueName ? t('connectionGameLoggedNamed', { gameName, leagueName }) : t('connectionGameLogged')
+      }
+      case 'reaction_received': {
+        const emoji = typeof n.meta?.emoji === 'string' ? n.meta.emoji : '✨'
+        return t('reactionReceived', { emoji })
+      }
       default: return t('newNotification')
     }
   }

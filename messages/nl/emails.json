@@ -18,5 +18,13 @@
   "low_credit_warning": {
     "subject": "Je Dice Vault credits raken op",
     "body": "Je hebt nog {balance} credits. Koop meer om zonder onderbreking games te blijven bijhouden."
+  },
+  "connectionGameLogged": {
+    "subject": "Nieuwe partij in jouw league",
+    "body": "{actorEmail} heeft net een nieuwe partij gelogd in {leagueName}. Bekijk de scorecard in je activiteitenfeed."
+  },
+  "reactionReceived": {
+    "subject": "Iemand reageerde {emoji} op je partij",
+    "body": "{actorEmail} reageerde {emoji} op je laatste partij. Bekijk het in je activiteitenfeed."
   }
 }

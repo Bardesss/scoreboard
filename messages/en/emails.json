@@ -18,5 +18,13 @@
   "low_credit_warning": {
     "subject": "Your Dice Vault credits are running low",
     "body": "You have {balance} credits remaining. Top up to keep logging games without interruption."
+  },
+  "connectionGameLogged": {
+    "subject": "New game in your league",
+    "body": "{actorEmail} just logged a new game in {leagueName}. See the scorecard in your activity feed."
+  },
+  "reactionReceived": {
+    "subject": "Someone reacted {emoji} on your game",
+    "body": "{actorEmail} reacted {emoji} to your latest game. See it in your activity feed."
   }
 }

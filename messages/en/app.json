@@ -551,7 +551,10 @@
     "gameAcceptedNamed": "Your game in \"{leagueName}\" was approved",
     "gameRejected": "Your game submission was rejected",
     "gameRejectedNamed": "Your game in \"{leagueName}\" was rejected",
-    "newNotification": "New notification"
+    "newNotification": "New notification",
+    "connectionGameLogged": "Someone in your league logged a game",
+    "connectionGameLoggedNamed": "New {gameName} game in {leagueName}",
+    "reactionReceived": "Someone reacted {emoji} on your game"
   },
   "toasts": {
     "playerSaved": "Player saved.",

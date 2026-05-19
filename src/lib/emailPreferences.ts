@@ -12,17 +12,27 @@ export const EMAIL_PREFERENCE_KEYS = [
   'monthly_reset',
   'ticket_replied',
   'ticket_closed',
+  'connection_game_logged',
+  'reaction_received',
 ] as const
+
+// Keys that default to OFF (opt-in). Absence in stored prefs means disabled.
+const EMAIL_OPT_IN_KEYS: ReadonlySet<string> = new Set([
+  'connection_game_logged',
+  'reaction_received',
+])
 
 export type EmailPreferenceKey = (typeof EMAIL_PREFERENCE_KEYS)[number]
 
 export type EmailPreferences = Partial<Record<EmailPreferenceKey, boolean>>
 
-// Missing keys default to true. So a brand-new user (null preferences)
-// receives every email until they opt out.
+// Missing keys default to true for opt-out keys (standard), or false for
+// opt-in keys (connection_game_logged, reaction_received).
 export function isEmailEnabled(prefs: EmailPreferences | null | undefined, key: EmailPreferenceKey): boolean {
-  if (!prefs) return true
+  const defaultEnabled = !EMAIL_OPT_IN_KEYS.has(key)
+  if (!prefs) return defaultEnabled
   const v = prefs[key]
+  if (v === undefined) return defaultEnabled
   return v !== false
 }
 

@@ -109,6 +109,58 @@ export function playedGameApprovedEmail(
   }
 }
 
+export function connectionGameLoggedEmail(
+  locale: string,
+  leagueName: string,
+  actorEmail: string,
+  appUrl: string = APP_URL
+): { subject: string; html: string } {
+  if (locale === 'nl') {
+    return {
+      subject: 'Nieuwe partij in jouw league',
+      html: wrap(
+        `<p><strong>${actorEmail}</strong> heeft net een nieuwe partij gelogd in <strong>${leagueName}</strong>.</p>` +
+        `<p>Bekijk de scorecard in je activiteitenfeed.</p>` +
+        button('Ga naar feed', `${appUrl}/nl/app/profile`)
+      ),
+    }
+  }
+  return {
+    subject: 'New game in your league',
+    html: wrap(
+      `<p><strong>${actorEmail}</strong> just logged a new game in <strong>${leagueName}</strong>.</p>` +
+      `<p>See the scorecard in your activity feed.</p>` +
+      button('Go to feed', `${appUrl}/en/app/profile`)
+    ),
+  }
+}
+
+export function reactionReceivedEmail(
+  locale: string,
+  emoji: string,
+  actorEmail: string,
+  appUrl: string = APP_URL
+): { subject: string; html: string } {
+  if (locale === 'nl') {
+    return {
+      subject: `Iemand reageerde ${emoji} op je partij`,
+      html: wrap(
+        `<p><strong>${actorEmail}</strong> reageerde ${emoji} op je laatste partij.</p>` +
+        `<p>Bekijk het in je activiteitenfeed.</p>` +
+        button('Ga naar feed', `${appUrl}/nl/app/profile`)
+      ),
+    }
+  }
+  return {
+    subject: `Someone reacted ${emoji} on your game`,
+    html: wrap(
+      `<p><strong>${actorEmail}</strong> reacted ${emoji} to your latest game.</p>` +
+      `<p>See it in your activity feed.</p>` +
+      button('Go to feed', `${appUrl}/en/app/profile`)
+    ),
+  }
+}
+
 export function playedGameRejectedEmail(
   locale: string,
   leagueName: string,

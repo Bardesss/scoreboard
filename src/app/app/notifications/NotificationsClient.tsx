@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { Bell, Trash2, UserPlus, CheckCircle2, XCircle, Trophy, Inbox } from 'lucide-react'
+import { Bell, Trash2, UserPlus, CheckCircle2, XCircle, Trophy, Inbox, Dices, Sparkles } from 'lucide-react'
 import { markNotificationRead, deleteNotification } from './actions'
 
 type Notification = {
@@ -26,6 +26,11 @@ function hrefFor(n: Notification): string {
     case 'played_game_accepted':
     case 'played_game_rejected':
       return leagueId ? `/app/leagues/${leagueId}` : '/app/leagues'
+    case 'connection_game_logged':
+    case 'reaction_received': {
+      const playedGameId = typeof meta.playedGameId === 'string' ? meta.playedGameId : null
+      return playedGameId ? `/app/profile?game=${playedGameId}` : '/app/profile'
+    }
     default:
       return '/app/dashboard'
   }
@@ -44,6 +49,8 @@ function iconFor(type: string) {
       return CheckCircle2
     case 'played_game_rejected':
       return XCircle
+    case 'connection_game_logged': return Dices
+    case 'reaction_received': return Sparkles
     default:
       return Bell
   }
@@ -58,6 +65,9 @@ function colorFor(type: string): string {
     case 'played_game_rejected':
       return '#dc2626'
     case 'league_invite':
+      return '#f5a623'
+    case 'connection_game_logged':
+    case 'reaction_received':
       return '#f5a623'
     default:
       return '#9a8878'
@@ -92,6 +102,14 @@ export function NotificationsClient({
       case 'league_invite': return leagueName ? t('leagueInviteNamed', { from, leagueName }) : t('leagueInvite', { from })
       case 'played_game_accepted': return leagueName ? t('gameAcceptedNamed', { leagueName }) : t('gameAccepted')
       case 'played_game_rejected': return leagueName ? t('gameRejectedNamed', { leagueName }) : t('gameRejected')
+      case 'connection_game_logged': {
+        const gameName = typeof n.meta?.gameName === 'string' ? n.meta.gameName : ''
+        return leagueName ? t('connectionGameLoggedNamed', { gameName, leagueName }) : t('connectionGameLogged')
+      }
+      case 'reaction_received': {
+        const emoji = typeof n.meta?.emoji === 'string' ? n.meta.emoji : '✨'
+        return t('reactionReceived', { emoji })
+      }
       default: return t('newNotification')
     }
   }
