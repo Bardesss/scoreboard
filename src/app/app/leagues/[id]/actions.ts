@@ -121,7 +121,7 @@ export async function approvePlayedGame(playedGameId: string) {
     })
     if (submitter?.email && await shouldSendEmailTo(pg.submittedById, 'played_game_approved')) {
       const tpl = playedGameApprovedEmail(submitter.locale ?? 'en', pg.league.name)
-      sendEmail(submitter.email, tpl.subject, tpl.html).catch(() => {})
+      sendEmail(submitter.email, tpl.subject, tpl.html, submitter.locale ?? 'en').catch(() => {})
     }
   } catch { /* email failure must not break the action */ }
 
@@ -155,7 +155,7 @@ export async function rejectPlayedGame(playedGameId: string) {
     })
     if (submitter?.email && await shouldSendEmailTo(pg.submittedById, 'played_game_rejected')) {
       const tpl = playedGameRejectedEmail(submitter.locale ?? 'en', pg.league.name)
-      sendEmail(submitter.email, tpl.subject, tpl.html).catch(() => {})
+      sendEmail(submitter.email, tpl.subject, tpl.html, submitter.locale ?? 'en').catch(() => {})
     }
   } catch { /* email failure must not break the action */ }
 

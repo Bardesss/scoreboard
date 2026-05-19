@@ -72,7 +72,7 @@ export async function sendConnectionRequest(toUserId: string) {
     if (toUser?.email && await shouldSendEmailTo(toUserId, 'connection_request')) {
       const fromName = session.user.email ?? session.user.id
       const tpl = connectionRequestEmail(toUser.locale ?? 'en', fromName)
-      sendEmail(toUser.email, tpl.subject, tpl.html).catch(() => {})
+      sendEmail(toUser.email, tpl.subject, tpl.html, toUser.locale ?? 'en').catch(() => {})
     }
   } catch { /* email failure must not break the action */ }
 
@@ -110,7 +110,7 @@ export async function acceptConnectionRequest(requestId: string) {
     if (fromUser?.email && await shouldSendEmailTo(req.fromUserId, 'connection_accepted')) {
       const acceptorName = session.user.email ?? session.user.id
       const tpl = connectionAcceptedEmail(fromUser.locale ?? 'en', acceptorName)
-      sendEmail(fromUser.email, tpl.subject, tpl.html).catch(() => {})
+      sendEmail(fromUser.email, tpl.subject, tpl.html, fromUser.locale ?? 'en').catch(() => {})
     }
   } catch { /* email failure must not break the action */ }
 

@@ -109,7 +109,7 @@ export default async function ConnectPage({ params }: PageProps) {
     if (targetUser?.email && await shouldSendEmailTo(target.id, 'connection_accepted')) {
       const acceptorName = session.user.email ?? session.user.id
       const tpl = connectionAcceptedEmail(targetUser.locale ?? 'en', acceptorName)
-      sendEmail(targetUser.email, tpl.subject, tpl.html).catch(() => {})
+      sendEmail(targetUser.email, tpl.subject, tpl.html, targetUser.locale ?? 'en').catch(() => {})
     }
   } catch { /* email failure must not break the flow */ }
 
