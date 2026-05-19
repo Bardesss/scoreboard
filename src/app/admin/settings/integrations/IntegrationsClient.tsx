@@ -4,12 +4,16 @@ import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { saveMailgunConfig, testMailgunConnection } from './actions'
 import type { MailgunStats } from './actions'
-import { Lock } from 'lucide-react'
+import { Lock, Eye, EyeOff } from 'lucide-react'
 
 type IntegrationRow = {
   status: string
   lastTestedAt: string | null
   lastError: string | null
+  apiKey: string
+  domain: string
+  from: string
+  region: 'eu' | 'us'
 }
 
 const card: React.CSSProperties = {
@@ -81,10 +85,11 @@ export default function IntegrationsClient({
   mailgun: IntegrationRow | null
   mailgunStats: MailgunStats | null
 }) {
-  const [apiKey, setApiKey]   = useState('')
-  const [domain, setDomain]   = useState('')
-  const [from, setFrom]       = useState('')
-  const [region, setRegion]   = useState<'eu' | 'us'>('eu')
+  const [apiKey, setApiKey]   = useState(mailgun?.apiKey ?? '')
+  const [domain, setDomain]   = useState(mailgun?.domain ?? '')
+  const [from, setFrom]       = useState(mailgun?.from ?? '')
+  const [region, setRegion]   = useState<'eu' | 'us'>(mailgun?.region ?? 'eu')
+  const [showApiKey, setShowApiKey] = useState(false)
   const [liveStats, setLiveStats] = useState<MailgunStats | null>(mailgunStats)
   const [liveStatus, setLiveStatus] = useState(mailgun?.status ?? 'unconfigured')
   const [liveError, setLiveError]   = useState(mailgun?.lastError ?? null)
@@ -99,9 +104,6 @@ export default function IntegrationsClient({
       if (result.success) {
         toast.success('Mailgun configuratie opgeslagen')
         setLiveStatus('unconfigured')
-        setApiKey('')
-        setDomain('')
-        setFrom('')
       } else {
         toast.error(result.error ?? 'Opslaan mislukt')
       }
@@ -184,20 +186,35 @@ export default function IntegrationsClient({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-3.5">
             <div>
               <label style={labelStyle}>API Key</label>
-              <input
-                type="password"
-                placeholder={mailgun ? '••••••••' : 'key-...'}
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                style={inputStyle}
-                autoComplete="off"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  placeholder="key-..."
+                  value={apiKey}
+                  onChange={e => setApiKey(e.target.value)}
+                  style={{ ...inputStyle, paddingRight: 40 }}
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(v => !v)}
+                  aria-label={showApiKey ? 'Verberg API key' : 'Toon API key'}
+                  style={{
+                    position: 'absolute', top: 0, right: 0, height: '100%',
+                    width: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    color: 'rgba(255,255,255,0.4)',
+                  }}
+                >
+                  {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div>
               <label style={labelStyle}>Domain</label>
               <input
                 type="text"
-                placeholder={mailgun ? '••••••••' : 'mg.yourdomain.com'}
+                placeholder="mg.yourdomain.com"
                 value={domain}
                 onChange={e => setDomain(e.target.value)}
                 style={inputStyle}
@@ -209,7 +226,7 @@ export default function IntegrationsClient({
             <label style={labelStyle}>From address</label>
             <input
               type="text"
-              placeholder={mailgun ? '••••••••' : 'Dice Vault <noreply@yourdomain.com>'}
+              placeholder="Dice Vault <noreply@yourdomain.com>"
               value={from}
               onChange={e => setFrom(e.target.value)}
               style={inputStyle}
