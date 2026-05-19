@@ -69,9 +69,10 @@ describe('auth actions', () => {
       const { register } = await import('@/app/[locale]/(auth)/auth/actions')
       const formData = new FormData()
       formData.set('name', 'Test User')
+      formData.set('username', 'testuser')
       formData.set('email', 'test@example.com')
-      formData.set('password', 'password123')
-      formData.set('passwordConfirm', 'password123')
+      formData.set('password', 'password12345')
+      formData.set('passwordConfirm', 'password12345')
       formData.set('locale', 'en')
 
       const result = await register(formData)
@@ -85,8 +86,9 @@ describe('auth actions', () => {
       const { register } = await import('@/app/[locale]/(auth)/auth/actions')
       const formData = new FormData()
       formData.set('name', 'New User')
+      formData.set('username', 'newuser')
       formData.set('email', 'new@example.com')
-      formData.set('password', 'password123')
+      formData.set('password', 'password12345')
       formData.set('passwordConfirm', 'different')
       formData.set('locale', 'en')
 

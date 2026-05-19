@@ -54,20 +54,20 @@ describe('createLeague', () => {
 
   it('returns error when name is empty', async () => {
     const result = await createLeague({ name: '', description: '', gameTemplateId: 'gt1', playerIds: [] })
-    expect(result).toEqual({ success: false, error: 'errors.required' })
+    expect(result).toEqual({ success: false, error: 'required' })
     expect(deductCredits).not.toHaveBeenCalled()
   })
 
   it('returns error when no game template selected', async () => {
     const result = await createLeague({ name: 'Test', description: '', gameTemplateId: '', playerIds: [] })
-    expect(result).toEqual({ success: false, error: 'errors.required' })
+    expect(result).toEqual({ success: false, error: 'required' })
   })
 
   it('returns insufficientCredits on InsufficientCreditsError', async () => {
     const { InsufficientCreditsError } = await import('@/lib/credits')
     vi.mocked(deductCredits).mockRejectedValueOnce(new InsufficientCreditsError())
     const result = await createLeague({ name: 'Test', description: '', gameTemplateId: 'gt1', playerIds: [] })
-    expect(result).toEqual({ success: false, error: 'errors.insufficientCredits' })
+    expect(result).toEqual({ success: false, error: 'insufficientCredits' })
   })
 })
 
@@ -82,7 +82,7 @@ describe('deleteLeague', () => {
   it("rejects delete of another user's league", async () => {
     vi.mocked(prisma.league.findUnique).mockResolvedValue({ id: 'lg1', ownerId: 'other' } as never)
     const result = await deleteLeague('lg1')
-    expect(result).toEqual({ success: false, error: 'errors.notFound' })
+    expect(result).toEqual({ success: false, error: 'notFound' })
   })
 })
 

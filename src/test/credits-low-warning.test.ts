@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    user: { findUniqueOrThrow: vi.fn(), update: vi.fn() },
+    user: { findUniqueOrThrow: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
     adminSettings: { findUnique: vi.fn() },
     freePeriod: { findFirst: vi.fn() },
     creditTransaction: { create: vi.fn() },
@@ -27,6 +27,7 @@ beforeEach(() => {
   vi.mocked(prisma.adminSettings.findUnique).mockResolvedValue(null)
   vi.mocked(prisma.freePeriod.findFirst).mockResolvedValue(null)
   vi.mocked(prisma.$transaction).mockImplementation(async (ops: unknown[]) => ops)
+  vi.mocked(prisma.user.findUnique).mockResolvedValue({ emailPreferences: null } as never)
 })
 
 describe('deductCreditsWithWarning', () => {

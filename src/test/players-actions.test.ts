@@ -56,7 +56,7 @@ describe('createPlayer', () => {
     const fd = new FormData()
     fd.set('name', '   ')
     const result = await createPlayer(fd)
-    expect(result).toEqual({ success: false, error: 'errors.required' })
+    expect(result).toEqual({ success: false, error: 'required' })
     expect(prisma.player.create).not.toHaveBeenCalled()
   })
 
@@ -67,7 +67,7 @@ describe('createPlayer', () => {
     const fd = new FormData()
     fd.set('name', 'Bob')
     const result = await createPlayer(fd)
-    expect(result).toEqual({ success: false, error: 'errors.insufficientCredits' })
+    expect(result).toEqual({ success: false, error: 'insufficientCredits' })
     expect(prisma.player.create).not.toHaveBeenCalled()
   })
 })
@@ -87,7 +87,7 @@ describe('updatePlayer', () => {
     const fd = new FormData()
     fd.set('name', 'Bob')
     const result = await updatePlayer('p1', fd)
-    expect(result).toEqual({ success: false, error: 'errors.notFound' })
+    expect(result).toEqual({ success: false, error: 'notFound' })
   })
 })
 
@@ -102,6 +102,6 @@ describe('deletePlayer', () => {
   it("rejects delete of another user's player", async () => {
     vi.mocked(prisma.player.findUnique).mockResolvedValue({ id: 'p1', userId: 'other-user' } as never)
     const result = await deletePlayer('p1')
-    expect(result).toEqual({ success: false, error: 'errors.notFound' })
+    expect(result).toEqual({ success: false, error: 'notFound' })
   })
 })

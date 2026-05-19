@@ -57,7 +57,7 @@ describe('createGameTemplate', () => {
 
   it('returns error when name is empty', async () => {
     const result = await createGameTemplate({ ...fullInput, name: '' })
-    expect(result).toEqual({ success: false, error: 'errors.required' })
+    expect(result).toEqual({ success: false, error: 'required' })
     expect(deductCredits).not.toHaveBeenCalled()
   })
 
@@ -65,7 +65,7 @@ describe('createGameTemplate', () => {
     const { InsufficientCreditsError } = await import('@/lib/credits')
     vi.mocked(deductCredits).mockRejectedValueOnce(new InsufficientCreditsError())
     const result = await createGameTemplate(fullInput)
-    expect(result).toEqual({ success: false, error: 'errors.insufficientCredits' })
+    expect(result).toEqual({ success: false, error: 'insufficientCredits' })
   })
 
   it('persists all new fields to the database', async () => {
@@ -88,15 +88,15 @@ describe('createGameTemplate', () => {
 
 describe('deleteGameTemplate', () => {
   it('deletes own template', async () => {
-    vi.mocked(prisma.gameTemplate.findUnique).mockResolvedValue({ id: 'gt1', userId: 'user-1' } as never)
+    vi.mocked(prisma.gameTemplate.findUnique).mockResolvedValue({ id: 'gt1', userId: 'user-1', _count: { leagues: 0 } } as never)
     vi.mocked(prisma.gameTemplate.delete).mockResolvedValue({ id: 'gt1' } as never)
     const result = await deleteGameTemplate('gt1')
     expect(result).toEqual({ success: true })
   })
 
   it("rejects delete of another user's template", async () => {
-    vi.mocked(prisma.gameTemplate.findUnique).mockResolvedValue({ id: 'gt1', userId: 'other' } as never)
+    vi.mocked(prisma.gameTemplate.findUnique).mockResolvedValue({ id: 'gt1', userId: 'other', _count: { leagues: 0 } } as never)
     const result = await deleteGameTemplate('gt1')
-    expect(result).toEqual({ success: false, error: 'errors.notFound' })
+    expect(result).toEqual({ success: false, error: 'notFound' })
   })
 })
