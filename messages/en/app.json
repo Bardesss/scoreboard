@@ -554,7 +554,8 @@
     "newNotification": "New notification",
     "connectionGameLogged": "Someone in your league logged a game",
     "connectionGameLoggedNamed": "New {gameName} game in {leagueName}",
-    "reactionReceived": "Someone reacted {emoji} on your game"
+    "reactionReceived": "Someone reacted {emoji} on your game",
+    "connectionGameLoggedBatch": "{count} new games in {leagueName}"
   },
   "toasts": {
     "playerSaved": "Player saved.",

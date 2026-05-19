@@ -554,7 +554,8 @@
     "newNotification": "Nieuwe melding",
     "connectionGameLogged": "Iemand in jouw league heeft een partij gelogd",
     "connectionGameLoggedNamed": "Nieuwe partij {gameName} in {leagueName}",
-    "reactionReceived": "Iemand heeft {emoji} op je partij gegeven"
+    "reactionReceived": "Iemand heeft {emoji} op je partij gegeven",
+    "connectionGameLoggedBatch": "{count} nieuwe partijen in {leagueName}"
   },
   "toasts": {
     "playerSaved": "Speler opgeslagen.",

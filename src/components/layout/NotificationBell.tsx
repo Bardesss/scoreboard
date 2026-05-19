@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Bell } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { markAllNotificationsRead } from '@/app/app/notifications/actions'
+import { batchConnectionGameLogged } from '@/lib/social/batchNotifications'
 
 type Notification = {
   id: string
@@ -30,6 +31,10 @@ function hrefFor(n: Notification): string {
       const playedGameId = typeof meta.playedGameId === 'string' ? meta.playedGameId : null
       return playedGameId ? `/app/profile?game=${playedGameId}` : '/app/profile'
     }
+    case 'connection_game_logged_batch': {
+      const playedGameId = typeof meta.playedGameId === 'string' ? meta.playedGameId : null
+      return playedGameId ? `/app/profile?game=${playedGameId}` : '/app/profile'
+    }
     default:
       return '/app/dashboard'
   }
@@ -47,7 +52,7 @@ export function NotificationBell({
   const t = useTranslations('app.notifications')
   const [open, setOpen] = useState(false)
   const [count, setCount] = useState(initialCount)
-  const [notifications] = useState(initialNotifications)
+  const [notifications] = useState(() => batchConnectionGameLogged(initialNotifications))
 
   function notificationLabel(n: Notification): string {
     const from = String(n.meta?.fromEmail ?? t('someone'))
@@ -62,6 +67,11 @@ export function NotificationBell({
       case 'connection_game_logged': {
         const gameName = typeof n.meta?.gameName === 'string' ? n.meta.gameName : ''
         return leagueName ? t('connectionGameLoggedNamed', { gameName, leagueName }) : t('connectionGameLogged')
+      }
+      case 'connection_game_logged_batch': {
+        const count = Number((n.meta ?? {}).count ?? 0)
+        const leagueName = typeof (n.meta ?? {}).leagueName === 'string' ? String((n.meta ?? {}).leagueName) : null
+        return leagueName ? t('connectionGameLoggedBatch', { count, leagueName }) : t('connectionGameLogged')
       }
       case 'reaction_received': {
         const emoji = typeof n.meta?.emoji === 'string' ? n.meta.emoji : '✨'
