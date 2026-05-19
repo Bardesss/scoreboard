@@ -22,6 +22,14 @@ const nextConfig = {
     // Coolify (kernel SIGKILLs at "Creating an optimized production build...");
     // this flag is Next's official lever for memory-constrained builds.
     webpackMemoryOptimizations: true,
+    // Static-page generation defaults spawn multiple worker processes, each of
+    // which loads the full app bundle. On the Coolify VPS this blows past
+    // available RAM and the kernel SIGKILLs mid-static-gen (log dies at
+    // "Generating static pages (X/37) ..."). Forcing min-pages-per-worker
+    // above the total page count keeps generation in a single worker; pinning
+    // max-concurrency low keeps that worker's in-flight render set small.
+    staticGenerationMinPagesPerWorker: 200,
+    staticGenerationMaxConcurrency: 2,
   },
 }
 
