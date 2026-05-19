@@ -6,6 +6,12 @@
     "ctaPrimary": "Begin gratis",
     "ctaSecondary": "Zie hoe het werkt"
   },
+  "freeMode": {
+    "ribbonDefaultText": "Gratis te gebruiken — kosten per actie en maandelijks tegoed worden later afgestemd.",
+    "dismissAria": "Sluiten",
+    "costsPilotBadge": "Pilotwaarden — worden afgestemd voordat facturatie aangaat",
+    "packsComingBadge": "Beschikbaar zodra facturatie aanstaat"
+  },
   "features": {
     "overline": "Wat zit er in de kluis",
     "headline": "Alles wat je nodig hebt, geen spreadsheets meer",

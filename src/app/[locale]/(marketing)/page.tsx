@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { loadFreeModeState } from '@/lib/freeMode'
+import { FreeModeRibbon } from './_components/FreeModeRibbon'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
@@ -80,6 +82,11 @@ export default async function LandingPage({ params }: Props) {
   if (session) redirect('/app/dashboard')
   const t = await getTranslations('landing')
 
+  const freeMode = await loadFreeModeState()
+  const tFreeMode = await getTranslations({ locale, namespace: 'landing.freeMode' })
+  const ribbonText = (locale === 'nl' ? freeMode.bannerNl : freeMode.bannerEn).trim()
+  const ribbonDisplayText = ribbonText.length > 0 ? ribbonText : tFreeMode('ribbonDefaultText')
+
   const features = [0, 1, 2].map(i => ({
     icon: t(`features.items.${i}.icon`),
     title: t(`features.items.${i}.title`),
@@ -146,6 +153,10 @@ export default async function LandingPage({ params }: Props) {
 
   return (
     <div className="landing-page relative z-10">
+
+      {freeMode.active && (
+        <FreeModeRibbon text={ribbonDisplayText} dismissAriaLabel={tFreeMode('dismissAria')} />
+      )}
 
       {/* ── Hero ── */}
       <section className="relative max-w-5xl mx-auto px-6 pt-20 pb-20 overflow-hidden">
@@ -357,6 +368,14 @@ export default async function LandingPage({ params }: Props) {
 
             {/* Cost table */}
             <div className="rounded-2xl p-7" style={card}>
+              {freeMode.active && (
+                <p
+                  className="font-headline font-bold text-[10px] uppercase tracking-[.08em] mb-2"
+                  style={{ color: '#f5a623', opacity: 0.7 }}
+                >
+                  {tFreeMode('costsPilotBadge')}
+                </p>
+              )}
               <h3 className="font-headline font-extrabold text-[16px] tracking-[-0.02em] mb-5" style={{ color: text }}>{t('credits.costs.title')}</h3>
               <div>
                 {creditCosts.map((item, i) => {
@@ -391,7 +410,11 @@ export default async function LandingPage({ params }: Props) {
 
       {/* ── Credit Packs ── */}
       <section className="max-w-5xl mx-auto px-6 py-20">
-        <LPSectionHeader overline={t('packs.overline')} headline={t('packs.headline')} subheadline={t('packs.subheadline')} />
+        <LPSectionHeader
+          overline={freeMode.active ? tFreeMode('packsComingBadge') : t('packs.overline')}
+          headline={t('packs.headline')}
+          subheadline={t('packs.subheadline')}
+        />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
           {packs.map((pack, i) => {
             const isFeatured = !!pack.tag

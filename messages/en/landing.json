@@ -6,6 +6,12 @@
     "ctaPrimary": "Start for free",
     "ctaSecondary": "See how it works"
   },
+  "freeMode": {
+    "ribbonDefaultText": "Currently free to use — action costs and monthly allowance will be tuned before billing turns on.",
+    "dismissAria": "Dismiss",
+    "costsPilotBadge": "Pilot values — will be tuned before billing turns on",
+    "packsComingBadge": "Coming when billing turns on"
+  },
   "features": {
     "overline": "What's in the vault",
     "headline": "All the tools, none of the spreadsheets",
