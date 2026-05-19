@@ -9,6 +9,7 @@ export type CompactGameRow = {
   playedAt: string
   playerNames: string[]
   userWon: boolean | null
+  reactions: { emoji: string; count: number }[]
 }
 
 export type VerboseGameRow = CompactGameRow & {
@@ -69,15 +70,16 @@ function CompactHeader({ labels }: { labels: StatsLabels }) {
     labels.gamesTableHeaderGame,
     labels.gamesTableHeaderDate,
     labels.gamesTableHeaderPlayers,
+    '',
     labels.gamesTableHeaderResult,
   ]
   return (
     <div
       className="hidden md:grid"
-      style={{ gridTemplateColumns: '1fr 120px 140px 90px', padding: '7px 20px', background: '#f2ece3' }}
+      style={{ gridTemplateColumns: '1fr 120px 1fr 90px 90px', padding: '7px 20px', background: '#f2ece3' }}
     >
-      {headers.map(h => (
-        <span key={h} style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6b5e4a' }}>{h}</span>
+      {headers.map((h, i) => (
+        <span key={i} style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6b5e4a' }}>{h}</span>
       ))}
     </div>
   )
@@ -121,16 +123,22 @@ function CompactRow({
           {dateText}
           {playersText && <> · {playersText}</>}
         </div>
+        {row.reactions.length > 0 && (
+          <ReactionBadge reactions={row.reactions} gameId={row.id} />
+        )}
       </div>
 
-      {/* Desktop: original 4-column grid. */}
-      <div className="hidden md:grid" style={{ gridTemplateColumns: '1fr 120px 140px 90px' }}>
+      {/* Desktop: original 4-column grid (now 5 with reactions). */}
+      <div className="hidden md:grid" style={{ gridTemplateColumns: '1fr 120px 1fr 90px 90px' }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1a14' }}>{row.gameName}</div>
           <div style={{ fontSize: 11, color: '#6b5e4a' }}>{row.leagueName}</div>
         </div>
         <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>{dateText}</div>
         <div style={{ fontSize: 13, color: '#6b5e4a', paddingTop: 1 }}>{playersText}</div>
+        <div style={{ paddingTop: 1 }}>
+          <ReactionBadge reactions={row.reactions} gameId={row.id} />
+        </div>
         <div style={{ paddingTop: 1 }}>{resultBadge}</div>
       </div>
     </div>
@@ -249,5 +257,27 @@ function Pagination({
         )}
       </div>
     </div>
+  )
+}
+
+function ReactionBadge({ reactions, gameId }: { reactions: { emoji: string; count: number }[]; gameId: string }) {
+  if (reactions.length === 0) return null
+  const total = reactions.reduce((s, r) => s + r.count, 0)
+  return (
+    <a
+      href={`/app/profile?game=${gameId}#game-${gameId}`}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        fontSize: 12, color: '#6b5e4a', textDecoration: 'none',
+      }}
+      aria-label={`${total} reactions`}
+    >
+      {reactions.map((r, i) => (
+        <span key={r.emoji}>
+          {i > 0 && <span style={{ opacity: 0.4, margin: '0 4px' }}>·</span>}
+          {r.emoji} {r.count}
+        </span>
+      ))}
+    </a>
   )
 }

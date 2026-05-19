@@ -3,6 +3,12 @@ import type { StatsScope, DateFilter } from './types'
 import { rangeToWhere } from './dateRange'
 import type { CompactGameRow, VerboseGameRow, GamesPage } from '@/components/stats/PaginatedGamesTable'
 
+function summarizeReactions(rows: Array<{ emoji: string }>): Array<{ emoji: string; count: number }> {
+  const buckets = new Map<string, number>()
+  for (const r of rows) buckets.set(r.emoji, (buckets.get(r.emoji) ?? 0) + 1)
+  return Array.from(buckets.entries()).map(([emoji, count]) => ({ emoji, count }))
+}
+
 export async function loadGames(
   scope: StatsScope,
   filter: DateFilter,
@@ -54,6 +60,7 @@ export async function loadGames(
           },
           orderBy: { score: 'desc' },
         },
+        reactions: { select: { emoji: true } },
       },
     }),
   ])
@@ -73,6 +80,7 @@ export async function loadGames(
       playedAt: pg.playedAt.toISOString(),
       playerNames: pg.scores.map(s => s.player.name),
       userWon: buildUserWon(pg),
+      reactions: summarizeReactions(pg.reactions),
     }))
     return { games, total, page, totalPages: Math.max(1, Math.ceil(total / perPage)) }
   }
@@ -84,6 +92,7 @@ export async function loadGames(
     playedAt: pg.playedAt.toISOString(),
     playerNames: pg.scores.map(s => s.player.name),
     userWon: buildUserWon(pg),
+    reactions: summarizeReactions(pg.reactions),
     scores: pg.scores.map(s => ({ playerName: s.player.name, score: s.score })),
     notes: pg.notes ?? null,
     shareToken: pg.shareToken ?? null,
