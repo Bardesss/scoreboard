@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { createNotification } from '@/lib/notifications'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { fireConnectionGameLogged } from '@/lib/social/fireConnectionGameLogged'
 
 export async function adminApproveGame(playedGameId: string): Promise<{ success: boolean; error?: string }> {
   const session = await auth()
@@ -30,6 +31,7 @@ export async function adminApproveGame(playedGameId: string): Promise<{ success:
       leagueId: playedGame.leagueId,
       leagueName: playedGame.league.name,
     })
+    await fireConnectionGameLogged(playedGameId)
 
     revalidatePath('/admin/approvals')
     return { success: true }

@@ -6,8 +6,9 @@ vi.mock('@/lib/prisma', () => ({
     leagueMember: { createMany: vi.fn() },
     gameTemplate: { findUnique: vi.fn() },
     player: { findMany: vi.fn() },
-    playedGame: { create: vi.fn() },
+    playedGame: { create: vi.fn(), findUnique: vi.fn().mockResolvedValue(null) },
     scoreEntry: { createMany: vi.fn() },
+    notification: { createMany: vi.fn() },
     $transaction: vi.fn(),
   },
 }))

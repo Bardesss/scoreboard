@@ -12,6 +12,7 @@ import { shouldSendEmailTo } from '@/lib/emailPreferences'
 import { playedGameApprovedEmail, playedGameRejectedEmail } from '@/lib/emailTemplates'
 import { resolveScoreEntries } from '@/lib/game-logic/resolveScoreEntries'
 import type { ResolverInput } from '@/lib/game-logic/types'
+import { fireConnectionGameLogged } from '@/lib/social/fireConnectionGameLogged'
 
 type LogPlayedGameInput = {
   playedAt: Date
@@ -88,6 +89,7 @@ export async function logPlayedGame(
     userIds: [session.user.id],
     leagueIds: [leagueId],
   })
+  await fireConnectionGameLogged(playedGame.id)
   revalidatePath(`/app/leagues/${leagueId}`)
   return { success: true, id: playedGame.id }
 }
@@ -109,6 +111,7 @@ export async function approvePlayedGame(playedGameId: string) {
     leagueIds: [pg.leagueId],
   })
   await createNotification(pg.submittedById, 'played_game_accepted', { playedGameId, leagueId: pg.leagueId, leagueName: pg.league.name })
+  await fireConnectionGameLogged(playedGameId)
 
   // Fire-and-forget email to the submitter
   try {
