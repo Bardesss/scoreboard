@@ -16,6 +16,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    // Lowers peak webpack heap by avoiding redundant module duplication during
+    // compilation. The codebase has grown past what fits in the 1536 MB cap on
+    // Coolify (kernel SIGKILLs at "Creating an optimized production build...");
+    // this flag is Next's official lever for memory-constrained builds.
+    webpackMemoryOptimizations: true,
+  },
 }
 
 export default withNextIntl(nextConfig)
