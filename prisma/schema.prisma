@@ -31,6 +31,13 @@ model User {
   // email, password reset) ignore this and always send.
   emailPreferences Json?
 
+  // Privacy (Plan A)
+  publicProfileMode   String   @default("private")  // 'private' | 'stats' | 'full'
+  allowAppearInOthers Boolean  @default(false)
+
+  // Reactions authored by this user
+  reactionsAuthored   PlayedGameReaction[]
+
   players              Player[]
   linkedAsPlayer        Player[]              @relation("LinkedPlayer")
   gameTemplates         GameTemplate[]
@@ -131,6 +138,7 @@ model PlayedGame {
   shareToken      String?      @unique
   status          String       @default("approved")
   scores        ScoreEntry[]
+  reactions     PlayedGameReaction[]
   createdAt     DateTime     @default(now())
 }
 
@@ -367,4 +375,18 @@ model Integration {
   updatedAt       DateTime  @updatedAt
 
   @@index([status])
+}
+
+model PlayedGameReaction {
+  id           String     @id @default(cuid())
+  playedGameId String
+  playedGame   PlayedGame @relation(fields: [playedGameId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji        String
+  createdAt    DateTime   @default(now())
+
+  @@unique([playedGameId, userId, emoji])
+  @@index([playedGameId])
+  @@index([userId])
 }

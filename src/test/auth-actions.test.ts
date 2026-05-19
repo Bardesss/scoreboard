@@ -16,6 +16,9 @@ const mockPrismaUser = {
   monthlyCredits: 75,
   permanentCredits: 0,
   isLifetimeFree: false,
+  emailPreferences: null,
+  publicProfileMode: 'private',
+  allowAppearInOthers: false,
   createdAt: new Date(),
   updatedAt: new Date(),
 }
