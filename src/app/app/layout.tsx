@@ -7,6 +7,8 @@ import Sidebar from '@/components/layout/Sidebar'
 import BottomNav from '@/components/layout/BottomNav'
 import MobileHeader from '@/components/layout/MobileHeader'
 import { LowCreditBanner } from '@/components/credits/LowCreditBanner'
+import { FreeModeBanner } from '@/components/credits/FreeModeBanner'
+import { loadFreeModeState } from '@/lib/freeMode'
 import { LogGameProvider, type LeagueOption } from '@/components/layout/LogGameLauncher'
 
 async function loadMessages(locale: string) {
@@ -25,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const locale = session.user.locale ?? 'en'
   setRequestLocale(locale)
 
-  const [user, linkedPlayer, threshold, unreadCount, recentNotifications, accessibleLeagues] = await Promise.all([
+  const [user, linkedPlayer, threshold, unreadCount, recentNotifications, accessibleLeagues, freeMode] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: { email: true, monthlyCredits: true, permanentCredits: true, isLifetimeFree: true, role: true },
@@ -59,6 +61,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         },
       },
     }),
+    loadFreeModeState(),
   ])
   if (!user) redirect('/en/auth/login')
 
@@ -78,6 +81,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const messages = await loadMessages(locale)
   const tCredits = await getTranslations({ locale, namespace: 'app.credits' })
 
+  const bannerText = locale === 'nl' ? freeMode.bannerNl : freeMode.bannerEn
+  const tFreeMode = await getTranslations({ locale, namespace: 'app.freeMode' })
+  const freeModeText = bannerText.trim().length > 0 ? bannerText : tFreeMode('defaultBannerText')
+  const dismissAria = tFreeMode('dismissAria')
+  const showFreeBanner = freeMode.active
+  const showLowBanner = !showFreeBanner && isLow
+  const showAnyBanner = showFreeBanner || showLowBanner
+
   const leagueOptions: LeagueOption[] = accessibleLeagues.map(l => ({
     id: l.id,
     name: l.name,
@@ -87,12 +98,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      {isLow && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
+      {showFreeBanner && <FreeModeBanner text={freeModeText} dismissAriaLabel={dismissAria} />}
+      {showLowBanner && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
       <LogGameProvider leagues={leagueOptions}>
         <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} monthlyCredits={user.monthlyCredits} permanentCredits={user.permanentCredits} isLifetimeFree={user.isLifetimeFree} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
         <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} />
         <main
-          className={`lg:ml-64 min-h-screen relative z-10 pb-20 lg:pb-0 px-4 lg:px-7 ${isLow ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
+          className={`lg:ml-64 min-h-screen relative z-10 pb-20 lg:pb-0 px-4 lg:px-7 ${showAnyBanner ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
         >
           {children}
         </main>
