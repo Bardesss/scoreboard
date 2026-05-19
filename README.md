@@ -110,12 +110,9 @@ In the app resource → **Storage** tab → **+ Add**:
 | Source path (host) | `dicevault-uploads` (Coolify-managed volume) |
 | Destination path (container) | `/data/uploads` (must match `UPLOADS_DIR`) |
 
-### 6️⃣ Post-deploy command
+### 6️⃣ Migrations
 
-In app settings → **Post-deploy command**:
-```
-npx prisma migrate deploy
-```
+Migrations run automatically on every container start — the Dockerfile `CMD` is `node node_modules/prisma/build/index.js migrate deploy && node server.js`. **Do not** configure a Coolify "Post-deploy command" for migrations: the runtime image is the slim Next standalone output and does not expose the `prisma` CLI on `$PATH`, so any `prisma migrate deploy` post-deploy hook will fail with `sh: prisma: not found` and mark the deploy as failed even though the app started cleanly.
 
 ### 7️⃣ Deploy 🚢
 
@@ -193,14 +190,14 @@ Coolify injects the application's env vars into the task, so `$CRON_SECRET` and 
 
 ## 🗄️ Migrations
 
-Migrations run automatically on every deploy via the post-deploy command. To run manually:
+Migrations run automatically on every container start via the Dockerfile `CMD` (`node node_modules/prisma/build/index.js migrate deploy && node server.js`) — no Coolify post-deploy hook needed. To run manually:
 
 ```bash
 # Local
 npx prisma migrate dev
 
-# Production (one-off)
-npx prisma migrate deploy
+# Production (one-off) — inside the running container
+docker exec <container> node node_modules/prisma/build/index.js migrate deploy
 ```
 
 ---
