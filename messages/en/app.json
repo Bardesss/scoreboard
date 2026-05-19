@@ -590,5 +590,9 @@
     "compactRowReactionsAria": "{count} reactions",
     "settingsSaved": "Saved.",
     "settingsSaveFailed": "Couldn't save — try again."
+  },
+  "freeMode": {
+    "defaultBannerText": "Currently free to use — action costs and monthly allowance will be tuned before billing turns on.",
+    "dismissAria": "Dismiss"
   }
 }

@@ -590,5 +590,9 @@
     "compactRowReactionsAria": "{count} reacties",
     "settingsSaved": "Opgeslagen.",
     "settingsSaveFailed": "Niet gelukt om op te slaan."
+  },
+  "freeMode": {
+    "defaultBannerText": "Gratis te gebruiken — kosten per actie en maandelijks tegoed worden later afgestemd.",
+    "dismissAria": "Sluiten"
   }
 }
