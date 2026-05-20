@@ -37,5 +37,6 @@ describe('GET /api/landing/hero-media', () => {
     expect(res.status).toBe(200)
     expect(res.headers.get('Content-Type')).toBe('video/mp4')
     expect(res.headers.get('Content-Length')).toBe('1234')
+    expect(res.headers.get('Cache-Control')).toBe('public, max-age=31536000, immutable')
   })
 })
