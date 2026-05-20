@@ -7,6 +7,7 @@ import { loadFreeModeState } from '@/lib/freeMode'
 import { FreeModeRibbon } from './_components/FreeModeRibbon'
 import { HeroMedia } from './_components/HeroMedia'
 import { getHeroMedia } from '@/lib/heroMedia'
+import { hasActivePaymentProvider } from '@/lib/integrations'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
@@ -85,6 +86,7 @@ export default async function LandingPage({ params }: Props) {
 
   const freeMode = await loadFreeModeState()
   const heroMedia = await getHeroMedia()
+  const billingEnabled = await hasActivePaymentProvider()
   const tFreeMode = await getTranslations({ locale, namespace: 'landing.freeMode' })
   const ribbonText = (locale === 'nl' ? freeMode.bannerNl : freeMode.bannerEn).trim()
   const ribbonDisplayText = ribbonText.length > 0 ? ribbonText : tFreeMode('ribbonDefaultText')
@@ -402,7 +404,8 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ── Credit Packs ── */}
+      {/* ── Credit Packs (hidden until a payment provider is live) ── */}
+      {billingEnabled && (
       <section className="max-w-5xl mx-auto px-6 py-20">
         <LPSectionHeader
           overline={freeMode.active ? tFreeMode('packsComingBadge') : t('packs.overline')}
@@ -450,8 +453,10 @@ export default async function LandingPage({ params }: Props) {
           </Link>
         </div>
       </section>
+      )}
 
-      {/* ── Payment Options ── */}
+      {/* ── Payment Options (hidden until a payment provider is live) ── */}
+      {billingEnabled && (
       <section className="py-20" style={{ background: '#0f1117' }}>
         <div className="max-w-5xl mx-auto px-6">
           <LPSectionHeader overline={t('payments.overline')} headline={t('payments.headline')} />
@@ -483,6 +488,7 @@ export default async function LandingPage({ params }: Props) {
           <p className="text-center font-body text-[12px] mt-6" style={{ color: dim }}>{t('payments.note')}</p>
         </div>
       </section>
+      )}
 
       {/* ── Reviews ── */}
       <section className="max-w-5xl mx-auto px-6 py-20">
