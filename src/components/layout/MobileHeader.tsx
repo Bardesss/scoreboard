@@ -20,6 +20,8 @@ export default function MobileHeader({
   isAdmin,
   unreadCount,
   notifications,
+  avatarColor,
+  avatarIcon,
 }: {
   name: string
   email: string
@@ -27,6 +29,8 @@ export default function MobileHeader({
   isAdmin?: boolean
   unreadCount: number
   notifications: NotificationItem[]
+  avatarColor?: string | null
+  avatarIcon?: string | null
 }) {
   return (
     <header className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-4" style={{ background: 'rgba(247,243,237,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(245,166,35,0.1)' }}>
@@ -38,7 +42,7 @@ export default function MobileHeader({
       </Link>
       <div className="flex items-center gap-2">
         <NotificationBell initialCount={unreadCount} initialNotifications={notifications} />
-        <UserMenu name={name} email={email} credits={credits} isAdmin={isAdmin} variant="mobile" />
+        <UserMenu name={name} email={email} credits={credits} isAdmin={isAdmin} variant="mobile" avatarColor={avatarColor} avatarIcon={avatarIcon} />
       </div>
     </header>
   )

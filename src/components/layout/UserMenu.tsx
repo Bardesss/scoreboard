@@ -14,12 +14,16 @@ export function UserMenu({
   credits,
   isAdmin,
   variant,
+  avatarColor,
+  avatarIcon,
 }: {
   name: string
   email: string
   credits: number
   isAdmin?: boolean
   variant: Variant
+  avatarColor?: string | null
+  avatarIcon?: string | null
 }) {
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
@@ -59,10 +63,14 @@ export function UserMenu({
           border: '1px solid rgba(245,166,35,0.08)',
         }}
       >
-        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#f5a623' }}>
-          <span className="font-headline font-black text-[11px] tracking-[.02em]" style={{ color: '#1c1408' }}>
-            {initials}
-          </span>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623' }}>
+          {avatarIcon ? (
+            <span style={{ fontSize: 16, lineHeight: 1 }}>{avatarIcon}</span>
+          ) : (
+            <span className="font-headline font-black text-[11px] tracking-[.02em]" style={{ color: '#1c1408' }}>
+              {initials}
+            </span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-body font-bold text-[12.5px] truncate" style={{ color: '#f7f3ed' }}>{name}</div>
@@ -83,14 +91,18 @@ export function UserMenu({
         aria-label={name}
         className="relative w-9 h-9 rounded-full flex items-center justify-center"
         style={{
-          background: '#f5a623',
+          background: avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623',
           boxShadow: open ? '0 0 0 2px rgba(245,166,35,0.4)' : '0 2px 8px rgba(245,166,35,0.25)',
           transition: 'box-shadow 160ms',
         }}
       >
-        <span className="font-headline font-black text-[12px] tracking-[.02em]" style={{ color: '#1c1408' }}>
-          {initials}
-        </span>
+        {avatarIcon ? (
+          <span style={{ fontSize: 18, lineHeight: 1 }}>{avatarIcon}</span>
+        ) : (
+          <span className="font-headline font-black text-[12px] tracking-[.02em]" style={{ color: '#1c1408' }}>
+            {initials}
+          </span>
+        )}
       </button>
     )
 

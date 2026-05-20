@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [user, linkedPlayer, threshold, unreadCount, recentNotifications, accessibleLeagues, freeMode] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { email: true, monthlyCredits: true, permanentCredits: true, isLifetimeFree: true, role: true },
+      select: { email: true, monthlyCredits: true, permanentCredits: true, isLifetimeFree: true, role: true, avatarColor: true, avatarIcon: true },
     }),
     prisma.player.findFirst({
       where: { linkedUserId: session.user.id },
@@ -101,8 +101,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       {showFreeBanner && <FreeModeBanner text={freeModeText} dismissAriaLabel={dismissAria} />}
       {showLowBanner && <LowCreditBanner message={tCredits('lowBanner')} buttonLabel={tCredits('buyCredits')} />}
       <LogGameProvider leagues={leagueOptions}>
-        <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} monthlyCredits={user.monthlyCredits} permanentCredits={user.permanentCredits} isLifetimeFree={user.isLifetimeFree} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} />
-        <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} />
+        <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} monthlyCredits={user.monthlyCredits} permanentCredits={user.permanentCredits} isLifetimeFree={user.isLifetimeFree} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} avatarColor={user.avatarColor} avatarIcon={user.avatarIcon} />
+        <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} avatarColor={user.avatarColor} avatarIcon={user.avatarIcon} />
         <main
           className={`lg:ml-64 min-h-screen relative z-10 pb-20 lg:pb-0 px-4 lg:px-7 ${showAnyBanner ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
         >

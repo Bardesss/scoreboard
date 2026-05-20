@@ -23,7 +23,7 @@ const NAV = [
   { key: 'leagues',      href: '/app/leagues',      icon: ClipboardList },
 ] as const
 
-export default function Sidebar({ name, email, credits, monthlyCredits, permanentCredits, isLifetimeFree, unreadCount, notifications, isAdmin }: { name: string; email: string; credits: number; monthlyCredits: number; permanentCredits: number; isLifetimeFree: boolean; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean }) {
+export default function Sidebar({ name, email, credits, monthlyCredits, permanentCredits, isLifetimeFree, unreadCount, notifications, isAdmin, avatarColor, avatarIcon }: { name: string; email: string; credits: number; monthlyCredits: number; permanentCredits: number; isLifetimeFree: boolean; unreadCount: number; notifications: NotificationItem[]; isAdmin?: boolean; avatarColor?: string | null; avatarIcon?: string | null }) {
   const pathname = usePathname()
   const t = useTranslations('app.nav')
   const tCredits = useTranslations('app.credits')
@@ -159,7 +159,7 @@ export default function Sidebar({ name, email, credits, monthlyCredits, permanen
       {/* User footer: avatar/name dropdown + notification bell */}
       <div className="p-4 flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <UserMenu name={name} email={email} credits={credits} isAdmin={isAdmin} variant="sidebar" />
+          <UserMenu name={name} email={email} credits={credits} isAdmin={isAdmin} variant="sidebar" avatarColor={avatarColor} avatarIcon={avatarIcon} />
         </div>
         <NotificationBell initialCount={unreadCount} initialNotifications={notifications} position="up-right" />
       </div>
