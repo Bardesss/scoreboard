@@ -26,6 +26,7 @@ export default async function ProfilePage({
       where: { id: session.user.id },
       select: {
         email: true,
+        displayName: true,
         username: true,
         createdAt: true,
         publicProfileMode: true,
@@ -44,6 +45,7 @@ export default async function ProfilePage({
   return (
     <ProfileClient
       email={user.email}
+      displayName={user.displayName}
       username={user.username}
       signupMonth={user.createdAt.toISOString()}
       publicProfileMode={user.publicProfileMode as 'private' | 'stats' | 'full'}

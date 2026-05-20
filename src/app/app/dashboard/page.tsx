@@ -8,6 +8,7 @@ import { loadGames } from '@/lib/stats/loadGames'
 import { parseRange } from '@/lib/stats/dateRange'
 import { buildStatsLabels } from '@/lib/stats/buildStatsLabels'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { resolveDisplayName } from '@/lib/displayName'
 
 type PageProps = {
   searchParams: Promise<{ range?: string; from?: string; to?: string; page?: string }>
@@ -26,18 +27,19 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const scope = { kind: 'user' as const, userId: session.user.id }
 
-  const [stats, gamesPage, user, mePlayer, i18n, tDashboard] = await Promise.all([
+  const [stats, gamesPage, user, i18n, tDashboard] = await Promise.all([
     loadStats(scope, filter, locale),
     loadGames(scope, filter, page, 25, 'compact'),
-    prisma.user.findUnique({ where: { id: session.user.id }, select: { username: true, email: true } }),
-    prisma.player.findFirst({ where: { linkedUserId: session.user.id }, select: { name: true } }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { displayName: true, username: true, email: true },
+    }),
     buildStatsLabels(locale),
     getTranslations({ locale, namespace: 'app.dashboard' }),
   ])
   const { labels, formatters } = i18n
 
-  // Greeting prefers the "me" player's name (e99f961), then username (b820d3f), then email local-part.
-  const displayName = mePlayer?.name ?? user?.username ?? user?.email?.split('@')[0] ?? ''
+  const displayName = resolveDisplayName(user ?? {})
 
   return (
     <div className="max-w-7xl mx-auto py-8">

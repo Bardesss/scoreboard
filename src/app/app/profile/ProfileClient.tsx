@@ -7,9 +7,11 @@ import { Share2, QrCode, Settings, X, ChevronLeft, ChevronRight } from 'lucide-r
 import { QRCodeCanvas } from './QRCode'
 import { Scorecard } from '@/components/social/Scorecard'
 import type { FeedPage } from '@/lib/social/loadFeed'
+import { resolveDisplayName } from '@/lib/displayName'
 
 type Props = {
   email: string
+  displayName: string | null
   username: string | null
   signupMonth: string
   publicProfileMode: 'private' | 'stats' | 'full'
@@ -25,7 +27,7 @@ export function ProfileClient(props: Props) {
   const locale = useLocale() as 'nl' | 'en'
   const [qrOpen, setQrOpen] = useState(false)
   const focusRef = useRef<HTMLDivElement>(null)
-  const displayName = props.username ?? props.email
+  const displayName = resolveDisplayName(props)
 
   useEffect(() => {
     if (props.focusGameId && focusRef.current) {

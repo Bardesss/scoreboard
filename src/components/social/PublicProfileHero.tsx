@@ -1,12 +1,14 @@
 type Props = {
   username: string
+  displayName: string | null
   avatarSeed: string
   gamesCount: number
   winsCount: number
   winRate: number  // 0..1
 }
 
-export function PublicProfileHero({ username, avatarSeed: _avatarSeed, gamesCount, winsCount, winRate }: Props) {
+export function PublicProfileHero({ username, displayName, avatarSeed: _avatarSeed, gamesCount, winsCount, winRate }: Props) {
+  const name = displayName || username
   return (
     <div
       style={{
@@ -26,7 +28,7 @@ export function PublicProfileHero({ username, avatarSeed: _avatarSeed, gamesCoun
             fontFamily: 'var(--font-headline)', fontWeight: 900, fontSize: 28, color: '#fefcf8',
           }}
         >
-          {username.charAt(0).toUpperCase()}
+          {name.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
           <h1
@@ -37,7 +39,7 @@ export function PublicProfileHero({ username, avatarSeed: _avatarSeed, gamesCoun
               textTransform: 'uppercase', lineHeight: 1,
             }}
           >
-            {username}
+            {name}
           </h1>
           <p style={{ fontSize: 14, color: '#6b5e4a', marginTop: 8 }}>
             @{username} · {gamesCount} games · {winsCount} wins · {Math.round(winRate * 100)}% wr

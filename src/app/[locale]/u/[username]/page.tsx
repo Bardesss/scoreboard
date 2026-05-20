@@ -21,6 +21,7 @@ export default async function PublicProfilePage({ params }: Props) {
     where: { username },
     select: {
       id: true,
+      displayName: true,
       username: true,
       publicProfileMode: true,
       allowAppearInOthers: true,
@@ -70,6 +71,7 @@ export default async function PublicProfilePage({ params }: Props) {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <PublicProfileHero
         username={profile.username}
+        displayName={profile.displayName}
         avatarSeed={profile.username}
         gamesCount={gamesCount}
         winsCount={winsCount}
