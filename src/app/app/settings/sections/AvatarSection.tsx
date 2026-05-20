@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -18,6 +18,11 @@ export function AvatarSection({ initialColor, initialIcon }: Props) {
   const [pending, startTransition] = useTransition()
   const [color, setColor] = useState<string>(initialColor ?? AVATAR_COLORS[0])
   const [icon, setIcon] = useState<string>(initialIcon ?? AVATAR_ICONS[0])
+
+  useEffect(() => {
+    setColor(initialColor ?? AVATAR_COLORS[0])
+    setIcon(initialIcon ?? AVATAR_ICONS[0])
+  }, [initialColor, initialIcon])
 
   const hasCustom = initialIcon !== null
 
