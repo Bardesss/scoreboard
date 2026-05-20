@@ -6,30 +6,54 @@ function hashColor(seed: string): string {
   return COLORS[Math.abs(h) % COLORS.length]
 }
 
-export function Avatar({ seed, name, size = 36 }: { seed: string; name: string; size?: number }) {
-  const bg = hashColor(seed)
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase() || '?'
+/**
+ * Renders a user/player avatar. When `icon` is set, shows that pictogram on the
+ * `color` background (the customised account avatar). Otherwise falls back to
+ * the initials on a seed-hashed colour.
+ */
+export function Avatar({
+  seed,
+  name,
+  size = 36,
+  color,
+  icon,
+}: {
+  seed: string
+  name: string
+  size?: number
+  color?: string | null
+  icon?: string | null
+}) {
+  const box: React.CSSProperties = {
+    width: size,
+    height: size,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  }
+
+  if (icon) {
+    return (
+      <div style={{ ...box, background: color || hashColor(seed) }}>
+        <span style={{ fontSize: size * 0.52, lineHeight: 1 }}>{icon}</span>
+      </div>
+    )
+  }
+
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(w => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || '?'
 
   return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        background: bg,
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
-    >
+    <div style={{ ...box, background: hashColor(seed) }}>
       <span
         style={{
           color: '#fff',
