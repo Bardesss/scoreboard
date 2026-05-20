@@ -48,7 +48,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXTAUTH_URL` | Full public URL, e.g. `https://dicevault.fun` |
 | `NEXT_PUBLIC_APP_URL` | Same as `NEXTAUTH_URL`, used client-side |
 | `CRON_SECRET` | Random string to authenticate `/api/cron/credit-reset` — `openssl rand -base64 32` |
-| `UPLOADS_DIR` | Absolute path where support ticket attachments are stored. Must point inside a Coolify persistent volume (e.g. `/data/uploads`) — otherwise attachments vanish on every container restart. Defaults to `./uploads` for local dev. |
+| `UPLOADS_DIR` | Absolute path where uploaded files are stored — support ticket attachments and the landing-page hero image/video. Must point inside a Coolify persistent volume (e.g. `/data/uploads`) — otherwise uploads vanish on every container restart. Defaults to `./uploads` for local dev. |
 
 > **Email (Mailgun):** Configured via `/admin/settings/integrations` — no ENV vars needed.
 > `NEXTAUTH_SECRET` rotation invalidates stored integration credentials; re-enter them in the admin UI after rotating.
@@ -101,7 +101,7 @@ UPLOADS_DIR=/data/uploads
 
 ### 5️⃣ Mount a persistent volume for uploads
 
-Support tickets accept image attachments which are written to disk. Without a persistent volume, those files are wiped on every container restart.
+Support ticket attachments and the landing-page hero image/video are written to disk. Without a persistent volume, those files are wiped on every container restart. Both features share this one volume (the app stores them in `tickets/` and `landing/` subfolders).
 
 In the app resource → **Storage** tab → **+ Add**:
 
