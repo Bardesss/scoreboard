@@ -24,7 +24,9 @@ Reuse existing infrastructure:
 
 - **`AdminSettings`** key-value table stores a small JSON descriptor of the current hero media.
 - **Uploads volume** (`src/lib/uploads.ts`) stores the actual file — persistent across Coolify
-  redeploys, unlike `public/`.
+  redeploys, unlike `public/`. This is the *same* `dicevault-uploads` volume already mounted
+  at `/data/uploads` (`UPLOADS_DIR`); hero files live in a `landing/` subfolder alongside the
+  existing `tickets/` subfolder. **No new volume or storage mapping is required.**
 - **A public API route** streams the file to landing-page visitors.
 
 Rejected alternatives:
@@ -108,6 +110,19 @@ JavaScript is needed — `<video autoplay muted loop playsInline>` works as plai
 - The `?v=<uploadedAt>` query busts the browser cache when media changes.
 - The amber glow ring, rounded corners, bottom vignette, and floating decorative dice
   all stay exactly as they are today.
+
+### 6. Documentation — README
+
+No new volume is introduced, but the README currently describes the persistent volume as
+serving only support ticket attachments. Update it so the volume's purpose covers landing
+hero media too:
+
+- `UPLOADS_DIR` env-var row (line ~51): "support ticket attachments **and landing hero
+  media**".
+- Section 5️⃣ "Mount a persistent volume for uploads" (line ~102–104): broaden the
+  intro sentence beyond support tickets to include hero image/video uploads.
+
+No change to the volume name, mount path, or `docker-compose.yml`.
 
 ## Data Flow
 
