@@ -46,3 +46,15 @@ export async function setIntegrationStatus(
     data: { status, lastError: error ?? null, lastTestedAt: new Date() },
   })
 }
+
+/**
+ * True when at least one payment provider (Mollie / Stripe / Strike) is
+ * configured and has passed its connection test (status 'ok'). Mailgun is
+ * excluded — it is an email provider, not a payment provider.
+ */
+export async function hasActivePaymentProvider(): Promise<boolean> {
+  const count = await prisma.integration.count({
+    where: { provider: { in: ['mollie', 'stripe', 'strike'] }, status: 'ok' },
+  })
+  return count > 0
+}

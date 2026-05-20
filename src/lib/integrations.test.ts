@@ -8,6 +8,7 @@ vi.mock('@/lib/prisma', () => ({
       findUnique: vi.fn(),
       upsert: vi.fn(),
       update: vi.fn(),
+      count: vi.fn(),
     },
   },
 }))
@@ -100,5 +101,30 @@ describe('setIntegrationStatus', () => {
         data: expect.objectContaining({ status: 'error', lastError: 'Domain not found' }),
       })
     )
+  })
+})
+
+describe('hasActivePaymentProvider', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns false when no payment provider has status ok', async () => {
+    vi.mocked(prisma.integration.count).mockResolvedValue(0)
+    const { hasActivePaymentProvider } = await import('./integrations')
+    expect(await hasActivePaymentProvider()).toBe(false)
+  })
+
+  it('returns true when at least one payment provider has status ok', async () => {
+    vi.mocked(prisma.integration.count).mockResolvedValue(1)
+    const { hasActivePaymentProvider } = await import('./integrations')
+    expect(await hasActivePaymentProvider()).toBe(true)
+  })
+
+  it('counts only the three payment providers with status ok', async () => {
+    vi.mocked(prisma.integration.count).mockResolvedValue(0)
+    const { hasActivePaymentProvider } = await import('./integrations')
+    await hasActivePaymentProvider()
+    expect(prisma.integration.count).toHaveBeenCalledWith({
+      where: { provider: { in: ['mollie', 'stripe', 'strike'] }, status: 'ok' },
+    })
   })
 })
