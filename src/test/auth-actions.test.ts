@@ -8,6 +8,7 @@ const mockPrismaUser = {
   locale: 'en',
   role: 'user',
   username: null as string | null,
+  displayName: null as string | null,
   connectToken: null as string | null,
   totpEnabled: false,
   totpSecret: null as string | null,
