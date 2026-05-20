@@ -22,6 +22,7 @@ Single source of truth for phase order, plan files, and status.
 | **Plan A** | [plan-a-social-layer.md](2026-05-19-plan-a-social-layer.md) | done | Activity feed, 5-emoji reactions, public profile `/u/[username]`, 3-state privacy, 2 new notification types with batching |
 | **Free Mode 1** | [plan-1-free-mode-banner.md](2026-05-19-plan-1-free-mode-banner.md) | done | Free-mode banner in app + landing, suppresses low-credit warning, 7-day dismissal, admin hint, default seed copy |
 | **Hero Media** | [2026-05-20-landing-hero-media.md](2026-05-20-landing-hero-media.md) | ready to execute | Admin-uploadable landing hero image/short video — uploads volume + AdminSettings + streaming route |
+| **Toast + Billing** | [2026-05-20-toast-and-billing-sections.md](2026-05-20-toast-and-billing-sections.md) | ready to execute | richColors top-center toasts; hide landing billing sections until a payment provider is live |
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **11b** | phase-11b-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 
@@ -41,6 +42,8 @@ Single source of truth for phase order, plan files, and status.
 | Ticket attachments | [specs/2026-05-16-ticket-attachments-design.md](../specs/2026-05-16-ticket-attachments-design.md) | Image attachments on support ticket messages — storage, HEIC conversion, auto-delete on close |
 | User settings page | [specs/2026-05-16-settings-page-design.md](../specs/2026-05-16-settings-page-design.md) | TOTP enable/disable + backup codes, language preference, change password |
 | Landing hero media | [specs/2026-05-20-landing-hero-media-design.md](../specs/2026-05-20-landing-hero-media-design.md) | Admin-uploadable hero image/short video for the landing page |
+| Toast restyle | [specs/2026-05-20-toast-restyle-design.md](../specs/2026-05-20-toast-restyle-design.md) | richColors toasts at top-center; fix invisible background |
+| Hide billing sections | [specs/2026-05-20-hide-billing-sections-design.md](../specs/2026-05-20-hide-billing-sections-design.md) | Hide landing Credit Packs + Payment Options until a payment provider is live |
 
 ## Archived plans
 
