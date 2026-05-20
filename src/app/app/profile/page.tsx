@@ -27,6 +27,8 @@ export default async function ProfilePage({
       select: {
         email: true,
         displayName: true,
+        avatarColor: true,
+        avatarIcon: true,
         username: true,
         createdAt: true,
         publicProfileMode: true,
@@ -46,6 +48,8 @@ export default async function ProfilePage({
     <ProfileClient
       email={user.email}
       displayName={user.displayName}
+      avatarColor={user.avatarColor}
+      avatarIcon={user.avatarIcon}
       username={user.username}
       signupMonth={user.createdAt.toISOString()}
       publicProfileMode={user.publicProfileMode as 'private' | 'stats' | 'full'}
