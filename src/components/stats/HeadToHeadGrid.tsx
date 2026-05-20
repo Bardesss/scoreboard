@@ -25,7 +25,7 @@ export function HeadToHeadGrid({ matrix }: { matrix: HeadToHeadMatrix }) {
               <tr key={row.id}>
                 <th style={{ padding: '4px 6px', textAlign: 'left', fontWeight: 600, color: '#1e1a14' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Avatar seed={row.avatarSeed} name={row.name} size={20} />{row.name}
+                    <Avatar seed={row.avatarSeed} name={row.name} size={20} color={row.color} icon={row.icon} />{row.name}
                   </div>
                 </th>
                 {players.map((col, j) => {
@@ -66,7 +66,7 @@ export function HeadToHeadGrid({ matrix }: { matrix: HeadToHeadMatrix }) {
           return (
             <div key={p.id} style={{ padding: '11px 0', borderBottom: i < n - 1 ? '1px solid #f2ece3' : undefined }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <Avatar seed={p.avatarSeed} name={p.name} size={22} />
+                <Avatar seed={p.avatarSeed} name={p.name} size={22} color={p.color} icon={p.icon} />
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#1e1a14' }}>{p.name}</span>
               </div>
               <div style={{ fontSize: 12, color: '#6b5e4a' }}>

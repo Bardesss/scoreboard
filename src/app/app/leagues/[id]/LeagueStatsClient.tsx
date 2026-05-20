@@ -93,7 +93,7 @@ export function LeagueStatsClient({
                   }
                   return (
                     <div key={s.playerId} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: i < stats.streaks!.length - 1 ? '1px solid #f2ece3' : undefined }}>
-                      <Avatar seed={s.avatarSeed} name={s.name} size={24} />
+                      <Avatar seed={s.avatarSeed} name={s.name} size={24} color={s.color} icon={s.icon} />
                       <span style={{ flex: 1, fontSize: 13, marginLeft: 8 }}>{s.name}</span>
                       <span style={{ fontSize: 12, color: s.currentStreak >= 2 ? '#c27f0a' : '#6b5e4a', marginRight: 10, fontWeight: s.currentStreak >= 2 ? 700 : 400 }}>
                         {i === 0 ? splitWithAnim(currentText, s.currentStreak) : currentText}
@@ -118,7 +118,7 @@ export function LeagueStatsClient({
                     borderBottom: i < stats.recentForm!.length - 1 ? '1px solid #f2ece3' : undefined,
                     ...(r.isCurrentUser ? { background: 'rgba(245,166,35,0.07)', margin: '0 -18px', padding: '8px 18px' } : {}),
                   }}>
-                    <Avatar seed={r.avatarSeed} name={r.name} size={22} />
+                    <Avatar seed={r.avatarSeed} name={r.name} size={22} color={r.color} icon={r.icon} />
                     <span style={{ flex: 1, fontSize: 13, marginLeft: 8, fontWeight: r.isCurrentUser ? 700 : 400 }}>{r.name}</span>
                     <div style={{ display: 'flex', gap: 3 }}>
                       {r.results.length === 0
@@ -181,7 +181,7 @@ export function LeagueStatsClient({
                       ...(p.isCurrentUser ? { background: 'rgba(245,166,35,0.07)', margin: '0 -18px', padding: '8px 18px' } : {}),
                     }}
                   >
-                    <Avatar seed={p.avatarSeed} name={p.name} size={22} />
+                    <Avatar seed={p.avatarSeed} name={p.name} size={22} color={p.color} icon={p.icon} />
                     <span style={{ flex: 1, fontSize: 13, marginLeft: 8, fontWeight: p.isCurrentUser ? 700 : 400, color: '#1e1a14' }}>{p.name}</span>
                     <span style={{ fontSize: 12, color: '#6b5e4a', marginRight: 10 }}>{formatters.totalPointsGames(p.gamesPlayed)}</span>
                     <span style={{ fontSize: 13, fontWeight: 700, color: i === 0 ? '#c27f0a' : '#1e1a14' }}>
@@ -254,7 +254,7 @@ function RankingCard({
           }
           return (
             <RankedListRow key={p.playerId} rank={i + 1} isLast={i === ranking.length - 1} highlighted={p.isCurrentUser}>
-              <Avatar seed={p.avatarSeed} name={p.name} size={24} />
+              <Avatar seed={p.avatarSeed} name={p.name} size={24} color={p.color} icon={p.icon} />
               <span style={{ flex: 1, fontSize: 13, fontWeight: p.isCurrentUser ? 700 : 400, color: '#1e1a14', marginLeft: 8 }}>{p.name}</span>
               <span style={{ fontSize: 12, color: '#6b5e4a', marginRight: 10 }}>
                 {i === 0 ? splitWithAnim(winsText, p.wins) : winsText}

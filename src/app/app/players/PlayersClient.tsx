@@ -10,7 +10,7 @@ import { COLORS } from '../games/new/wizard-types'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 
-type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null; color: string }
+type Player = { id: string; name: string; avatarSeed: string; linkedUserId: string | null; color: string; icon: string | null }
 type VaultKeeper = { id: string; email: string | null; username: string | null }
 type Request = { id: string; fromEmail: string; fromUsername: string | null }
 type SentRequest = { id: string; toEmail: string; toUsername: string | null }
@@ -272,7 +272,7 @@ export default function PlayersClient({
             <li key={player.id} className="rounded-2xl overflow-hidden" style={{ background: '#fefcf8', border: `1px solid ${isMe ? 'rgba(245,166,35,0.35)' : '#e8e1d8'}` }}>
               <div className="flex items-center gap-3 p-3">
                 <div className="relative flex-shrink-0">
-                  <Avatar seed={player.avatarSeed} name={player.name} size={40} />
+                  <Avatar seed={player.avatarSeed} name={player.name} size={40} color={player.color} icon={player.icon} />
                   <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white" style={{ background: player.color }} />
                 </div>
                 {editId === player.id ? (

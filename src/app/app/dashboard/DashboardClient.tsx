@@ -46,7 +46,7 @@ function RankingPanel({
       <div style={{ padding: '0 18px' }}>
         {ranking.map((p, i) => (
           <RankedListRow key={p.name} rank={i + 1} isLast={i === ranking.length - 1} highlighted={p.isCurrentUser}>
-            <Avatar seed={p.avatarSeed} name={p.name} size={24} />
+            <Avatar seed={p.avatarSeed} name={p.name} size={24} color={p.color} icon={p.icon} />
             <span style={{ flex: 1, fontSize: 13, fontWeight: p.isCurrentUser ? 700 : 400, color: '#1e1a14', marginLeft: 8 }}>
               {p.name}
             </span>
@@ -213,7 +213,7 @@ function RecentFormPanel({
               ...(r.isCurrentUser ? { background: 'rgba(245,166,35,0.07)', margin: '0 -18px', padding: '8px 18px' } : {}),
             }}
           >
-            <Avatar seed={r.avatarSeed} name={r.name} size={22} />
+            <Avatar seed={r.avatarSeed} name={r.name} size={22} color={r.color} icon={r.icon} />
             <span style={{ flex: 1, fontSize: 13, marginLeft: 8, fontWeight: r.isCurrentUser ? 700 : 400, color: '#1e1a14' }}>{r.name}</span>
             <div style={{ display: 'flex', gap: 3 }}>
               {r.results.length === 0 ? (

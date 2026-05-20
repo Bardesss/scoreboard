@@ -8,7 +8,7 @@ export async function GET() {
 
   const players = await prisma.player.findMany({
     where: { userId: session.user.id },
-    select: { id: true, name: true, avatarSeed: true },
+    select: { id: true, name: true, avatarSeed: true, color: true, icon: true },
     orderBy: { createdAt: 'asc' },
   })
 
