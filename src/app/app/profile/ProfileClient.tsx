@@ -12,8 +12,6 @@ import { resolveDisplayName } from '@/lib/displayName'
 type Props = {
   email: string
   displayName: string | null
-  avatarColor: string | null
-  avatarIcon: string | null
   username: string | null
   signupMonth: string
   publicProfileMode: 'private' | 'stats' | 'full'
@@ -63,16 +61,12 @@ export function ProfileClient(props: Props) {
         <div className="flex items-center gap-3">
           <div
             style={{
-              width: 44, height: 44, borderRadius: '50%',
-              background: props.avatarIcon ? (props.avatarColor ?? '#f5a623') : '#f5a623',
-              color: '#fefcf8',
+              width: 44, height: 44, borderRadius: '50%', background: '#f5a623', color: '#fefcf8',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-headline)', fontWeight: 900, fontSize: 18,
             }}
           >
-            {props.avatarIcon
-              ? <span style={{ fontSize: 22, lineHeight: 1 }}>{props.avatarIcon}</span>
-              : displayName.charAt(0).toUpperCase()}
+            {displayName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <p style={{ fontFamily: 'var(--font-headline)', fontWeight: 900, fontSize: 18, color: '#1e1a14' }}>

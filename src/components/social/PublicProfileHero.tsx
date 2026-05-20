@@ -1,15 +1,15 @@
 type Props = {
   username: string
   displayName: string | null
-  avatarColor: string | null
-  avatarIcon: string | null
   avatarSeed: string
+  avatarIcon: string | null
+  avatarColor: string | null
   gamesCount: number
   winsCount: number
   winRate: number  // 0..1
 }
 
-export function PublicProfileHero({ username, displayName, avatarColor, avatarIcon, avatarSeed: _avatarSeed, gamesCount, winsCount, winRate }: Props) {
+export function PublicProfileHero({ username, displayName, avatarSeed: _avatarSeed, avatarIcon, avatarColor, gamesCount, winsCount, winRate }: Props) {
   const name = displayName || username
   return (
     <div
@@ -25,15 +25,12 @@ export function PublicProfileHero({ username, displayName, avatarColor, avatarIc
         <div
           style={{
             width: 72, height: 72, borderRadius: '50%',
-            background: avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623',
-            border: '3px solid #f5a623',
+            background: avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623', border: `3px solid ${avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623'}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontFamily: 'var(--font-headline)', fontWeight: 900, fontSize: 28, color: '#fefcf8',
           }}
         >
-          {avatarIcon
-            ? <span style={{ fontSize: 34, lineHeight: 1 }}>{avatarIcon}</span>
-            : name.charAt(0).toUpperCase()}
+          {name.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
           <h1
