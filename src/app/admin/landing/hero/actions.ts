@@ -55,6 +55,9 @@ export async function uploadHeroMedia(formData: FormData): Promise<HeroMediaResu
       await deleteUploadFile(previous.storageKey)
     }
 
+    // Only the admin page needs revalidation. The marketing landing page calls
+    // auth() and is dynamically rendered, so it re-reads getHeroMedia() per
+    // request and reflects the new media immediately without revalidation.
     revalidatePath('/admin/landing/hero')
     return { ok: true }
   } catch (e) {
