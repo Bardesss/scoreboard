@@ -21,8 +21,8 @@ Single source of truth for phase order, plan files, and status.
 | **10** | [stats-panels-expansion.md](2026-04-23-stats-panels-expansion.md) | done | League stats + dashboard expansion + shared primitives + date filter + skeletons + charts + i18n sweep |
 | **Plan A** | [plan-a-social-layer.md](2026-05-19-plan-a-social-layer.md) | done | Activity feed, 5-emoji reactions, public profile `/u/[username]`, 3-state privacy, 2 new notification types with batching |
 | **Free Mode 1** | [plan-1-free-mode-banner.md](2026-05-19-plan-1-free-mode-banner.md) | done | Free-mode banner in app + landing, suppresses low-credit warning, 7-day dismissal, admin hint, default seed copy |
-| **Hero Media** | [2026-05-20-landing-hero-media.md](2026-05-20-landing-hero-media.md) | ready to execute | Admin-uploadable landing hero image/short video — uploads volume + AdminSettings + streaming route |
-| **Toast + Billing** | [2026-05-20-toast-and-billing-sections.md](2026-05-20-toast-and-billing-sections.md) | ready to execute | richColors top-center toasts; hide landing billing sections until a payment provider is live |
+| **Hero Media** | [2026-05-20-landing-hero-media.md](2026-05-20-landing-hero-media.md) | done | Admin-uploadable landing hero image/short video — uploads volume + AdminSettings + streaming route |
+| **Toast + Billing** | [2026-05-20-toast-and-billing-sections.md](2026-05-20-toast-and-billing-sections.md) | done | richColors top-center toasts; hide landing billing sections until a payment provider is live |
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT |
 | **11b** | phase-11b-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 
