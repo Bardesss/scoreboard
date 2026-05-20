@@ -259,3 +259,31 @@ export async function updatePrivacySettings(input: {
   revalidatePath('/app/settings')
   revalidatePath('/app/profile')
 }
+
+export async function updateDisplayName(formData: FormData): Promise<Result> {
+  const session = await auth()
+  if (!session) return { success: false, error: 'unauthorized' }
+
+  const raw = formData.get('displayName')
+  const displayName = typeof raw === 'string' ? raw.trim() : ''
+  if (displayName.length < 1 || displayName.length > 40) {
+    return { success: false, error: 'display_name_invalid' }
+  }
+
+  // displayName is the source of truth; the linked me-player's name follows it
+  // (one-way). avatarSeed is intentionally left untouched — a name edit should
+  // not reroll the avatar. updateMany is a no-op when the user has no me-player.
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { displayName },
+  })
+  await prisma.player.updateMany({
+    where: { linkedUserId: session.user.id },
+    data: { name: displayName },
+  })
+
+  revalidatePath('/app/settings')
+  revalidatePath('/app/profile')
+  revalidatePath('/app/dashboard')
+  return { success: true }
+}
