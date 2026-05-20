@@ -151,6 +151,7 @@ export function HeroMediaClient({ media }: { media: HeroMediaDescriptor | null }
 
       {error && (
         <div
+          role="alert"
           style={{
             fontSize: 13,
             color: '#ff6b6b',
