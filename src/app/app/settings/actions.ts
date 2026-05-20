@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { generateTOTPSecret, verifyTOTPCode, generateBackupCodes } from '@/lib/totp'
 import { EMAIL_PREFERENCE_KEYS, type EmailPreferences } from '@/lib/emailPreferences'
+import { AVATAR_COLORS, AVATAR_ICONS } from '@/lib/avatarOptions'
 import bcrypt from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -280,6 +281,52 @@ export async function updateDisplayName(formData: FormData): Promise<Result> {
   await prisma.player.updateMany({
     where: { linkedUserId: session.user.id },
     data: { name: displayName },
+  })
+
+  revalidatePath('/app/settings')
+  revalidatePath('/app/profile')
+  revalidatePath('/app/dashboard')
+  return { success: true }
+}
+
+export async function updateAvatar(color: string, icon: string): Promise<Result> {
+  const session = await auth()
+  if (!session) return { success: false, error: 'unauthorized' }
+
+  if (!AVATAR_COLORS.includes(color) || !AVATAR_ICONS.includes(icon)) {
+    return { success: false, error: 'invalid' }
+  }
+
+  // User fields are the source of truth; the linked me-player follows them
+  // one-way. updateMany is a no-op when the user has no me-player.
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { avatarColor: color, avatarIcon: icon },
+  })
+  await prisma.player.updateMany({
+    where: { linkedUserId: session.user.id },
+    data: { color, icon },
+  })
+
+  revalidatePath('/app/settings')
+  revalidatePath('/app/profile')
+  revalidatePath('/app/dashboard')
+  return { success: true }
+}
+
+export async function removeAvatar(): Promise<Result> {
+  const session = await auth()
+  if (!session) return { success: false, error: 'unauthorized' }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { avatarColor: null, avatarIcon: null },
+  })
+  // Clear only the me-player's icon — Player.color is non-null; Avatar ignores
+  // it once icon is null, so leaving it is harmless.
+  await prisma.player.updateMany({
+    where: { linkedUserId: session.user.id },
+    data: { icon: null },
   })
 
   revalidatePath('/app/settings')
