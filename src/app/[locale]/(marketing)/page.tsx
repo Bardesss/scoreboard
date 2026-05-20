@@ -1,11 +1,12 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { loadFreeModeState } from '@/lib/freeMode'
 import { FreeModeRibbon } from './_components/FreeModeRibbon'
+import { HeroMedia } from './_components/HeroMedia'
+import { getHeroMedia } from '@/lib/heroMedia'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
@@ -83,6 +84,7 @@ export default async function LandingPage({ params }: Props) {
   const t = await getTranslations('landing')
 
   const freeMode = await loadFreeModeState()
+  const heroMedia = await getHeroMedia()
   const tFreeMode = await getTranslations({ locale, namespace: 'landing.freeMode' })
   const ribbonText = (locale === 'nl' ? freeMode.bannerNl : freeMode.bannerEn).trim()
   const ribbonDisplayText = ribbonText.length > 0 ? ribbonText : tFreeMode('ribbonDefaultText')
@@ -204,15 +206,7 @@ export default async function LandingPage({ params }: Props) {
             {/* Outer amber glow ring */}
             <div style={{ position: 'absolute', inset: -2, borderRadius: 28, background: 'linear-gradient(135deg, rgba(245,166,35,0.45) 0%, rgba(245,166,35,0.08) 60%, transparent 100%)', zIndex: 0 }} />
             <div className="relative overflow-hidden" style={{ borderRadius: 24, zIndex: 1 }}>
-              <Image
-                src="/hero-game-night.jpg"
-                alt="Friends rolling dice at game night"
-                width={420}
-                height={300}
-                className="block w-full h-auto"
-                style={{ objectFit: 'cover', display: 'block' }}
-                priority
-              />
+              <HeroMedia media={heroMedia} />
               {/* Subtle inner vignette to blend bottom into page */}
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '35%', background: 'linear-gradient(to top, rgba(11,13,18,0.7) 0%, transparent 100%)', pointerEvents: 'none' }} />
             </div>
