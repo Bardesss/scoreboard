@@ -24,6 +24,7 @@ Single source of truth for phase order, plan files, and status.
 | **Hero Media** | [2026-05-20-landing-hero-media.md](2026-05-20-landing-hero-media.md) | done | Admin-uploadable landing hero image/short video — uploads volume + AdminSettings + streaming route |
 | **Toast + Billing** | [2026-05-20-toast-and-billing-sections.md](2026-05-20-toast-and-billing-sections.md) | done | richColors top-center toasts; hide landing billing sections until a payment provider is live |
 | **Free Mode 2** | [2026-05-20-cost-recommendation-engine.md](2026-05-20-cost-recommendation-engine.md) | done | Cost recommendation engine — `/admin/settings/recommendations`, 4 scenario cards, one-click allowance apply |
+| **Display Name** | [2026-05-20-account-display-name.md](2026-05-20-account-display-name.md) | ready to execute | Account-level `User.displayName` used site-wide; one-way synced to the linked me-player |
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT. **Also include:** a "pack calibration" view that shows credit-pack sizes in months-of-usage terms (reusing `costAnalytics`); the € price itself stays a manual admin decision in `PricingRegion.packs`. |
 | **11b** | phase-11b-family-credits.md | not written (parked) | Family / shared credits — Plan B of [specs/2026-05-17-social-feed-reactions-referral-design.md](../specs/2026-05-17-social-feed-reactions-referral-design.md) §6. `Family` + `FamilyMember` schema, parent/child roles, shared pool, `/app/family` dashboard. Sequenced after 11a — its value is household monetization, which needs the 11a checkout flow. |
 | **11c** | phase-11c-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
@@ -47,6 +48,7 @@ Single source of truth for phase order, plan files, and status.
 | Toast restyle | [specs/2026-05-20-toast-restyle-design.md](../specs/2026-05-20-toast-restyle-design.md) | richColors toasts at top-center; fix invisible background |
 | Hide billing sections | [specs/2026-05-20-hide-billing-sections-design.md](../specs/2026-05-20-hide-billing-sections-design.md) | Hide landing Credit Packs + Payment Options until a payment provider is live |
 | Social feed, profile, family | [specs/2026-05-17-social-feed-reactions-referral-design.md](../specs/2026-05-17-social-feed-reactions-referral-design.md) | Plan A (feed/reactions/public profile — shipped) + Plan B (family / shared credits — §6, parked as phase 11b) |
+| Account display name | [specs/2026-05-20-account-display-name-design.md](../specs/2026-05-20-account-display-name-design.md) | `User.displayName` field, one-way sync to me-player, site-wide use |
 
 ## Archived plans
 
