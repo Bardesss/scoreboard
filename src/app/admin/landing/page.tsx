@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MessageSquareQuote, FileText } from 'lucide-react'
+import { MessageSquareQuote, FileText, Image } from 'lucide-react'
 
 const cardStyle: React.CSSProperties = {
   background: '#161f28',
@@ -51,6 +51,45 @@ export default function AdminLandingPage() {
             </div>
             <Link
               href="/admin/landing/reviews"
+              style={{
+                flexShrink: 0,
+                background: '#005bc0',
+                color: '#fff',
+                borderRadius: 10,
+                padding: '8px 18px',
+                fontSize: 13.5,
+                fontWeight: 600,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Beheren
+            </Link>
+          </div>
+        </div>
+
+        {/* Hero media card */}
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                background: 'rgba(245,166,35,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Image size={20} style={{ color: '#f5a623' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.87)', marginBottom: 4 }}>
+                  Hero afbeelding / video
+                </div>
+                <p style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.45)', margin: 0 }}>
+                  Upload een eigen afbeelding of korte video voor de hero op de landingspagina.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/admin/landing/hero"
               style={{
                 flexShrink: 0,
                 background: '#005bc0',
