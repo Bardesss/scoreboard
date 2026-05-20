@@ -334,7 +334,9 @@ export default function PlayersClient({
                         </button>
                       )}
                     </div>
-                    <button onClick={() => { setEditId(player.id); setEditName(player.name); setEditColor(player.color) }} className="p-1.5 rounded-lg hover:bg-amber-50" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
+                    {player.linkedUserId === null && (
+                      <button onClick={() => { setEditId(player.id); setEditName(player.name); setEditColor(player.color) }} className="p-1.5 rounded-lg hover:bg-amber-50" style={{ color: '#9a8878' }}><Pencil size={14} /></button>
+                    )}
                     {!isMe && (
                       <button onClick={() => setDeleteId(player.id)} className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#9a8878' }}><Trash2 size={14} /></button>
                     )}
