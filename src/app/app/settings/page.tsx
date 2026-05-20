@@ -14,6 +14,7 @@ export default async function SettingsPage() {
     select: {
       email: true,
       username: true,
+      displayName: true,
       locale: true,
       totpEnabled: true,
       requiresMfa: true,
@@ -38,6 +39,7 @@ export default async function SettingsPage() {
       <SettingsClient
         email={user.email}
         username={user.username}
+        displayName={user.displayName}
         createdAt={user.createdAt.toISOString()}
         locale={user.locale}
         totpEnabled={user.totpEnabled}
