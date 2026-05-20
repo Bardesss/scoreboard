@@ -26,7 +26,7 @@ export function PublicProfileHero({ username, displayName, avatarColor, avatarIc
           style={{
             width: 72, height: 72, borderRadius: '50%',
             background: avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623',
-            border: '3px solid #f5a623',
+            border: `3px solid ${avatarIcon ? (avatarColor ?? '#f5a623') : '#f5a623'}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontFamily: 'var(--font-headline)', fontWeight: 900, fontSize: 28, color: '#fefcf8',
           }}
