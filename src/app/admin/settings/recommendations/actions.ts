@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { loadCostAnalytics } from '@/lib/admin/costAnalytics'
-import { recommendForScenario, type Scenario } from '@/lib/admin/costRecommendations'
+import { recommendForScenario, RECOMMENDATION_WINDOWS, type Scenario } from '@/lib/admin/costRecommendations'
 
 export type ApplyScenarioResult =
   | { ok: true; newValue: number }
@@ -13,7 +13,6 @@ export type ApplyScenarioResult =
 
 const MONTHLY_CREDITS_KEY = 'monthly_free_credits'
 const MONTHLY_CREDITS_DEFAULT = 75
-const ALLOWED_WINDOWS = [30, 60, 90]
 
 async function isAdmin(): Promise<boolean> {
   const session = await auth()
@@ -42,7 +41,7 @@ export async function applyScenario(
       return { ok: true, newValue: current }
     }
 
-    const window = ALLOWED_WINDOWS.includes(windowDays) ? windowDays : 30
+    const window = RECOMMENDATION_WINDOWS.includes(windowDays) ? windowDays : 30
     const analytics = await loadCostAnalytics(window)
     const { monthlyFreeCredits } = recommendForScenario(scenario, analytics, current)
 

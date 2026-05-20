@@ -1,5 +1,8 @@
 import { type CostAnalytics, percentile } from './costAnalytics'
 
+/** Valid rolling-window sizes (in days) for cost recommendations. */
+export const RECOMMENDATION_WINDOWS: number[] = [30, 60, 90]
+
 export type Scenario = 'conservative' | 'balanced' | 'aggressive' | 'status_quo'
 
 export type ScenarioRecommendation = {
