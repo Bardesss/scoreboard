@@ -77,6 +77,11 @@ describe('uploadHeroMedia', () => {
     await uploadHeroMedia(formWith(jpegFile()))
     expect(deleteUploadFile).toHaveBeenCalledWith('landing/old.png')
   })
+
+  it('returns ok:false with error unknown when saveLandingMedia throws', async () => {
+    vi.mocked(saveLandingMedia).mockRejectedValue(new Error('disk full'))
+    expect(await uploadHeroMedia(formWith(jpegFile()))).toEqual({ ok: false, error: 'unknown' })
+  })
 })
 
 describe('removeHeroMedia', () => {

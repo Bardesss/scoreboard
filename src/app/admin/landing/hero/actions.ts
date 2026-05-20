@@ -35,38 +35,48 @@ export async function uploadHeroMedia(formData: FormData): Promise<HeroMediaResu
   const limit = detected.kind === 'image' ? LANDING_IMAGE_MAX_BYTES : LANDING_VIDEO_MAX_BYTES
   if (buffer.length > limit) return { ok: false, error: 'too_large' }
 
-  const previous = await getHeroMedia()
-  const storageKey = await saveLandingMedia(randomUUID(), detected.ext, buffer)
+  try {
+    const previous = await getHeroMedia()
+    const storageKey = await saveLandingMedia(randomUUID(), detected.ext, buffer)
 
-  const value = {
-    kind: detected.kind,
-    storageKey,
-    mimeType: detected.mimeType,
-    uploadedAt: new Date().toISOString(),
+    const value = {
+      kind: detected.kind,
+      storageKey,
+      mimeType: detected.mimeType,
+      uploadedAt: new Date().toISOString(),
+    }
+    await prisma.adminSettings.upsert({
+      where: { key: HERO_MEDIA_SETTINGS_KEY },
+      update: { value: value as Prisma.InputJsonValue },
+      create: { key: HERO_MEDIA_SETTINGS_KEY, value: value as Prisma.InputJsonValue },
+    })
+
+    if (previous && previous.storageKey !== storageKey) {
+      await deleteUploadFile(previous.storageKey)
+    }
+
+    revalidatePath('/admin/landing/hero')
+    return { ok: true }
+  } catch (e) {
+    console.error('[heroMedia] uploadHeroMedia failed', e)
+    return { ok: false, error: 'unknown' }
   }
-  await prisma.adminSettings.upsert({
-    where: { key: HERO_MEDIA_SETTINGS_KEY },
-    update: { value: value as Prisma.InputJsonValue },
-    create: { key: HERO_MEDIA_SETTINGS_KEY, value: value as Prisma.InputJsonValue },
-  })
-
-  if (previous && previous.storageKey !== storageKey) {
-    await deleteUploadFile(previous.storageKey)
-  }
-
-  revalidatePath('/admin/landing/hero')
-  return { ok: true }
 }
 
 export async function removeHeroMedia(): Promise<HeroMediaResult> {
   if (!(await isAdmin())) return { ok: false, error: 'unauthorized' }
 
-  const current = await getHeroMedia()
-  if (current) {
-    await deleteUploadFile(current.storageKey)
-    await prisma.adminSettings.delete({ where: { key: HERO_MEDIA_SETTINGS_KEY } })
-  }
+  try {
+    const current = await getHeroMedia()
+    if (current) {
+      await deleteUploadFile(current.storageKey)
+      await prisma.adminSettings.delete({ where: { key: HERO_MEDIA_SETTINGS_KEY } })
+    }
 
-  revalidatePath('/admin/landing/hero')
-  return { ok: true }
+    revalidatePath('/admin/landing/hero')
+    return { ok: true }
+  } catch (e) {
+    console.error('[heroMedia] removeHeroMedia failed', e)
+    return { ok: false, error: 'unknown' }
+  }
 }
