@@ -95,10 +95,12 @@ New page, dark admin theme, Dutch copy (matches the rest of the admin panel).
 
 ### 5. Marketing page — `HeroMedia` component
 
-New client/server component rendered inside the existing framed hero box in
-`src/app/[locale]/(marketing)/page.tsx` (right column, lines ~203–218).
+New server component rendered inside the existing framed hero box in
+`src/app/[locale]/(marketing)/page.tsx` (right column, lines ~203–218). No client
+JavaScript is needed — `<video autoplay muted loop playsInline>` works as plain HTML.
 
-- Reads the `landing.heroMedia` setting on the server and passes the descriptor down.
+- The page reads the `landing.heroMedia` setting on the server and passes the
+  descriptor into the component as a prop.
 - Fixed aspect-ratio box with `object-fit: cover` so any uploaded dimensions look right.
 - `kind === 'image'` → `<img src="/api/landing/hero-media?v=<uploadedAt>" ...>`.
 - `kind === 'video'` → `<video autoplay muted loop playsInline src="/api/landing/hero-media?v=<uploadedAt>">`.
