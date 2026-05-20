@@ -22,6 +22,8 @@ export default async function PublicProfilePage({ params }: Props) {
     select: {
       id: true,
       displayName: true,
+      avatarColor: true,
+      avatarIcon: true,
       username: true,
       publicProfileMode: true,
       allowAppearInOthers: true,
@@ -72,6 +74,8 @@ export default async function PublicProfilePage({ params }: Props) {
       <PublicProfileHero
         username={profile.username}
         displayName={profile.displayName}
+        avatarColor={profile.avatarColor}
+        avatarIcon={profile.avatarIcon}
         avatarSeed={profile.username}
         gamesCount={gamesCount}
         winsCount={winsCount}
