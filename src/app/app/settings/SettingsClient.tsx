@@ -10,12 +10,15 @@ import { EmailPreferencesSection } from './sections/EmailPreferencesSection'
 import { PrivacySection } from './sections/PrivacySection'
 import { UsernameSection } from './sections/UsernameSection'
 import { DisplayNameSection } from './sections/DisplayNameSection'
+import { AvatarSection } from './sections/AvatarSection'
 import type { EmailPreferences } from '@/lib/emailPreferences'
 
 export function SettingsClient({
   email,
   username,
   displayName,
+  avatarColor,
+  avatarIcon,
   createdAt,
   locale,
   totpEnabled,
@@ -28,6 +31,8 @@ export function SettingsClient({
   email: string
   username: string | null
   displayName: string | null
+  avatarColor: string | null
+  avatarIcon: string | null
   createdAt: string
   locale: string
   totpEnabled: boolean
@@ -40,6 +45,7 @@ export function SettingsClient({
   return (
     <SessionProvider>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <AvatarSection initialColor={avatarColor} initialIcon={avatarIcon} />
         <DisplayNameSection initial={displayName} />
         <UsernameSection initial={username} />
         <PrivacySection initial={{ publicProfileMode, allowAppearInOthers }} />

@@ -510,7 +510,15 @@
     "share": "Deel uitnodigingslink",
     "shareTitle": "Verbind met mij op Dice Vault",
     "shareText": "Voeg me toe als kluis-beheerder op Dice Vault:",
-    "linkCopied": "Link gekopieerd naar klembord"
+    "linkCopied": "Link gekopieerd naar klembord",
+    "avatar": "Avatar",
+    "avatarHint": "Kies een kleur en een pictogram. Wordt overal in Dice Vault getoond waar jij verschijnt.",
+    "avatarColorLabel": "Kleur",
+    "avatarIconLabel": "Pictogram",
+    "avatarRemove": "Eigen avatar verwijderen",
+    "avatarSaved": "Avatar opgeslagen",
+    "avatarRemoved": "Avatar verwijderd",
+    "avatarError": "Er ging iets mis. Probeer het opnieuw."
   },
   "connections": {
     "title": "Verbindingen",

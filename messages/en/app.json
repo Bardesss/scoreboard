@@ -510,7 +510,15 @@
     "share": "Share invite link",
     "shareTitle": "Connect with me on Dice Vault",
     "shareText": "Add me as a vault keeper on Dice Vault:",
-    "linkCopied": "Link copied to clipboard"
+    "linkCopied": "Link copied to clipboard",
+    "avatar": "Avatar",
+    "avatarHint": "Pick a colour and a pictogram. Shown across Dice Vault wherever you appear.",
+    "avatarColorLabel": "Colour",
+    "avatarIconLabel": "Pictogram",
+    "avatarRemove": "Remove custom avatar",
+    "avatarSaved": "Avatar saved",
+    "avatarRemoved": "Avatar removed",
+    "avatarError": "Something went wrong. Please try again."
   },
   "connections": {
     "title": "Connections",

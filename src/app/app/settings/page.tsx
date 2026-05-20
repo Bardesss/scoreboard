@@ -15,6 +15,8 @@ export default async function SettingsPage() {
       email: true,
       username: true,
       displayName: true,
+      avatarColor: true,
+      avatarIcon: true,
       locale: true,
       totpEnabled: true,
       requiresMfa: true,
@@ -40,6 +42,8 @@ export default async function SettingsPage() {
         email={user.email}
         username={user.username}
         displayName={user.displayName}
+        avatarColor={user.avatarColor}
+        avatarIcon={user.avatarIcon}
         createdAt={user.createdAt.toISOString()}
         locale={user.locale}
         totpEnabled={user.totpEnabled}
