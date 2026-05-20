@@ -14,6 +14,8 @@ export type RankingEntry = {
   playerId: string
   name: string
   avatarSeed: string
+  color?: string
+  icon?: string | null
   wins: number
   gamesPlayed: number
   winRatio: number
@@ -52,7 +54,7 @@ export type FrequencyBucket = {
 }
 
 export type HeadToHeadMatrix = {
-  players: { id: string; name: string; avatarSeed: string }[]
+  players: { id: string; name: string; avatarSeed: string; color?: string; icon?: string | null }[]
   cells: number[][]   // cells[i][j] = games where players[i] finished above players[j]
 }
 
@@ -60,6 +62,8 @@ export type StreakEntry = {
   playerId: string
   name: string
   avatarSeed: string
+  color?: string
+  icon?: string | null
   currentStreak: number
   longestStreak: number
 }
@@ -68,6 +72,8 @@ export type RecentFormRow = {
   playerId: string
   name: string
   avatarSeed: string
+  color?: string
+  icon?: string | null
   isCurrentUser: boolean
   results: ('W' | 'L')[]  // newest first, max 5
 }
@@ -82,6 +88,8 @@ export type TotalPointsEntry = {
   playerId: string
   name: string
   avatarSeed: string
+  color?: string
+  icon?: string | null
   totalPoints: number
   gamesPlayed: number
   isCurrentUser: boolean
@@ -135,6 +143,8 @@ export type AggregatorGame = {
       id: string
       name: string
       avatarSeed: string
+      color?: string
+      icon?: string | null
       // linkedUserId — the User this Player is linked to (the "me" player).
       // NOT vault-ownership `userId`. Used to flag isCurrentUser in stats.
       linkedUserId: string | null
@@ -146,6 +156,8 @@ export type AggregatorMember = {
   playerId: string
   name: string
   avatarSeed: string
+  color?: string
+  icon?: string | null
   // linkedUserId — the User this Player is linked to (the "me" player).
   linkedUserId: string | null
 }

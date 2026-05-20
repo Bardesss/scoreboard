@@ -42,7 +42,7 @@ async function fetchGames(scope: StatsScope, filter: DateFilter): Promise<Aggreg
           playerId: true,
           score: true,
           isWinner: true,
-          player: { select: { id: true, name: true, avatarSeed: true, linkedUserId: true } },
+          player: { select: { id: true, name: true, avatarSeed: true, linkedUserId: true, color: true, icon: true } },
         },
         orderBy: { score: 'desc' },
       },
@@ -70,6 +70,8 @@ async function fetchGames(scope: StatsScope, filter: DateFilter): Promise<Aggreg
         name: s.player.name,
         avatarSeed: s.player.avatarSeed,
         linkedUserId: s.player.linkedUserId,
+        color: s.player.color,
+        icon: s.player.icon,
       },
     })),
   }))
@@ -96,7 +98,7 @@ export async function loadStats(
       include: { _count: { select: { members: true } } },
       orderBy: { createdAt: 'asc' },
     })
-    const memberMap = new Map<string, { playerId: string; name: string; avatarSeed: string; linkedUserId: string | null }>()
+    const memberMap = new Map<string, { playerId: string; name: string; avatarSeed: string; linkedUserId: string | null; color?: string; icon?: string | null }>()
     for (const g of games) {
       for (const s of g.scores) {
         if (!memberMap.has(s.player.id)) {
@@ -105,6 +107,8 @@ export async function loadStats(
             name: s.player.name,
             avatarSeed: s.player.avatarSeed,
             linkedUserId: s.player.linkedUserId,
+            color: s.player.color,
+            icon: s.player.icon,
           })
         }
       }
@@ -125,7 +129,7 @@ export async function loadStats(
     const [members, leagueMeta] = await Promise.all([
       prisma.leagueMember.findMany({
         where: { leagueId: scope.leagueId },
-        include: { player: { select: { id: true, name: true, avatarSeed: true, linkedUserId: true } } },
+        include: { player: { select: { id: true, name: true, avatarSeed: true, linkedUserId: true, color: true, icon: true } } },
       }),
       prisma.league.findUnique({
         where: { id: scope.leagueId },
@@ -137,6 +141,8 @@ export async function loadStats(
       name: m.player.name,
       avatarSeed: m.player.avatarSeed,
       linkedUserId: m.player.linkedUserId,
+      color: m.player.color,
+      icon: m.player.icon,
     }))
     const hideHeadToHead = members.length > 8
     // Summing scores is only meaningful when every participant records a

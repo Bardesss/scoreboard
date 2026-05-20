@@ -1,7 +1,7 @@
 import type { AggregatorGame, AggregatorMember, HeadToHeadMatrix } from './types'
 
 export function computeHeadToHead(games: AggregatorGame[], members: AggregatorMember[]): HeadToHeadMatrix {
-  const players = members.map(m => ({ id: m.playerId, name: m.name, avatarSeed: m.avatarSeed }))
+  const players = members.map(m => ({ id: m.playerId, name: m.name, avatarSeed: m.avatarSeed, color: m.color, icon: m.icon }))
   const idx: Record<string, number> = {}
   players.forEach((p, i) => { idx[p.id] = i })
   const n = players.length

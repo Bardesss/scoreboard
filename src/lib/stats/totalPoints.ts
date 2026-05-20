@@ -12,6 +12,8 @@ export function computeTotalPoints(
   const byPlayer = new Map<string, {
     name: string
     avatarSeed: string
+    color?: string
+    icon?: string | null
     linkedUserId: string | null
     total: number
     played: number
@@ -27,6 +29,8 @@ export function computeTotalPoints(
         byPlayer.set(s.playerId, {
           name: s.player.name,
           avatarSeed: s.player.avatarSeed,
+          color: s.player.color,
+          icon: s.player.icon,
           linkedUserId: s.player.linkedUserId,
           total: s.score,
           played: 1,
@@ -40,6 +44,8 @@ export function computeTotalPoints(
       playerId,
       name: p.name,
       avatarSeed: p.avatarSeed,
+      color: p.color,
+      icon: p.icon,
       totalPoints: p.total,
       gamesPlayed: p.played,
       isCurrentUser: viewerId != null && p.linkedUserId === viewerId,

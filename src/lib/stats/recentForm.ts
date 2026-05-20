@@ -20,6 +20,8 @@ export function computeRecentForm(
       playerId: m.playerId,
       name: m.name,
       avatarSeed: m.avatarSeed,
+      color: m.color,
+      icon: m.icon,
       // linkedUserId is the "me" Player → User link (NOT vault `userId`).
       isCurrentUser: viewerId != null && m.linkedUserId === viewerId,
       results,
