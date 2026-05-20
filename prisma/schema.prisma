@@ -16,6 +16,8 @@ model User {
   role             String    @default("user")
   username         String?   @unique
   displayName      String?
+  avatarColor      String?
+  avatarIcon       String?
   connectToken     String?   @unique
 
   totpSecret       String?
@@ -65,6 +67,7 @@ model Player {
   name          String
   avatarSeed    String
   color         String         @default("#f5a623")
+  icon          String?
   linkedUserId  String?
   linkedUser    User?          @relation("LinkedPlayer", fields: [linkedUserId], references: [id], onDelete: SetNull)
   scores        ScoreEntry[]

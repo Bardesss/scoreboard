@@ -9,6 +9,8 @@ const mockPrismaUser = {
   role: 'user',
   username: null as string | null,
   displayName: null as string | null,
+  avatarColor: null as string | null,
+  avatarIcon: null as string | null,
   connectToken: null as string | null,
   totpEnabled: false,
   totpSecret: null as string | null,
