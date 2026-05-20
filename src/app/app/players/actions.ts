@@ -51,6 +51,13 @@ export async function updatePlayer(
   const player = await prisma.player.findUnique({ where: { id } })
   if (!player || player.userId !== session.user.id) return { success: false, error: 'notFound' }
 
+  // A player linked to a real account has its name governed by that account's
+  // display name (account settings → updateDisplayName). Block name changes
+  // here; color/avatar edits stay allowed.
+  if (player.linkedUserId && name !== player.name) {
+    return { success: false, error: 'linked_player_name' }
+  }
+
   await prisma.player.update({
     where: { id },
     data: { name, avatarSeed: makeAvatarSeed(name), color },

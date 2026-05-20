@@ -105,3 +105,49 @@ describe('deletePlayer', () => {
     expect(result).toEqual({ success: false, error: 'notFound' })
   })
 })
+
+describe('updatePlayer — linked-player name guard', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  function nameForm(name: string): FormData {
+    const fd = new FormData()
+    fd.set('name', name)
+    fd.set('color', '#f5a623')
+    return fd
+  }
+
+  it('rejects a name change on a player linked to an account', async () => {
+    vi.mocked(auth).mockResolvedValue(session as never)
+    vi.mocked(prisma.player.findUnique).mockResolvedValue({
+      id: 'p1', userId: 'user-1', linkedUserId: 'someone-else', name: 'Old', avatarSeed: 'old', color: '#fff',
+    } as never)
+
+    const result = await updatePlayer('p1', nameForm('New'))
+    expect(result).toEqual({ success: false, error: 'linked_player_name' })
+    expect(prisma.player.update).not.toHaveBeenCalled()
+  })
+
+  it('allows a color-only edit on a linked player (name unchanged)', async () => {
+    vi.mocked(auth).mockResolvedValue(session as never)
+    vi.mocked(prisma.player.findUnique).mockResolvedValue({
+      id: 'p1', userId: 'user-1', linkedUserId: 'someone-else', name: 'Old', avatarSeed: 'old', color: '#fff',
+    } as never)
+    vi.mocked(prisma.player.update).mockResolvedValue({} as never)
+
+    const result = await updatePlayer('p1', nameForm('Old'))
+    expect(result).toEqual({ success: true })
+    expect(prisma.player.update).toHaveBeenCalled()
+  })
+
+  it('allows renaming an unlinked player', async () => {
+    vi.mocked(auth).mockResolvedValue(session as never)
+    vi.mocked(prisma.player.findUnique).mockResolvedValue({
+      id: 'p2', userId: 'user-1', linkedUserId: null, name: 'Old', avatarSeed: 'old', color: '#fff',
+    } as never)
+    vi.mocked(prisma.player.update).mockResolvedValue({} as never)
+
+    const result = await updatePlayer('p2', nameForm('New'))
+    expect(result).toEqual({ success: true })
+    expect(prisma.player.update).toHaveBeenCalled()
+  })
+})
