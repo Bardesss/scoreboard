@@ -23,6 +23,7 @@ Single source of truth for phase order, plan files, and status.
 | **Free Mode 1** | [plan-1-free-mode-banner.md](2026-05-19-plan-1-free-mode-banner.md) | done | Free-mode banner in app + landing, suppresses low-credit warning, 7-day dismissal, admin hint, default seed copy |
 | **Hero Media** | [2026-05-20-landing-hero-media.md](2026-05-20-landing-hero-media.md) | done | Admin-uploadable landing hero image/short video — uploads volume + AdminSettings + streaming route |
 | **Toast + Billing** | [2026-05-20-toast-and-billing-sections.md](2026-05-20-toast-and-billing-sections.md) | done | richColors top-center toasts; hide landing billing sections until a payment provider is live |
+| **Free Mode 2** | [2026-05-20-cost-recommendation-engine.md](2026-05-20-cost-recommendation-engine.md) | ready to execute | Cost recommendation engine — `/admin/settings/recommendations`, 4 scenario cards, one-click allowance apply |
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT. **Also include:** a "pack calibration" view that shows credit-pack sizes in months-of-usage terms (reusing `costAnalytics`); the € price itself stays a manual admin decision in `PricingRegion.packs`. |
 | **11b** | phase-11b-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 
