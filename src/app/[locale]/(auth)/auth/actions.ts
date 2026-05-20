@@ -54,6 +54,7 @@ export async function register(formData: FormData): Promise<ActionResult> {
     data: {
       email,
       username,
+      displayName: name,
       passwordHash,
       locale,
       emailVerified: await isMailConfigured() ? null : new Date(),
