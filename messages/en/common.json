@@ -14,5 +14,10 @@
   },
   "errors": {
     "serverError": "Something went wrong. Please try again."
+  },
+  "notFound": {
+    "title": "This page rolled off the table",
+    "body": "We can't find the page you're looking for. The link may be broken, expired, or never existed.",
+    "backHome": "Back to home"
   }
 }

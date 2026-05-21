@@ -14,5 +14,10 @@
   },
   "errors": {
     "serverError": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "notFound": {
+    "title": "Deze pagina is van tafel gerold",
+    "body": "We kunnen de pagina die je zoekt niet vinden. De link is misschien verbroken, verlopen of heeft nooit bestaan.",
+    "backHome": "Terug naar de homepagina"
   }
 }
