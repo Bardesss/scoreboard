@@ -118,13 +118,12 @@ export async function login(formData: FormData): Promise<ActionResult> {
   }
 
   const user = await prisma.user.findUnique({ where: { email } })
-  if (!user || !user.emailVerified) {
-    if (user && !user.emailVerified) return { error: 'auth.errors.emailNotVerified' }
-    return { error: 'auth.errors.invalidCredentials' }
-  }
+  if (!user) return { error: 'auth.errors.invalidCredentials' }
 
   const valid = await bcrypt.compare(password, user.passwordHash)
   if (!valid) return { error: 'auth.errors.invalidCredentials' }
+
+  if (!user.emailVerified) return { error: 'auth.errors.emailNotVerified' }
 
   if (user.requiresMfa && !user.totpEnabled) {
     return { error: 'auth.errors.mfaRequired' }
