@@ -4,17 +4,23 @@ import { redis } from '@/lib/redis'
 /**
  * Best-effort client IP for unauthenticated abuse protection.
  *
- * Behind Coolify's reverse proxy the real client address arrives in
- * `x-forwarded-for` (comma-separated; the first entry is the original client).
- * `x-real-ip` is used as a fallback. Returns 'unknown' when neither is present
- * so a single bucket still throttles header-less callers.
+ * Behind Coolify's reverse proxy the real peer address is appended to
+ * `x-forwarded-for` (comma-separated). Client-supplied entries on the left are
+ * spoofable, so we trust only the right-most `TRUSTED_PROXY_COUNT` hops (our own
+ * proxy chain; default 1) and use the left-most of those. `x-real-ip` is used as
+ * a fallback. Returns 'unknown' when neither is present so a single bucket still
+ * throttles header-less callers.
  */
 export async function getClientIp(): Promise<string> {
   const h = await headers()
+  const trustedHops = Math.max(1, Number(process.env.TRUSTED_PROXY_COUNT) || 1)
   const forwarded = h.get('x-forwarded-for')
   if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim()
-    if (first) return first
+    const parts = forwarded.split(',').map(s => s.trim()).filter(Boolean)
+    // The right-most `trustedHops` entries are set by our own proxy chain and
+    // cannot be forged by the client; pick the left-most of those.
+    const idx = Math.max(0, parts.length - trustedHops)
+    if (parts[idx]) return parts[idx]
   }
   return h.get('x-real-ip')?.trim() || 'unknown'
 }

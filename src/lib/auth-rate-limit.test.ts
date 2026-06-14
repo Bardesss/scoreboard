@@ -13,11 +13,12 @@ vi.mock('@/lib/redis', () => ({
 describe('getClientIp', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('uses the first x-forwarded-for entry', async () => {
+  it('uses the proxy-trusted (right-most) x-forwarded-for entry', async () => {
     mockHeaders.get.mockImplementation((h: string) =>
-      h === 'x-forwarded-for' ? '203.0.113.7, 10.0.0.1' : null)
+      h === 'x-forwarded-for' ? '1.1.1.1, 2.2.2.2, 3.3.3.3' : null)
     const { getClientIp } = await import('./auth-rate-limit')
-    expect(await getClientIp()).toBe('203.0.113.7')
+    // default TRUSTED_PROXY_COUNT = 1 → last hop (3.3.3.3) is the one our proxy set
+    expect(await getClientIp()).toBe('3.3.3.3')
   })
 
   it('falls back to x-real-ip', async () => {
