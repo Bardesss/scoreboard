@@ -493,6 +493,7 @@
   "errors": {
     "insufficientCredits": "Niet genoeg credits. Koop meer om door te gaan.",
     "required": "Dit veld is verplicht.",
+    "nameTooLong": "Naam is te lang.",
     "notFound": "Niet gevonden.",
     "serverError": "Er is iets misgegaan. Probeer het opnieuw.",
     "inUse": "Dit spel wordt nog gebruikt door een competitie en kan niet worden verwijderd."

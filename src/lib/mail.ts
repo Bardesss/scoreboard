@@ -1,6 +1,7 @@
 import Mailgun from 'mailgun.js'
 import FormData from 'form-data'
 import { getIntegrationConfig } from './integrations'
+import { escapeHtml } from '@/lib/emailTemplates'
 
 const SUPPORT_URL = 'https://dicevault.fun/app/support'
 
@@ -66,22 +67,22 @@ export async function sendPasswordResetEmail(to: string, token: string, locale: 
 
 export async function sendTicketRepliedEmail(to: string, subject: string, locale: string) {
   const strings = locale === 'nl'
-    ? { emailSubject: `Nieuw antwoord op je supportticket`, body: `Het Dice Vault supportteam heeft gereageerd op je ticket: "${subject}". Log in om het antwoord te bekijken.` }
-    : { emailSubject: `New reply to your support ticket`, body: `The Dice Vault support team replied to your ticket: "${subject}". Log in to view the reply.` }
+    ? { emailSubject: `Nieuw antwoord op je supportticket`, body: `Het Dice Vault supportteam heeft gereageerd op je ticket: "${escapeHtml(subject)}". Log in om het antwoord te bekijken.` }
+    : { emailSubject: `New reply to your support ticket`, body: `The Dice Vault support team replied to your ticket: "${escapeHtml(subject)}". Log in to view the reply.` }
   await sendEmail(to, strings.emailSubject, `<p>${strings.body}</p>`, locale)
 }
 
 export async function sendTicketClosedEmail(to: string, subject: string, locale: string) {
   const strings = locale === 'nl'
-    ? { emailSubject: `Je supportticket is gesloten`, body: `Je ticket "${subject}" is gesloten door ons supportteam.` }
-    : { emailSubject: `Your support ticket has been closed`, body: `Your ticket "${subject}" has been closed by our support team.` }
+    ? { emailSubject: `Je supportticket is gesloten`, body: `Je ticket "${escapeHtml(subject)}" is gesloten door ons supportteam.` }
+    : { emailSubject: `Your support ticket has been closed`, body: `Your ticket "${escapeHtml(subject)}" has been closed by our support team.` }
   await sendEmail(to, strings.emailSubject, `<p>${strings.body}</p>`, locale)
 }
 
 export async function sendTicketAutoClosedEmail(to: string, subject: string, locale: string) {
   const strings = locale === 'nl'
-    ? { emailSubject: `Je supportticket is automatisch gesloten`, body: `Je ticket "${subject}" is automatisch gesloten na 7 dagen zonder reactie. Als je nog hulp nodig hebt, open dan een nieuw ticket.` }
-    : { emailSubject: `Your support ticket was automatically closed`, body: `Your ticket "${subject}" was automatically closed after 7 days without a reply. If you still need help, please open a new ticket.` }
+    ? { emailSubject: `Je supportticket is automatisch gesloten`, body: `Je ticket "${escapeHtml(subject)}" is automatisch gesloten na 7 dagen zonder reactie. Als je nog hulp nodig hebt, open dan een nieuw ticket.` }
+    : { emailSubject: `Your support ticket was automatically closed`, body: `Your ticket "${escapeHtml(subject)}" was automatically closed after 7 days without a reply. If you still need help, please open a new ticket.` }
   await sendEmail(to, strings.emailSubject, `<p>${strings.body}</p>`, locale)
 }
 

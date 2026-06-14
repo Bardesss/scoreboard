@@ -21,6 +21,7 @@ export async function createLeague(
 
   const name = input.name.trim()
   if (!name) return { success: false, error: 'required' }
+  if (name.length > 80) return { success: false, error: 'nameTooLong' }
   if (!input.gameTemplateId) return { success: false, error: 'required' }
 
   const template = await prisma.gameTemplate.findUnique({ where: { id: input.gameTemplateId } })
@@ -84,6 +85,7 @@ export async function updateLeague(
 
   const name = input.name.trim()
   if (!name) return { success: false, error: 'required' }
+  if (name.length > 80) return { success: false, error: 'nameTooLong' }
 
   const league = await prisma.league.findUnique({ where: { id } })
   if (!league || league.ownerId !== session.user.id) return { success: false, error: 'notFound' }

@@ -1,5 +1,14 @@
 const APP_URL = process.env.NEXTAUTH_URL ?? 'https://dicevault.app'
 
+export function escapeHtml(input: string): string {
+  return String(input)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function button(label: string, href: string): string {
   return `<a href="${href}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">${label}</a>`
 }
@@ -17,7 +26,7 @@ export function connectionRequestEmail(
     return {
       subject: 'Je hebt een verbindingsverzoek ontvangen',
       html: wrap(
-        `<p><strong>${fromName}</strong> wil graag verbinding maken met je op Dice Vault.</p>` +
+        `<p><strong>${escapeHtml(fromName)}</strong> wil graag verbinding maken met je op Dice Vault.</p>` +
         `<p>Open de app om het verzoek te accepteren of te weigeren.</p>` +
         button('Verzoek bekijken', `${appUrl}/nl/app/connections`)
       ),
@@ -26,7 +35,7 @@ export function connectionRequestEmail(
   return {
     subject: 'You have received a connection request',
     html: wrap(
-      `<p><strong>${fromName}</strong> wants to connect with you on Dice Vault.</p>` +
+      `<p><strong>${escapeHtml(fromName)}</strong> wants to connect with you on Dice Vault.</p>` +
       `<p>Open the app to accept or decline the request.</p>` +
       button('View request', `${appUrl}/en/app/connections`)
     ),
@@ -42,7 +51,7 @@ export function connectionAcceptedEmail(
     return {
       subject: 'Je verbindingsverzoek is geaccepteerd',
       html: wrap(
-        `<p><strong>${toName}</strong> heeft je verbindingsverzoek geaccepteerd op Dice Vault.</p>` +
+        `<p><strong>${escapeHtml(toName)}</strong> heeft je verbindingsverzoek geaccepteerd op Dice Vault.</p>` +
         `<p>Je bent nu verbonden en kunt elkaars scores zien.</p>` +
         button('Ga naar verbindingen', `${appUrl}/nl/app/connections`)
       ),
@@ -51,7 +60,7 @@ export function connectionAcceptedEmail(
   return {
     subject: 'Your connection request has been accepted',
     html: wrap(
-      `<p><strong>${toName}</strong> has accepted your connection request on Dice Vault.</p>` +
+      `<p><strong>${escapeHtml(toName)}</strong> has accepted your connection request on Dice Vault.</p>` +
       `<p>You are now connected and can view each other's scores.</p>` +
       button('Go to connections', `${appUrl}/en/app/connections`)
     ),
@@ -68,7 +77,7 @@ export function playedGamePendingEmail(
     return {
       subject: 'Nieuwe partij wacht op goedkeuring',
       html: wrap(
-        `<p><strong>${submitterName}</strong> heeft een nieuwe partij ingediend in de competitie <strong>${leagueName}</strong>.</p>` +
+        `<p><strong>${escapeHtml(submitterName)}</strong> heeft een nieuwe partij ingediend in de competitie <strong>${escapeHtml(leagueName)}</strong>.</p>` +
         `<p>Bekijk de partij en keur hem goed of af.</p>` +
         button('Partij bekijken', `${appUrl}/nl/app/leagues`)
       ),
@@ -77,7 +86,7 @@ export function playedGamePendingEmail(
   return {
     subject: 'New game awaiting approval',
     html: wrap(
-      `<p><strong>${submitterName}</strong> has submitted a new game in league <strong>${leagueName}</strong>.</p>` +
+      `<p><strong>${escapeHtml(submitterName)}</strong> has submitted a new game in league <strong>${escapeHtml(leagueName)}</strong>.</p>` +
       `<p>Review the game and approve or reject it.</p>` +
       button('View game', `${appUrl}/en/app/leagues`)
     ),
@@ -93,7 +102,7 @@ export function playedGameApprovedEmail(
     return {
       subject: 'Je partij is goedgekeurd',
       html: wrap(
-        `<p>Je ingediende partij in de competitie <strong>${leagueName}</strong> is goedgekeurd.</p>` +
+        `<p>Je ingediende partij in de competitie <strong>${escapeHtml(leagueName)}</strong> is goedgekeurd.</p>` +
         `<p>De scores zijn nu zichtbaar in het klassement.</p>` +
         button('Bekijk klassement', `${appUrl}/nl/app/leagues`)
       ),
@@ -102,7 +111,7 @@ export function playedGameApprovedEmail(
   return {
     subject: 'Your game has been approved',
     html: wrap(
-      `<p>Your submitted game in league <strong>${leagueName}</strong> has been approved.</p>` +
+      `<p>Your submitted game in league <strong>${escapeHtml(leagueName)}</strong> has been approved.</p>` +
       `<p>The scores are now visible in the standings.</p>` +
       button('View standings', `${appUrl}/en/app/leagues`)
     ),
@@ -119,7 +128,7 @@ export function connectionGameLoggedEmail(
     return {
       subject: 'Nieuwe partij in jouw league',
       html: wrap(
-        `<p><strong>${actorEmail}</strong> heeft net een nieuwe partij gelogd in <strong>${leagueName}</strong>.</p>` +
+        `<p><strong>${escapeHtml(actorEmail)}</strong> heeft net een nieuwe partij gelogd in <strong>${escapeHtml(leagueName)}</strong>.</p>` +
         `<p>Bekijk de scorecard in je activiteitenfeed.</p>` +
         button('Ga naar feed', `${appUrl}/nl/app/profile`)
       ),
@@ -128,7 +137,7 @@ export function connectionGameLoggedEmail(
   return {
     subject: 'New game in your league',
     html: wrap(
-      `<p><strong>${actorEmail}</strong> just logged a new game in <strong>${leagueName}</strong>.</p>` +
+      `<p><strong>${escapeHtml(actorEmail)}</strong> just logged a new game in <strong>${escapeHtml(leagueName)}</strong>.</p>` +
       `<p>See the scorecard in your activity feed.</p>` +
       button('Go to feed', `${appUrl}/en/app/profile`)
     ),
@@ -143,18 +152,18 @@ export function reactionReceivedEmail(
 ): { subject: string; html: string } {
   if (locale === 'nl') {
     return {
-      subject: `Iemand reageerde ${emoji} op je partij`,
+      subject: `Iemand reageerde ${escapeHtml(emoji)} op je partij`,
       html: wrap(
-        `<p><strong>${actorEmail}</strong> reageerde ${emoji} op je laatste partij.</p>` +
+        `<p><strong>${escapeHtml(actorEmail)}</strong> reageerde ${escapeHtml(emoji)} op je laatste partij.</p>` +
         `<p>Bekijk het in je activiteitenfeed.</p>` +
         button('Ga naar feed', `${appUrl}/nl/app/profile`)
       ),
     }
   }
   return {
-    subject: `Someone reacted ${emoji} on your game`,
+    subject: `Someone reacted ${escapeHtml(emoji)} on your game`,
     html: wrap(
-      `<p><strong>${actorEmail}</strong> reacted ${emoji} to your latest game.</p>` +
+      `<p><strong>${escapeHtml(actorEmail)}</strong> reacted ${escapeHtml(emoji)} to your latest game.</p>` +
       `<p>See it in your activity feed.</p>` +
       button('Go to feed', `${appUrl}/en/app/profile`)
     ),
@@ -170,7 +179,7 @@ export function playedGameRejectedEmail(
     return {
       subject: 'Je partij is afgewezen',
       html: wrap(
-        `<p>Je ingediende partij in de competitie <strong>${leagueName}</strong> is helaas afgewezen.</p>` +
+        `<p>Je ingediende partij in de competitie <strong>${escapeHtml(leagueName)}</strong> is helaas afgewezen.</p>` +
         `<p>Neem contact op met de competitiebeheerder voor meer informatie.</p>` +
         button('Ga naar competitie', `${appUrl}/nl/app/leagues`)
       ),
@@ -179,7 +188,7 @@ export function playedGameRejectedEmail(
   return {
     subject: 'Your game has been rejected',
     html: wrap(
-      `<p>Your submitted game in league <strong>${leagueName}</strong> has been rejected.</p>` +
+      `<p>Your submitted game in league <strong>${escapeHtml(leagueName)}</strong> has been rejected.</p>` +
       `<p>Contact the league owner for more information.</p>` +
       button('Go to league', `${appUrl}/en/app/leagues`)
     ),

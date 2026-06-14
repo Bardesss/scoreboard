@@ -82,6 +82,7 @@ export async function createTicket(formData: FormData): Promise<CreateResult> {
     return { success: false, error: 'Invalid category' }
   }
   if (!subject || !body) return { success: false, error: 'Missing fields' }
+  if (subject.length > 150) return { success: false, error: 'Subject too long' }
 
   const files = await extractFiles(formData)
 
