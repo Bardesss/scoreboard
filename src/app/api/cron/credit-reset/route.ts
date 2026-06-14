@@ -13,12 +13,24 @@ export async function GET(req: Request) {
   }
 
   const now = new Date()
+
+  // Purge stale unverified accounts on every run, independent of the monthly
+  // lock below, so they never pile up. They can't log in or use the system,
+  // so deleting them after a grace period is safe; cascades remove the
+  // auto-created Player row. Grace period is tunable via admin settings.
+  const purgeDaysRow = await prisma.adminSettings.findUnique({ where: { key: 'unverified_purge_days' } })
+  const purgeDays = typeof purgeDaysRow?.value === 'number' && purgeDaysRow.value > 0 ? purgeDaysRow.value : 7
+  const purgeCutoff = new Date(now.getTime() - purgeDays * 24 * 60 * 60 * 1000)
+  const purgedUnverified = (await prisma.user.deleteMany({
+    where: { emailVerified: null, createdAt: { lt: purgeCutoff } },
+  })).count
+
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   const lockKey = `cron:credit_reset:${monthKey}`
 
   const acquired = await redis.set(lockKey, '1', 'EX', 90000, 'NX')
   if (!acquired) {
-    return NextResponse.json({ skipped: true, reason: 'already ran this month' }, { status: 409 })
+    return NextResponse.json({ skipped: true, reason: 'already ran this month', purgedUnverified }, { status: 409 })
   }
 
   const monthlyFreeCreditsRow = await prisma.adminSettings.findUnique({ where: { key: 'monthly_free_credits' } })
@@ -75,6 +87,7 @@ export async function GET(req: Request) {
     ok: true,
     reset: eligibleUsers.length,
     ticketsClosed: staleTickets.length,
+    purgedUnverified,
     monthKey,
   })
 }

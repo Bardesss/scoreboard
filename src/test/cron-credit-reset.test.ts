@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    user: { findMany: vi.fn(), updateMany: vi.fn(), update: vi.fn() },
+    user: { findMany: vi.fn(), updateMany: vi.fn(), update: vi.fn(), deleteMany: vi.fn() },
     creditTransaction: { createMany: vi.fn(), create: vi.fn() },
     adminSettings: { findUnique: vi.fn() },
     freePeriod: { findFirst: vi.fn() },
@@ -41,6 +41,7 @@ beforeEach(() => {
   vi.mocked(prisma.$transaction).mockImplementation(async (ops: unknown[]) => ops)
   vi.mocked(prisma.ticket.findMany).mockResolvedValue([])
   vi.mocked(prisma.user.findMany).mockResolvedValue([])
+  vi.mocked(prisma.user.deleteMany).mockResolvedValue({ count: 0 } as never)
 })
 
 describe('GET /api/cron/credit-reset', () => {
@@ -56,6 +57,32 @@ describe('GET /api/cron/credit-reset', () => {
     vi.mocked(redis.set).mockResolvedValue(null)
     const res = await GET(makeRequest())
     expect(res.status).toBe(409)
+  })
+
+  it('purges unverified accounts older than the grace period', async () => {
+    vi.mocked(prisma.adminSettings.findUnique).mockResolvedValue(null)
+    vi.mocked(prisma.user.deleteMany).mockResolvedValue({ count: 3 } as never)
+
+    const res = await GET(makeRequest())
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.purgedUnverified).toBe(3)
+    expect(prisma.user.deleteMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ emailVerified: null }) })
+    )
+  })
+
+  it('still purges unverified accounts even when the monthly lock is held', async () => {
+    vi.mocked(redis.set).mockResolvedValue(null)
+    vi.mocked(prisma.user.deleteMany).mockResolvedValue({ count: 2 } as never)
+
+    const res = await GET(makeRequest())
+    const body = await res.json()
+
+    expect(res.status).toBe(409)
+    expect(body.purgedUnverified).toBe(2)
+    expect(prisma.user.deleteMany).toHaveBeenCalled()
   })
 
   it('resets monthly credits for non-lifetime-free users and skips lifetime free', async () => {
