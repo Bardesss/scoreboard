@@ -41,6 +41,8 @@ vi.mock('@/lib/redis', () => ({
     setex: vi.fn().mockResolvedValue('OK'),
     get: vi.fn().mockResolvedValue(null),
     del: vi.fn().mockResolvedValue(1),
+    incr: vi.fn().mockResolvedValue(1),
+    expire: vi.fn(),
   },
 }))
 
@@ -173,6 +175,20 @@ describe('auth actions', () => {
 
       const result = await login(formData)
       expect(result).toEqual({ error: 'auth.errors.mfaRequired' })
+    })
+  })
+
+  describe('verifyTotp throttle', () => {
+    it('locks the pending token after too many failed attempts', async () => {
+      const { redis } = await import('@/lib/redis')
+      vi.mocked(redis.get).mockResolvedValue('user-1')   // pending token resolves to a user
+      vi.mocked(redis.incr).mockResolvedValue(6)          // over the 5 limit
+
+      const { verifyTotp } = await import('@/app/[locale]/(auth)/auth/actions')
+      const fd = new FormData()
+      fd.set('token', 'pending'); fd.set('code', '000000'); fd.set('locale', 'en')
+      const result = await verifyTotp(fd)
+      expect(result).toEqual({ error: 'auth.totp.invalid' })
     })
   })
 })

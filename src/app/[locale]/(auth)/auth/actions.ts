@@ -147,6 +147,17 @@ export async function verifyTotp(formData: FormData): Promise<ActionResult> {
   const userId = await redis.get(`totp_pending:${pendingToken}`)
   if (!userId) return { error: 'auth.totp.expired' }
 
+  // Throttle guesses: cap attempts per pending token so the 300s window can't
+  // be brute-forced. Counter shares the pending-token lifetime.
+  const attemptsKey = `totp_attempts:${pendingToken}`
+  const attempts = await redis.incr(attemptsKey)
+  if (attempts === 1) await redis.expire(attemptsKey, 300)
+  if (attempts > 5) {
+    await redis.del(`totp_pending:${pendingToken}`)
+    await redis.del(attemptsKey)
+    return { error: 'auth.totp.invalid' }
+  }
+
   const user = await prisma.user.findUnique({ where: { id: userId as string } })
   if (!user || !user.totpSecret) return { error: 'auth.errors.serverError' }
 
@@ -170,6 +181,7 @@ export async function verifyTotp(formData: FormData): Promise<ActionResult> {
   if (!valid) return { error: 'auth.totp.invalid' }
 
   await redis.del(`totp_pending:${pendingToken}`)
+  await redis.del(attemptsKey)
 
   const verifiedToken = crypto.randomUUID()
   await redis.setex(`totp_verified:${verifiedToken}`, 30, user.id)
