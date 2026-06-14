@@ -29,6 +29,7 @@ Single source of truth for phase order, plan files, and status.
 | **11a** | phase-11a-payments-mollie-stripe.md | not written (parked) | main spec §11 (Mollie, Stripe) — credit purchase flow, webhooks, ECB rates, VAT. **Also include:** a "pack calibration" view that shows credit-pack sizes in months-of-usage terms (reusing `costAnalytics`); the € price itself stays a manual admin decision in `PricingRegion.packs`. |
 | **11b** | phase-11b-family-credits.md | not written (parked) | Family / shared credits — Plan B of [specs/2026-05-17-social-feed-reactions-referral-design.md](../specs/2026-05-17-social-feed-reactions-referral-design.md) §6. `Family` + `FamilyMember` schema, parent/child roles, shared pool, `/app/family` dashboard. Sequenced after 11a — its value is household monetization, which needs the 11a checkout flow. |
 | **11c** | phase-11c-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
+| **Security** | [2026-06-14-security-audit-remediation.md](2026-06-14-security-audit-remediation.md) | ready to execute | 2026-06-14 audit — MFA-bypass fix, security headers/CSP, email HTML escaping, participant-IDOR, secret hardening, login/TOTP throttles, XFF trust, TOTP-at-rest, cron/redis hardening |
 
 ## Specs
 
