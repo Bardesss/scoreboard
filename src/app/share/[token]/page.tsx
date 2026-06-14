@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { Trophy } from 'lucide-react'
+import { UmamiAnalytics } from '@/components/UmamiAnalytics'
 
 export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
@@ -19,6 +20,7 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#f5f0e8' }}>
+      <UmamiAnalytics />
       <div className="w-full max-w-sm rounded-3xl p-6 shadow-lg" style={{ background: '#fefcf8', border: '1px solid #e8e1d8' }}>
         <div className="flex items-center gap-3 mb-5">
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.12)' }}>
