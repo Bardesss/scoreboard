@@ -6,6 +6,7 @@ import { signIn } from '@/lib/auth'
 import { sendVerificationEmail, sendPasswordResetEmail, isMailConfigured } from '@/lib/mail'
 import { checkIpRateLimit } from '@/lib/auth-rate-limit'
 import { getUnverifiedGraceDays } from '@/lib/accountSettings'
+import { decryptTotpSecret } from '@/lib/totpSecret'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
@@ -162,7 +163,7 @@ export async function verifyTotp(formData: FormData): Promise<ActionResult> {
   if (!user || !user.totpSecret) return { error: 'auth.errors.serverError' }
 
   const { verifyTOTPCode } = await import('@/lib/totp')
-  let valid = verifyTOTPCode(user.totpSecret, code)
+  let valid = verifyTOTPCode(decryptTotpSecret(user.totpSecret), code)
 
   if (!valid && user.totpBackupCodes.length > 0) {
     for (const hashed of user.totpBackupCodes) {

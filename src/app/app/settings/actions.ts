@@ -4,6 +4,7 @@ import { auth, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { generateTOTPSecret, verifyTOTPCode, generateBackupCodes } from '@/lib/totp'
+import { encryptTotpSecret, decryptTotpSecret } from '@/lib/totpSecret'
 import { EMAIL_PREFERENCE_KEYS, type EmailPreferences } from '@/lib/emailPreferences'
 import { AVATAR_COLORS, AVATAR_ICONS } from '@/lib/avatarOptions'
 import bcrypt from 'bcryptjs'
@@ -105,7 +106,7 @@ export async function confirmTotpSetup(
   await prisma.user.update({
     where: { id: session.user.id },
     data: {
-      totpSecret: pending,
+      totpSecret: encryptTotpSecret(pending),
       totpEnabled: true,
       totpBackupCodes: hashed,
     },
@@ -123,7 +124,7 @@ async function verifyCurrentTotp(userId: string, code: string): Promise<boolean>
   if (!user || !user.totpSecret) return false
 
   const cleaned = code.trim()
-  if (verifyTOTPCode(user.totpSecret, cleaned)) return true
+  if (verifyTOTPCode(decryptTotpSecret(user.totpSecret), cleaned)) return true
 
   for (const hashed of user.totpBackupCodes) {
     if (await bcrypt.compare(cleaned, hashed)) {
