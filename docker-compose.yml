@@ -5,8 +5,7 @@ services:
       POSTGRES_DB: dicevault
       POSTGRES_USER: dicevault
       POSTGRES_PASSWORD: dicevault
-    ports:
-      - '5432:5432'
+    # Not exposed to the host; reachable on the internal docker network as "db"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,8 +16,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - '6379:6379'
+    # Not exposed to the host; reachable on the internal docker network as "redis"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -34,7 +32,7 @@ services:
     environment:
       DATABASE_URL: postgresql://dicevault:dicevault@db:5432/dicevault
       REDIS_URL: redis://redis:6379
-      NEXTAUTH_SECRET: change_me_in_production
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET must be set}
       NEXTAUTH_URL: http://localhost:3000
     depends_on:
       db:

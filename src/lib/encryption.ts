@@ -1,7 +1,11 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'crypto'
 
 function deriveKey(): Buffer {
-  return createHash('sha256').update(process.env.NEXTAUTH_SECRET!).digest()
+  const secret = process.env.NEXTAUTH_SECRET
+  if (!secret || secret.length < 32 || secret === 'change_me_in_production') {
+    throw new Error('NEXTAUTH_SECRET must be set to a strong value (>= 32 chars) before using encryption')
+  }
+  return createHash('sha256').update(secret).digest()
 }
 
 export function encrypt(plaintext: string): string {
