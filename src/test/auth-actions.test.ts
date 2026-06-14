@@ -49,6 +49,10 @@ vi.mock('@/lib/mail', () => ({
   sendPasswordResetEmail: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock('@/lib/auth-rate-limit', () => ({
+  checkIpRateLimit: vi.fn().mockResolvedValue(true),
+}))
+
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed'),
@@ -83,6 +87,23 @@ describe('auth actions', () => {
 
       const result = await register(formData)
       expect(result).toEqual({ error: 'auth.errors.emailInUse' })
+    })
+
+    it('returns tooManyAttempts when the IP is rate-limited', async () => {
+      const { checkIpRateLimit } = await import('@/lib/auth-rate-limit')
+      vi.mocked(checkIpRateLimit).mockResolvedValueOnce(false)
+
+      const { register } = await import('@/app/[locale]/(auth)/auth/actions')
+      const formData = new FormData()
+      formData.set('name', 'Bot User')
+      formData.set('username', 'botuser')
+      formData.set('email', 'bot@example.com')
+      formData.set('password', 'password12345')
+      formData.set('passwordConfirm', 'password12345')
+      formData.set('locale', 'en')
+
+      const result = await register(formData)
+      expect(result).toEqual({ error: 'auth.errors.tooManyAttempts' })
     })
 
     it('returns error when passwords do not match', async () => {

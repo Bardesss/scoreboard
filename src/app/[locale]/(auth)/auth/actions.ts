@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { signIn } from '@/lib/auth'
 import { sendVerificationEmail, sendPasswordResetEmail, isMailConfigured } from '@/lib/mail'
+import { checkIpRateLimit } from '@/lib/auth-rate-limit'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
@@ -30,6 +31,11 @@ const passwordSchema = z.string().min(11)
 const usernameSchema = z.string().regex(/^[a-z0-9_]{3,20}$/)
 
 export async function register(formData: FormData): Promise<ActionResult> {
+  // IP throttle: cap new accounts per IP per hour to block scripted signups.
+  if (!(await checkIpRateLimit('register', 5, 60 * 60))) {
+    return { error: 'auth.errors.tooManyAttempts' }
+  }
+
   const name = (formData.get('name') as string)?.trim()
   const username = (formData.get('username') as string)?.trim().toLowerCase()
   const email = (formData.get('email') as string)?.trim().toLowerCase()
@@ -96,6 +102,11 @@ export async function login(formData: FormData): Promise<ActionResult> {
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const password = formData.get('password') as string
   const locale = (formData.get('locale') as string) || 'en'
+
+  // IP throttle: slow down credential-stuffing / brute-force attempts.
+  if (!(await checkIpRateLimit('login', 10, 15 * 60))) {
+    return { error: 'auth.errors.tooManyAttempts' }
+  }
 
   if (!emailSchema.safeParse(email).success || !password) {
     return { error: 'auth.errors.invalidCredentials' }
@@ -166,6 +177,12 @@ export async function verifyTotp(formData: FormData): Promise<ActionResult> {
 export async function forgotPassword(formData: FormData): Promise<ActionResult> {
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const locale = (formData.get('locale') as string) || 'en'
+
+  // IP throttle: limit reset-email floods. Still returns success below to
+  // avoid revealing whether throttling vs. enumeration occurred.
+  if (!(await checkIpRateLimit('forgot_password', 5, 60 * 60))) {
+    return { success: true }
+  }
 
   const user = await prisma.user.findUnique({ where: { email } })
   if (user) {

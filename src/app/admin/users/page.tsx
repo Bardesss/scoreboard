@@ -1,24 +1,34 @@
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+const PAGE_SIZE = 50
+
 interface PageProps {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; page?: string }>
 }
 
 export default async function AdminUsersPage({ searchParams }: PageProps) {
-  const { q } = await searchParams
+  const { q, page: pageParam } = await searchParams
+
+  const where = q
+    ? {
+        OR: [
+          { email: { contains: q, mode: 'insensitive' as const } },
+          { username: { contains: q, mode: 'insensitive' as const } },
+        ],
+      }
+    : undefined
+
+  const total = await prisma.user.count({ where })
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const page = Math.min(pageCount, Math.max(1, Number(pageParam) || 1))
 
   const users = await prisma.user.findMany({
-    where: q
-      ? {
-          OR: [
-            { email: { contains: q, mode: 'insensitive' } },
-            { username: { contains: q, mode: 'insensitive' } },
-          ],
-        }
-      : undefined,
+    where,
     orderBy: { createdAt: 'desc' },
-    take: 50,
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     select: {
       id: true,
       email: true,
@@ -110,7 +120,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
 
       {/* Count */}
       <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
-        {users.length} gebruiker{users.length !== 1 ? 's' : ''} gevonden
+        {total} gebruiker{total !== 1 ? 's' : ''} gevonden
+        {total > PAGE_SIZE && ` · pagina ${page} van ${pageCount}`}
       </p>
 
       {/* Table */}
@@ -346,6 +357,40 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         </table>
        </div>
       </div>
+
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 20 }}>
+          <PageLink q={q} page={page - 1} disabled={page <= 1} label="← Vorige" />
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+            {page} / {pageCount}
+          </span>
+          <PageLink q={q} page={page + 1} disabled={page >= pageCount} label="Volgende →" />
+        </div>
+      )}
     </div>
+  )
+}
+
+function PageLink({ q, page, disabled, label }: { q?: string; page: number; disabled: boolean; label: string }) {
+  const style: CSSProperties = {
+    fontSize: 13,
+    fontWeight: 600,
+    padding: '7px 14px',
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.1)',
+    color: disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.75)',
+    background: '#161f28',
+    textDecoration: 'none',
+    pointerEvents: disabled ? 'none' : 'auto',
+  }
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  params.set('page', String(page))
+  if (disabled) return <span style={style}>{label}</span>
+  return (
+    <Link href={`/admin/users?${params.toString()}`} style={style}>
+      {label}
+    </Link>
   )
 }
