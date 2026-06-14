@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     league: { create: vi.fn(), findUnique: vi.fn(), delete: vi.fn() },
-    leagueMember: { createMany: vi.fn() },
+    leagueMember: { createMany: vi.fn(), findMany: vi.fn() },
     gameTemplate: { findUnique: vi.fn() },
     player: { findMany: vi.fn() },
     playedGame: { create: vi.fn(), findUnique: vi.fn().mockResolvedValue(null) },
@@ -36,6 +36,7 @@ beforeEach(() => {
   vi.mocked(prisma.$transaction).mockImplementation(async (ops: unknown[]) => ops)
   vi.mocked(prisma.gameTemplate.findUnique).mockResolvedValue({ id: 'gt1', userId: 'user-1' } as never)
   vi.mocked(prisma.player.findMany).mockResolvedValue([{ id: 'p1' }, { id: 'p2' }] as never)
+  vi.mocked(prisma.leagueMember.findMany).mockResolvedValue([{ playerId: 'p1' }, { playerId: 'p2' }] as never)
   vi.mocked(deductCredits).mockResolvedValue({ newMonthly: 65, newPermanent: 0 })
 })
 
