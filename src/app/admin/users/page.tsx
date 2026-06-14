@@ -1,24 +1,30 @@
 import type { CSSProperties } from 'react'
+import type { Prisma } from '@prisma/client'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
 const PAGE_SIZE = 50
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; page?: string }>
+  searchParams: Promise<{ q?: string; page?: string; verified?: string }>
 }
 
 export default async function AdminUsersPage({ searchParams }: PageProps) {
-  const { q, page: pageParam } = await searchParams
+  const { q, page: pageParam, verified } = await searchParams
 
-  const where = q
-    ? {
-        OR: [
-          { email: { contains: q, mode: 'insensitive' as const } },
-          { username: { contains: q, mode: 'insensitive' as const } },
-        ],
-      }
-    : undefined
+  const conditions: Prisma.UserWhereInput[] = []
+  if (q) {
+    conditions.push({
+      OR: [
+        { email: { contains: q, mode: 'insensitive' } },
+        { username: { contains: q, mode: 'insensitive' } },
+      ],
+    })
+  }
+  if (verified === 'no') conditions.push({ emailVerified: null })
+  if (verified === 'yes') conditions.push({ emailVerified: { not: null } })
+
+  const where: Prisma.UserWhereInput | undefined = conditions.length ? { AND: conditions } : undefined
 
   const total = await prisma.user.count({ where })
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -68,6 +74,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         method="GET"
         style={{ display: 'flex', gap: 8, marginBottom: 24 }}
       >
+        {verified && <input type="hidden" name="verified" value={verified} />}
         <input
           name="q"
           defaultValue={q ?? ''}
@@ -99,7 +106,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         >
           Zoeken
         </button>
-        {q && (
+        {(q || verified) && (
           <Link
             href="/admin/users"
             style={{
@@ -121,6 +128,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
       {/* Count */}
       <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
         {total} gebruiker{total !== 1 ? 's' : ''} gevonden
+        {verified === 'no' && ' · alleen niet-geverifieerd'}
+        {verified === 'yes' && ' · alleen geverifieerd'}
         {total > PAGE_SIZE && ` · pagina ${page} van ${pageCount}`}
       </p>
 
@@ -244,6 +253,21 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                     }}
                   >
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {!user.emailVerified && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            padding: '2px 8px',
+                            borderRadius: 6,
+                            background: 'rgba(234,179,8,0.15)',
+                            color: '#eab308',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Niet geverifieerd
+                        </span>
+                      )}
                       {user.role === 'admin' && (
                         <span
                           style={{
@@ -361,18 +385,18 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
       {/* Pagination */}
       {pageCount > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 20 }}>
-          <PageLink q={q} page={page - 1} disabled={page <= 1} label="← Vorige" />
+          <PageLink q={q} verified={verified} page={page - 1} disabled={page <= 1} label="← Vorige" />
           <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
             {page} / {pageCount}
           </span>
-          <PageLink q={q} page={page + 1} disabled={page >= pageCount} label="Volgende →" />
+          <PageLink q={q} verified={verified} page={page + 1} disabled={page >= pageCount} label="Volgende →" />
         </div>
       )}
     </div>
   )
 }
 
-function PageLink({ q, page, disabled, label }: { q?: string; page: number; disabled: boolean; label: string }) {
+function PageLink({ q, verified, page, disabled, label }: { q?: string; verified?: string; page: number; disabled: boolean; label: string }) {
   const style: CSSProperties = {
     fontSize: 13,
     fontWeight: 600,
@@ -386,6 +410,7 @@ function PageLink({ q, page, disabled, label }: { q?: string; page: number; disa
   }
   const params = new URLSearchParams()
   if (q) params.set('q', q)
+  if (verified) params.set('verified', verified)
   params.set('page', String(page))
   if (disabled) return <span style={style}>{label}</span>
   return (

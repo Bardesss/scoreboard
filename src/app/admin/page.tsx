@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { Users, Gamepad2, LayoutTemplate, Trophy, Clock } from 'lucide-react'
+import { Users, UserX, Gamepad2, LayoutTemplate, Trophy, Clock } from 'lucide-react'
 
 export default async function AdminDashboardPage() {
-  const [userCount, playedGameCount, templateCount, leagueCount, pendingCount, recentGames] =
+  const [userCount, unverifiedCount, playedGameCount, templateCount, leagueCount, pendingCount, recentGames] =
     await Promise.all([
-      prisma.user.count(),
+      // Only verified accounts count as real users; unverified ones can't log
+      // in or use the system, so they're tracked separately below.
+      prisma.user.count({ where: { emailVerified: { not: null } } }),
+      prisma.user.count({ where: { emailVerified: null } }),
       prisma.playedGame.count(),
       prisma.gameTemplate.count(),
       prisma.league.count(),
@@ -22,6 +25,7 @@ export default async function AdminDashboardPage() {
 
   const kpis = [
     { label: 'Gebruikers', value: userCount, icon: Users, href: '/admin/users' },
+    { label: 'Niet geverifieerd', value: unverifiedCount, icon: UserX, href: '/admin/users?verified=no' },
     { label: 'Gespeelde Partijen', value: playedGameCount, icon: Gamepad2, href: null },
     { label: 'Spelsjablonen', value: templateCount, icon: LayoutTemplate, href: null },
     { label: 'Competities', value: leagueCount, icon: Trophy, href: null },
