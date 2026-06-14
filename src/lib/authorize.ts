@@ -25,21 +25,21 @@ export async function authorizeCredentials(
   }
 
   // Path B: raw email + password. Must REFUSE MFA accounts (they may only use Path A).
-  const email = (credentials.email as string | undefined)?.trim().toLowerCase()
-  if (email) {
-    // Fail-open email-keyed lockout: 10 attempts / 15 min, independent of IP.
-    try {
-      const key = `loginfail:${email}`
-      const hits = await redis.incr(key)
-      if (hits === 1) await redis.expire(key, 15 * 60)
-      if (hits > 10) return null
-    } catch { /* redis down → don't block logins */ }
-  }
-
   const parsed = loginSchema.safeParse(credentials)
   if (!parsed.success) return null
 
-  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } })
+  // Normalize once so the throttle key and lookup can't diverge by case.
+  const email = parsed.data.email.toLowerCase()
+
+  // Fail-open email-keyed lockout: 10 attempts / 15 min, independent of IP.
+  try {
+    const key = `loginfail:${email}`
+    const hits = await redis.incr(key)
+    if (hits === 1) await redis.expire(key, 15 * 60)
+    if (hits > 10) return null
+  } catch { /* redis down → don't block logins */ }
+
+  const user = await prisma.user.findUnique({ where: { email } })
   if (!user || !user.emailVerified) return null
 
   const valid = await bcrypt.compare(parsed.data.password, user.passwordHash)
@@ -47,6 +47,6 @@ export async function authorizeCredentials(
 
   if (user.totpEnabled || user.requiresMfa) return null
 
-  try { if (email) await redis.del(`loginfail:${email}`) } catch { /* ignore */ }
+  try { await redis.del(`loginfail:${email}`) } catch { /* ignore */ }
   return toSessionUser(user)
 }
