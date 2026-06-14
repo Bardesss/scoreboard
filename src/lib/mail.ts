@@ -41,12 +41,13 @@ async function send(to: string, subject: string, html: string, locale: string = 
   })
 }
 
-export async function sendVerificationEmail(to: string, token: string, locale: string) {
+export async function sendVerificationEmail(to: string, token: string, locale: string, graceDays: number = 7) {
   const link = `${process.env.NEXTAUTH_URL}/${locale}/auth/verify-email?token=${token}`
   const subject = locale === 'nl' ? 'Bevestig je e-mailadres — Dice Vault' : 'Verify your email — Dice Vault'
+  const d = graceDays
   const html = locale === 'nl'
-    ? `<p>Klik op de link om je e-mailadres te bevestigen:</p><p><a href="${link}">${link}</a></p><p>De link is 24 uur geldig.</p>`
-    : `<p>Click the link to verify your email address:</p><p><a href="${link}">${link}</a></p><p>The link is valid for 24 hours.</p>`
+    ? `<p>Klik op de link om je e-mailadres te bevestigen:</p><p><a href="${link}">${link}</a></p><p>De link is ${d} ${d === 1 ? 'dag' : 'dagen'} geldig. Als je je account niet binnen ${d} ${d === 1 ? 'dag' : 'dagen'} bevestigt, wordt het automatisch verwijderd.</p>`
+    : `<p>Click the link to verify your email address:</p><p><a href="${link}">${link}</a></p><p>The link is valid for ${d} ${d === 1 ? 'day' : 'days'}. If you don't verify your account within ${d} ${d === 1 ? 'day' : 'days'}, it will be automatically removed.</p>`
   await send(to, subject, html, locale)
 }
 

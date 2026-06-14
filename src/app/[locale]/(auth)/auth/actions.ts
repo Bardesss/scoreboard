@@ -5,6 +5,7 @@ import { redis } from '@/lib/redis'
 import { signIn } from '@/lib/auth'
 import { sendVerificationEmail, sendPasswordResetEmail, isMailConfigured } from '@/lib/mail'
 import { checkIpRateLimit } from '@/lib/auth-rate-limit'
+import { getUnverifiedGraceDays } from '@/lib/accountSettings'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
@@ -77,9 +78,12 @@ export async function register(formData: FormData): Promise<ActionResult> {
   })
 
   if (await isMailConfigured()) {
+    // Keep the link valid for the full grace period so it never dies before
+    // the account is purged (there is no resend flow).
+    const graceDays = await getUnverifiedGraceDays()
     const token = crypto.randomUUID()
-    await redis.setex(`email_verify:${token}`, 60 * 60 * 24, user.id)
-    await sendVerificationEmail(email, token, locale)
+    await redis.setex(`email_verify:${token}`, graceDays * 24 * 60 * 60, user.id)
+    await sendVerificationEmail(email, token, locale, graceDays)
   }
 
   return { success: true }

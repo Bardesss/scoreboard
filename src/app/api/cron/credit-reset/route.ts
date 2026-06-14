@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { isFreeModeActive } from '@/lib/credits'
+import { getUnverifiedGraceDays } from '@/lib/accountSettings'
 import { sendMonthlyResetEmail, sendTicketAutoClosedEmail } from '@/lib/mail'
 import { purgeTicketAttachments } from '@/lib/ticketAttachments'
 
@@ -18,8 +19,7 @@ export async function GET(req: Request) {
   // lock below, so they never pile up. They can't log in or use the system,
   // so deleting them after a grace period is safe; cascades remove the
   // auto-created Player row. Grace period is tunable via admin settings.
-  const purgeDaysRow = await prisma.adminSettings.findUnique({ where: { key: 'unverified_purge_days' } })
-  const purgeDays = typeof purgeDaysRow?.value === 'number' && purgeDaysRow.value > 0 ? purgeDaysRow.value : 7
+  const purgeDays = await getUnverifiedGraceDays()
   const purgeCutoff = new Date(now.getTime() - purgeDays * 24 * 60 * 60 * 1000)
   const purgedUnverified = (await prisma.user.deleteMany({
     where: { emailVerified: null, createdAt: { lt: purgeCutoff } },
