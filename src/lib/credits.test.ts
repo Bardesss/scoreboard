@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { deductCredits, getActionCost, isFreeModeActive, checkRateLimit, InsufficientCreditsError } from './credits'
+import { deductCredits, getActionCost, isFreeModeActive, checkRateLimit, checkUserRateLimit, InsufficientCreditsError } from './credits'
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
@@ -12,7 +12,7 @@ vi.mock('@/lib/prisma', () => ({
 }))
 
 vi.mock('@/lib/redis', () => ({
-  redis: { set: vi.fn() },
+  redis: { set: vi.fn(), incr: vi.fn(), expire: vi.fn() },
 }))
 
 import { prisma } from '@/lib/prisma'
@@ -73,6 +73,31 @@ describe('checkRateLimit', () => {
   it('throws when rate limit is hit', async () => {
     vi.mocked(redis.set).mockResolvedValue(null)
     await expect(checkRateLimit('user-1', 'game_template')).rejects.toThrow('Rate limit')
+  })
+})
+
+describe('checkUserRateLimit', () => {
+  it('allows under the limit and sets TTL on the first hit', async () => {
+    vi.mocked(redis.incr).mockResolvedValue(1)
+    vi.mocked(redis.expire).mockResolvedValue(1)
+    expect(await checkUserRateLimit('user-1', 'connection_request', 20, 3600)).toBe(true)
+    expect(redis.expire).toHaveBeenCalledWith('url:connection_request:user-1', 3600)
+  })
+
+  it('does not reset TTL on later hits', async () => {
+    vi.mocked(redis.incr).mockResolvedValue(5)
+    expect(await checkUserRateLimit('user-1', 'connection_request', 20, 3600)).toBe(true)
+    expect(redis.expire).not.toHaveBeenCalled()
+  })
+
+  it('blocks once the limit is exceeded', async () => {
+    vi.mocked(redis.incr).mockResolvedValue(21)
+    expect(await checkUserRateLimit('user-1', 'connection_request', 20, 3600)).toBe(false)
+  })
+
+  it('fails open when Redis throws', async () => {
+    vi.mocked(redis.incr).mockRejectedValue(new Error('redis down'))
+    expect(await checkUserRateLimit('user-1', 'redeem_code', 10, 3600)).toBe(true)
   })
 })
 

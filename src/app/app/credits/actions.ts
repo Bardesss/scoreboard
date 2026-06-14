@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { checkUserRateLimit } from '@/lib/credits'
 
 export type RedeemResult =
   | { success: true; creditsAdded: number; newPermanent: number }
-  | { error: 'notFound' | 'inactive' | 'expired' | 'exhausted' | 'alreadyRedeemed' | 'percentNotSupported' | 'unknown' }
+  | { error: 'notFound' | 'inactive' | 'expired' | 'exhausted' | 'alreadyRedeemed' | 'percentNotSupported' | 'rateLimited' | 'unknown' }
 
 // Sentinel thrown inside the transaction to surface a specific user-facing
 // error code from the caller's try/catch.
@@ -18,6 +19,11 @@ class RedemptionAbort extends Error {
 export async function redeemDiscountCode(rawCode: string): Promise<RedeemResult> {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
+
+  // Throttle: block brute-force guessing of valid discount codes.
+  if (!(await checkUserRateLimit(session.user.id, 'redeem_code', 10, 60 * 60))) {
+    return { error: 'rateLimited' }
+  }
 
   const code = rawCode.trim().toUpperCase()
   if (!code) return { error: 'notFound' }

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { sendEmail } from '@/lib/mail'
 import { shouldSendEmailTo } from '@/lib/emailPreferences'
 import { connectionRequestEmail, connectionAcceptedEmail } from '@/lib/emailTemplates'
+import { checkUserRateLimit } from '@/lib/credits'
 
 export async function searchUsers(query: string) {
   const session = await auth()
@@ -38,6 +39,11 @@ export async function searchUsers(query: string) {
 export async function sendConnectionRequest(toUserId: string) {
   const session = await auth()
   if (!session) redirect('/en/auth/login')
+
+  // Throttle: stop scripted request/notification/email spam to other users.
+  if (!(await checkUserRateLimit(session.user.id, 'connection_request', 20, 60 * 60))) {
+    return { error: 'rateLimited' }
+  }
 
   const [existing, alreadyConnected] = await Promise.all([
     prisma.connectionRequest.findFirst({

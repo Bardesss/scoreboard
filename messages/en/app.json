@@ -169,6 +169,7 @@
     "discountErrorExhausted": "This code has reached its usage limit.",
     "discountErrorAlreadyRedeemed": "You've already redeemed this code.",
     "discountErrorPercentNotSupported": "Percentage codes apply at checkout. Use this code when buying credits.",
+    "discountErrorRateLimited": "Too many attempts. Please wait a while and try again.",
     "discountErrorUnknown": "Something went wrong. Try again.",
     "historyHeading": "Transactions",
     "historyEmpty": "No transactions yet.",

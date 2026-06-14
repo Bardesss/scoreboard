@@ -169,6 +169,7 @@
     "discountErrorExhausted": "Deze code heeft het maximumaantal keer gebruikt.",
     "discountErrorAlreadyRedeemed": "Je hebt deze code al ingewisseld.",
     "discountErrorPercentNotSupported": "Percentages worden toegepast bij het afrekenen. Gebruik deze code bij aanschaf van credits.",
+    "discountErrorRateLimited": "Te veel pogingen. Wacht even en probeer het opnieuw.",
     "discountErrorUnknown": "Er ging iets mis. Probeer het opnieuw.",
     "historyHeading": "Transacties",
     "historyEmpty": "Nog geen transacties.",

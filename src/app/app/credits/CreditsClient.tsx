@@ -68,6 +68,7 @@ export function CreditsClient({
         exhausted: t('discountErrorExhausted'),
         alreadyRedeemed: t('discountErrorAlreadyRedeemed'),
         percentNotSupported: t('discountErrorPercentNotSupported'),
+        rateLimited: t('discountErrorRateLimited'),
         unknown: t('discountErrorUnknown'),
       }
       toast.error(errs[res.error] ?? errs.unknown)

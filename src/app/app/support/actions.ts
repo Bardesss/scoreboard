@@ -6,6 +6,7 @@ import { processUpload } from '@/lib/imageProcessing'
 import { saveAttachment, ATTACHMENT_MAX_PER_MESSAGE } from '@/lib/uploads'
 import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
+import { checkUserRateLimit } from '@/lib/credits'
 
 const VALID_CATEGORIES = ['bug', 'feedback', 'question'] as const
 
@@ -67,6 +68,11 @@ async function persistAttachments(
 export async function createTicket(formData: FormData): Promise<CreateResult> {
   const session = await auth()
   if (!session) return { success: false, error: 'Unauthorized' }
+
+  // Throttle: prevent support-inbox flooding.
+  if (!(await checkUserRateLimit(session.user.id, 'create_ticket', 5, 60 * 60))) {
+    return { success: false, error: 'Too many tickets — please wait a while before creating another.' }
+  }
 
   const category = formData.get('category') as string
   const subject = (formData.get('subject') as string)?.trim()

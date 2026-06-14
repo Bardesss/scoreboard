@@ -29,7 +29,10 @@ export function ConnectionsClient({
 
   async function handleSend(userId: string) {
     const res = await sendConnectionRequest(userId)
-    if ('error' in res) { toast.error('Failed to send request'); return }
+    if ('error' in res) {
+      toast.error(res.error === 'rateLimited' ? 'Too many requests — please slow down.' : 'Failed to send request')
+      return
+    }
     toast.success('Connection request sent')
     setResults(r => r.filter(u => u.id !== userId))
   }

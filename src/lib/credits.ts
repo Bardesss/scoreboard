@@ -40,6 +40,28 @@ export async function checkRateLimit(userId: string, action: string): Promise<vo
   if (!result) throw new Error('Rate limit: please wait before trying again')
 }
 
+/**
+ * Fixed-window per-user rate limit for free (non-credit) actions that can be
+ * abused at volume — connection requests, discount-code guessing, support
+ * tickets. Returns `true` when allowed, `false` once the window's limit is hit.
+ * Fail-open so a Redis outage never blocks legitimate use.
+ */
+export async function checkUserRateLimit(
+  userId: string,
+  action: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<boolean> {
+  try {
+    const key = `url:${action}:${userId}`
+    const hits = await redis.incr(key)
+    if (hits === 1) await redis.expire(key, windowSeconds)
+    return hits <= limit
+  } catch {
+    return true
+  }
+}
+
 export async function deductCredits(
   userId: string,
   action: string,
