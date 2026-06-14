@@ -4,6 +4,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     league: { findUnique: vi.fn() },
     playedGame: { findUnique: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    leagueMember: { findMany: vi.fn() },
     scoreEntry: { deleteMany: vi.fn(), createMany: vi.fn() },
     $transaction: vi.fn(),
   },
@@ -45,6 +46,9 @@ describe('editPlayedGame', () => {
       status: 'approved',
       league: { ownerId: 'user-1', gameTemplate: templateMock },
     } as never)
+    vi.mocked(prisma.leagueMember.findMany).mockResolvedValue([
+      { playerId: 'p1' }, { playerId: 'p2' },
+    ] as never)
 
     const result = await editPlayedGame('pg1', 'lg1', {
       playedAt: new Date('2026-04-21T20:00:00Z'),

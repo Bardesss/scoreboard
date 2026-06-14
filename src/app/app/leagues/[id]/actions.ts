@@ -49,6 +49,16 @@ export async function logPlayedGame(
   )
   if (!resolved.ok) return { success: false, error: resolved.error }
 
+  const memberIds = new Set(
+    (await prisma.leagueMember.findMany({
+      where: { leagueId },
+      select: { playerId: true },
+    })).map(m => m.playerId)
+  )
+  if (resolved.scoreEntries.some(e => !memberIds.has(e.playerId))) {
+    return { success: false, error: 'notFound' }
+  }
+
   try {
     await checkRateLimit(session.user.id, 'played_game')
     await deductCredits(session.user.id, 'played_game', { leagueId, action: 'log_played_game' })
@@ -200,6 +210,16 @@ export async function editPlayedGame(
     input.resolverInput,
   )
   if (!resolved.ok) return { success: false, error: resolved.error }
+
+  const memberIds = new Set(
+    (await prisma.leagueMember.findMany({
+      where: { leagueId: pg.leagueId },
+      select: { playerId: true },
+    })).map(m => m.playerId)
+  )
+  if (resolved.scoreEntries.some(e => !memberIds.has(e.playerId))) {
+    return { success: false, error: 'notFound' }
+  }
 
   await prisma.$transaction([
     prisma.scoreEntry.deleteMany({ where: { playedGameId } }),
