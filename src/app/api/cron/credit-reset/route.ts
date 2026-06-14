@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
@@ -6,10 +7,16 @@ import { getUnverifiedGraceDays } from '@/lib/accountSettings'
 import { sendMonthlyResetEmail, sendTicketAutoClosedEmail } from '@/lib/mail'
 import { purgeTicketAttachments } from '@/lib/ticketAttachments'
 
+function bearerOk(header: string | null, secret: string | undefined): boolean {
+  if (!secret || secret.length < 16) return false
+  const expected = `Bearer ${secret}`
+  const a = Buffer.from(header ?? '')
+  const b = Buffer.from(expected)
+  return a.length === b.length && timingSafeEqual(a, b)
+}
+
 export async function GET(req: Request) {
-  const secret = process.env.CRON_SECRET
-  const authHeader = req.headers.get('Authorization')
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  if (!bearerOk(req.headers.get('Authorization'), process.env.CRON_SECRET)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -25,7 +25,7 @@ import { redis } from '@/lib/redis'
 import { sendMonthlyResetEmail, sendTicketAutoClosedEmail } from '@/lib/mail'
 import { GET } from '@/app/api/cron/credit-reset/route'
 
-const cronSecret = 'test-secret'
+const cronSecret = 'test-secret-1234567'
 
 function makeRequest(secret = cronSecret) {
   return new Request('http://localhost/api/cron/credit-reset', {
