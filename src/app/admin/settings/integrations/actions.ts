@@ -3,6 +3,7 @@
 import { auth } from '@/lib/auth'
 import { getIntegrationConfig, saveIntegrationConfig, setIntegrationStatus } from '@/lib/integrations'
 import { redis } from '@/lib/redis'
+import { healthCheck } from '@/lib/umami'
 
 async function assertAdmin() {
   const session = await auth()
@@ -104,5 +105,15 @@ export async function testMailgunConnection(): Promise<{
     const msg = e instanceof Error ? e.message : 'Onbekende fout'
     await setIntegrationStatus('mailgun', 'error', msg).catch(() => {})
     return { success: false, error: isAuthError ? 'Niet gemachtigd' : msg }
+  }
+}
+
+export async function testUmamiConnection(): Promise<{ success: boolean; status: 'ok' | 'warning' | 'error'; message: string }> {
+  try {
+    await assertAdmin()
+    const health = await healthCheck()
+    return { success: health.status === 'ok', status: health.status, message: health.message }
+  } catch {
+    return { success: false, status: 'error', message: 'Niet gemachtigd' }
   }
 }

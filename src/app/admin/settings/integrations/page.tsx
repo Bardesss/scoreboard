@@ -3,6 +3,7 @@ import { redis } from '@/lib/redis'
 import { getIntegrationConfig } from '@/lib/integrations'
 import IntegrationsClient from './IntegrationsClient'
 import type { MailgunStats } from './actions'
+import { umamiConfigured } from '@/lib/umami'
 
 export default async function IntegrationsPage() {
   const rows = await prisma.integration.findMany({
@@ -29,6 +30,7 @@ export default async function IntegrationsPage() {
         region: mailgunConfig?.region === 'us' ? 'us' : 'eu',
       } : null}
       mailgunStats={mailgunStats}
+      umami={{ configured: umamiConfigured() }}
     />
   )
 }
