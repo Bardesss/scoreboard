@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { saveSettings } from './actions'
@@ -24,14 +24,18 @@ interface Props {
 
 const inputStyle: React.CSSProperties = {
   background: 'rgba(255,255,255,0.06)',
-  border: '1px solid rgba(255,255,255,0.1)',
   color: 'rgba(255,255,255,0.8)',
   borderRadius: 10,
   padding: '8px 14px',
-  outline: 'none',
   fontSize: 14,
   width: '100%',
 }
+
+// Border + focus ring live in a class so :focus-visible can override them —
+// inline styles can't express focus state and `outline: none` alone left
+// keyboard users with no visible focus indicator.
+const inputClass =
+  'border border-white/10 outline-none transition-colors focus-visible:border-[#4a8eff] focus-visible:ring-2 focus-visible:ring-[rgba(74,142,255,0.35)]'
 
 const labelStyle: React.CSSProperties = {
   fontSize: 13,
@@ -68,7 +72,31 @@ const fieldRowClass = 'flex flex-col sm:flex-row sm:items-center sm:justify-betw
 
 export default function SettingsClient({ values, configuredCount }: Props) {
   const [form, setForm] = useState<SettingsValues>(values)
+  // Baseline of last-saved values; updated on a successful save so the dirty
+  // check doesn't keep warning after the user has already saved.
+  const [baseline, setBaseline] = useState<SettingsValues>(values)
   const [isPending, startTransition] = useTransition()
+
+  const dirty = JSON.stringify(form) !== JSON.stringify(baseline)
+
+  // Warn before a full page unload (reload / tab close) with unsaved edits.
+  useEffect(() => {
+    if (!dirty) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [dirty])
+
+  // Guard the in-page shortcut links: client-side navigation unmounts this
+  // form and would silently drop unsaved edits, so confirm first.
+  function guardNav(e: React.MouseEvent) {
+    if (dirty && !window.confirm('Niet-opgeslagen wijzigingen gaan verloren. Wil je doorgaan?')) {
+      e.preventDefault()
+    }
+  }
 
   function setNum(key: keyof SettingsValues, val: string) {
     setForm((prev) => ({ ...prev, [key]: Number(val) }))
@@ -87,6 +115,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
     startTransition(async () => {
       const result = await saveSettings(form)
       if (result.success) {
+        setBaseline(form)
         toast.success('Instellingen opgeslagen')
       } else {
         toast.error('Opslaan mislukt')
@@ -118,23 +147,12 @@ export default function SettingsClient({ values, configuredCount }: Props) {
               min={0}
               value={form[key] as number}
               onChange={(e) => setNum(key, e.target.value)}
+              className={inputClass}
               style={inputStyle}
             />
           </div>
         ))}
       </div>
-
-      <p
-        style={{
-          fontSize: 12,
-          color: 'rgba(255,255,255,0.55)',
-          marginBottom: 8,
-          marginTop: -4,
-          lineHeight: 1.4,
-        }}
-      >
-        Als actief: de waarschuwing voor lage credits is verborgen, en de gratis-modus banner verschijnt in de app en op de landingspagina.
-      </p>
 
       {/* Card 2: Gratis modus */}
       <div style={cardStyle}>
@@ -157,7 +175,9 @@ export default function SettingsClient({ values, configuredCount }: Props) {
               transition: 'background 0.2s',
               flexShrink: 0,
             }}
-            aria-pressed={form.free_mode_active}
+            role="switch"
+            aria-checked={form.free_mode_active}
+            aria-label="Gratis modus actief"
           >
             <span
               style={{
@@ -175,6 +195,17 @@ export default function SettingsClient({ values, configuredCount }: Props) {
           </button>
         </div>
 
+        <p
+          style={{
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.55)',
+            marginBottom: 16,
+            lineHeight: 1.4,
+          }}
+        >
+          Als actief: de waarschuwing voor lage credits is verborgen, en de gratis-modus banner verschijnt in de app en op de landingspagina.
+        </p>
+
         {/* Banner NL */}
         <div className={fieldRowClass} style={fieldRowStyle}>
           <label htmlFor="free_mode_banner_nl" style={labelStyle}>
@@ -185,6 +216,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
             type="text"
             value={form.free_mode_banner_nl}
             onChange={(e) => setStr('free_mode_banner_nl', e.target.value)}
+            className={inputClass}
             style={{ ...inputStyle, maxWidth: 340 }}
             placeholder="Bannertekst voor NL"
           />
@@ -200,6 +232,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
             type="text"
             value={form.free_mode_banner_en}
             onChange={(e) => setStr('free_mode_banner_en', e.target.value)}
+            className={inputClass}
             style={{ ...inputStyle, maxWidth: 340 }}
             placeholder="Banner text for EN"
           />
@@ -209,6 +242,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
       {/* Integrations shortcut */}
       <Link
         href="/admin/settings/integrations"
+        onClick={guardNav}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -230,6 +264,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
       {/* Cost recommendations shortcut */}
       <Link
         href="/admin/settings/recommendations"
+        onClick={guardNav}
         style={{
           display: 'flex',
           alignItems: 'center',

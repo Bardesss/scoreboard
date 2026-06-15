@@ -94,6 +94,11 @@ export default function AdminSidebar() {
             <Link
               key={href}
               href={href}
+              className={
+                active
+                  ? 'text-[#4a8eff] bg-white/10'
+                  : 'text-white/60 hover:text-white/[0.87] hover:bg-white/[0.06] focus-visible:text-white/[0.87] focus-visible:bg-white/[0.06]'
+              }
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -103,22 +108,8 @@ export default function AdminSidebar() {
                 marginBottom: 2,
                 fontSize: 13.5,
                 fontWeight: active ? 600 : 400,
-                color: active ? '#4a8eff' : 'rgba(255,255,255,0.6)',
-                background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
                 textDecoration: 'none',
                 transition: 'background 0.15s, color 0.15s',
-              }}
-              onMouseEnter={e => {
-                if (!active) {
-                  (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.06)'
-                  ;(e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.87)'
-                }
-              }}
-              onMouseLeave={e => {
-                if (!active) {
-                  (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'
-                  ;(e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)'
-                }
               }}
             >
               <Icon size={16} strokeWidth={1.8} />
@@ -132,19 +123,14 @@ export default function AdminSidebar() {
       <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
         <Link
           href="/app/dashboard"
+          className="text-white/35 hover:text-white/60 focus-visible:text-white/60"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 6,
             fontSize: 12.5,
-            color: 'rgba(255,255,255,0.35)',
             textDecoration: 'none',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)'
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.35)'
+            transition: 'color 0.15s',
           }}
         >
           <span style={{ fontSize: 14 }}>&#8592;</span>
