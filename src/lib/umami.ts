@@ -263,10 +263,11 @@ export async function getPageviewSeries(days = 30): Promise<UmamiSeriesPoint[]> 
   return normalizeSeries(r.pageviews ?? [], r.sessions ?? [], days, tzTodayAnchorSec())
 }
 
-/** Live active-visitor count (0 on failure). */
-export async function getActiveVisitors(): Promise<number> {
+/** Live active-visitor count, or null when Umami is unavailable (so callers can
+ * distinguish "nobody online" from "no data" rather than both reading as 0). */
+export async function getActiveVisitors(): Promise<number | null> {
   const raw = await apiGet(websitePath('/active'))
-  return raw && typeof raw === 'object' ? Number((raw as { visitors?: unknown }).visitors) || 0 : 0
+  return raw && typeof raw === 'object' ? Number((raw as { visitors?: unknown }).visitors) || 0 : null
 }
 
 /**

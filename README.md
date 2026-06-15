@@ -56,8 +56,10 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Optional — Umami analytics dashboard
 
 Set these to surface website analytics on the admin dashboard (`/admin`) and a
-connection test on `/admin/settings/integrations`. All optional: if any are
-missing, the analytics panel is simply hidden — nothing fails.
+connection test on `/admin/settings/integrations`. The four credential vars below
+are jointly required to activate the feature (`UMAMI_INTERNAL_URL` is optional on
+top of them); if any required var is missing the analytics panel is simply
+hidden — nothing fails.
 
 | Variable | Description |
 |---|---|

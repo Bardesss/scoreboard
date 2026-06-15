@@ -13,8 +13,9 @@ export default function AnalyticsLiveCount() {
       try {
         const res = await fetch('/api/admin/analytics', { cache: 'no-store' })
         if (!res.ok) return
-        const data = (await res.json()) as { active?: number }
-        if (!cancelled) setActive(data.active ?? 0)
+        const data = (await res.json()) as { active?: number | null }
+        // Stay hidden when the count is unavailable (null) — only show a real number.
+        if (!cancelled) setActive(typeof data.active === 'number' ? data.active : null)
       } catch {
         /* ignore — badge just stays hidden */
       }
