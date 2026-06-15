@@ -21,7 +21,7 @@ function unconfigure() {
 // Build a fetch mock that routes by URL substring. Each entry is a function
 // returning a Response-like object.
 function mockFetch(routes: Record<string, () => unknown>) {
-  return vi.fn(async (input: string) => {
+  return vi.fn(async (input: string, _init?: RequestInit) => {
     for (const [needle, make] of Object.entries(routes)) {
       if (input.includes(needle)) {
         const body = make()
