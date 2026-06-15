@@ -1,27 +1,42 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { Users, UserX, Gamepad2, LayoutTemplate, Trophy, Clock } from 'lucide-react'
+import { umamiConfigured, getSummary, getPageviewSeries } from '@/lib/umami'
+import AnalyticsSection from '@/components/admin/AnalyticsSection'
 
 export default async function AdminDashboardPage() {
-  const [userCount, unverifiedCount, playedGameCount, templateCount, leagueCount, pendingCount, recentGames] =
-    await Promise.all([
-      // Only verified accounts count as real users; unverified ones can't log
-      // in or use the system, so they're tracked separately below.
-      prisma.user.count({ where: { emailVerified: { not: null } } }),
-      prisma.user.count({ where: { emailVerified: null } }),
-      prisma.playedGame.count(),
-      prisma.gameTemplate.count(),
-      prisma.league.count(),
-      prisma.playedGame.count({ where: { status: 'pending_approval' } }),
-      prisma.playedGame.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        include: {
-          league: { select: { name: true } },
-          submittedBy: { select: { email: true } },
-        },
-      }),
-    ])
+  const umamiOn = umamiConfigured()
+
+  const [
+    userCount,
+    unverifiedCount,
+    playedGameCount,
+    templateCount,
+    leagueCount,
+    pendingCount,
+    recentGames,
+    umamiSummary,
+    umamiSeries,
+  ] = await Promise.all([
+    // Only verified accounts count as real users; unverified ones can't log
+    // in or use the system, so they're tracked separately below.
+    prisma.user.count({ where: { emailVerified: { not: null } } }),
+    prisma.user.count({ where: { emailVerified: null } }),
+    prisma.playedGame.count(),
+    prisma.gameTemplate.count(),
+    prisma.league.count(),
+    prisma.playedGame.count({ where: { status: 'pending_approval' } }),
+    prisma.playedGame.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: {
+        league: { select: { name: true } },
+        submittedBy: { select: { email: true } },
+      },
+    }),
+    umamiOn ? getSummary() : Promise.resolve(null),
+    umamiOn ? getPageviewSeries() : Promise.resolve([]),
+  ])
 
   const kpis = [
     { label: 'Gebruikers', value: userCount, icon: Users, href: '/admin/users' },
@@ -248,6 +263,8 @@ export default async function AdminDashboardPage() {
           </ul>
         )}
       </div>
+
+      {umamiOn && <AnalyticsSection summary={umamiSummary} series={umamiSeries} />}
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { saveMailgunConfig, testMailgunConnection } from './actions'
+import { saveMailgunConfig, testMailgunConnection, testUmamiConnection } from './actions'
 import type { MailgunStats } from './actions'
 import { Lock, Eye, EyeOff } from 'lucide-react'
 
@@ -51,6 +51,7 @@ function StatusBadge({ status }: { status: string }) {
     unconfigured: { label: 'Niet geconfigureerd', color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.06)' },
     ok:           { label: 'Verbonden',           color: '#4ade80',               bg: 'rgba(34,197,94,0.12)' },
     error:        { label: 'Fout',                color: '#f87171',               bg: 'rgba(248,113,113,0.12)' },
+    warning:      { label: 'Aandacht nodig',       color: '#fbbf24',               bg: 'rgba(251,191,36,0.12)' },
   }
   const s = map[status] ?? map.unconfigured
   return (
@@ -82,9 +83,11 @@ function StubCard({ name, icon }: { name: string; icon: string }) {
 export default function IntegrationsClient({
   mailgun,
   mailgunStats,
+  umami,
 }: {
   mailgun: IntegrationRow | null
   mailgunStats: MailgunStats | null
+  umami: { configured: boolean }
 }) {
   const router = useRouter()
   const [apiKey, setApiKey]   = useState(mailgun?.apiKey ?? '')
@@ -98,6 +101,20 @@ export default function IntegrationsClient({
 
   const [isSaving, startSave]   = useTransition()
   const [isTesting, startTest]  = useTransition()
+
+  const [umamiStatus, setUmamiStatus] = useState<'ok' | 'warning' | 'error' | 'unconfigured'>('unconfigured')
+  const [umamiMessage, setUmamiMessage] = useState<string | null>(null)
+  const [isTestingUmami, startTestUmami] = useTransition()
+
+  function handleTestUmami() {
+    startTestUmami(async () => {
+      const result = await testUmamiConnection()
+      setUmamiStatus(result.status)
+      setUmamiMessage(result.message)
+      if (result.success) toast.success('Umami verbonden')
+      else toast.error(result.message)
+    })
+  }
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -270,6 +287,54 @@ export default function IntegrationsClient({
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Umami card — env-configured, read-only status + test */}
+      <div style={card}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>📊</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.87)' }}>Umami Analytics</span>
+          </div>
+          <StatusBadge status={umamiStatus} />
+        </div>
+
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14 }}>
+          Geconfigureerd via omgevingsvariabelen (<code>UMAMI_API_URL</code>, <code>UMAMI_INTERNAL_URL</code>,{' '}
+          <code>UMAMI_WEBSITE_ID</code>, <code>UMAMI_USERNAME</code>, <code>UMAMI_PASSWORD</code>). Voedt het
+          dashboard-paneel "Website-analyse".
+        </p>
+
+        {!umami.configured && (
+          <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+            Nog niet geconfigureerd — stel de <code>UMAMI_*</code> variabelen in.
+          </div>
+        )}
+
+        {umamiMessage && (
+          <div
+            style={{
+              background: umamiStatus === 'error' ? 'rgba(248,113,113,0.1)' : umamiStatus === 'warning' ? 'rgba(251,191,36,0.1)' : 'rgba(74,222,128,0.1)',
+              border: `1px solid ${umamiStatus === 'error' ? 'rgba(248,113,113,0.2)' : umamiStatus === 'warning' ? 'rgba(251,191,36,0.2)' : 'rgba(74,222,128,0.2)'}`,
+              borderRadius: 10,
+              padding: '10px 14px',
+              marginBottom: 14,
+              fontSize: 13,
+              color: umamiStatus === 'error' ? '#f87171' : umamiStatus === 'warning' ? '#fbbf24' : '#4ade80',
+            }}
+          >
+            {umamiMessage}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleTestUmami}
+          disabled={isTestingUmami || !umami.configured}
+          style={btnStyle('rgba(255,255,255,0.1)', isTestingUmami || !umami.configured)}
+        >
+          {isTestingUmami ? 'Testen…' : 'Test verbinding'}
+        </button>
       </div>
 
       <StubCard name="Mollie" icon="💳" />

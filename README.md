@@ -53,6 +53,27 @@ Open [http://localhost:3000](http://localhost:3000).
 > **Email (Mailgun):** Configured via `/admin/settings/integrations` — no ENV vars needed.
 > `NEXTAUTH_SECRET` rotation invalidates stored integration credentials; re-enter them in the admin UI after rotating.
 
+### Optional — Umami analytics dashboard
+
+Set these to surface website analytics on the admin dashboard (`/admin`) and a
+connection test on `/admin/settings/integrations`. The four credential vars below
+are jointly required to activate the feature (`UMAMI_INTERNAL_URL` is optional on
+top of them); if any required var is missing the analytics panel is simply
+hidden — nothing fails.
+
+| Variable | Description |
+|---|---|
+| `UMAMI_API_URL` | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
+| `UMAMI_INTERNAL_URL` | **Recommended on Coolify.** Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. Used in preference to `UMAMI_API_URL` so the app container reaches Umami over the internal Docker network instead of the public URL (which a container often cannot reach via hairpin NAT). The browser tracking tag always uses the public URL. |
+| `UMAMI_WEBSITE_ID` | Website UUID (same id as the tracking tag). |
+| `UMAMI_USERNAME` | Umami login user (read access to the website). |
+| `UMAMI_PASSWORD` | Umami login password. |
+
+> If the dashboard shows "tijdelijk niet beschikbaar", open
+> `/admin/settings/integrations` → Umami → **Test verbinding** for the precise
+> reason (unreachable URL, bad credentials, wrong website-id, or the Umami user
+> not being linked to the site).
+
 ### Future / not yet active
 
 | Variable | When | Description |
