@@ -28,14 +28,15 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 10,
   padding: '8px 14px',
   fontSize: 14,
-  width: '100%',
 }
 
-// Border + focus ring live in a class so :focus-visible can override them —
+// Width: full on mobile (stacked), fixed on desktop so the input doesn't blow
+// past the card in the justify-between row (width:100% + label overflowed).
+// Border + focus ring live here too so :focus-visible can override them —
 // inline styles can't express focus state and `outline: none` alone left
 // keyboard users with no visible focus indicator.
 const inputClass =
-  'border border-white/10 outline-none transition-colors focus-visible:border-[#4a8eff] focus-visible:ring-2 focus-visible:ring-[rgba(74,142,255,0.35)]'
+  'w-full sm:w-[340px] sm:flex-shrink-0 border border-white/10 outline-none transition-colors focus-visible:border-[#4a8eff] focus-visible:ring-2 focus-visible:ring-[rgba(74,142,255,0.35)]'
 
 const labelStyle: React.CSSProperties = {
   fontSize: 13,
@@ -217,7 +218,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
             value={form.free_mode_banner_nl}
             onChange={(e) => setStr('free_mode_banner_nl', e.target.value)}
             className={inputClass}
-            style={{ ...inputStyle, maxWidth: 340 }}
+            style={inputStyle}
             placeholder="Bannertekst voor NL"
           />
         </div>
@@ -233,7 +234,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
             value={form.free_mode_banner_en}
             onChange={(e) => setStr('free_mode_banner_en', e.target.value)}
             className={inputClass}
-            style={{ ...inputStyle, maxWidth: 340 }}
+            style={inputStyle}
             placeholder="Banner text for EN"
           />
         </div>
