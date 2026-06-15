@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Toaster } from '@/components/ui/sonner'
 import { SuppressAutofillOverlayErrors } from '@/components/SuppressAutofillOverlayErrors'
 import './globals.css'
@@ -9,6 +9,14 @@ export const metadata: Metadata = {
     template: '%s | Dice Vault',
   },
   description: 'Log every game night, track stats, and settle debates once and for all.',
+}
+
+// viewport-fit=cover lets `env(safe-area-inset-*)` resolve to real values, so the
+// fixed bottom nav can pad itself against the device safe area / gesture bar.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({

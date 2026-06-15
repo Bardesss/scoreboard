@@ -31,11 +31,19 @@ export default function BottomNav() {
         left: 0,
         right: 0,
         zIndex: 40,
-        paddingBottom: '12px',
+        // Pin the bar to a deterministic height so its box never depends on the
+        // tallest child (the 56px FAB) or label wrapping per locale.
+        boxSizing: 'border-box',
+        minHeight: 76,
+        // Clear the device safe area / gesture bar; stays 76px where the inset is 0.
+        paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         background: 'rgba(247,243,237,0.94)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderTop: '1px solid rgba(245,166,35,0.1)',
+        // Promote to its own compositing layer so the backdrop-filter doesn't
+        // repaint/jitter while Firefox-Android's bottom toolbar animates on scroll.
+        transform: 'translateZ(0)',
       }}
     >
       {LEFT_NAV.map(({ key, href, icon: Icon }) => {
