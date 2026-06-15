@@ -104,7 +104,7 @@ describe('GET /api/cron/credit-reset', () => {
     expect(sendMonthlyResetEmail).not.toHaveBeenCalledWith('c@test.com', expect.anything(), expect.anything())
   })
 
-  it('auto-closes stale tickets and sends email', async () => {
+  it('no longer auto-closes tickets (moved to /api/cron/ticket-autoclose)', async () => {
     vi.mocked(prisma.ticket.findMany).mockResolvedValue([
       { id: 't1', subject: 'Bug report', user: { email: 'x@test.com', locale: 'en' } },
     ] as never)
@@ -113,7 +113,8 @@ describe('GET /api/cron/credit-reset', () => {
     const body = await res.json()
 
     expect(res.status).toBe(200)
-    expect(body.ticketsClosed).toBe(1)
-    expect(sendTicketAutoClosedEmail).toHaveBeenCalledWith('x@test.com', 'Bug report', 'en')
+    expect(body.ticketsClosed).toBeUndefined()
+    expect(prisma.ticket.updateMany).not.toHaveBeenCalled()
+    expect(sendTicketAutoClosedEmail).not.toHaveBeenCalled()
   })
 })

@@ -4,8 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { isFreeModeActive } from '@/lib/credits'
 import { getUnverifiedGraceDays } from '@/lib/accountSettings'
-import { sendMonthlyResetEmail, sendTicketAutoClosedEmail } from '@/lib/mail'
-import { purgeTicketAttachments } from '@/lib/ticketAttachments'
+import { sendMonthlyResetEmail } from '@/lib/mail'
 
 function bearerOk(header: string | null, secret: string | undefined): boolean {
   if (!secret || secret.length < 16) return false
@@ -72,28 +71,12 @@ export async function GET(req: Request) {
     await sendMonthlyResetEmail(user.email, monthlyFreeCredits, user.locale).catch(() => {})
   }
 
-  const staleTickets = await prisma.ticket.findMany({
-    where: { status: 'open', autoCloseAt: { lt: now } },
-    select: { id: true, subject: true, user: { select: { email: true, locale: true } } },
-  })
-
-  if (staleTickets.length > 0) {
-    for (const ticket of staleTickets) {
-      await purgeTicketAttachments(ticket.id)
-    }
-    await prisma.ticket.updateMany({
-      where: { id: { in: staleTickets.map(t => t.id) } },
-      data: { status: 'closed', autoCloseAt: null },
-    })
-    for (const ticket of staleTickets) {
-      await sendTicketAutoClosedEmail(ticket.user.email, ticket.subject, ticket.user.locale).catch(() => {})
-    }
-  }
+  // Ticket auto-close lives in its own daily cron (/api/cron/ticket-autoclose);
+  // tickets go stale on a rolling 7-day basis and can't wait for the monthly run.
 
   return NextResponse.json({
     ok: true,
     reset: eligibleUsers.length,
-    ticketsClosed: staleTickets.length,
     purgedUnverified,
     monthKey,
   })

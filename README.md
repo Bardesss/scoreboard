@@ -183,29 +183,39 @@ Every push to `main` triggers an automatic deploy. ✅
 
 ---
 
-## ⏰ Monthly Credit Reset Cron
+## ⏰ Cron Jobs
 
-The `/api/cron/credit-reset` endpoint resets monthly credits for all eligible users and auto-closes stale tickets. It is **GET**, secured by `CRON_SECRET`, and idempotent — the same month can only run once thanks to a Redis lock.
+Two **GET** endpoints, both secured by `CRON_SECRET`, run on independent schedules:
+
+| Endpoint | Cadence | What it does |
+| --- | --- | --- |
+| `/api/cron/credit-reset` | monthly | Resets monthly credits for eligible users and purges stale unverified accounts. Idempotent per month via a Redis lock. |
+| `/api/cron/ticket-autoclose` | daily | Closes support tickets whose `autoCloseAt` (set to 7 days after each reply) has passed, purging their attachments and emailing the user. |
+
+> Ticket auto-close runs **daily on its own schedule**. It used to be bundled into the monthly credit-reset run, which meant a ticket that went quiet mid-month stayed open until the 1st — make sure the daily Scheduled Task below exists, or auto-close will not happen.
 
 Manual invocation:
 
 ```bash
-curl https://yourdomain.com/api/cron/credit-reset \
-  -H "Authorization: Bearer YOUR_CRON_SECRET"
+wget -qO- --header="Authorization: Bearer YOUR_CRON_SECRET" \
+  https://yourdomain.com/api/cron/credit-reset
+
+wget -qO- --header="Authorization: Bearer YOUR_CRON_SECRET" \
+  https://yourdomain.com/api/cron/ticket-autoclose
 ```
+
+> The runtime image is `node:20-alpine` and has **no `curl`** — use `wget` (shipped with busybox), or `node -e "fetch(...)"`. A `curl` command in a Scheduled Task fails with `sh: curl: not found`.
 
 ### Coolify Scheduled Task setup
 
-In Coolify, open this application → **Scheduled Tasks** → **+ Add**:
+In Coolify, open this application → **Scheduled Tasks** → **+ Add** (add both):
 
-| Field | Value |
-| --- | --- |
-| Name | `monthly-credit-reset` |
-| Command | `curl -fsS -H "Authorization: Bearer $CRON_SECRET" "$NEXTAUTH_URL/api/cron/credit-reset"` |
-| Frequency | `0 2 1 * *` (02:00 UTC on the 1st of every month) |
-| Container | the app container |
+| Name | Command | Frequency |
+| --- | --- | --- |
+| `monthly-credit-reset` | `wget -qO- --header="Authorization: Bearer $CRON_SECRET" "$NEXTAUTH_URL/api/cron/credit-reset"` | `0 2 1 * *` (02:00 UTC, 1st of every month) |
+| `ticket-autoclose` | `wget -qO- --header="Authorization: Bearer $CRON_SECRET" "$NEXTAUTH_URL/api/cron/ticket-autoclose"` | `0 3 * * *` (03:00 UTC daily) |
 
-Coolify injects the application's env vars into the task, so `$CRON_SECRET` and `$NEXTAUTH_URL` resolve automatically — no extra secrets to manage. Verify the task has run by checking its log in Coolify after the next 1st of the month.
+Set the container to the app container. Coolify injects the application's env vars into the task, so `$CRON_SECRET` and `$NEXTAUTH_URL` resolve automatically — no extra secrets to manage. Verify each task by checking its log in Coolify after the next scheduled run.
 
 ---
 
