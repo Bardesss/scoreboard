@@ -314,13 +314,13 @@ export default function IntegrationsClient({
         {umamiMessage && (
           <div
             style={{
-              background: umamiStatus === 'error' ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)',
-              border: `1px solid ${umamiStatus === 'error' ? 'rgba(248,113,113,0.2)' : 'rgba(74,222,128,0.2)'}`,
+              background: umamiStatus === 'error' ? 'rgba(248,113,113,0.1)' : umamiStatus === 'warning' ? 'rgba(251,191,36,0.1)' : 'rgba(74,222,128,0.1)',
+              border: `1px solid ${umamiStatus === 'error' ? 'rgba(248,113,113,0.2)' : umamiStatus === 'warning' ? 'rgba(251,191,36,0.2)' : 'rgba(74,222,128,0.2)'}`,
               borderRadius: 10,
               padding: '10px 14px',
               marginBottom: 14,
               fontSize: 13,
-              color: umamiStatus === 'error' ? '#f87171' : '#4ade80',
+              color: umamiStatus === 'error' ? '#f87171' : umamiStatus === 'warning' ? '#fbbf24' : '#4ade80',
             }}
           >
             {umamiMessage}
