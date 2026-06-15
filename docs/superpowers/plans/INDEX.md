@@ -30,6 +30,7 @@ Single source of truth for phase order, plan files, and status.
 | **11b** | phase-11b-family-credits.md | not written (parked) | Family / shared credits — Plan B of [specs/2026-05-17-social-feed-reactions-referral-design.md](../specs/2026-05-17-social-feed-reactions-referral-design.md) §6. `Family` + `FamilyMember` schema, parent/child roles, shared pool, `/app/family` dashboard. Sequenced after 11a — its value is household monetization, which needs the 11a checkout flow. |
 | **11c** | phase-11c-payments-bitcoin.md | not written (parked) | main spec §11 (Strike/Lightning) — Bitcoin credit purchase |
 | **Security** | [2026-06-14-security-audit-remediation.md](2026-06-14-security-audit-remediation.md) | done | 2026-06-14 audit — MFA-bypass fix, security headers/CSP, email HTML escaping, participant-IDOR, secret hardening, login/TOTP throttles, XFF trust, TOTP-at-rest, cron/redis hardening |
+| **Umami Dashboard** | [2026-06-15-umami-admin-dashboard.md](2026-06-15-umami-admin-dashboard.md) | ready to execute | Website-analyse on `/admin` — server-side Umami client (`UMAMI_INTERNAL_URL` for hairpin-NAT, token cache + circuit breaker), summary KPIs + 30-day trend chart + live online count + integrations-page diagnostics |
 
 ## Specs
 
