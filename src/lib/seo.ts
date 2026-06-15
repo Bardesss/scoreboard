@@ -3,13 +3,24 @@ import { routing } from '@/i18n/routing'
 // Single source of truth for the public origin used in metadata, OG tags,
 // canonical/hreflang links, the sitemap and robots. NEXT_PUBLIC_APP_URL is the
 // canonical public URL; NEXTAUTH_URL is the runtime fallback already used for
-// absolute links elsewhere (see connectToken). Trailing slash stripped so we
-// can append paths without doubling up.
-export const siteUrl = (
-  process.env.NEXT_PUBLIC_APP_URL ??
-  process.env.NEXTAUTH_URL ??
-  'https://dicevault.fun'
-).replace(/\/$/, '')
+// absolute links elsewhere (see connectToken).
+function resolveSiteUrl(): string {
+  const raw = (
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.NEXTAUTH_URL ??
+    'https://dicevault.fun'
+  ).replace(/\/$/, '')
+  // Production is served over TLS. NEXT_PUBLIC_APP_URL is inlined at build time
+  // (so it's `undefined` unless passed as a build arg) and NEXTAUTH_URL is
+  // sometimes configured as http:// — either way we must never emit http://
+  // canonicals/OG tags for a live https host. Upgrade non-local http origins.
+  if (/^http:\/\//i.test(raw) && !/localhost|127\.0\.0\.1/.test(raw)) {
+    return raw.replace(/^http:\/\//i, 'https://')
+  }
+  return raw
+}
+
+export const siteUrl = resolveSiteUrl()
 
 export const siteName = 'Dice Vault'
 
