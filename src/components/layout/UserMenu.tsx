@@ -142,10 +142,8 @@ export function UserMenu({
               role="menuitem"
               disabled={pending}
               onClick={() => startTransition(() => { logout() })}
-              className="w-full flex items-center gap-2.5 px-4 py-2.5 font-body text-[13px] font-semibold transition-colors"
+              className="w-full flex items-center gap-2.5 px-4 py-2.5 font-body text-[13px] font-semibold transition-colors enabled:hover:bg-[rgba(220,38,38,0.06)] enabled:focus-visible:bg-[rgba(220,38,38,0.06)]"
               style={{ color: pending ? '#9a8878' : '#dc2626' }}
-              onMouseEnter={e => { if (!pending) (e.currentTarget as HTMLElement).style.background = 'rgba(220,38,38,0.06)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
               <LogOut size={15} strokeWidth={2.2} />
               {pending ? tLogout('signingOut') : tLogout('button')}
@@ -179,10 +177,8 @@ function MenuLink({
         href={href}
         onClick={onNavigate}
         role="menuitem"
-        className="flex items-center gap-2.5 px-4 py-2.5 font-body text-[13px] font-semibold transition-colors"
+        className="flex items-center gap-2.5 px-4 py-2.5 font-body text-[13px] font-semibold transition-colors hover:bg-[rgba(245,166,35,0.08)] focus-visible:bg-[rgba(245,166,35,0.08)]"
         style={{ color }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.08)' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
       >
         <Icon size={15} strokeWidth={2.2} className="flex-shrink-0" />
         <span className="flex-1 truncate">{label}</span>

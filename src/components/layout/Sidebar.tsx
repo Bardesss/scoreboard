@@ -52,13 +52,10 @@ export default function Sidebar({ name, email, credits, monthlyCredits, permanen
       <div className="px-4 mb-4">
         <Link href="/app/credits" className="block group">
           <div
-            className="px-3 py-2.5 rounded-xl transition-colors"
+            className="px-3 py-2.5 rounded-xl transition-colors bg-[#100c06] group-hover:bg-[#15110a] group-focus-visible:bg-[#15110a]"
             style={{
-              background: '#100c06',
               boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(245,166,35,0.04)',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#15110a' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#100c06' }}
           >
             <div className="flex items-center justify-between gap-2" style={{ marginBottom: isLifetimeFree ? 0 : 8 }}>
               <div className="flex items-baseline gap-1.5 min-w-0">
@@ -79,6 +76,7 @@ export default function Sidebar({ name, email, credits, monthlyCredits, permanen
             {!isLifetimeFree && (
               <>
                 <div
+                  aria-hidden
                   style={{
                     height: 2,
                     borderRadius: 999,
@@ -117,17 +115,13 @@ export default function Sidebar({ name, email, credits, monthlyCredits, permanen
         <button
           type="button"
           onClick={logGame.open}
-          className="flex items-center gap-[11px] w-full px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all"
+          className="flex items-center gap-[11px] w-full px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all text-left bg-[rgba(245,166,35,0.12)] hover:bg-[rgba(245,166,35,0.18)] focus-visible:bg-[rgba(245,166,35,0.18)]"
           style={{
-            background: 'rgba(245,166,35,0.12)',
             color: '#f5a623',
             boxShadow: 'inset 0 0 0 1px rgba(245,166,35,0.22)',
             cursor: 'pointer',
-            textAlign: 'left',
             fontFamily: 'inherit',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.18)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.12)' }}
         >
           <Plus size={17} strokeWidth={2.4} className="flex-shrink-0" />
           {tLog('trigger')}
@@ -141,13 +135,12 @@ export default function Sidebar({ name, email, credits, monthlyCredits, permanen
             <Link
               key={key}
               href={href}
-              className="flex items-center gap-[11px] px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all"
-              style={active
-                ? { background: 'rgba(245,166,35,0.12)', color: '#f5a623', boxShadow: 'inset 0 0 0 1px rgba(245,166,35,0.2)' }
-                : { color: '#9a8878' }
-              }
-              onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.06)'; (e.currentTarget as HTMLElement).style.color = '#f7f3ed' }}
-              onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = '#9a8878' } }}
+              className={`flex items-center gap-[11px] px-[14px] py-[10px] rounded-xl font-headline font-semibold text-[13.5px] transition-all ${
+                active
+                  ? 'text-[#f5a623] bg-[rgba(245,166,35,0.12)]'
+                  : 'text-[#9a8878] hover:text-[#f7f3ed] hover:bg-[rgba(245,166,35,0.06)] focus-visible:text-[#f7f3ed] focus-visible:bg-[rgba(245,166,35,0.06)]'
+              }`}
+              style={active ? { boxShadow: 'inset 0 0 0 1px rgba(245,166,35,0.2)' } : undefined}
             >
               <Icon size={17} className="flex-shrink-0" />
               {t(key)}

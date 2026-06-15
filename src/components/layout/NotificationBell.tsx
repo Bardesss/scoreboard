@@ -124,10 +124,8 @@ export function NotificationBell({
                   <Link
                     href={hrefFor(n)}
                     onClick={() => setOpen(false)}
-                    className="block px-4 py-3 font-body text-sm transition-colors"
+                    className="block px-4 py-3 font-body text-sm transition-colors hover:bg-[rgba(245,166,35,0.08)] focus-visible:bg-[rgba(245,166,35,0.08)]"
                     style={{ color: '#1e1a14' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,166,35,0.08)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   >
                     <p>{notificationLabel(n)}</p>
                     <p className="text-xs mt-0.5" style={{ color: '#9a8878' }}>

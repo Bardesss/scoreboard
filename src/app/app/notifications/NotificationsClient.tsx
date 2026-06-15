@@ -205,10 +205,7 @@ export function NotificationsClient({
                     disabled={pending}
                     aria-label={t('delete')}
                     title={t('delete')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                    style={{ color: '#9a8878' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(220,38,38,0.08)'; (e.currentTarget as HTMLElement).style.color = '#dc2626' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9a8878' }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-[#9a8878] enabled:hover:bg-[rgba(220,38,38,0.08)] enabled:hover:text-[#dc2626] enabled:focus-visible:bg-[rgba(220,38,38,0.08)] enabled:focus-visible:text-[#dc2626]"
                   >
                     <Trash2 size={14} />
                   </button>
