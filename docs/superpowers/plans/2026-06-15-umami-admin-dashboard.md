@@ -47,7 +47,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Helper: set the four required vars (+ optional internal URL when given).
 function configure(internal?: string) {
-  process.env.UMAMI_API_URL = 'https://analytics.example.com'
+  process.env.UMAMI_URL = 'https://analytics.example.com'
   process.env.UMAMI_WEBSITE_ID = 'web-123'
   process.env.UMAMI_USERNAME = 'admin'
   process.env.UMAMI_PASSWORD = 'secret'
@@ -56,7 +56,7 @@ function configure(internal?: string) {
 }
 
 function unconfigure() {
-  delete process.env.UMAMI_API_URL
+  delete process.env.UMAMI_URL
   delete process.env.UMAMI_INTERNAL_URL
   delete process.env.UMAMI_WEBSITE_ID
   delete process.env.UMAMI_USERNAME
@@ -103,7 +103,7 @@ describe('umamiConfigured / apiBase', () => {
     expect(umami.umamiConfigured()).toBe(true)
   })
 
-  it('apiBase prefers UMAMI_INTERNAL_URL, falls back to UMAMI_API_URL', async () => {
+  it('apiBase prefers UMAMI_INTERNAL_URL, falls back to UMAMI_URL', async () => {
     configure('http://umami-internal:3000')
     const umami = await import('./umami')
     expect(umami.apiBase()).toBe('http://umami-internal:3000')
@@ -302,7 +302,7 @@ Create `src/lib/umami.ts`:
  * UMAMI_INTERNAL_URL when set (the internal Docker address, e.g.
  * http://umami-xxxx:3000), avoiding hairpin-NAT failures where a container
  * cannot reach its own host's public URL. Falls back to the public
- * UMAMI_API_URL. The browser tracking tag (src/components/UmamiAnalytics.tsx)
+ * UMAMI_URL. The browser tracking tag (src/components/UmamiAnalytics.tsx)
  * always uses the public URL and is untouched by this module.
  *
  * Every network method returns null/0/[] on any failure and never throws.
@@ -345,7 +345,7 @@ export type UmamiHealth = {
   message: string
 }
 
-const REQUIRED_VARS = ['UMAMI_API_URL', 'UMAMI_WEBSITE_ID', 'UMAMI_USERNAME', 'UMAMI_PASSWORD'] as const
+const REQUIRED_VARS = ['UMAMI_URL', 'UMAMI_WEBSITE_ID', 'UMAMI_USERNAME', 'UMAMI_PASSWORD'] as const
 
 export function umamiConfigured(): boolean {
   return REQUIRED_VARS.every(v => (process.env[v] ?? '') !== '')
@@ -355,7 +355,7 @@ export function umamiConfigured(): boolean {
 export function apiBase(): string {
   const internal = process.env.UMAMI_INTERNAL_URL ?? ''
   if (internal !== '') return internal.replace(/\/$/, '')
-  return (process.env.UMAMI_API_URL ?? '').replace(/\/$/, '')
+  return (process.env.UMAMI_URL ?? '').replace(/\/$/, '')
 }
 
 // ── Pure helpers (network-free, unit-tested) ──────────────────────────────
@@ -569,7 +569,7 @@ export async function healthCheck(): Promise<UmamiHealth> {
       return { configured: true, status: 'error', message: 'Inloggen geweigerd — controleer gebruiker/wachtwoord' }
     }
     if (loginRes.status === 0) {
-      return { configured: true, status: 'error', message: 'Niet bereikbaar — controleer UMAMI_API_URL / UMAMI_INTERNAL_URL / netwerk' }
+      return { configured: true, status: 'error', message: 'Niet bereikbaar — controleer UMAMI_URL / UMAMI_INTERNAL_URL / netwerk' }
     }
     return { configured: true, status: 'error', message: `Inloggen mislukt (HTTP ${loginRes.status})` }
   }
@@ -1116,7 +1116,7 @@ export default function IntegrationsClient({
         </div>
 
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14 }}>
-          Geconfigureerd via omgevingsvariabelen (<code>UMAMI_API_URL</code>, <code>UMAMI_INTERNAL_URL</code>,{' '}
+          Geconfigureerd via omgevingsvariabelen (<code>UMAMI_URL</code>, <code>UMAMI_INTERNAL_URL</code>,{' '}
           <code>UMAMI_WEBSITE_ID</code>, <code>UMAMI_USERNAME</code>, <code>UMAMI_PASSWORD</code>). Voedt het
           dashboard-paneel “Website-analyse”.
         </p>
@@ -1192,8 +1192,8 @@ missing, the analytics panel is simply hidden — nothing fails.
 
 | Variable | Description |
 |---|---|
-| `UMAMI_API_URL` | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
-| `UMAMI_INTERNAL_URL` | **Recommended on Coolify.** Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. Used in preference to `UMAMI_API_URL` so the app container reaches Umami over the internal Docker network instead of the public URL (which a container often cannot reach via hairpin NAT). The browser tracking tag always uses the public URL. |
+| `UMAMI_URL` | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
+| `UMAMI_INTERNAL_URL` | **Recommended on Coolify.** Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. Used in preference to `UMAMI_URL` so the app container reaches Umami over the internal Docker network instead of the public URL (which a container often cannot reach via hairpin NAT). The browser tracking tag always uses the public URL. |
 | `UMAMI_WEBSITE_ID` | Website UUID (same id as the tracking tag). |
 | `UMAMI_USERNAME` | Umami login user (read access to the website). |
 | `UMAMI_PASSWORD` | Umami login password. |

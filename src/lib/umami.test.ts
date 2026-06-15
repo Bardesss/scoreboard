@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Helper: set the four required vars (+ optional internal URL when given).
 function configure(internal?: string) {
-  process.env.UMAMI_API_URL = 'https://analytics.example.com'
+  process.env.UMAMI_URL = 'https://analytics.example.com'
   process.env.UMAMI_WEBSITE_ID = 'web-123'
   process.env.UMAMI_USERNAME = 'admin'
   process.env.UMAMI_PASSWORD = 'secret'
@@ -11,7 +11,7 @@ function configure(internal?: string) {
 }
 
 function unconfigure() {
-  delete process.env.UMAMI_API_URL
+  delete process.env.UMAMI_URL
   delete process.env.UMAMI_INTERNAL_URL
   delete process.env.UMAMI_WEBSITE_ID
   delete process.env.UMAMI_USERNAME
@@ -58,7 +58,7 @@ describe('umamiConfigured / apiBase', () => {
     expect(umami.umamiConfigured()).toBe(true)
   })
 
-  it('apiBase prefers UMAMI_INTERNAL_URL, falls back to UMAMI_API_URL', async () => {
+  it('apiBase prefers UMAMI_INTERNAL_URL, falls back to UMAMI_URL', async () => {
     configure('http://umami-internal:3000')
     const umami = await import('./umami')
     expect(umami.apiBase()).toBe('http://umami-internal:3000')

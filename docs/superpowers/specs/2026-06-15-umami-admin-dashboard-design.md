@@ -45,8 +45,8 @@ Server-side env vars (read in `src/lib/umami.ts`):
 
 | Var | Required for feature | Purpose |
 |-----|----------------------|---------|
-| `UMAMI_API_URL` | yes | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
-| `UMAMI_INTERNAL_URL` | no | Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. **Preferred** when set; falls back to `UMAMI_API_URL`. |
+| `UMAMI_URL` | yes | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
+| `UMAMI_INTERNAL_URL` | no | Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. **Preferred** when set; falls back to `UMAMI_URL`. |
 | `UMAMI_WEBSITE_ID` | yes | Website UUID. |
 | `UMAMI_USERNAME` | yes | Umami login user. |
 | `UMAMI_PASSWORD` | yes | Umami login password. |
@@ -71,7 +71,7 @@ network methods return `null`/`0`/`[]` on any failure and never throw.
 
 **Config / URL resolution**
 - `umamiConfigured(): boolean` — all required vars present and non-empty.
-- `apiBase(): string` — `UMAMI_INTERNAL_URL` if set, else `UMAMI_API_URL`.
+- `apiBase(): string` — `UMAMI_INTERNAL_URL` if set, else `UMAMI_URL`.
 
 **Transport & auth** (private)
 - Module-level cache: `{ token: string | null, tokenExpiresAt: number }` and
@@ -102,7 +102,7 @@ network methods return `null`/`0`/`[]` on any failure and never throw.
 - `healthCheck()`: bypasses token cache + breaker; does a fresh login then hits
   `/active`, returning `{ configured, status: 'ok'|'warning'|'error', message }`
   with specific Dutch messages for: missing vars, unreachable
-  (`UMAMI_INTERNAL_URL` / `UMAMI_API_URL` / network), login denied (401/403),
+  (`UMAMI_INTERNAL_URL` / `UMAMI_URL` / network), login denied (401/403),
   website-id not found (400/404), user-not-linked-to-site (401/403 on `/active`
   after a successful login).
 
@@ -168,7 +168,7 @@ the dashboard stays clean.
   status + config presence).
 - The card shows the result of `healthCheck()`: configured? reachable?
   credentials valid? website-id valid? with the precise Dutch message per
-  failure mode (missing vars / unreachable — check `UMAMI_API_URL` /
+  failure mode (missing vars / unreachable — check `UMAMI_URL` /
   `UMAMI_INTERNAL_URL` / network / login denied / website-id not found / Umami
   user not linked to the site).
 - A "Test verbinding" action (server action or the same admin API route) re-runs
@@ -200,7 +200,7 @@ AnalyticsLiveCount (client) ──poll /api/admin/analytics/60s──▶ route.t
 
 Unit tests (Vitest, mocked `fetch`) for `src/lib/umami.ts`:
 - `umamiConfigured()` true/false on env presence.
-- `apiBase()` prefers `UMAMI_INTERNAL_URL`, falls back to `UMAMI_API_URL`.
+- `apiBase()` prefers `UMAMI_INTERNAL_URL`, falls back to `UMAMI_URL`.
 - `getToken()` logs in once and reuses the cached token within TTL.
 - 401 path: `apiGet` re-logins once and retries.
 - Circuit breaker: after a transport failure, subsequent calls short-circuit

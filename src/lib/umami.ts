@@ -10,7 +10,7 @@
  * UMAMI_INTERNAL_URL when set (the internal Docker address, e.g.
  * http://umami-xxxx:3000), avoiding hairpin-NAT failures where a container
  * cannot reach its own host's public URL. Falls back to the public
- * UMAMI_API_URL. The browser tracking tag (src/components/UmamiAnalytics.tsx)
+ * UMAMI_URL. The browser tracking tag (src/components/UmamiAnalytics.tsx)
  * always uses the public URL and is untouched by this module.
  *
  * Every network method returns null/0/[] on any failure and never throws.
@@ -53,7 +53,7 @@ export type UmamiHealth = {
   message: string
 }
 
-const REQUIRED_VARS = ['UMAMI_API_URL', 'UMAMI_WEBSITE_ID', 'UMAMI_USERNAME', 'UMAMI_PASSWORD'] as const
+const REQUIRED_VARS = ['UMAMI_URL', 'UMAMI_WEBSITE_ID', 'UMAMI_USERNAME', 'UMAMI_PASSWORD'] as const
 
 export function umamiConfigured(): boolean {
   return REQUIRED_VARS.every(v => (process.env[v] ?? '') !== '')
@@ -63,7 +63,7 @@ export function umamiConfigured(): boolean {
 export function apiBase(): string {
   const internal = process.env.UMAMI_INTERNAL_URL ?? ''
   if (internal !== '') return internal.replace(/\/$/, '')
-  return (process.env.UMAMI_API_URL ?? '').replace(/\/$/, '')
+  return (process.env.UMAMI_URL ?? '').replace(/\/$/, '')
 }
 
 // ── Pure helpers (network-free, unit-tested) ──────────────────────────────
@@ -292,7 +292,7 @@ export async function healthCheck(): Promise<UmamiHealth> {
       return { configured: true, status: 'error', message: 'Inloggen geweigerd — controleer gebruiker/wachtwoord' }
     }
     if (loginRes.status === 0) {
-      return { configured: true, status: 'error', message: 'Niet bereikbaar — controleer UMAMI_API_URL / UMAMI_INTERNAL_URL / netwerk' }
+      return { configured: true, status: 'error', message: 'Niet bereikbaar — controleer UMAMI_URL / UMAMI_INTERNAL_URL / netwerk' }
     }
     return { configured: true, status: 'error', message: `Inloggen mislukt (HTTP ${loginRes.status})` }
   }

@@ -300,7 +300,7 @@ export default function IntegrationsClient({
         </div>
 
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14 }}>
-          Geconfigureerd via omgevingsvariabelen (<code>UMAMI_API_URL</code>, <code>UMAMI_INTERNAL_URL</code>,{' '}
+          Geconfigureerd via omgevingsvariabelen (<code>UMAMI_URL</code>, <code>UMAMI_INTERNAL_URL</code>,{' '}
           <code>UMAMI_WEBSITE_ID</code>, <code>UMAMI_USERNAME</code>, <code>UMAMI_PASSWORD</code>). Voedt het
           dashboard-paneel "Website-analyse".
         </p>

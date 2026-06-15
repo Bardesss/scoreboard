@@ -63,8 +63,8 @@ hidden — nothing fails.
 
 | Variable | Description |
 |---|---|
-| `UMAMI_API_URL` | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
-| `UMAMI_INTERNAL_URL` | **Recommended on Coolify.** Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. Used in preference to `UMAMI_API_URL` so the app container reaches Umami over the internal Docker network instead of the public URL (which a container often cannot reach via hairpin NAT). The browser tracking tag always uses the public URL. |
+| `UMAMI_URL` | Public base URL of the Umami instance, e.g. `https://analytics.bartusoost.nl`. |
+| `UMAMI_INTERNAL_URL` | **Recommended on Coolify.** Internal base URL for server-to-server API calls, e.g. `http://umami-xxxx:3000`. Used in preference to `UMAMI_URL` so the app container reaches Umami over the internal Docker network instead of the public URL (which a container often cannot reach via hairpin NAT). The browser tracking tag always uses the public URL. |
 | `UMAMI_WEBSITE_ID` | Website UUID (same id as the tracking tag). |
 | `UMAMI_USERNAME` | Umami login user (read access to the website). |
 | `UMAMI_PASSWORD` | Umami login password. |
