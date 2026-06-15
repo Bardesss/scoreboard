@@ -287,7 +287,9 @@
         "low_credit_warning": "Your credits are running low",
         "monthly_reset": "Your monthly credits reset",
         "ticket_replied": "Support replies to your ticket",
-        "ticket_closed": "Your support ticket is closed"
+        "ticket_closed": "Your support ticket is closed",
+        "connection_game_logged": "A connection logs a game",
+        "reaction_received": "Someone reacts to your activity"
       },
       "hints": {
         "connection_request": "A heads-up that another vault keeper wants to connect.",
@@ -298,7 +300,9 @@
         "low_credit_warning": "Sent once when your balance dips under the threshold.",
         "monthly_reset": "Sent at the start of every month when credits refill.",
         "ticket_replied": "Sent when support responds to one of your tickets.",
-        "ticket_closed": "Sent when a ticket is closed (by you, support, or auto-close)."
+        "ticket_closed": "Sent when a ticket is closed (by you, support, or auto-close).",
+        "connection_game_logged": "Heads-up when a connection in your league logs a game you weren't part of.",
+        "reaction_received": "Heads-up when someone reacts to one of your activities."
       }
     }
   },

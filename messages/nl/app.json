@@ -287,7 +287,9 @@
         "low_credit_warning": "Je credits raken op",
         "monthly_reset": "Je maandelijkse credits resetten",
         "ticket_replied": "Support reageert op je ticket",
-        "ticket_closed": "Je supportticket wordt gesloten"
+        "ticket_closed": "Je supportticket wordt gesloten",
+        "connection_game_logged": "Een connectie logt een partij",
+        "reaction_received": "Iemand reageert op je activiteit"
       },
       "hints": {
         "connection_request": "Een seintje dat een andere vault keeper wil verbinden.",
@@ -298,7 +300,9 @@
         "low_credit_warning": "Wordt eenmaal verstuurd zodra je saldo onder de drempel zakt.",
         "monthly_reset": "Wordt aan het begin van elke maand verstuurd bij credit-refill.",
         "ticket_replied": "Wordt verstuurd zodra support op een van je tickets reageert.",
-        "ticket_closed": "Wordt verstuurd zodra een ticket wordt gesloten (door jou, support of auto-close)."
+        "ticket_closed": "Wordt verstuurd zodra een ticket wordt gesloten (door jou, support of auto-close).",
+        "connection_game_logged": "Seintje wanneer een connectie in je league een partij vastlegt waar jij niet bij was.",
+        "reaction_received": "Seintje wanneer iemand reageert op een van je activiteiten."
       }
     }
   },
