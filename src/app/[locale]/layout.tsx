@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { UmamiAnalytics } from '@/components/UmamiAnalytics'
+import { buildOpenGraph } from '@/lib/seo'
 
 type Props = {
   children: React.ReactNode
@@ -27,6 +28,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: m.title,
     description: m.description,
+    openGraph: buildOpenGraph({ locale, title: m.title, description: m.description }),
+    twitter: {
+      card: 'summary_large_image',
+      title: m.title,
+      description: m.description,
+    },
   }
 }
 

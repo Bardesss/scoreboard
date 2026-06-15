@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import {
   Eye, EyeOff, Trash2, Plus, X, Pencil,
-  ChevronUp, ChevronDown, MessageSquareQuote,
+  ChevronUp, ChevronDown, MessageSquareQuote, Star,
 } from 'lucide-react'
 import { createReview, updateReview, deleteReview, reorderReview } from './actions'
 import type { Review } from '@prisma/client'
@@ -32,13 +32,39 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 6,
 }
 
-const EMPTY_FORM = { name: '', review: '', favoriteBoardGame: '' }
+const EMPTY_FORM = { name: '', review: '', favoriteBoardGame: '', rating: 5 }
 
 type EditState = {
   name: string
   review: string
   favoriteBoardGame: string
+  rating: number
   visible: boolean
+}
+
+// Clickable 1–5 star rating input, styled for the dark admin theme.
+function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div style={{ display: 'flex', gap: 4 }} role="radiogroup" aria-label="Beoordeling">
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          role="radio"
+          aria-checked={value === n}
+          aria-label={`${n} ${n === 1 ? 'ster' : 'sterren'}`}
+          style={{ background: 'none', border: 'none', padding: 2, cursor: 'pointer', display: 'flex' }}
+        >
+          <Star
+            size={20}
+            style={{ color: n <= value ? '#f5a623' : 'rgba(255,255,255,0.18)' }}
+            fill={n <= value ? '#f5a623' : 'none'}
+          />
+        </button>
+      ))}
+    </div>
+  )
 }
 
 export default function ReviewsClient({ reviews: initialReviews }: Props) {
@@ -46,13 +72,13 @@ export default function ReviewsClient({ reviews: initialReviews }: Props) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<EditState>({ name: '', review: '', favoriteBoardGame: '', visible: true })
+  const [editForm, setEditForm] = useState<EditState>({ name: '', review: '', favoriteBoardGame: '', rating: 5, visible: true })
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function openEdit(r: Review) {
     setEditingId(r.id)
-    setEditForm({ name: r.name, review: r.review, favoriteBoardGame: r.favoriteBoardGame, visible: r.visible })
+    setEditForm({ name: r.name, review: r.review, favoriteBoardGame: r.favoriteBoardGame, rating: r.rating, visible: r.visible })
   }
 
   function handleCreate(e: React.FormEvent) {
@@ -119,6 +145,7 @@ export default function ReviewsClient({ reviews: initialReviews }: Props) {
         name: r.name,
         review: r.review,
         favoriteBoardGame: r.favoriteBoardGame,
+        rating: r.rating,
         visible: !r.visible,
       })
       if (result.success) {
@@ -219,7 +246,7 @@ export default function ReviewsClient({ reviews: initialReviews }: Props) {
                 />
               </div>
             </div>
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Review</label>
               <textarea
                 required
@@ -229,6 +256,10 @@ export default function ReviewsClient({ reviews: initialReviews }: Props) {
                 placeholder="Schrijf hier de review..."
                 style={{ ...inputStyle, resize: 'vertical' }}
               />
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <label style={labelStyle}>Beoordeling</label>
+              <StarRating value={form.rating} onChange={v => setForm(p => ({ ...p, rating: v }))} />
             </div>
             <button
               type="submit"
@@ -301,6 +332,10 @@ export default function ReviewsClient({ reviews: initialReviews }: Props) {
                       style={{ ...inputStyle, resize: 'vertical' }}
                     />
                   </div>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={labelStyle}>Beoordeling</label>
+                    <StarRating value={editForm.rating} onChange={v => setEditForm(p => ({ ...p, rating: v }))} />
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
                       <input
@@ -346,6 +381,16 @@ export default function ReviewsClient({ reviews: initialReviews }: Props) {
                       <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.87)' }}>{r.name}</span>
                       <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>—</span>
                       <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{r.favoriteBoardGame}</span>
+                      <span style={{ display: 'flex', gap: 1 }} aria-label={`${r.rating} van 5 sterren`}>
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <Star
+                            key={n}
+                            size={12}
+                            style={{ color: n <= r.rating ? '#f5a623' : 'rgba(255,255,255,0.15)' }}
+                            fill={n <= r.rating ? '#f5a623' : 'none'}
+                          />
+                        ))}
+                      </span>
                       {!r.visible && (
                         <span style={{
                           fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 5,

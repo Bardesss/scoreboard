@@ -8,11 +8,14 @@ import { FreeModeRibbon } from './_components/FreeModeRibbon'
 import { HeroMedia } from './_components/HeroMedia'
 import { getHeroMedia } from '@/lib/heroMedia'
 import { hasActivePaymentProvider } from '@/lib/integrations'
+import { JsonLd } from '@/components/JsonLd'
+import { siteUrl, siteName, localizedAlternates } from '@/lib/seo'
+import type { Metadata } from 'next'
 import {
   Dices, BarChart2, Shield,
   Trophy, UserCheck, Share2, Bell,
   Vault, Users, ClipboardList, UserPlus,
-  Building2, CreditCard, Zap,
+  Building2, CreditCard, Zap, Star,
 } from 'lucide-react'
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number; className?: string; style?: React.CSSProperties }>> = {
@@ -78,6 +81,13 @@ const dim = '#4a5568'
 
 type Props = { params: Promise<{ locale: string }> }
 
+// Title/description/OG come from the locale layout; here we add the canonical +
+// hreflang alternates for the landing page itself.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  return { alternates: localizedAlternates(locale) }
+}
+
 export default async function LandingPage({ params }: Props) {
   const { locale } = await params
   const session = await auth()
@@ -136,11 +146,12 @@ export default async function LandingPage({ params }: Props) {
   })
 
   const reviews = dbReviews.length > 0
-    ? dbReviews.map(r => ({ name: r.name, review: r.review, game: r.favoriteBoardGame }))
+    ? dbReviews.map(r => ({ name: r.name, review: r.review, game: r.favoriteBoardGame, rating: r.rating }))
     : [0, 1, 2].map(i => ({
         name: t(`reviews.placeholder.${i}.name`),
         review: t(`reviews.placeholder.${i}.review`),
         game: t(`reviews.placeholder.${i}.game`),
+        rating: null,
       }))
 
   const socialItems = [0, 1, 2].map(i => ({
@@ -155,8 +166,68 @@ export default async function LandingPage({ params }: Props) {
     description: t(`gameTypes.items.${i}.description` as Parameters<typeof t>[0]),
   }))
 
+  // Schema.org structured data. Ratings are only emitted for real admin-entered
+  // reviews (dbReviews); placeholder/translation reviews carry no rating, so we
+  // never fabricate one (which would violate Google's guidelines).
+  const ratedReviews = dbReviews.filter(r => typeof r.rating === 'number')
+  const aggregateRating =
+    ratedReviews.length > 0
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: (
+            ratedReviews.reduce((sum, r) => sum + r.rating, 0) / ratedReviews.length
+          ).toFixed(1),
+          reviewCount: ratedReviews.length,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl,
+      logo: `${siteUrl}/apple-icon`,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: siteName,
+      url: `${siteUrl}/${locale}`,
+      inLanguage: locale,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: siteName,
+      description: t('hero.subheadline'),
+      applicationCategory: 'LifestyleApplication',
+      operatingSystem: 'Web',
+      url: `${siteUrl}/${locale}`,
+      ...(aggregateRating ? { aggregateRating } : {}),
+      review: reviews.map(r => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.name },
+        reviewBody: r.review,
+        ...(typeof r.rating === 'number'
+          ? {
+              reviewRating: {
+                '@type': 'Rating',
+                ratingValue: r.rating,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            }
+          : {}),
+      })),
+    },
+  ]
+
   return (
     <div className="landing-page relative z-10">
+      <JsonLd data={jsonLd} />
 
       {freeMode.active && (
         <FreeModeRibbon text={ribbonDisplayText} dismissAriaLabel={tFreeMode('dismissAria')} />
@@ -497,6 +568,19 @@ export default async function LandingPage({ params }: Props) {
           {reviews.map((review, i) => (
             <div key={i} className="rounded-2xl p-6" style={card}>
               <div className="font-headline font-black leading-none mb-2" style={{ fontSize: 44, color: 'rgba(245,166,35,0.2)', lineHeight: 0.9 }}>&ldquo;</div>
+              {typeof review.rating === 'number' && (
+                <div className="flex gap-0.5 mb-3" aria-label={`${review.rating}/5`}>
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <Star
+                      key={n}
+                      size={14}
+                      style={{ color: amber }}
+                      fill={n <= (review.rating ?? 0) ? amber : 'none'}
+                      strokeWidth={n <= (review.rating ?? 0) ? 0 : 1.5}
+                    />
+                  ))}
+                </div>
+              )}
               <p className="font-body text-[14px] leading-relaxed mb-5" style={{ color: text }}>{review.review}</p>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,166,35,0.1)' }}>

@@ -11,10 +11,15 @@ async function requireAdmin(): Promise<void> {
   }
 }
 
+function normalizeRating(rating: number): number {
+  return Math.min(5, Math.max(1, Math.round(rating)))
+}
+
 export async function createReview(input: {
   name: string
   review: string
   favoriteBoardGame: string
+  rating: number
 }): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAdmin()
@@ -30,6 +35,7 @@ export async function createReview(input: {
         name: input.name.trim(),
         review: input.review.trim(),
         favoriteBoardGame: input.favoriteBoardGame.trim(),
+        rating: normalizeRating(input.rating),
         order: count,
       },
     })
@@ -47,6 +53,7 @@ export async function updateReview(
     name: string
     review: string
     favoriteBoardGame: string
+    rating: number
     visible: boolean
   },
 ): Promise<{ success: boolean }> {
@@ -59,6 +66,7 @@ export async function updateReview(
         name: input.name.trim(),
         review: input.review.trim(),
         favoriteBoardGame: input.favoriteBoardGame.trim(),
+        rating: normalizeRating(input.rating),
         visible: input.visible,
       },
     })

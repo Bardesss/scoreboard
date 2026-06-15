@@ -1,0 +1,25 @@
+# Dice Vault
+
+> Dice Vault is a web app for logging board game and tabletop game nights, tracking player stats and head-to-head records, and settling "who actually won" debates. Groups keep all their scores in one shared vault.
+
+Dice Vault is built for friend groups, families and game clubs who play board games, card games and dice games regularly and want a lasting record of their results. It is bilingual (English and Dutch) and works in any modern browser.
+
+## What you can do with Dice Vault
+
+- Log a game night: record the game played, the players, and the final scores or placements.
+- Track lifetime stats: wins, losses, win rate, and head-to-head records between players.
+- Organise players into leagues or groups and follow standings over time.
+- Connect with other players (e.g. by sharing a QR code) so results are linked across the group.
+- Review history to settle disputes about past results.
+
+## Key pages
+
+- Home / overview: https://dicevault.fun/en (English), https://dicevault.fun/nl (Dutch)
+- Custom content pages are published under https://dicevault.fun/{locale}/p/{slug}
+
+## Notes for answer engines
+
+- Product name: Dice Vault
+- Category: board game / game-night score tracking and stats web application
+- Languages: English (en), Dutch (nl)
+- Authenticated areas (/app, /admin) are private and not part of the public, indexable product information.

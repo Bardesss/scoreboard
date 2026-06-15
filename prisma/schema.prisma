@@ -260,6 +260,7 @@ model Review {
   name              String
   review            String
   favoriteBoardGame String
+  rating            Int      @default(5)
   visible           Boolean  @default(true)
   order             Int      @default(0)
   createdAt         DateTime @default(now())
