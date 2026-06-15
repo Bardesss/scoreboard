@@ -233,3 +233,39 @@ describe('healthCheck', () => {
     expect(h.message).toContain('Verbonden')
   })
 })
+
+describe('dayRange', () => {
+  it('returns epoch-ms [start, end] for the trailing window', async () => {
+    const { dayRange } = await import('./umami')
+    expect(dayRange(1, 1000)).toEqual([(1000 - 86400) * 1000, 1000 * 1000])
+  })
+})
+
+describe('getPageviewSeries (network)', () => {
+  it('logs in, fetches /pageviews and gap-fills the series', async () => {
+    vi.stubGlobal('fetch', mockFetch({
+      '/api/auth/login': () => ({ token: 'tok' }),
+      '/pageviews': () => ({ pageviews: [], sessions: [] }),
+    }))
+    const umami = await import('./umami')
+    const series = await umami.getPageviewSeries(7)
+    expect(series).toHaveLength(7)
+    expect(series.every(p => p.views === 0 && p.sessions === 0)).toBe(true)
+    expect(series[0].date < series[6].date).toBe(true) // ascending, oldest-first
+  })
+})
+
+describe('healthCheck — website not found', () => {
+  it('reports the website-id error when /active returns 404 after login', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string) => {
+      if (input.includes('/api/auth/login')) {
+        return { ok: true, status: 200, json: async () => ({ token: 'tok' }) } as unknown as Response
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as unknown as Response
+    }))
+    const umami = await import('./umami')
+    const h = await umami.healthCheck()
+    expect(h.status).toBe('error')
+    expect(h.message).toContain('website-id niet gevonden')
+  })
+})

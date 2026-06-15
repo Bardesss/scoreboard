@@ -82,8 +82,9 @@ function num(v: unknown): number {
 
 function prevOf(raw: Record<string, unknown>, key: string): number | null {
   const node = raw[key]
-  if (node && typeof node === 'object' && (node as Record<string, unknown>).prev != null) {
-    return Number((node as { prev: unknown }).prev) || 0
+  if (node && typeof node === 'object' && 'prev' in (node as Record<string, unknown>)) {
+    const p = (node as { prev: unknown }).prev
+    return p == null ? null : Number(p) || 0
   }
   const cmp = raw.comparison
   if (cmp && typeof cmp === 'object' && (cmp as Record<string, unknown>)[key] != null) {
@@ -217,8 +218,10 @@ async function apiGet(path: string, query: Record<string, string | number> = {})
     if (!token) return null
     res = await httpJson('GET', fullPath, { token })
   }
-  if (res.status === 0) {
-    serviceDownUntil = Date.now() + BREAKER_TTL_MS // transport failure → trip breaker
+  if (res.status === 0 || res.status >= 500) {
+    // Transport failure OR server error → trip the breaker so a down/slow Umami
+    // never makes every dashboard load hang for the full timeout.
+    serviceDownUntil = Date.now() + BREAKER_TTL_MS
     return null
   }
   return res.data
@@ -230,6 +233,15 @@ function statQuery(startMs: number, endMs: number): Record<string, string | numb
 
 function websitePath(suffix: string): string {
   return `/websites/${process.env.UMAMI_WEBSITE_ID}${suffix}`
+}
+
+/** UTC-midnight epoch (seconds) of the current calendar day in TIMEZONE.
+ * Anchors the daily series so its date keys match Umami's tz-local x values;
+ * stepping back by whole 86400s blocks then yields civil dates with no DST drift. */
+function tzTodayAnchorSec(): number {
+  const ds = new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE }) // 'YYYY-MM-DD'
+  const [y, m, d] = ds.split('-').map(Number)
+  return Date.UTC(y, m - 1, d) / 1000
 }
 
 // ── Public data methods ───────────────────────────────────────────────────
@@ -248,7 +260,7 @@ export async function getPageviewSeries(days = 30): Promise<UmamiSeriesPoint[]> 
   const raw = await apiGet(websitePath('/pageviews'), statQuery(start, end))
   if (!raw || typeof raw !== 'object') return []
   const r = raw as { pageviews?: XY[]; sessions?: XY[] }
-  return normalizeSeries(r.pageviews ?? [], r.sessions ?? [], days, nowSec)
+  return normalizeSeries(r.pageviews ?? [], r.sessions ?? [], days, tzTodayAnchorSec())
 }
 
 /** Live active-visitor count (0 on failure). */
@@ -258,8 +270,10 @@ export async function getActiveVisitors(): Promise<number> {
 }
 
 /**
- * Diagnostic for the integrations page. Bypasses the token cache + breaker so
- * it always reflects live state. Names the precise misconfiguration.
+ * Diagnostic for the integrations page. Bypasses the cached token on entry
+ * (always re-logs in to verify live state); on success it populates the token
+ * cache + clears the breaker so the next normal request need not log in again.
+ * Names the precise misconfiguration.
  */
 export async function healthCheck(): Promise<UmamiHealth> {
   const missing = REQUIRED_VARS.filter(v => (process.env[v] ?? '') === '')
