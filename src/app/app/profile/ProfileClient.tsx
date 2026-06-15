@@ -57,7 +57,7 @@ export function ProfileClient(props: Props) {
     : t('privacyChipPrivate')
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
       {/* Identity card */}
       <section style={{ background: '#fefcf8', border: '1px solid #e8e1d8', borderRadius: 24, padding: 20 }}>
         <div className="flex items-center gap-3">

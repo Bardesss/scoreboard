@@ -49,7 +49,7 @@ export default async function CreditsPage({ searchParams }: PageProps) {
   }))
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
+    <div className="max-w-4xl mx-auto py-8">
       <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} />
 
       <CreditsClient

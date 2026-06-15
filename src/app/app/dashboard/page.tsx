@@ -42,7 +42,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const displayName = resolveDisplayName(user ?? {})
 
   return (
-    <div className="max-w-7xl mx-auto py-8">
+    <div className="max-w-4xl mx-auto py-8">
       <PageHeader title={tDashboard('greeting', { name: displayName })} subtitle={tDashboard('subtitle')} />
       <DashboardClient stats={stats} gamesPage={gamesPage} filter={filter} locale={locale} labels={labels} formatters={formatters} />
     </div>
