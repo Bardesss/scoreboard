@@ -52,6 +52,7 @@ Single source of truth for phase order, plan files, and status.
 | Social feed, profile, family | [specs/2026-05-17-social-feed-reactions-referral-design.md](../specs/2026-05-17-social-feed-reactions-referral-design.md) | Plan A (feed/reactions/public profile — shipped) + Plan B (family / shared credits — §6, parked as phase 11b) |
 | Account display name | [specs/2026-05-20-account-display-name-design.md](../specs/2026-05-20-account-display-name-design.md) | `User.displayName` field, one-way sync to me-player, site-wide use |
 | Account avatar | [specs/2026-05-20-account-avatar-design.md](../specs/2026-05-20-account-avatar-design.md) | Colour + pictogram avatar, `User.avatarColor/avatarIcon` + `Player.icon`, synced to me-player |
+| Umami admin dashboard | [specs/2026-06-15-umami-admin-dashboard-design.md](../specs/2026-06-15-umami-admin-dashboard-design.md) | Website-analyse section on `/admin` — server-side Umami client (`UMAMI_INTERNAL_URL` for hairpin-NAT), summary KPIs + 30-day trend + live online count |
 
 ## Archived plans
 
