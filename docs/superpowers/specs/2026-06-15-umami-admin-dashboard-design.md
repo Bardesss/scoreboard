@@ -124,30 +124,56 @@ re-login.) Live count is never result-cached.
 - Guard: only render the section when `umamiConfigured()`.
 - Add `getSummary()` + `getPageviewSeries()` to the existing `Promise.all`
   (server-side, at render).
-- Render `<AnalyticsSection summary={…} series={…} health={…} />` below the
-  existing "Recente activiteit" card. When `summary` is `null`, compute
-  `healthCheck()` and pass it so the section can show the precise reason.
+- Render `<AnalyticsSection summary={…} series={…} />` below the existing
+  "Recente activiteit" card. The dashboard shows only a *minimal* notice on
+  failure (see below); the *detailed* `healthCheck()` diagnostic lives on the
+  integrations settings page (component 6), not here.
 
 ### 4. `src/components/admin/AnalyticsSection.tsx` — server component
 
 - Section header: "Website-analyse" + subtitle "laatste 30 dagen", and the live
   `<AnalyticsLiveCount />` badge on the right.
-- If `summary` is null: a subtle card showing `health.message`
-  (e.g. "Niet bereikbaar — controleer UMAMI_API_URL / UMAMI_INTERNAL_URL").
-- Summary KPI cards (reusing the existing dashboard card styling): **Bezoekers**,
-  **Paginaweergaven**, **Bezoeken**, **Bouncepercentage**, **Gem. bezoekduur**.
-  Each shows the value and a green/red % change vs the previous period (computed
-  from `prev`); no arrow when `prev` is null/zero.
+- If `summary` is null: a subtle one-line notice — "Analytics tijdelijk niet
+  beschikbaar." (No detailed diagnostics here — those are on the integrations
+  page; this mirrors clickbait's dashboard, which shows only a short notice.)
+- Summary KPI cards (reusing the existing dashboard card styling): **Bezoekers**
+  (unique visitors, from `/stats`), **Paginaweergaven**, **Bezoeken**,
+  **Bouncepercentage**, **Gem. bezoekduur**. Each shows the value and a green/red
+  % change vs the previous period (computed from `prev`); no arrow when `prev` is
+  null/zero.
 - Trend chart: a dark-themed Recharts area chart (Recharts ^3.8.1 already a
-  dependency) of daily **views** and **sessions** over 30 days. Must be in a
-  client component (Recharts is client-only) — `AnalyticsTrendChart.tsx`
-  (`'use client'`), fed the already-fetched `series` as a prop.
+  dependency) of daily **page views** and **sessions** over 30 days. Note: Umami's
+  per-day `/pageviews` series exposes pageviews + sessions, NOT per-day unique
+  visitors (unique visitors are aggregate-only, shown in the "Bezoekers" KPI).
+  Series are labeled honestly — "Weergaven" and "Sessies" — matching clickbait's
+  chart toggle. Must be in a client component (Recharts is client-only) —
+  `AnalyticsTrendChart.tsx` (`'use client'`), fed the already-fetched `series` as
+  a prop.
 
 ### 5. `src/components/admin/AnalyticsLiveCount.tsx` — client component
 
 - `'use client'`. Fetches `/api/admin/analytics` on mount and every 60s.
 - Renders "X online nu" with a small pulsing dot. Hidden/zeroed gracefully on
   error. Clears its interval on unmount.
+
+### 6. `/admin/settings/integrations` — Umami diagnostics (existing diagnostics home)
+
+The integrations page is the project's established external-service health
+surface: it already shows Mailgun's `status` / `lastTestedAt` / `lastError` with a
+test button. Umami's diagnostics belong here, consistent with that pattern, so
+the dashboard stays clean.
+
+- Add a **read-only** Umami status card (Umami is env-var configured, not stored
+  in the `Integration` table like Mailgun, so no encrypted-config form — just
+  status + config presence).
+- The card shows the result of `healthCheck()`: configured? reachable?
+  credentials valid? website-id valid? with the precise Dutch message per
+  failure mode (missing vars / unreachable — check `UMAMI_API_URL` /
+  `UMAMI_INTERNAL_URL` / network / login denied / website-id not found / Umami
+  user not linked to the site).
+- A "Test verbinding" action (server action or the same admin API route) re-runs
+  `healthCheck()` on demand, mirroring Mailgun's test button.
+- This is where an admin debugs the internal-vs-external URL problem.
 
 ## Data flow
 
@@ -164,10 +190,10 @@ AnalyticsLiveCount (client) ──poll /api/admin/analytics/60s──▶ route.t
 
 | Failure | Behaviour |
 |---------|-----------|
-| Required env var missing | `umamiConfigured()` false → section omitted; no throw. |
-| Umami unreachable / timeout | Methods return null/0/[]; breaker opens 5 min; section shows `healthCheck()` message; dashboard otherwise unaffected. |
-| Login denied (401/403) | Specific health message; section degrades. |
-| Website-id invalid / user not linked | Specific health message. |
+| Required env var missing | `umamiConfigured()` false → dashboard section omitted; integrations card shows "Niet geconfigureerd — ontbreekt: …"; no throw. |
+| Umami unreachable / timeout | Methods return null/0/[]; breaker opens 5 min; dashboard shows minimal "tijdelijk niet beschikbaar" notice; integrations card shows the precise `healthCheck()` reason. |
+| Login denied (401/403) | Dashboard degrades; integrations card shows "Inloggen geweigerd — controleer gebruiker/wachtwoord". |
+| Website-id invalid / user not linked | Dashboard degrades; integrations card shows the precise message (id not found / user not linked to site). |
 | Live-count poll fails | Badge hides / shows nothing; no console spam beyond one log. |
 
 ## Testing
