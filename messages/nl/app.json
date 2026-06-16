@@ -512,6 +512,11 @@
     "displayName": "Weergavenaam",
     "displayNameSaved": "Weergavenaam opgeslagen",
     "displayNameHint": "Wordt overal in Dice Vault getoond — op je dashboard, profiel en bij andere spelers.",
+    "displayNameError": {
+      "display_name_invalid": "Weergavenaam moet tussen 1 en 40 tekens zijn.",
+      "unauthorized": "Je bent niet ingelogd. Log in en probeer het opnieuw.",
+      "generic": "Weergavenaam opslaan is mislukt. Probeer het opnieuw."
+    },
     "usernameHint": "Kleine letters, cijfers en underscores. Min. 3 tekens.",
     "share": "Deel uitnodigingslink",
     "shareTitle": "Verbind met mij op Dice Vault",

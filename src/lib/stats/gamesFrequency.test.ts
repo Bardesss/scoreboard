@@ -11,6 +11,10 @@ function g(playedAt: string): AggregatorGame {
   }
 }
 
+// Fixed reference "now" so the open-ended (to: null) range spans stay deterministic
+// regardless of the wall clock — the bucketing pivots on now - from.
+const NOW = new Date('2026-04-22T00:00:00Z').getTime()
+
 describe('computeGamesFrequency', () => {
   it('buckets by week when range <= 2 months', () => {
     const games = [
@@ -20,7 +24,7 @@ describe('computeGamesFrequency', () => {
     ]
     const buckets = computeGamesFrequency(games, {
       range: 'month', from: new Date('2026-04-01T00:00:00Z'), to: null,
-    })
+    }, NOW)
     expect(buckets.reduce((s, b) => s + b.count, 0)).toBe(3)
     expect(Math.max(...buckets.map(b => b.count))).toBe(2)
   })
@@ -29,7 +33,7 @@ describe('computeGamesFrequency', () => {
     const games = [g('2026-01-05T00:00:00Z'), g('2026-03-05T00:00:00Z'), g('2026-03-20T00:00:00Z')]
     const buckets = computeGamesFrequency(games, {
       range: 'all', from: null, to: null,
-    })
+    }, NOW)
     expect(buckets.find(b => b.count === 2)).toBeTruthy()
   })
 

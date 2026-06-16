@@ -125,7 +125,55 @@ export default function SettingsClient({ values, configuredCount }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          marginBottom: 24,
+        }}
+      >
+        <div>
+          <h1
+            className="font-headline"
+            style={{
+              fontSize: 26,
+              fontWeight: 700,
+              color: 'rgba(255,255,255,0.87)',
+              marginBottom: 8,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Instellingen
+          </h1>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>
+            Systeeminstellingen en kortingscodes beheren
+          </p>
+        </div>
+
+        {/* Guarded like the in-page shortcuts: this is client-side nav away from
+            the form, so confirm before dropping unsaved edits. */}
+        <Link
+          href="/admin/settings/discount-codes"
+          onClick={guardNav}
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#4a8eff',
+            textDecoration: 'none',
+            padding: '8px 16px',
+            borderRadius: 10,
+            border: '1px solid rgba(74,142,255,0.25)',
+            background: 'rgba(74,142,255,0.07)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Kortingscodes →
+        </Link>
+      </div>
+
+      <form onSubmit={handleSubmit}>
       {/* Card 1: Credit instellingen */}
       <div style={cardStyle}>
         <div style={cardTitleStyle}>Credit instellingen</div>
@@ -301,6 +349,7 @@ export default function SettingsClient({ values, configuredCount }: Props) {
       >
         {isPending ? 'Opslaan…' : 'Instellingen opslaan'}
       </button>
-    </form>
+      </form>
+    </div>
   )
 }

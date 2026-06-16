@@ -2,12 +2,12 @@ import type { AggregatorGame, DateFilter, FrequencyBucket } from './types'
 
 const TWO_MONTHS_MS = 62 * 86_400_000
 
-function rangeSpanMs(filter: DateFilter, games: AggregatorGame[]): number {
+function rangeSpanMs(filter: DateFilter, games: AggregatorGame[], now: number): number {
   if (filter.from && filter.to) return filter.to.getTime() - filter.from.getTime()
-  if (filter.from) return Date.now() - filter.from.getTime()
+  if (filter.from) return now - filter.from.getTime()
   if (games.length === 0) return 0
   const first = Math.min(...games.map(g => g.playedAt.getTime()))
-  return Date.now() - first
+  return now - first
 }
 
 function weekStartUTC(d: Date): Date {
@@ -23,9 +23,13 @@ function monthStartUTC(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1))
 }
 
-export function computeGamesFrequency(games: AggregatorGame[], filter: DateFilter): FrequencyBucket[] {
+export function computeGamesFrequency(
+  games: AggregatorGame[],
+  filter: DateFilter,
+  now: number = Date.now(),
+): FrequencyBucket[] {
   if (games.length === 0) return []
-  const weekly = rangeSpanMs(filter, games) <= TWO_MONTHS_MS
+  const weekly = rangeSpanMs(filter, games, now) <= TWO_MONTHS_MS
 
   const buckets: Record<string, { count: number; start: Date }> = {}
   for (const g of games) {

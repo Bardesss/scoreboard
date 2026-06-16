@@ -14,6 +14,13 @@ export function DisplayNameSection({ initial }: Props) {
     null,
   )
 
+  // Action errors are stable codes (e.g. 'display_name_invalid'); translate them
+  // rather than rendering the raw code, falling back to a generic message.
+  const errorMessage = (code: string) => {
+    const key = `displayNameError.${code}`
+    return t.has(key) ? t(key) : t('displayNameError.generic')
+  }
+
   return (
     <section style={{ background: '#fefcf8', border: '1px solid #e8e1d8', borderRadius: 16, padding: 20 }}>
       <h2 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: 16, color: '#1e1a14', marginBottom: 12 }}>
@@ -40,7 +47,7 @@ export function DisplayNameSection({ initial }: Props) {
         <p className="mt-2 font-body text-xs" style={{ color: '#16a34a' }}>{t('displayNameSaved')}</p>
       )}
       {state && 'success' in state && !state.success && (
-        <p className="mt-2 font-body text-xs" style={{ color: '#dc2626' }}>{state.error}</p>
+        <p className="mt-2 font-body text-xs" style={{ color: '#dc2626' }}>{errorMessage(state.error)}</p>
       )}
       <p className="mt-2 font-body text-xs" style={{ color: '#9a8878' }}>{t('displayNameHint')}</p>
     </section>

@@ -34,7 +34,12 @@ export default function BottomNav() {
         // Pin the bar to a deterministic height so its box never depends on the
         // tallest child (the 56px FAB) or label wrapping per locale.
         boxSizing: 'border-box',
-        minHeight: 76,
+        // Fixed height (not minHeight): with border-box, a paddingBottom that grows
+        // with the safe-area inset would otherwise push a minHeight box past 76px when
+        // the inset appears mid-session (mobile toolbar settling on route change),
+        // making the bar visibly expand. Baking the inset into an explicit height keeps
+        // the content area a constant 56px (the FAB) regardless of inset or navigation.
+        height: 'calc(76px + env(safe-area-inset-bottom))',
         // Clear the device safe area / gesture bar; stays 76px where the inset is 0.
         paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         background: 'rgba(247,243,237,0.94)',

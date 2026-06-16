@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
 import SettingsClient from './SettingsClient'
 
 const DEFAULTS = {
@@ -58,53 +57,5 @@ export default async function AdminSettingsPage() {
         : DEFAULTS.free_mode_banner_en,
   }
 
-  return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          marginBottom: 24,
-        }}
-      >
-        <div>
-          <h1
-            className="font-headline"
-            style={{
-              fontSize: 26,
-              fontWeight: 700,
-              color: 'rgba(255,255,255,0.87)',
-              marginBottom: 8,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Instellingen
-          </h1>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>
-            Systeeminstellingen en kortingscodes beheren
-          </p>
-        </div>
-
-        <Link
-          href="/admin/settings/discount-codes"
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#4a8eff',
-            textDecoration: 'none',
-            padding: '8px 16px',
-            borderRadius: 10,
-            border: '1px solid rgba(74,142,255,0.25)',
-            background: 'rgba(74,142,255,0.07)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Kortingscodes →
-        </Link>
-      </div>
-
-      <SettingsClient values={values} configuredCount={configuredCount} />
-    </div>
-  )
+  return <SettingsClient values={values} configuredCount={configuredCount} />
 }
