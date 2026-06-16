@@ -169,6 +169,12 @@ export default async function LandingPage({ params }: Props) {
   // Schema.org structured data. Ratings are only emitted for real admin-entered
   // reviews (dbReviews); placeholder/translation reviews carry no rating, so we
   // never fabricate one (which would violate Google's guidelines).
+  //
+  // Google requires that a list of `review` nodes always carries an
+  // `aggregateRating`; emitting multiple reviews without one is a critical error
+  // and suppresses the rich result. So the `review` array and `aggregateRating`
+  // are both derived from the rated reviews only and emitted as a pair — never
+  // one without the other. When no review has a rating we emit neither.
   const ratedReviews = dbReviews.filter(r => typeof r.rating === 'number')
   const aggregateRating =
     ratedReviews.length > 0
@@ -182,6 +188,17 @@ export default async function LandingPage({ params }: Props) {
           worstRating: 1,
         }
       : undefined
+  const reviewItems = ratedReviews.map(r => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: r.name },
+    reviewBody: r.review,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: r.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+  }))
 
   const jsonLd = [
     {
@@ -207,21 +224,7 @@ export default async function LandingPage({ params }: Props) {
       operatingSystem: 'Web',
       url: `${siteUrl}/${locale}`,
       ...(aggregateRating ? { aggregateRating } : {}),
-      review: reviews.map(r => ({
-        '@type': 'Review',
-        author: { '@type': 'Person', name: r.name },
-        reviewBody: r.review,
-        ...(typeof r.rating === 'number'
-          ? {
-              reviewRating: {
-                '@type': 'Rating',
-                ratingValue: r.rating,
-                bestRating: 5,
-                worstRating: 1,
-              },
-            }
-          : {}),
-      })),
+      ...(reviewItems.length > 0 ? { review: reviewItems } : {}),
     },
   ]
 
