@@ -32,6 +32,18 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Bottom safe-area inset for the fixed mobile nav.
+   Only honor the device inset when running as an installed PWA (standalone),
+   where it is the stable home-indicator value. In a browser tab the inset
+   toggles 0 ↔ ~34px as the toolbar collapses/expands on scroll; feeding that
+   live value into the fixed bottom bar's height resized the whole box and made
+   it visibly jump. In-browser we pin it to 0 — the browser's own toolbar
+   already provides the bottom clearance — so the bar height stays constant. */
+:root { --safe-bottom: 0px; }
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  :root { --safe-bottom: env(safe-area-inset-bottom); }
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background: #f7f3ed;

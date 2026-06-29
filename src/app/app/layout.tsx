@@ -104,7 +104,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Sidebar name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} monthlyCredits={user.monthlyCredits} permanentCredits={user.permanentCredits} isLifetimeFree={user.isLifetimeFree} unreadCount={unreadCount} notifications={serializedNotifications} isAdmin={user.role === 'admin'} avatarColor={user.avatarColor} avatarIcon={user.avatarIcon} />
         <MobileHeader name={linkedPlayer?.name ?? user.email} email={user.email} credits={totalCredits} isAdmin={user.role === 'admin'} unreadCount={unreadCount} notifications={serializedNotifications} avatarColor={user.avatarColor} avatarIcon={user.avatarIcon} />
         <main
-          className={`lg:ml-64 min-h-screen relative z-10 pb-[calc(5rem_+_env(safe-area-inset-bottom))] lg:pb-0 px-4 lg:px-7 ${showAnyBanner ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
+          className={`lg:ml-64 min-h-screen relative z-10 pb-[calc(5rem_+_var(--safe-bottom))] lg:pb-0 px-4 lg:px-7 ${showAnyBanner ? 'pt-[92px] lg:pt-9' : 'pt-14 lg:pt-0'}`}
         >
           {children}
         </main>
