@@ -41,7 +41,7 @@
    already provides the bottom clearance — so the bar height stays constant. */
 :root { --safe-bottom: 0px; }
 @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
-  :root { --safe-bottom: env(safe-area-inset-bottom); }
+  :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
 }
 
 body {
